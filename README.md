@@ -88,4 +88,6 @@ All project artifacts (code, comments, docs, memory files) are written in Englis
 
 ## License
 
-TBD.
+Dual-licensed **MIT OR Apache-2.0** (SPDX: `MIT OR Apache-2.0`).
+See [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE).
+Decision record: `.agents/memorys/decisions.md` D1. Contributions require DCO (`git commit -s`).

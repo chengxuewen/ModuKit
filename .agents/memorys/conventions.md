@@ -23,7 +23,7 @@ Exception: functional CJK literals that must stay verbatim (trigger keywords in 
 ```bash
 # Check: no CJK (incl. CJK/full-width punctuation) in scanned artifacts
 grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md mise.toml bootstrap.sh bootstrap.bat docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ $(test -d crates/ && echo crates/) \
+  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 ```
 

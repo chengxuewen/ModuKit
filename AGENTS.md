@@ -64,7 +64,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ```bash
 # C1 English-artifact gate (canonical copy lives in .agents/memorys/conventions.md — keep synced)
 grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md mise.toml bootstrap.sh bootstrap.bat docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ \
+  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
 # first-time machine setup (idempotent; user-level, no sudo)
