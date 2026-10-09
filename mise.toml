@@ -1,0 +1,5 @@
+# mise — per-repo toolchain pins (user-level installs, zero system pollution)
+# Install:  curl https://mise.run | sh   (then open a new shell)
+# Apply:    mise install
+[tools]
+node = "22"
