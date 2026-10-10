@@ -289,3 +289,11 @@ call is justified only when it outputs non-empty OR a code path changed.
 user interrupted both times asking why the session kept blocking).
 
 **Source**: 2026-10-08 naming-unification + audit rounds.
+
+### 26. Chat-language quotes must be paraphrased in artifacts, never transcribed (2026-10-10, second occurrence of the class)
+
+**Rule**: when recording user directives in memory/docs (C1 scope), NEVER transcribe non-ASCII chat phrases verbatim — paraphrase in English ("get to work", "commit it", "landed"). C1 has no quote exception; hit twice this session (status.md history, decisions.md D2), each caught only at the pre-commit gate.
+
+**Verification**: the canonical C1 grep in `.agents/memorys/conventions.md` (runs verbatim before every commit involving artifacts).
+
+**Blocking condition**: committing an artifact batch that a canonical C1 run has not greened in the same exchange.

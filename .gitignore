@@ -107,3 +107,6 @@ CMakeCache.txt
 CMakeFiles/
 
 /Testing/
+
+# Rust build artifacts
+/target
