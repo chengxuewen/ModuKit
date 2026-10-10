@@ -34,5 +34,5 @@ Use a consistent envelope for all API responses:
 
 ```bash
 # Verify: no oversized files
-find crates/ -name "*.rs" -exec wc -l {} + | awk "$1>800{print}"
+test -d crates/ && find crates/ -name "*.rs" -exec wc -l {} + | awk '$1>800{print}' || echo "skipped: no crates/ yet"
 ```

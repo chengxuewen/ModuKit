@@ -44,7 +44,7 @@ Series of profiles for open-source / sibling projects under `.refinfo/`
 - Snapshot date: 2026-10-09 (each profile header carries its own checkout pin).
 - [00-overview.md](00-overview.md) is live: verdict matrix, Stage-2 fork decision
   sheet (iceoryx2/Zenoh), cross-cutting lessons, open maintainer items.
-- Local round: nine .refinfo profiles via one 7-member team + substitutes.
+- Local round: eight .refinfo profiles via one 7-member team + substitutes.
 - Remote round: 8 profiles + 2 audits via one 8-member team + 5 recovery
   substitutes (model failures recovered per PIT-2); all 20 files C1-verified.
 - 00-overview.md updated to cover both rounds (full matrix + fork sheet + OQ queue).

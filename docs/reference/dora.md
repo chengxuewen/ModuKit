@@ -229,6 +229,6 @@ Limitations:
 - **Avoid**: forking on top of `zenoh/unstable`; re-doing the pre-1.0 event-vocabulary
   churn — define the control-protocol enum once, with a schema-versioned frame
   envelope from commit zero.
-- **License gate**: Apache-2.0 with a NOTICE file; compatible with ModuKit's TBD
+- **License gate**: Apache-2.0 with a NOTICE file; compatible with ModuKit's license (TBD at profile time; D1 since)
   license and with relicensing into any permissive choice. No copyleft exposure.
   Safe to read, cite, and pattern-borrow; no code reuse planned yet.

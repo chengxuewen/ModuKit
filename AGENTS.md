@@ -14,6 +14,10 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── SKILL.md              # skills registry — inventory of .agents/skills + superpowers, activation notes
 ├── docs/whitepaper.md    # v1.0 canon — crate names §2.3, architecture §4, tech stack §5, roadmap §8
 ├── .agents/              # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
+├── docs/reference/       # external-project profiles + audits + decision matrix (20 files)
+├── docs/codegraph-bootstrap.md  # MCP launcher design doc (reviewed v3)
+├── LICENSE-MIT / LICENSE-APACHE # D1 dual-license texts
+├── scripts/skill-lint.py   # skill-tree gate (C0-negative-proved 2026-10-09)
 ├── mise.toml             # per-repo toolchain pins (node 22; user-level via ~/.local, system untouched)
 ├── bootstrap.sh|.bat     # one-time machine setup: ensure mise -> activation -> mise install (idempotent)
 ├── .opencode/            # opencode.json (instructions[], lsp:true) + codegraph launcher .sh/.bat
@@ -36,7 +40,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 ## CODE MAP
 
-**Unmeasured** — no `lsp_*`/`codegraph_*` tooling in this harness and no source files exist. Regenerate this section after Cargo workspace scaffolding (`modukit-*` crates) lands in Stage 1.
+**Partial** — `local-codegraph` MCP installed and running (v1.6.2 via launcher; live index in git-ignored `.codegraph/`), but no source files exist to give it code to index. Re-measure (incl. `lsp_*`) after Cargo workspace scaffolding (`modukit-*` crates) lands in Stage 1.
 
 ## CONVENTIONS
 
@@ -50,7 +54,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 - Treating whitepaper crate/`modukit-*` listings as existing code — all PLANNED.
 - Editing/citing `PolyOrch/` or `.refinfo/` (contains VisiaEngine, AccessBase) as project content.
-- Running the `doc-audit` skill as-is — its audit targets are PolyOrch docs (port note in its SKILL.md).
+- Citing `doc-audit`'s pre-re-scope PolyOrch-era target claims — the skill was re-scoped to ModuKit canon 2026-10-09; old "inoperative/port note" wording is itself now the stale claim.
 - Chinese in artifacts (C1 red); writing artifacts in chat-language reflex is the common failure.
 - Workspace-wide `cargo fmt` (edit-safety #12), `pgrep/pkill -f` matching own cmdline (#15/#16), edit-tool without fresh tags (#13/#17/#18).
 
@@ -84,6 +88,6 @@ python3 scripts/skill-lint.py
 ## NOTES
 
 - `.opencode/node_modules` + npm lock serve opencode plugins (superpowers/ponytail/context-mode), not project dependencies.
-- codegraph MCP has no binary/`.codegraph/` yet; first start attempts an auto-install against an empty repo — expect a no-op, not a failure to fix.
-- Two gate references in `rules/common` are toothless here: `scripts/gate.sh` / `scripts/scan-hardcode.sh` (no scripts/ dir) and the `~/.claude/agents/` list in `agents.md` (Claude-era ported). Either inline the checks or trim the refs when Stage 1 tooling lands.
+- codegraph MCP installed and running (pinned v1.6.2 under `.opencode/codegraph/`; index in `.codegraph/`, git-ignored). Value starts with docs/config; code index activates with Stage-1 source.
+- Dangling references ported into `rules/common`: `scripts/gate.sh` / `scripts/scan-hardcode.sh` (scripts/ exists, these do not), `~/.claude/agents/` list, `~/.claude/settings.json` / `~/.claude.json` mentions, and `See skill: rust-patterns/python-patterns/golang-testing` pointers (skills not vendored). Inline-or-trim all of them when Stage-1 gate tooling lands (M7, adjudicated 2026-10-10).
 - License decided (D1: MIT OR Apache-2.0); domain guidance: `modukit.dev` / `modukit.rs` (`modukit.com` taken).

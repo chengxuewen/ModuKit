@@ -13,7 +13,7 @@ ModuKit-specific skills, located in `.agents/skills/`:
 | `think-before-act` | meta | research → present options → user approval before any non-trivial action |
 | `skill-router` | meta | analyze user intent → recommended skill list |
 | `adjudication-walkthrough` | process | one-at-a-time option adjudication; Chinese trigger keywords are functional literals (C1 exception) |
-| `doc-audit` | tooling | documentation/decision consistency audit — **still scoped to PolyOrch's doc set; re-scope before running** |
+| `doc-audit` | tooling | documentation/decision consistency audit — **re-scoped to ModuKit canon 2026-10-09** (first full run 2026-10-10) |
 | `ecosystem-scan` | tooling | audit `.agents/` and scan the community for adoptable skills/rules/MCP |
 | `lesson-review` | memory | batch session review → `.agents/memorys/` |
 | `book-to-skill` | tooling | convert books/documents (PDF/EPUB/DOCX/…) into structured skill files |

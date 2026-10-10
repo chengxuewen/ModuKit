@@ -143,7 +143,7 @@ Sister crates / same Smithay org (`reexports.rs`, Cargo deps): **wayland-rs** (`
 ### 8.2 License gate
 
 **MIT** (`LICENSE.txt`, "Copyright (c) 2017 Victor Berger and Victoria Brekenfeld"). This is the most permissive license in the reference series (vs zenoh/iceoryx2 Apache-2.0, uniffi MPL-2.0, CTK LGPL). Consequences:
-- No copyleft, no NOTICE contamination, no per-file obligation. ModuKit may **borrow patterns freely and even copy code** with attribution retained. Compatible with **any** ModuKit license TBD.
+- No copyleft, no NOTICE contamination, no per-file obligation. ModuKit may **borrow patterns freely and even copy code** with attribution retained. Compatible with **any** ModuKit license (TBD then; D1 resolved dual 2026-10-09).
 - The binding constraint here is **scope and platform coverage, not license** — §8.3. MIT means the license never blocks adoption; the decision to not depend on smithay is purely architectural.
 - Gate action: none required. If smithay code is ever lifted, retain the MIT copyright header in the copied file and note it in `decisions.md`.
 

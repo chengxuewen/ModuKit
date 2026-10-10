@@ -70,6 +70,7 @@
 - **Root cause**: [root cause analysis]
 - **Solution**: [correct approach]
 - **Verification**: [check command]
+- **Forbidden**: [the recurrence this entry exists to block]
 ```
 
 ## Prevention Escalation (high-cost/frequent lessons)

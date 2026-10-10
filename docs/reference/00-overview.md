@@ -5,7 +5,8 @@
 > under ~/.cache/modukit-research/) — external reference, never ModuKit content.
 > Plus one citation audit (whitepaper-cited-unvendored.md).
 > Verdicts: DEPENDENCY-CANDIDATE / BORROW-PATTERNS / REFERENCE-ONLY.
-> Licenses verified from clone roots; ModuKit's own license is TBD.
+> Licenses verified from clone roots; ModuKit's own license: **MIT OR Apache-2.0 dual**
+> (decisions.md D1, 2026-10-09 — profiles predate it; see their inline notes).
 
 ## 1. Verdict matrix
 
@@ -116,8 +117,10 @@ does not need to be resolved before Stage 1 lands.
 2. §8 "I420 frames": confirmed as this project's own design term (UI-composition
    payload) per root README — the tribunal's "smuggled residue" suspicion is
    WITHDRAWN (recorded honestly in r2 pool).
-3. 12 idle language rule packs in instructions[] — unmount until those
-   languages have code (G10)?
+3. ~~12 idle language rule packs in instructions[] — unmount until those
+   languages have code (G10)?~~ **EXECUTED 2026-10-09**: instructions 26→16
+   (common+rust only; all rule dirs kept on disk per maintainer ruling —
+   status.md History).
 4. A6 binding wording ("hand-written binding layers prohibited; generated-only
    from the single C ABI") — ratify as ModuKit D-record?
 5. **Header-first vs metadata-first contract** (uniffi finding): ModuKit's
@@ -133,6 +136,10 @@ does not need to be resolved before Stage 1 lands.
 7. Stage-4 engine axis: keep BOTH sans-I/O candidates (webrtc `rtc` primary,
    str0m LAN/embedded tier) as the profile recommends, or re-evaluate when
    the SFU scope question (webrtc-rust-state OQ list) is answered.
+8. Adopt the tribunal PORT_NOW discipline bundle when Stage-1 tooling
+   lands: `scripts/gate.sh` seed + doc-liveness check + D-record mechanics
+   (source: VisiaEngine adoption tribunal distillation, status.md History
+   2026-10-09; elevated into this register by the 2026-10-10 doc-audit, M9).
 
 ## 5. Reading order by stage
 

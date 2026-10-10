@@ -102,4 +102,4 @@ States are bitflag `uint32_t` (`STATE_UNINSTALLED = 0x1` … `STATE_ACTIVE`); ev
 
 **Avoid:** C++ objects crossing the bundle boundary (their `InterfaceMap`/`Any`/`shared_ptr<void>` casts are the exact anti-pattern ModuKit's whitepaper rejects); build-system-locked bundling (CMake macros as the only path); their DS tier for Stage 1 (defer any declarative DI until the kernel is proven — the changelog shows why).
 
-**License gate:** Apache-2.0 — permissive, compatible with ModuKit's TBD license for study and semantics-porting; attribution preserved via this profile. No GPL contamination risk. **Green.**
+**License gate:** Apache-2.0 — permissive, compatible with ModuKit's license (TBD at profile time; D1 dual since) for study and semantics-porting; attribution preserved via this profile. No GPL contamination risk. **Green.**

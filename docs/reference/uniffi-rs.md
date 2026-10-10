@@ -214,7 +214,7 @@ scaffolding and every façade — and carries uniffi's version+checksum seal acr
 - **Generated output**: uniffi generates code but the MPL text carries no explicit output-rights grant;
   generated-binding ownership is a *project-policy assumption*, **UNCERTAIN** from license text alone. Do not
   assume uniffi-generated bindings are MPL-free without reading their template headers.
-- **Interaction with ModuKit's TBD license** (README "License: TBD"): if ModuKit ships under a permissive license,
+- **Interaction with ModuKit's license** (TBD at profile time; resolved same day as D1 MIT OR Apache-2.0 dual): if ModuKit ships under a permissive license,
   MPL components still impose their per-file obligations downstream. If ModuKit ships as a **host that loads
   uniffi-built plugins across a C ABI**, that is *use* of uniffi (bindings + core compiled into the plugin), not
   combination in ModuKit's own binary — the C-ABI boundary is the isolation line MPL respects.

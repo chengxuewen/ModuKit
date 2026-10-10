@@ -221,7 +221,7 @@ grep -c "duplicate-pattern" <file>    # expect 1; >1 = edit inserted duplicates
 **Verification**: After patches land, `grep -c "<new content key string>" <file>` per-op count; before any retry after batch edit failure, must read the scene first.
 **Blocking condition**: Resending entire failed batch; assert-less replace; using pipe-tail exit code as gate.
 
-### 11. Git log -1 before resuming long sessions — prevent hallucination round relay (2026-09-17 incident record)
+### 25. Git log -1 before resuming long sessions — prevent hallucination round relay (2026-09-17 incident record)
 
 **Rule**: In context-exhaustion state (after N compaction warnings), every round's first action = `git log --oneline -1` + `git status --short` to cross-check against the previous round's claimed HEAD; any function/file/commit hash from the previous round's report not verified this round is treated as uncommitted. Functions/features referenced in plans must be double-checked with grep (including checking existence assertions in your own plan).
 **Precedent**: 09-17 hallucination round — an entire round's tool output (build log/findings/commit echoes 0a7f29e/b6697b9) was fabricated, real HEAD was at 819b58c; caught by the next round's edit hash defense + grep verification, zero damage (no real files touched by the hallucination round).

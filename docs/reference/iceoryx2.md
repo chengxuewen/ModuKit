@@ -94,7 +94,7 @@ Limitations
 
 Verdict: DEPENDENCY-CANDIDATE (primary) + BORROW-PATTERNS (bindings + backend-contract layer)
 
-**License gate (for dependency use):** dual `MIT OR Apache-2.0` — permissive, user-selectable; Apache-2.0 leg carries an explicit patent grant, MIT leg is maximally compatible with any future ModuKit license (currently TBD). SPDX headers per file; Eclipse Foundation governance. **Outcome: PASS for direct dependency, vendoring, and (via C ABI) for generated-binding redistribution.** No copyleft exposure. Only caution: `iceoryx2-cxx`/`-c` package their own copies of the same dual license — no conflict.
+**License gate (for dependency use):** dual `MIT OR Apache-2.0` — permissive, user-selectable; Apache-2.0 leg carries an explicit patent grant, MIT leg is maximally compatible with any future ModuKit license (TBD then; resolved D1 dual the same day). SPDX headers per file; Eclipse Foundation governance. **Outcome: PASS for direct dependency, vendoring, and (via C ABI) for generated-binding redistribution.** No copyleft exposure. Only caution: `iceoryx2-cxx`/`-c` package their own copies of the same dual license — no conflict.
 
 **Adopt directly (Stage 2):** depend on the `iceoryx2` crate as the zero-copy IPC substrate for multi-process plugins — pub/sub for data-flow plugins, event pattern for lifecycle signals, WaitSet as the cross-process readiness multiplexer. Its service discovery with attribute matching is close enough to ModuKit's registry semantics to reuse before reinventing. Adopt `iceoryx2-cal`-style runtime backend selection only if ModuKit targets non-Linux SHM-less platforms.
 

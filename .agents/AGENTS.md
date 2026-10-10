@@ -16,10 +16,10 @@ Memory + rule packs + project skills, injected into every AI turn through `.open
 │   ├── decisions.md            # D{n}, on-demand
 │   └── pitfalls.md             # PIT{n} five-part, on-demand
 ├── rules/
-│   ├── common/                 # 12 files: development-workflow, edit-safety (#1–#24), lesson-memory, …
-│   ├── rust|typescript|python|web|golang|cpp/   # MOUNTED via instructions[] (coding-style + hooks)
+│   ├── common/                 # 12 files: development-workflow, edit-safety (#1–#25; historical double-#11 renumbered 2026-10-10), lesson-memory, …
+│   ├── rust/                       # mounted language pack (coding-style + hooks); ts/py/web/golang/cpp UNMOUNTED G10 — files stay on disk; 7 never-mounted dirs also kept (maintainer ruling 2026-10-09)
 │   └── csharp|dart|java|kotlin|perl|php|swift/  # unmounted pool — add to instructions[] to activate
-└── skills/                     # 10 dirs; book-to-skill carries a scripts/ python package (22 files)
+└── skills/                     # 10 dirs; book-to-skill carries a scripts/ python package (22 files, measured 2026-10-10)
 ```
 
 ## WHERE TO LOOK
@@ -42,5 +42,5 @@ Memory + rule packs + project skills, injected into every AI turn through `.open
 
 - `memory_create_entities` / knowledge-graph tools — wrong system, memory is these files (`rules/common/agents.md`).
 - Appending long markdown to `memorys/*.md` via edit tool — use heredoc or python read→replace(assert count==1)→write (`edit-safety.md` #11, #18, #20).
-- Running `doc-audit` without re-scoping — its target doc set (whitepaper strings, C1–C6, D1–D29, `docs/modules/`) is PolyOrch's; port note is in its SKILL.md head.
+- Quoting `doc-audit`'s pre-re-scope PolyOrch target claims (C1–C6, D1–D29, `docs/modules/`) — stale; skill re-scoped to ModuKit canon 2026-10-09 (commit 2aa7663).
 - Trusting `rules/common/agents.md`'s `~/.claude/agents/` list or `scripts/gate.sh` checks — ported leftovers, inoperative here (see `/AGENTS.md` NOTES).

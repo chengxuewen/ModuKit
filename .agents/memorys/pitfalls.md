@@ -41,10 +41,11 @@ No pitfalls recorded yet.
 - **Root cause**: context-mode wraps each command string with an env-var prefix; shell compound keywords cannot follow `VAR=value` prefixes. In some host paths the commands parameter arrives JSON-stringified instead of parsed.
 - **Solution**: for multi-step local work use ONE ctx_execute (javascript or `bash -c '…'`) with self-contained script logic; python read→replace(assert count==1) for file mutations. Never lead a wrapped command with `for`/`if`.
 - **Verification**: batch result must report "Executed N commands" with N == len(commands); a literal-JSON echo = fall back to ctx_execute immediately.
-- **Blocking condition**: retrying the same batch shape after the stringify symptom, or shipping repo scripts that assume `rg`/`openspec`/`docker`/`uvx` present (none installed on this box — 2026-10-09 scan).
+- **Forbidden**: retrying the same batch shape after the stringify symptom, or shipping repo scripts that assume `rg`/`openspec`/`docker`/`uvx` present (none installed on this box — 2026-10-09 scan).
 
 ## PIT-5: chained command left a stale `git commit -m` in place — wrong message landed (2026-10-09)
 - **Symptom**: intended message via second heredoc commit no-op'd; HEAD carried an old license-message string.
 - **Root cause**: hand-assembled `cmd1 && commit-A ; commit-B` line where commit-A (a leftover from an earlier draft) was real and consumed the staged index; `;` hid its success/failure from the `&&` chain.
 - **Solution**: amend while unpushed (verified via `git log origin/master..HEAD`). Prevention: one commit command per invocation, message inline; never place two commit attempts in one chained call.
 - **Verification**: `git log --format='%h %s' -1` after every commit matches the intended subject.
+- **Forbidden**: placing two commit attempts in one chained invocation.
