@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline set 2026-10-09: `docs/whitepaper.md` v1.0 + root `README.md`. No code yet; implementation stage 1 (in-process plugin kernel) not started.
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated 2026-10-10: four decisions (D2-D5) documented in `docs/architecture.md` + `docs/modules/` — placement model, availability grade B, C+ service model, thin Stage-1 cut. Kernel v0 experiment parked (backup outside repo); implementation resumption on explicit instruction only.
 
 ## Modules
 
@@ -31,10 +31,11 @@ Design baseline set 2026-10-09: `docs/whitepaper.md` v1.0 + root `README.md`. No
 | docs exist & README link resolves | `test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md` | pass (2026-10-09) |
 | C1 English-artifacts check | command block in `.agents/memorys/conventions.md` C1 (negative-proved: red on planted CJK, green after) | pass (2026-10-09) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
-| ported C/D numbering absent | `grep -rnE '^## (C[2-9]|D[2-9][0-9]?)' .agents/memorys/` must be empty (PolyOrch-era numbering must not enter memory; negative proof observed 2026-10-10: planted `## C3:` -> red, removed -> green) | pass (2026-10-10) |
+| numbering discipline (ported ids absent) | `grep -rnE '^## (C[2-9][0-9]?|D(2[5-9]|[3-9][0-9]|[0-9]{3,}))' .agents/memorys/` must be empty — allows modukit-native high-water D1-D24 / C0-C1 (2026-10-10), flags PolyOrch-era shapes; negative proof: planted `## D26:` -> red, removed -> green (observed 2026-10-10) | pass (2026-10-10) |
 
 ## Open Items
 
+- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/01-05`); approve -> implementation plan (writing-plans); Stage-1 restart only on explicit instruction
 - [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: P2-P5 user verdicts (github-MCP / arxiv-MCP / openspec-* disposition / affaan-m rerun) + R restart verification
 
 - [ ] `PolyOrch/` is a local reference checkout, git-ignored; decide whether it stays
@@ -45,6 +46,48 @@ Design baseline set 2026-10-09: `docs/whitepaper.md` v1.0 + root `README.md`. No
 - [ ] Maintainer calls pending (docs/reference/00-overview.md §4): §5 iceoryx2/Zenoh fork wording; ratify A6 generated-only binding wording as D-record; adopt tribunal PORT_NOW discipline bundle (gate.sh seed + doc-liveness + D-record mechanics) when Stage-1 tooling lands
 
 ## History
+
+- 2026-10-10 (continued 20): twentieth adjudication closed the DX walk — testhost (D24): public test-support face = in-process host + dummy transport + step clock + fold-checker + fixture feed, three-piece surface discipline, true-process e2e stays Stage-2. modules 08/10 + architecture/index synced. High-water D24, fresh D26 probe. DX theme (adjudications 14-20) closed: 7 decisions D18-D24.
+
+- 2026-10-10 (continued 19): nineteenth adjudication — scaffolding (D23): example/bad fixtures gain template standing (changes = compatibility-weighted doc acts; CI keeps them fresh), modukit new generator = Stage-2 CLI subcommand, ledger-driven, dialect-forbidden; B-before-C order rule recorded. modules/08 §9 + architecture/index synced. High-water D23, fresh D25 probe.
+
+- 2026-10-10 (continued 18): eighteenth adjudication — resource books (D22): exe-only supervisor sampling + wait4 accounting, Snapshot fields + ResourceTick events, dl = n/a by design, cgroup/rlimit enforcement to P2 trigger, eBPF attribution rejected. modules 10 + architecture/index synced. High-water D22, fresh D24 probe.
+
+- 2026-10-10 (continued 17): seventeenth adjudication — gate counters (D21): edge latency accumulators + topic rate/high-water as atomic adds at the D13/D18 doorways; reads via Snapshot + CountersTick ring events; in-kernel quantiles and direct OTel adoption rejected (P2 subscriber lane). modules 02/09/10 + architecture/index synced. High-water D21, fresh D23 probe.
+
+- 2026-10-10 (continued 16): sixteenth adjudication — unified clock + timers-as-jobs (D20): now()/timer(deadline->JobToken) across real|sim|step; kernel timers ride it; replay gains dial authority; hot paths use capture_ts; LD_PRELOAD-hijack and test-mock-clock rejected. modules 02/03/09 + architecture/index synced. High-water D20, fresh D22 probe.
+
+- 2026-10-10 (continued 15): fifteenth adjudication — logger (D19): kernel Logger service + LogEvent on the shared monotonic ring; sinks = subscribers; OTLP demoted to future subscriber (P2); B-vs-C dissection recorded (async smuggling / no plugin C ABI / no bus-seq). modules 09/10 (+ D18 numbering-order slip fixed) + architecture/index synced. High-water D19, fresh D21 probe.
+
+- 2026-10-10 (continued 14): DX gap walk opened (items 14-20 proposed from the tooling matrix). Fourteenth adjudication — edge ledger + analysis (D18): live (caller,service,method) counts recorded at the generated stub doorway + declared ledger => callers/uses/impact/orphans/diff as pure walks; undeclared use warn-by-default, reject as policy knob (B chosen over B+); tracing deferred to counters/OTel. modules 02/05/10 + architecture/index synced. High-water D18, fresh D20 probe.
+
+- 2026-10-10 (continued 13): final adjudication of the communication arc — D17 observability & debugging: introspect trio as read-only services + ModuleLoaded event (year 1), churn/replay/ledger-equality acceptance tests, DAP via off-the-shelf adapters for native dl/exe (scripts at Stage-5 via runner hook), Foxglove Studio as D16 adoption target, tool constitution (no bespoke protocol, no nested UI framework, no back doors). New modules/10; 09/architecture/index synced. High-water D17, fresh D19 probe. Walkthrough totals: 16 decisions D2-D17, theme closed.
+
+- 2026-10-10 (continued 12): twelfth adjudication — recording & replay (D16): recorder = ordinary export-gated subscriber (deep kernel probe rejected), three-part self-describing header (fdset+manifest+ABI stamps), gap-stats-as-honest-absence, dual-encoding archive/quality separation (MediaServo lesson), replay via virtual publisher (content deterministic, timing not; realtime|burst|step clocks; burst feeds contract suite), mcap-first container w/ own-format fallback; new modules/09; 06/architecture/index synced. High-water D16, fresh D18 probe.
+
+- 2026-10-10 (continued 11): walkthrough finale landed — D15 cargo oneof (local-ticket / off-host-tail arms, bridge ticket-to-tail, three-sheet definition law, pixels never in .proto) + docs/modules/08-end-to-end-walkthrough.md (151-line video-frame worked example); modules 04/05/07 + architecture §11/§13 + index synced. High-water D15, fresh D17 probe.
+
+- 2026-10-10 (continued 10): round-15 consolidation adopted — D14 descriptor access protocol + carrier-transparent API charter (self-sufficient slot/epoch/layout tokens, attach-once UDS transfer, typed liveness with EPOCH_EXPIRED, two-stage meta/data retrieval, carrier=deployment-not-type). modules 07 gained §3-§4 (renumbered ≤§7), 04 view row + fuse rule, 05 carrier note, architecture §10/§11 + index synced. High-water D14, fresh D16 probe.
+
+- 2026-10-10 (continued 9): maintainer challenged the authoring direction (diagram review) — D13 adopted: hand-written .proto is the single contract door; protoc plugin emits Rust skeleton/C ABI/fdset (exporter risk retired; fdset becomes protoc-native; whitepaper §3.2 literal via same-source C generation). D12’s multi-entry door clause revised; modules 04/05/06 + architecture synced; high-water D13, fresh D15 probe.
+
+- 2026-10-10 (continued 8): Arrow Flight profiled to docs/reference/arrow-flight.md (104 lines) from same-day arrow-rs checkout (dfef34e6, 60.0.0+214, 19.7k LoC, 132 tests) + upstream Flight.proto. Findings: D12 sidecar rule confirmed at spec level (FlightData body deliberately at tag 1000 = numbering-as-architecture); Ticket/PollFlightInfo/DoExchange map onto D4 handles / D6 job tokens / D10 stream channels; gRPC substrate re-rejected (D6/D11); Flight SQL classed as product-layer not kernel debt; encoder "one-copy" honesty noted vs zero-copy marketing. README + 00-overview remote-round matrix updated.
+
+- 2026-10-10 (continued 7): eleventh adjudication landed after the longest interrogation (B/A/D/E variants, Python-barrier, proto-vs-Arrow layers, Flight sidecar technique, video-frame lane) — contract registry = derived sidecar .proto + fdset, three registry rules, two-lane payloads, multi-entry doctrine, AUDESYS 14-type whitelist inherited, Flight gRPC substrate explicitly rejected. D12 recorded; modules 04/06/07 + architecture + index synced. User-supplied corroborating material folded in (transcoder libs logged as unverified bridge-side tools). High-water D12, fresh D14 probe. §2 decision-sheet composition amendment (iceoryx2 local pool / zenoh remote carrier wording) held pending maintainer word.
+
+- 2026-10-10 (continued 6): AUDESYS profiled to docs/reference/audesys.md (170 lines) — provenance: same-maintainer SISTER project (gitee origin verified), Apache-2.0, 24 crates/~36.5k LoC/826 tests. Findings cross-check the open adjudications: their D10/D11/D12/D17 decisions = Signal/StreamChannel/RPC trichotomy (converges with our D10), rmw-shaped three-pole middleware trait trio w/ zenoh-scaffold backend (contrast for our D11 seam + dummy-drift flag), cycle-boundary hot-swap prepare/commit/rollback (pattern twin of D8), closed 14-type protocol (strengthens pending adjudication 11 C-protobuf), hand-written-JSON ipc.rs as the cautionary debt, 297-line supervisor (adjudication-1 cost proof), 32 napi exports (JS product-face-2 precedent). README + 00-overview matrices updated.
+
+- 2026-10-10 (continued 5): communication theme opened and two more adjudications landed — topic bus as the second object kind of the unified handle table (D10) and transport architecture: narrow seam + per-plane slots + bridge-not-heart-swap (D11, rmw worldview-tax analyzed). New modules 06/07; architecture/04/05/index/reference-§2 synced; high-water D11, fresh D13 probe.
+
+- 2026-10-10 (continued 4): eighth adjudication closed the walkthrough — service identity (D9): canonical reverse-DNS + SERVICE_ID consts + bundle-scoped aliases as sugar; modules 02/04/05 amended. Walkthrough total: 8 decisions D2-D9; numbering regex simplified (flags any two-digit D, fresh D10 probe observed red/green).
+
+- 2026-10-10 (continued 3): seventh adjudication — update semantics (D8): stop-based year-1 (dl activate-on-boot / exe swap-in-restart), `parallel_ok` declared escape hatch inert until Stage-2 routing; closes whitepaper §4.1 update vs state-machine gap found in self-audit. Modules 02/03/05 + architecture amended; high-water D8, fresh probe (planted `## D9:` -> red, removed -> green).
+
+- 2026-10-10 (continued 2): sixth adjudication — manifest residence (option D: three tiers deploy-TOML / self-report descriptor / stage-5 binary verification; mandatory cross-check + liar fixture; TOML-only, boot DAG from files alone). D7 recorded; modules 04/05 + architecture + index amended; header-first-vs-metadata-first queue item narrowed. High-water D7, fresh probe.
+
+- 2026-10-10 (continued): fifth adjudication walked after the docs landed — async model (synchronous boundary + job tokens + event completion; actor messaging demoted to exe-transport mechanics; uniffi async-withdrawal as costed precedent). D6 recorded; modules 02/03/04 + architecture + index amended same round (assistant pre-written "Async-first" line withdrawn by adjudication). Numbering high-water extended to D6 with fresh red/green probe (planted `## D8:` -> red, removed -> green).
+
+- 2026-10-10: architecture brainstorm (architectural path): four adjudications walked one-by-one (placement hybrid+shadow-runner; availability B tier; service model C+ with six invariants; solo+AI thin Stage-1 cut). Architecture docs landed at `docs/architecture.md` + `docs/modules/01-05` (MediaServo-style structure per maintainer redirect away from the spec path) with whitepaper delta table; D2-D5 recorded. Task store threw internal_error during walkthrough (PIT-3 recurrence). Numbering invariant in Verification extended (allow D1-D5, flag D6+) with fresh red/green proof.
 
 - 2026-10-09: agent/config scaffolding ported from PolyOrch (plan A). PolyOrch-era memory (status / conventions / decisions / pitfalls) reset to templates; `.gitignore` PolyOrch-specific entries dropped (`PolyOrch` ignore line kept for the local reference checkout); rules tree and skills otherwise kept as-is.
 

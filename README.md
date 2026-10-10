@@ -11,6 +11,7 @@ ModuKit is a **modular plugin host framework** for large-scale projects — larg
 It does not try to be a single "do-it-all engine". A layered architecture decouples the core plugin framework from the optional UI/streaming extensions: embed it as a lightweight plugin system, or build a complete distributed HMI host.
 
 Full rationale, architecture, risks and references: **[whitepaper](docs/whitepaper.md)** (v1.0).
+Adjudicated architecture baseline (2026-10-10, records specific post-v1.0 deltas — delta table: its §9): **[architecture](docs/architecture.md)** · [module docs](docs/modules/00-overview.md) · decisions D2-D5.
 
 ## Key capabilities
 

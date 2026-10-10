@@ -20,14 +20,16 @@
 | MediaServo | BORROW-PATTERNS + DOC-DISCIPLINE SOURCE | Apache-2.0 (green) | Stages 4, 5 | Capability-declared-not-negotiated plugin contract (OBS-modeled, rejected GStreamer-style negotiation); one-C-ABI-four-surfaces binding pipeline actually executed; counter-signal: whitepaper names webrtc-rs, production went libwebrtc (webrtc-sys) and demoted webrtc-rs to skeleton |
 | AccessBase | BORROW-PATTERNS (gate/test culture; host-app shape) | (see profile) | post-Stage-1 | e2e gate culture with PIT-numbered commits as living ledger |
 | CTK | REFERENCE-ONLY (sliver: persistence + deprecation APIs) | Apache-2.0 BUT Qt LGPL runtime trap | Stage 1 (negative) | Two port-worthy mechanics: SQL-persisted install set across restarts; `CTK_DEPRECATED_SINCE` + compile-time cutoff switches for the future ABI deprecation policy |
+| AUDESYS | INTERNAL PRIOR ART (sister project, same maintainer — profile header carries the provenance flag) | Apache-2.0 (green; borrowing is by ownership, not license risk) | Adjudications 11/12/13; D8/D10/D11 cross-check | The maintainer's own Rust sister project already built the middleware seam (their D11: inproc + zenoh-scaffold trait trio), staged hot-swap at cycle boundaries, closed 14-type protocol — and visibly carries the hand-written-serialization debt (1,861-line ipc.rs) that the pending generated-bindings ruling retires |
 
-### Remote round (GitHub projects, measured 2026-10-09)
+### Remote round (GitHub projects, measured 2026-10-09; arrow-flight probe added 2026-10-10)
 
 | Project | Verdict | License (gate) | Primary relevance | Sharpest single finding |
 |---|---|---|---|---|
 | rutis | BORROW-PATTERNS (high priority) | MIT | Stage 1 | only LIVE whitepaper-named runtime; ★91 pushed same-day; its TS/Python faces are the FFI-seam alternative to our C-ABI-only exit — compare before kernel spec |
 | Zellij | BORROW-PATTERNS + CAUTIONARY-TALE | MIT | Stages 1/2/5 | production triple-mode plugin host whose external-plugin ABI broke repeatedly on version bumps — the empirical case for C-ABI + capability-version policy |
 | CLAP | BORROW-PATTERNS (strong) | check profile (0BSD/MIT-family) | Stages 1/5 ABI canon | pure-C plugin ABI textbook: entry factory symbol + versioned extension query; honest correction — it carries NO size field, so we adopt size+version DOUBLE guard (Visia struct_size ∪ CLAP version gate) |
+| arrow-flight (arrow-rs) | CONFIRMS-D12 (framing technique); REFUSE-SUBSTRATE (no gRPC stack, no dependency) | Apache-2.0 (green) | D12 + slot-③ remote design checklist | `FlightData.data_body = tag 1000`: field numbering used as streaming architecture (header-first, tail-untouched); Ticket/PollFlightInfo/DoExchange validate handle/job-token/stream shapes already adjudicated; implementation honesty: one-copy optimized in measured checkout, pointer zero-copy is the C Data Interface lane |
 | uniffi-rs | BORROW-PATTERNS | **MPL-2.0** (only non-permissive here — borrow patterns, never vendor into permissive core) | Stage 5 | metadata/IDL is the contract, C ABI its checksum-sealed projection — challenges our header-first phrasing (see §4 item 5) |
 | Wasmtime | DEPENDENCY-CANDIDATE | MIT/Zlib-Apache family (verify per profile) | sandbox/Stage 5 | already our whitepaper-named choice; wasip2-plugins is the current official plugin story; killed its own C-API plugin system once (governance lesson) |
 | Extism | BORROW-PATTERNS | MIT | sandbox | flat C-ABI-over-wasm host boundary = SAME doctrine as our single-C-exit in a different arena; host-guest ABI stability experiment worth tracking |
@@ -37,7 +39,9 @@
 
 ## 2. Stage-2 fork decision sheet — "iceoryx2 / Zenoh" (whitepaper §5)
 
-The canon line is unadjudicated. Evidence from three profiles converges on a
+Form is adjudicated (D11: narrow transport seam + per-plane slots + bridge plugins — see
+`docs/modules/07-transport-architecture.md`); only backend/vendor selection stays open here.
+Evidence from three profiles converges on a
 composition, not a choice:
 
 1. **iceoryx2 already embeds zenoh**: its link/tunnel layer defines a pluggable
