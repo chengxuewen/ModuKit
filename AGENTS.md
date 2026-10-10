@@ -64,7 +64,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ```bash
 # C1 English-artifact gate (canonical copy lives in .agents/memorys/conventions.md — keep synced)
 grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ $(test -d crates/ && echo crates/) \
+  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
 # first-time machine setup (idempotent; user-level, no sudo)
@@ -76,6 +76,9 @@ bash -ic 'node -v' 2>/dev/null   # expect v22.x via mise; /usr/bin/node stays v1
 # config + docs sanity
 python3 -m json.tool .opencode/opencode.json > /dev/null && echo "config valid"
 test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md && echo "docs link ok"
+
+# skill-tree gate (fixture-negative-proved 2026-10-09)
+python3 scripts/skill-lint.py
 ```
 
 ## NOTES

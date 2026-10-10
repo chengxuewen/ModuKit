@@ -30,9 +30,12 @@ Design baseline set 2026-10-09: `docs/whitepaper.md` v1.0 + root `README.md`. No
 | opencode config parses | `python3 -m json.tool .opencode/opencode.json > /dev/null` | pass (2026-10-09) |
 | docs exist & README link resolves | `test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md` | pass (2026-10-09) |
 | C1 English-artifacts check | command block in `.agents/memorys/conventions.md` C1 (negative-proved: red on planted CJK, green after) | pass (2026-10-09) |
+| skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
 | memory files carry no ported content | `grep -ricE 'polyorch\|mediaservo' .agents/memorys/` -> hits only in the header port-notes | clean (2026-10-09) |
 
 ## Open Items
+
+- [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: doc-audit re-scope, 4 user decisions (github-MCP/arxiv-MCP/openspec-*/affaan-m), restart verification
 
 - [ ] `PolyOrch/` is a local reference checkout, git-ignored; decide whether it stays
 - [ ] `rules/common` ported leftovers: `scripts/gate.sh` / `scan-hardcode.sh` refs (no scripts/ dir) and `~/.claude/agents/` list — inline or trim when Stage 1 tooling lands
@@ -63,3 +66,5 @@ Design baseline set 2026-10-09: `docs/whitepaper.md` v1.0 + root `README.md`. No
 - 2026-10-09: license decided (user "landed" approval) — D1 recorded: MIT OR Apache-2.0 dual; LICENSE-MIT + LICENSE-APACHE at root (Apache text from family-standard full text, 202 lines verified); README License section + status open item closed; both C1 gate copies extended to scan the license files; DCO required from first external contribution (relicensing-space protection). Cargo workspace `license` metadata = recorded Stage-1 trigger.
 
 - 2026-10-09: ecosystem-scan (Full, first run): 15-item local audit + 2-way external scan. Landed same session — R1 AGENTS.md C1 gate copy drift fixed (was missing crates/ dynamic scope); R2 openspec-* x3 flagged inoperative (CLI absent); R4 G10 executed (ts/python/web/golang/cpp rule files unmounted: instructions 26->16; 7 never-mounted dirs (csharp/dart/java/kotlin/perl/php/swift) initially deleted then RESTORED 35/35 per maintainer veto — rule files stay on disk, mount-only slimming); plugins pinned (ponytail@5.1.0, context-mode@1.0.169, omo 5.1.27->5.1.28; superpowers git-ref left floating by design); PIT-4 recorded. External verdicts: ADR-MCP class dead, rust-analyzer-MCP dup with built-in LSP, serena/playwright-MCP no-value-at-stage, npm spdx/osv trio provenance smell — all REJECT; github-MCP / arxiv-MCP / skill-lint+evals pattern = conditional P2 pending; Rust FFI/C-ABI skill = community gap (nothing to adopt, will be ours to write). Uncovered honestly: affaan-m/everything-claude-code timed out x3, not profiled.
+
+- 2026-10-09: A bundle committed (`2909081`). Backlog planning doc added at `.agents/memorys/backlog.md` (opencode-plugin/config/skill/MCP track only; Stage-1 is a separate track resumable on explicit instruction; rules-asset "mount, never delete" ruling recorded). B landed same session: `scripts/skill-lint.py` (7 checks over .agents/skills + registry sync), C0 negative-proved via /tmp fixture (3 FAIL, exit 1) then repo green (10 skills, 0 fail); C1 gate scope extended to scripts/ in both copies; skill-lint registered in AGENTS.md COMMANDS.
