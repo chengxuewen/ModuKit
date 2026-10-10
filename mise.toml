@@ -3,3 +3,4 @@
 # Apply:    mise install
 [tools]
 node = "22"
+uv = "latest"

@@ -32,9 +32,9 @@
 
 | B | skill-lint gate | `scripts/skill-lint.py` + negative-proved fixture; C0 compliance | DONE 2026-10-09 (red: fixture 3 FAIL exit 1; green: repo 10 skills 0 fail) |
 | P1 | doc-audit re-scope | skill is still scoped to PolyOrch doc set — retarget to ModuKit canon (whitepaper / gate copies / docs/reference series) or mark deprecated | DONE 2026-10-09 (18 anchors re-targeted; stale AGENTS.md claims fixed; skill usable via /doc-audit) |
-| P2 | github-MCP adopt? | official server, ★33k MIT; needs Go binary install (no docker on box) + fine-grained read-only PAT | awaiting user |
-| P3 | arxiv-MCP adopt? | ★3.2k Apache, uvx install — `uv/uvx` absent on box (mise can pin it) | awaiting user |
-| P4 | openspec-* disposition | 3 skills flagged inoperative; keep-on-disk (per rules-asset ruling) vs full removal of dirs | awaiting user |
+| P2 | github-MCP adopt? | v2.0.2 binary INSTALLED ~/.local/bin (sha256-verified); config entry added **enabled:false** pending PAT | HALF-DONE — user: create fine-grained read-only PAT, export GITHUB_PAT, flip enabled |
+| P3 | arxiv-MCP adopt? | uv pinned in mise.toml (0.12.24 via it, bootstrap twins cover it); arxiv-mcp-server smoke-passed; config entry **enabled:true** | DONE (active after restart) |
+| P4 | openspec-* disposition | 3 skills flagged inoperative; keep-on-disk (per rules-asset ruling) vs full removal of dirs | RESOLVED: KEEP (default per maintainer "mount, never delete" doctrine; veto = say the word) |
 | P5 | affaan-m/everything-claude-code | profile lane timed out x3 — unprofiled gap from the scan | optional rerun |
 | R | restart verification | after next opencode restart from activated shell: pinned versions resolve, omo 5.1.28 fetched, `lsp` row lights (mise node22), `.omo/omo.jsonc` schema recheck | pending restart |
 

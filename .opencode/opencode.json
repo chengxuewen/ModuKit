@@ -45,6 +45,25 @@
         "sh",
         ".opencode/init-mcp-codegraph.sh"
       ]
+    },
+    "github": {
+      "type": "local",
+      "command": [
+        "github-mcp-server",
+        "stdio"
+      ],
+      "enabled": false,
+      "environment": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PAT}"
+      }
+    },
+    "arxiv": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "arxiv-mcp-server"
+      ],
+      "enabled": true
     }
   },
   "lsp": true

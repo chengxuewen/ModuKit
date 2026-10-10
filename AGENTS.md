@@ -18,7 +18,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── docs/codegraph-bootstrap.md  # MCP launcher design doc (reviewed v3)
 ├── LICENSE-MIT / LICENSE-APACHE # D1 dual-license texts
 ├── scripts/skill-lint.py   # skill-tree gate (C0-negative-proved 2026-10-09)
-├── mise.toml             # per-repo toolchain pins (node 22; user-level via ~/.local, system untouched)
+├── mise.toml             # per-repo toolchain pins (node 22, uv; user-level via ~/.local, system untouched)
 ├── bootstrap.sh|.bat     # one-time machine setup: ensure mise -> activation -> mise install (idempotent)
 ├── .opencode/            # opencode.json (instructions[], lsp:true) + codegraph launcher .sh/.bat
 ├── .omo/                 # OMO state; omo.jsonc tracked, run-continuation/ ephemeral
@@ -33,7 +33,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Which skills exist / when they fire | `SKILL.md` | registry; flags inoperative skills (doc-audit re-scope) |
 | Current phase & open items | `.agents/memorys/status.md` | loaded every turn; keep synced with README roadmap (drift = audit finding) |
 | Project conventions | `.agents/memorys/conventions.md` | C0 executable-constraints, C1 English-artifacts |
-| Dev toolchain (node etc.) | `bootstrap.sh`/`bootstrap.bat` + `mise.toml` | user-level runtime manager; system node stays as-is. OMO's `lsp` MCP needs node>=20 — satisfied by the mise shim, but opencode must be restarted from an activated shell |
+| Dev toolchain (node/uv etc.) | `bootstrap.sh`/`bootstrap.bat` + `mise.toml` | user-level runtime manager; system node stays as-is. OMO's `lsp` MCP needs node>=20 — satisfied by the mise shim, but opencode must be restarted from an activated shell |
 | Mount/unmount a language rule pack | `.opencode/opencode.json` `instructions[]` | 1 set mounted (rust, coding-style+hooks) + common always-on; 5 sets unmounted G10 2026-10-09 (zero source yet); 7 never-mounted dirs KEPT on disk per maintainer decision (csharp/dart/java/kotlin/perl/php/swift) |
 | LSP/MCP startup behavior | `.opencode/opencode.json` | LSP: product built-ins (`"lsp": true`, auto-download per official docs; rust activates once `rust-analyzer` is on PATH); MCP: `init-mcp-codegraph.sh`/`.bat` twins per `docs/codegraph-bootstrap.md` — launcher pattern is MCP-only, see asymmetry note |
 | Memory write formats | `.agents/rules/common/lesson-memory.md` | C/D/PIT templates |
