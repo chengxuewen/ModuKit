@@ -10,7 +10,7 @@
 | Name | ModuKit |
 | Path | `~/Documents/ModuKit` |
 | Domain | Modular plugin host framework & polyglot extension toolkit (Rust core; in-process/multi-process plugins, service registry, C ABI bindings, optional UI compositor / SHM / WebRTC) |
-| Language / stack | multi-language; `instructions[]` loads rust+typescript+python+web+golang+cpp rules (2026-10-09) |
+| Language / stack | multi-language target; `instructions[]` = common + rust only (G10 slim 2026-10-09; ts/python/web/golang/cpp unmounted) |
 | Git | no commits yet; config-only tree (`.agents/`, `.opencode/`, `.gitignore`) |
 
 ## Phase
@@ -39,7 +39,7 @@ Design baseline set 2026-10-09: `docs/whitepaper.md` v1.0 + root `README.md`. No
 - [ ] Cargo workspace scaffolding (`modukit-core` et al.) not created
 - [x] License decided — MIT OR Apache-2.0 dual (D1, 2026-10-09); texts at repo root; workspace metadata = Stage-1 trigger
 - [ ] `doc-audit` skill still targets PolyOrch docs (whitepaper, C1-C6, D1-D29, `docs/modules`); inoperative here until adapted (Plan B item, deferred)
-- [ ] Maintainer calls pending (docs/reference/00-overview.md §4): §5 iceoryx2/Zenoh fork wording; unmount 12 idle language rule packs (G10); ratify A6 generated-only binding wording as D-record; adopt tribunal PORT_NOW discipline bundle (gate.sh seed + doc-liveness + D-record mechanics) when Stage-1 tooling lands
+- [ ] Maintainer calls pending (docs/reference/00-overview.md §4): §5 iceoryx2/Zenoh fork wording; ratify A6 generated-only binding wording as D-record; adopt tribunal PORT_NOW discipline bundle (gate.sh seed + doc-liveness + D-record mechanics) when Stage-1 tooling lands
 
 ## History
 
@@ -61,3 +61,5 @@ Design baseline set 2026-10-09: `docs/whitepaper.md` v1.0 + root `README.md`. No
 - 2026-10-09: remote-round profiles added (user pivot beyond .refinfo): 9 GitHub projects profiled from blobless clones under ~/.cache/modukit-research/ (rutis, zellij, CLAP, uniffi-rs, wasmtime+Extism survey, ipc-channel, smithay, sysplugin-existence-audit, webrtc-rust-state audit) + whitepaper-citation audit (7 named-but-unvendored refs: 1 strong rutis, 1 toy vnrit, 1 misfire rustbridge, 4 unresolvable). docs/reference/ now 20 files (17 profiles + audits + index + 00-overview), all C1-verified; README + 00-overview carry both rounds, Stage-2 fork sheet gained a third option (typed control plane via ipc-channel shape) and Stage-4 decision axis (sans-I/O dual vs libwebrtc-FFI vs vendor; getstream-rtc = naming+category error). Team modukit-ref-remote survived a premium-family Bad Gateway storm via 5 recovery substitutes reusing on-disk clones (PIT-2 recovery recipe held: files over reports, never trust member completion notices); all teams closed and deleted. New maintainer canon questions queued (00-overview §4): header-first vs metadata-first contract (uniffi finding), whitepaper reference corrections list, Stage-4 engine tiering.
 
 - 2026-10-09: license decided (user "landed" approval) — D1 recorded: MIT OR Apache-2.0 dual; LICENSE-MIT + LICENSE-APACHE at root (Apache text from family-standard full text, 202 lines verified); README License section + status open item closed; both C1 gate copies extended to scan the license files; DCO required from first external contribution (relicensing-space protection). Cargo workspace `license` metadata = recorded Stage-1 trigger.
+
+- 2026-10-09: ecosystem-scan (Full, first run): 15-item local audit + 2-way external scan. Landed same session — R1 AGENTS.md C1 gate copy drift fixed (was missing crates/ dynamic scope); R2 openspec-* x3 flagged inoperative (CLI absent); R4 G10 executed (ts/python/web/golang/cpp rule files unmounted: instructions 26->16; 7 never-mounted dirs (csharp/dart/java/kotlin/perl/php/swift) initially deleted then RESTORED 35/35 per maintainer veto — rule files stay on disk, mount-only slimming); plugins pinned (ponytail@5.1.0, context-mode@1.0.169, omo 5.1.27->5.1.28; superpowers git-ref left floating by design); PIT-4 recorded. External verdicts: ADR-MCP class dead, rust-analyzer-MCP dup with built-in LSP, serena/playwright-MCP no-value-at-stage, npm spdx/osv trio provenance smell — all REJECT; github-MCP / arxiv-MCP / skill-lint+evals pattern = conditional P2 pending; Rust FFI/C-ABI skill = community gap (nothing to adopt, will be ours to write). Uncovered honestly: affaan-m/everything-claude-code timed out x3, not profiled.

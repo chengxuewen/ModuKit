@@ -10,9 +10,9 @@
   ],
   "plugin": [
     "superpowers@git+https://github.com/obra/superpowers.git",
-    "@dietrichgebert/ponytail",
-    "oh-my-openagent@5.1.27",
-    "context-mode"
+    "@dietrichgebert/ponytail@5.1.0",
+    "oh-my-openagent@5.1.28",
+    "context-mode@1.0.169"
   ],
   "instructions": [
     ".agents/memorys/status.md",
@@ -30,17 +30,7 @@
     ".agents/rules/common/edit-safety.md",
     ".agents/rules/common/lesson-memory.md",
     ".agents/rules/rust/coding-style.md",
-    ".agents/rules/rust/hooks.md",
-    ".agents/rules/typescript/coding-style.md",
-    ".agents/rules/typescript/hooks.md",
-    ".agents/rules/python/coding-style.md",
-    ".agents/rules/python/hooks.md",
-    ".agents/rules/web/coding-style.md",
-    ".agents/rules/web/hooks.md",
-    ".agents/rules/golang/coding-style.md",
-    ".agents/rules/golang/hooks.md",
-    ".agents/rules/cpp/coding-style.md",
-    ".agents/rules/cpp/hooks.md"
+    ".agents/rules/rust/hooks.md"
   ],
   "mcp": {
     "websearch": {

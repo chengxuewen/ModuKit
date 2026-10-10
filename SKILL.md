@@ -17,9 +17,9 @@ ModuKit-specific skills, located in `.agents/skills/`:
 | `ecosystem-scan` | tooling | audit `.agents/` and scan the community for adoptable skills/rules/MCP |
 | `lesson-review` | memory | batch session review → `.agents/memorys/` |
 | `book-to-skill` | tooling | convert books/documents (PDF/EPUB/DOCX/…) into structured skill files |
-| `openspec-apply-change` | spec | implement tasks from an OpenSpec change |
-| `openspec-archive-change` | spec | archive a completed change |
-| `openspec-sync-specs` | spec | sync delta specs into main specs |
+| `openspec-apply-change` | spec | implement tasks from an OpenSpec change — **inoperative**: openspec CLI not installed (2026-10-09 scan) |
+| `openspec-archive-change` | spec | archive a completed change — **inoperative**: openspec CLI not installed |
+| `openspec-sync-specs` | spec | sync delta specs into main specs — **inoperative**: openspec CLI not installed |
 
 ## Usage
 

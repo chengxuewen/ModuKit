@@ -30,7 +30,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Current phase & open items | `.agents/memorys/status.md` | loaded every turn; keep synced with README roadmap (drift = audit finding) |
 | Project conventions | `.agents/memorys/conventions.md` | C0 executable-constraints, C1 English-artifacts |
 | Dev toolchain (node etc.) | `bootstrap.sh`/`bootstrap.bat` + `mise.toml` | user-level runtime manager; system node stays as-is. OMO's `lsp` MCP needs node>=20 — satisfied by the mise shim, but opencode must be restarted from an activated shell |
-| Mount/unmount a language rule pack | `.opencode/opencode.json` `instructions[]` | 6 sets mounted (rust/typescript/python/web/golang/cpp, coding-style+hooks each) |
+| Mount/unmount a language rule pack | `.opencode/opencode.json` `instructions[]` | 1 set mounted (rust, coding-style+hooks) + common always-on; 5 sets unmounted G10 2026-10-09 (zero source yet); 7 never-mounted dirs KEPT on disk per maintainer decision (csharp/dart/java/kotlin/perl/php/swift) |
 | LSP/MCP startup behavior | `.opencode/opencode.json` | LSP: product built-ins (`"lsp": true`, auto-download per official docs; rust activates once `rust-analyzer` is on PATH); MCP: `init-mcp-codegraph.sh`/`.bat` twins per `docs/codegraph-bootstrap.md` — launcher pattern is MCP-only, see asymmetry note |
 | Memory write formats | `.agents/rules/common/lesson-memory.md` | C/D/PIT templates |
 
@@ -64,7 +64,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ```bash
 # C1 English-artifact gate (canonical copy lives in .agents/memorys/conventions.md — keep synced)
 grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ \
+  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
 # first-time machine setup (idempotent; user-level, no sudo)

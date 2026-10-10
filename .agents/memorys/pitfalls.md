@@ -35,3 +35,10 @@ No pitfalls recorded yet.
 - **Solution**: treat the board as advisory only; file system is truth; close teams via full shutdown_request+approve sweep then `team_delete` (succeeded even with non-terminal tasks); record deliverable state in the final report, not the board.
 - **Verification**: `team_status` shows all members shutdown_approved and `team_delete` returns deleted:true while tasks still show pending — expected, not a blocker.
 - **Forbidden**: burning turns retrying board transitions; waiting on task-board state to decide closure.
+
+## PIT-4: ctx_batch_execute stringifies commands[]; NODE_OPTIONS prefix kills compound shell commands (2026-10-09)
+- **Symptom**: batch runner echoed "Executed 1 commands" with the whole commands-array JSON as one literal shell command (`[{label:: command not found`); independently, `for`/`if`-leading shell commands die as `NODE_OPTIONS='--require …/hook.js' for …` (env-assignment syntax requires a simple command after the prefix). Hit by the orchestrator AND two background librarians separately (100% repro).
+- **Root cause**: context-mode wraps each command string with an env-var prefix; shell compound keywords cannot follow `VAR=value` prefixes. In some host paths the commands parameter arrives JSON-stringified instead of parsed.
+- **Solution**: for multi-step local work use ONE ctx_execute (javascript or `bash -c '…'`) with self-contained script logic; python read→replace(assert count==1) for file mutations. Never lead a wrapped command with `for`/`if`.
+- **Verification**: batch result must report "Executed N commands" with N == len(commands); a literal-JSON echo = fall back to ctx_execute immediately.
+- **Blocking condition**: retrying the same batch shape after the stringify symptom, or shipping repo scripts that assume `rg`/`openspec`/`docker`/`uvx` present (none installed on this box — 2026-10-09 scan).
