@@ -23,7 +23,7 @@
 | # | Item | Action | Status |
 |---|---|---|---|
 | B | skill-lint gate | `scripts/skill-lint.py` + negative-proved fixture; C0 compliance | DONE 2026-10-09 (red: fixture 3 FAIL exit 1; green: repo 10 skills 0 fail) |
-| D1 | doc-audit re-scope | skill is still scoped to PolyOrch doc set — retarget to ModuKit canon (whitepaper / gate copies / docs/reference series) or mark deprecated | awaiting user |
+| D1 | doc-audit re-scope | skill is still scoped to PolyOrch doc set — retarget to ModuKit canon (whitepaper / gate copies / docs/reference series) or mark deprecated | DONE 2026-10-09 (18 anchors re-targeted; stale AGENTS.md claims fixed; skill usable via /doc-audit) |
 | D2 | github-MCP adopt? | official server, ★33k MIT; needs Go binary install (no docker on box) + fine-grained read-only PAT | awaiting user |
 | D3 | arxiv-MCP adopt? | ★3.2k Apache, uvx install — `uv/uvx` absent on box (mise can pin it) | awaiting user |
 | D4 | openspec-* disposition | 3 skills flagged inoperative; keep-on-disk (per rules-asset ruling) vs full removal of dirs | awaiting user |

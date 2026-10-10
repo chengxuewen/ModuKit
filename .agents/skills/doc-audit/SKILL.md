@@ -1,13 +1,17 @@
 ---
 name: doc-audit
-description: "Audit this repository's documentation and agent system for self-consistency: decision liveness, cross-document contradictions, gap coverage, and phase accuracy. Checks the whitepaper, the architecture baseline, the modules reference, the root documents, and the C/D/PIT memory numbering, and runs as a five-dimension parallel audit with interactive per-finding confirmation. Use when the user says 'audit the docs', 'doc-audit', 'check documentation consistency', 'are the decisions still live', 'find documentation gaps', or before a phase transition."
+description: "Audit this repository's documentation and agent system for self-consistency: decision liveness, cross-document contradictions, gap coverage, and phase accuracy. Checks the whitepaper, the docs/reference series, the root documents, and the C/D/PIT memory numbering, and runs as a five-dimension parallel audit with interactive per-finding confirmation. Use when the user says 'audit the docs', 'doc-audit', 'check documentation consistency', 'are the decisions still live', 'find documentation gaps', or before a phase transition."
 ---
 
 # Document & Architecture Audit
 
-> **Port note (2026-10-09)**: this skill was copied from PolyOrch and its audit dimensions
-> target PolyOrch documents (`whitepaper.md`, C1-C6, D1-D29, `docs/modules/`) that do not
-> exist in ModuKit yet. Re-scope before running; see `.agents/memorys/status.md` Open Items.
+> **Re-scoped for ModuKit (2026-10-09)**: audit targets are the ModuKit canon —
+> `docs/whitepaper.md` (verbatim canon), root `README.md` / `AGENTS.md` / `SKILL.md`,
+> `docs/reference/` (20 files: index, `00-overview.md`, profiles, audits),
+> `docs/codegraph-bootstrap.md`, `.agents/memorys/` (C0-C1 / D1 / PIT-1..5),
+> `.opencode/opencode.json`, `mise.toml` / `bootstrap.sh` / `bootstrap.bat`.
+> PolyOrch-era targets (architecture.md, docs/modules/, C2-C6, D2-D29, vendored
+> xmake set) do not exist here and are NOT audit targets.
 
 A full audit of this repository's document system: cross-document consistency, decision
 validation, agent infrastructure, gap coverage, and phase accuracy.
@@ -26,7 +30,7 @@ Present the audit-type menu:
 
 ```
 [1] Full audit      -- all five dimensions (default)
-[2] Decision check  -- are D1-D9 still live and still reflected?
+[2] Decision check  -- is each D{n} in decisions.md still live and reflected?
 [3] Consistency     -- whitepaper <-> architecture <-> modules <-> root docs
 [4] Agent system    -- .agents/ rules, skills, memory, and config self-consistency
 [5] Gap scan        -- coverage of unresolved decisions, phases, and missing artifacts
@@ -47,38 +51,41 @@ Check LOW and MEDIUM findings only, fix them automatically, and skip interactive
 
 ### 1. Decision validation
 
-Check that `decisions.md` D1-D9 are actually reflected in the architecture baseline, the
-module reference, and the status record.
+Check that every `D{n}` in `decisions.md` is actually reflected in the whitepaper, the
+root README, the docs/reference series where applicable, and the status record.
 
 **Core questions**:
 
-- Is each decision's conclusion reflected in `docs/architecture.md` and `docs/modules/`?
+- Is each decision's conclusion reflected in `docs/whitepaper.md`, the root `README.md`, and the `docs/reference/` series where applicable?
 - Is there anywhere that "the decision says A but the document says B"?
 - Do any decisions carry references that have gone stale (a moved file, a renumbered
   section, a renamed skill)?
 - **Decision freshness**: has this decision been superseded by a later one without saying so?
-  Is a stated version, date, or external fact still true? (This repository carries two
-  recorded instances of an unsupported claim reaching an authoritative document — PIT-2.)
+  Is a stated version, date, or external fact still true? (Precedent: the 2026-10-09 I420/Visia smuggled-residue check — a suspicion that proved
+  false but had to be run before the term was confirmed as own design vocabulary.)
 
 ### 2. Document consistency
 
-Check cross-consistency across `docs/whitepaper.md`, `docs/architecture.md`,
-`docs/modules/`, `docs/README.md`, the root `README.md`, and `AGENTS.md`.
+Check cross-consistency across `docs/whitepaper.md` (canon), the root `README.md`,
+`AGENTS.md`, `SKILL.md`, `docs/reference/` (its `README.md` index and `00-overview.md`
+decision matrix), and `docs/codegraph-bootstrap.md`.
 
 **Core questions**:
 
 - Is the same concept described the same way everywhere? (file counts, the phase label, the
   chosen stack, the count of skills)
-- Does a module or root document duplicate the whitepaper instead of deriving from it?
-  Remember C2: a derived document must not introduce facts the whitepaper does not state.
-- **Is the C2 classification still complete?** Every document under `docs/` is derived,
-  design, or externally sourced, and the set is enumerated by the C2 check. A new document
-  that slipped in unclassified is a HIGH finding.
-- Do the root documents (`README.md`, `SKILL.md`) agree with `docs/README.md` rather than
+- Does a derived document restate whitepaper facts differently or introduce new facts?
+  New facts must be externally sourced and marked (the `docs/reference/` series is the
+  sanctioned carrier of whitepaper-external content).
+- **Is every file under `docs/` classified?** derived (whitepaper echo), design
+  (codegraph-bootstrap), or external-sourced (reference series). A new unclassified file
+  is a HIGH finding.
+- Do the root documents (`README.md`, `SKILL.md`) agree with `docs/reference/README.md` (the series index) rather than
   restating it differently?
 - Are the two READMEs still doing different jobs — the root one a repository front door, the
   `docs/` one the documentation hub?
-- Is every link relative (`./x.md`) and resolving? (Gate C3.)
+- Is every local link resolving? (Mechanical probe: the dead-link scan from the 2026-10-09
+  Full-scan run; a formal `scripts/gate.sh` link check is a Stage-1 trigger item.)
 
 ### 3. Agent system audit
 
@@ -98,11 +105,11 @@ Check self-consistency across `.agents/rules/`, `.agents/memorys/`, `.agents/ski
 - Does every `.agents/skills/*/SKILL.md` carry complete frontmatter — a `name` and a
   `description` — and does `name` equal its directory name? (The loader requires both.)
 - Does `.opencode/opencode.json` → `instructions[]` still resolve every entry?
-- **Does the vendored third-party set still verify?** Gate C5 checks the 58 `xmake-*` /
-  `xrepo-*` skills against `XMAKE-MANIFEST.sha256`. A modified vendored file is a HIGH finding:
-  it is an unstated modification under Apache-2.0 section 4(b) unless recorded in
-  `XMAKE-ATTRIBUTION.md`.
-- Is `XMAKE-ATTRIBUTION.md` still accurate as to the pinned commit and the category map?
+- **Mechanical first pass — run it before manual review:**
+  `python3 scripts/skill-lint.py` must exit 0 (frontmatter, name==dir, size, @path refs,
+  registry sync; fixture-negative-proved 2026-10-09).
+- Do inoperative skills carry explicit registry flags in `SKILL.md`? (openspec-* x3 as of
+  2026-10-09; re-verify any skill whose prerequisites appeared or vanished since.)
 
 ### 4. Gap scan
 
@@ -110,15 +117,20 @@ Scan for documents or design sections that should exist and do not.
 
 **Core questions**:
 
-- Does `docs/architecture.md` → Open Decision Points contain items that are now decided but
-  not closed, or open items with no owner and no next step?
+- Do the open-decision registers — `docs/reference/00-overview.md` §4, `.agents/memorys/backlog.md`
+  Pending, `status.md` Open Items — list anything already decided but not closed, or items
+  with no owner/next step? Are the three registers mutually consistent (no item open in one,
+  done in another)?
 - Are there claims in `docs/whitepaper.md` with no supporting evidence, still unresolved?
-- Is anything marked `TBD` that has since been decided? (This repository resolves unknowns by
-  marking them `TBD`, never by guessing — so a stale `TBD` is a real finding.)
-- Does `scripts/` still sit empty while `conventions.md` carries runnable gates that would be
-  better collected there?
-- Does the reproducibility invariant (D4 — anything affecting the build result is pinned in
-  the repository) have any remaining violation?
+- Is anything marked `TBD` or "not yet" that has since been decided? (Precedents found
+  2026-10-09: `AGENTS.md` NOTES "License TBD" after D1 landed, and its generated header
+  "Commit: none yet" after real commits existed — both fixed same session.)
+- `scripts/` now holds `skill-lint.py` only; the C1 gate and env probes still live ad hoc in
+  conventions/AGENTS text. Collecting them into `scripts/gate.sh` is a recorded Stage-1
+  trigger (backlog), not a current-phase gap.
+- Pin hygiene (ModuKit analogue of the build-reproducibility invariant): `mise.toml` pins
+  node; plugin versions pinned in `opencode.json` (2026-10-09; superpowers git-ref floats
+  by design). `Cargo.lock` rule (constraints.md) activates with the Stage-1 workspace.
 - Is the phase's stated deliverable actually complete?
 
 ### 5. Phase audit
@@ -132,10 +144,10 @@ Check the declared phase against the real state of the repository.
 - Are the `Open Items` accurate — is anything still listed as open that has been resolved, or
   marked resolved that is not?
 - Does the memory's description of the git state match reality? Run `git log --oneline -3` and
-  `git status --short` and compare against what `AGENTS.md` and `status.md` claim. This repository
-  has already carried a false git claim once (`AGENTS.md` said the tree was "everything untracked"
-  while 219 of 223 entries were staged, which would have made `git clean -fd` look safe), so treat
-  the git state as something to verify, never to infer from memory.
+  `git status --short` and compare against what `AGENTS.md` and `status.md` claim. This repository has
+  already carried stale generated-header claims (an `AGENTS.md` "Commit: none yet" line that
+  survived the first real commits), so treat the git state as something to verify against
+  `git log` / `git status`, never to infer from memory.
 - Does a document claim a completion state that contradicts another document?
 
 ---

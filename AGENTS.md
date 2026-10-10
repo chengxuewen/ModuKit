@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-10-09 · **Branch:** master · **Commit:** none yet (pre-init, everything staged/untracked)
+**Generated:** 2026-10-09 · **Branch:** master · **Commits:** see `git log` (first committed 2026-10-09; regenerate header via /init-deep)
 
 ## OVERVIEW
 
@@ -86,4 +86,4 @@ python3 scripts/skill-lint.py
 - `.opencode/node_modules` + npm lock serve opencode plugins (superpowers/ponytail/context-mode), not project dependencies.
 - codegraph MCP has no binary/`.codegraph/` yet; first start attempts an auto-install against an empty repo — expect a no-op, not a failure to fix.
 - Two gate references in `rules/common` are toothless here: `scripts/gate.sh` / `scripts/scan-hardcode.sh` (no scripts/ dir) and the `~/.claude/agents/` list in `agents.md` (Claude-era ported). Either inline the checks or trim the refs when Stage 1 tooling lands.
-- License TBD; domain guidance: `modukit.dev` / `modukit.rs` (`modukit.com` taken).
+- License decided (D1: MIT OR Apache-2.0); domain guidance: `modukit.dev` / `modukit.rs` (`modukit.com` taken).
