@@ -174,7 +174,7 @@ the contract suite structured for later dual-placement runs; the minimal in-proc
 with `latest-value` QoS (D10); the transport seam trait plus its local socketpair/memfd and
 dummy test-double backends (D11); the descriptor access protocol and two-stage
 retrieval API shape (D14, 07 §3-4); the introspect trio + `ModuleLoaded` event + the three
-acceptance tests (D17, modules/10 — read-only services, zero UI); the live edge ledger + `Snapshot.edges()` (D18, ~100 lines); the logger service with `LogEvent` in the shared ring (D19, modules/10 §5); the unified clock service with timers-as-jobs (D20, modules/03 §6); gate counters on the same doorways (D21, modules/10 §6.1); template standing of the example/bad fixtures (D23); the `test-support` testhost face (D24, modules/10 §3.1).
+acceptance tests (D17, modules/10 — read-only services, zero UI); the live edge ledger + `Snapshot.edges()` (D18, ~100 lines); the logger service with `LogEvent` in the shared ring (D19, modules/10 §5); the unified clock service with timers-as-jobs (D20, modules/03 §6); gate counters on the same doorways (D21, modules/10 §6.1); template standing of the example/bad fixtures (D23); the `test-support` testhost face (D24, modules/10 §3.1); `org.modukit.runtime.proto` (kernel error enum + shared Error body) as the first ledger-native vocabulary (D27); the logical-bundle install protocol (staging -> hash/cross-check -> atomic rename; D28).
 
 **Out (interface only or absent)**: ProcessExecutor implementation, shadow-runner binary,
 LDAP/tracker/factory/leases, all language bindings, compositor, SHM data plane, external
@@ -214,6 +214,10 @@ them. Re-review trigger recorded in D5.
 | D22 | resource books | exe-only accounting (supervisor sampling + wait4; Snapshot fields; ResourceTick on the ring); dl entries say n/a honestly; quotas (cgroup/rlimit) deferred to first-untrusted-vendor trigger |
 | D23 | scaffolding | example/bad fixtures hold template standing (changes = compatibility-weighted doc acts); `modukit new` = Stage-2 CLI subcommand, ledger-driven, dialect-free; B-before-C order rule |
 | D24 | testhost | public `test-support` face: in-process host + dummy transport + step clock + fold-checker + fixture feed; three-piece surface discipline; true-process e2e stays with the Stage-2 suite |
+| D25 | pool backend | iceoryx2 first, exact-pinned stable tag (upgrades budgeted); self-built ring as trigger-gated fallback; slot=porters-only house rule (worldview vendors bridge-only); vendor vocabulary quarantined in the adapter |
+| D26 | capability vocabulary | two namespaces: `org.modukit.*` hard-checked (initial 8 words, one per adjudicated mechanism, list lives in the ledger); `com.vendor.*` soft self-registration feeding policy consumers (export/quota/trust) — notes, not keys |
+| D27 | error model | two code spaces (kernel enum in runtime.proto; author-owned service enums under the sentinel rule), one shared record {code, domain, source, message, kv, hint}; hints feed D3/D6 policies, codes become D21 count dimensions; strings never decisional |
+| D28 | bundle & install | logical unit (manifest+artifact+ledger refs+hash), directory/archive both on one pipeline; install = staging -> cross-check -> atomic rename; verification ladder hash(now)/signature(untrusted trigger)/repository(OTA trigger), format & rollback deferred with owners |
 
 Full records: `.agents/memorys/decisions.md`.
 Queued for later adjudication (not silently dropped): JS dual-product-face (host-loads-JS vs

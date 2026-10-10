@@ -40,7 +40,7 @@
 ## 2. Stage-2 fork decision sheet — "iceoryx2 / Zenoh" (whitepaper §5)
 
 Form is adjudicated (D11: narrow transport seam + per-plane slots + bridge plugins — see
-`docs/modules/07-transport-architecture.md`); only backend/vendor selection stays open here.
+`docs/modules/07-transport-architecture.md`); backend selection now adjudicated (D25): iceoryx2 first, exact-pinned tag; self-built ring = trigger-gated fallback; house rule: slots house porters only — worldview vendors (FastDDS/Cyclone/Connext) are bridge-only, never backends.
 Evidence from three profiles converges on a
 composition, not a choice:
 

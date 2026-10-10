@@ -26,7 +26,12 @@ Slot inventory (all simultaneous, per plane, no favorites):
 
 | Slot | Year 1 | Stage 2+ |
 |---|---|---|
-| local frames | socketpair/pipe + memfd (self-built) | pool backend choice stays open: self-built memfd ring vs iceoryx2 library |
+| local frames | socketpair/pipe + memfd (self-built) | first pool backend = iceoryx2, exact-pinned to the nearest stable tag at integration
+   (D25; deny.toml window; upgrades are budgeted, never silent). Self-built memfd ring =
+   trigger-gated fallback: (1) upstream breaks the pin twice in a row or stalls;
+   (2) port-glue cost vs dynamic topics beats the ring budget; (3) win/mac demand before
+   PAL maturity. All glue stays inside the adapter (five verbs + name-mapping cache);
+   the registry never learns vendor vocabulary. |
 | remote carrier | absent | zenoh-shaped (`iceoryx2.md:39` shipped-carrier precedent; `00-overview.md` §2 sheet) |
 | streaming link | absent | WebRTC (Stage 4) as another carrier |
 | **dummy** | test double (inprocess-lineage per `ipc-channel.md:96`) | deterministic supervision tests keep this slot forever |

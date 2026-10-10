@@ -159,4 +159,5 @@ daily — the template cannot silently rot). The `modukit new` generator arrives
 Stage-2 CLI and must consume the ledger (`fdset`) and the D13 generation faces — it may
 never carry a private dialect or template fork. The fourth template piece: contract-test
 stubs written against the official `test-support` host (D24) — time-travel tests
-(`advance(30s)` beats the real 30 seconds) are the template's own advertisement.
+(`advance(30s)` beats the real 30 seconds) are the template's own advertisement; the fifth
+piece is a service-owned error enum in the sketch — business errors name themselves (D27).

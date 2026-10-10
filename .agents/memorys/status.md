@@ -31,7 +31,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated 2026-10-1
 | docs exist & README link resolves | `test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md` | pass (2026-10-09) |
 | C1 English-artifacts check | command block in `.agents/memorys/conventions.md` C1 (negative-proved: red on planted CJK, green after) | pass (2026-10-09) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
-| numbering discipline (ported ids absent) | `grep -rnE '^## (C[2-9][0-9]?|D(2[5-9]|[3-9][0-9]|[0-9]{3,}))' .agents/memorys/` must be empty — allows modukit-native high-water D1-D24 / C0-C1 (2026-10-10), flags PolyOrch-era shapes; negative proof: planted `## D26:` -> red, removed -> green (observed 2026-10-10) | pass (2026-10-10) |
+| numbering discipline (ported ids absent) | `grep -rnE '^## (C[2-9][0-9]?|D(29|[3-9][0-9]|[0-9]{3,}))' .agents/memorys/` must be empty — allows modukit-native high-water D1-D28 / C0-C1 (2026-10-10), flags PolyOrch-era shapes; negative proof: planted `## D30:` -> red, removed -> green (observed 2026-10-10) | pass (2026-10-10) |
 
 ## Open Items
 
@@ -46,6 +46,14 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated 2026-10-1
 - [ ] Maintainer calls pending (docs/reference/00-overview.md §4): §5 iceoryx2/Zenoh fork wording; ratify A6 generated-only binding wording as D-record; adopt tribunal PORT_NOW discipline bundle (gate.sh seed + doc-liveness + D-record mechanics) when Stage-1 tooling lands
 
 ## History
+
+- 2026-10-10 (continued 24): twenty-fourth adjudication — bundle distribution (D28): logical install unit + staging/cross-check/atomic-rename protocol, directory and archive both accepted on one pipeline, verification ladder (hash now / signature at untrusted trigger / repository at OTA trigger) each with an owner; archive format and rollback explicitly deferred with owners. modules/05 §4 rewritten + architecture/index synced. High-water D28, fresh D30 probe. The adjudication queue is now EMPTY — remainder are trigger-gated, not discussion-gated.
+
+- 2026-10-10 (continued 23): twenty-third adjudication — error model (D27): two code spaces (kernel enum in runtime.proto, first ledger-native vocabulary; author-owned service enums under sentinel rule), one shared record {code,domain,source,message,kv,hint}; hints feed D3/D6 policies, codes become D21 count dimensions; string-only, universal-table and gRPC-codex options rejected. modules 04/08 + architecture/index synced. High-water D27, fresh D29 probe. Queue left: bundle distribution only.
+
+- 2026-10-10 (continued 22): twenty-second adjudication — capability vocabulary (D26): org.modukit.* hard-checked initial 8 words each mapped to an adjudicated mechanism, list lives in the ledger; com.vendor.* soft self-registration consumed by export/quota/trust policies; autodetection and closed-list rejected. modules/05 §3 + architecture/index synced. High-water D26, fresh D28 probe.
+
+- 2026-10-10 (continued 21): post-DX-walk pool question walked (21 + house-rule 21.5) — D25: iceoryx2 as first Stage-2 pool backend with exact-pinned stable tag and three fallback triggers; self-built ring demoted to trigger-gated option; slots-house-porters-only rule ratified (worldview vendors bridge-only, FastDDS included); vendor vocabulary quarantined in the adapter. modules/07 + reference §2 sheet + architecture/index synced. High-water D25, fresh D27 probe. Rulings renumbered: remaining queue = capability vocabulary, error model, bundle distribution.
 
 - 2026-10-10 (continued 20): twentieth adjudication closed the DX walk — testhost (D24): public test-support face = in-process host + dummy transport + step clock + fold-checker + fixture feed, three-piece surface discipline, true-process e2e stays Stage-2. modules 08/10 + architecture/index synced. High-water D24, fresh D26 probe. DX theme (adjudications 14-20) closed: 7 decisions D18-D24.
 

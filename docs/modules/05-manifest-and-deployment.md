@@ -54,20 +54,46 @@ export = []                          # bridged planes see NOTHING unless listed 
   time, everything downstream (cross-check, wire, registry) sees canonical strings.
 - `requires`/`provides` are the **declared ledger** feeding D18's declared-vs-observed
   analysis (modules/10 §6): dead declared deps and undeclared runtime use both surface here.
-- `capabilities` (whitepaper §3 principle 3: declarations beat assumptions): platform features
-  the plugin needs; the host's capability discovery either satisfies them or the plugin fails to
-  resolve. Vocabulary design is a queued item (architecture.md §11) — the field exists now.
+- `capabilities` (whitepaper §3 principle 3: declarations beat assumptions), two namespaces
+  per D26:
+  - `org.modukit.*` — **kernel-owned, hard-checked at resolve** (missing => failure).
+    Initial vocabulary, one word per already-adjudicated mechanism: `shm-pool` (D14),
+    `gpu-share`, `dma-buf` (D15 trigger lane), `input-inject` (compositor track),
+    `precise-clock` (D20 domains), `multi-host` (D11 carriers), `sandbox` (wasm executor),
+    `rt-sched` (deployment `resources{}`/`rt_policy` family). The list lives in the ledger
+    (D13), never as string literals in code.
+  - `com.vendor.*` — **self-registration**: the kernel never interprets these; they are
+    notes for policy consumers (bridge export gates D11, quota engine D22, trust routing
+    D1). A soft word grants nothing by itself — a note, not a key, read by the policy
+    layer that reads them.
 - `provides.ranking` is reserved storage only in year 1 (02 §1, invariant 4).
 - `provides.parallel_ok` is an author semantics claim (D8): cross-checked between tiers like
   every other descriptor field, inert until Stage-2 multi-instance routing exists. Nobody may
   set it to `true` speculatively and be surprised when two versions run — or when they don't.
 
-## 4. Bundling and installation (stage 2+)
+## 4. Bundles: logical unit, open physical form, verification ladder (D28)
 
-A plugin *bundle* = artifact + manifest + resources in one directory/archive; install writes
-`INSTALLED` state entries (03 §1). **Out of year-1 scope**: OTA distribution, signature chains,
-rollback. The manifest carries an optional `min_host` version field today so forward-compat
-questions have an anchor later.
+The kernel defines **what a bundle is, not what it looks like**:
+
+```
+logical bundle = manifest (this doc) + artifact(s) + ledger refs + content-hash
+install:       staging dir -> cross-check (D7 three tiers + hash integrity)
+               -> atomic rename into INSTALLED (03 §1 semantics)
+physical forms accepted: directory (dev rigs) | archive (shipping)
+               -- both expand into the SAME pipeline; zero resolve-logic fork
+```
+
+Verification ladder, each rung owned by a trigger, not by taste:
+
+| Rung | Defends against | Arrives |
+|---|---|---|
+| content-hash + ledger cross-check | corruption, drift | **year 1** (tens of lines on the resolve path) |
+| signature chain | malice | trigger: first untrusted-tier plugin (joins D1/D7 trust axis) |
+| repository/OTA semantics | fleet logistics | trigger: production OTA need — split then: platform updater (A/B, swupdi class — general knowledge) vs `modukit-cli` packaging |
+
+Explicitly deferred with owners: archive format choice (decided at CLI packaging day),
+rollback policy (D16 neighborhood), delta distribution. `min_host` stays the forward-compat
+anchor.
 
 ## 5. What a year-1 manifest deliberately does not solve
 
