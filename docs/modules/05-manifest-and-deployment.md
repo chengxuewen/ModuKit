@@ -188,6 +188,89 @@ Year 1 implements schema declaration + value read + cross-check only. The hot-la
 specification is recorded here and implemented when the first `config_live` plugin arrives
 (trigger-gated).
 
+## 6.1 Layout, precedence, and effect timing (D37)
+
+File layout (per host tree; directory IS the instance boundary - one host_id, one tree,
+configs never shared across hosts in writing):
+
+```
+runtime.toml    host itself: host_id, carrier endpoints, log sinks, shutdown budget
+deploy.toml     plugin instance values ([plugin-id] sections, D29)
+overlay.toml    optional field overrides, deployment-floor hand edits (last word)
+bundles/<id>/<ver>/modukit.toml   author-owned manifest + proto defaults (immutable on-site)
+```
+
+Precedence: overlay > deploy > manifest defaults (layered overrides, kustomize/drop-in
+pattern). Effective value resolution at load; missing keys take the `.proto` default;
+surplus stale keys warn (rollback-friendly, upgrade-critical); type mismatch fails resolve
+(D7 family). Schema migration is the plugin author's job (docs + migration guide); no
+framework migration DSL (trigger-gated).
+
+Effect timing: the atomic unit of configuration effect is THE STARTUP OF WHAT IT DESCRIBES -
+plugin values ride plugin restart (D29), live keys ride the hot lane (D29 trigger),
+overlay edits wait for the next explicit restart (no file watching - predictability, D3),
+host config rides host restart (changing host_id at runtime = split brain), bundle
+manifest never "takes effect" - changing it means replacing the bundle (D28). There is no
+half-applied state.
+
+## 6.2 ConfigService, hot-lane writes, RBAC, and audit (D37 - built at the D29 trigger)
+
+The live hot lane gets a full design now (built when the first `config_live` plugin
+arrives):
+
+- **ConfigService** (ledger-native, D4/D9 identity): `set(plugin, key, value)` gates -
+  schema check (.proto types, free from D13), constraint check (range/enum extensions in
+  proto), live-key verification (undeclared = reject, event recorded per D35 gate/audit),
+  capability check (`org.modukit.config-write`, D26 vocabulary +1), then publishes the
+  change event (ordinary topic, `org.modukit.*` names) and atomically swaps the plugin's
+  Config snapshot (immutable object; old references stay valid - lockless, no half-old).
+- **Persistence**: the new value is asynchronously written back to the overlay layer -
+  the FILE remains the single source of truth; disk-write failure = event alarm + old
+  value returns on next restart (honest mode, restart semantics unchanged).
+- **RBAC, deliberately thin**: identity = the bridge plugin's deployment declaration
+  (runtime.toml `identity`/`allowed_roles`); NO account system year 1 (solo+AI, D5) -
+  a real identity service is platform-level work (D35 orchestrator side). Role-to-key-
+  prefix mapping lives in runtime.toml (`ops: ["*"]`, `biz: ["app-biz/*"]`, `viewer: []`);
+  prefix = D36 naming discipline as permission boundary, zero new concepts. ABAC rejected,
+  trigger-gated on a real attribute-rule requirement. Local CLI = full rights; bridge
+  identity authenticity rests on filesystem permissions of the deployment tree (physically
+  controlled environment; remote untrusted environments are the bridge's own TLS/token
+  problem - D35 three-nos). Audit is forensic-grade NOT claimed (local root can edit
+  rings); compliance-grade audit = external compliance system, trigger-gated.
+- **Self-build boundary**: the whole permission/audit surface is ~200 lines riding
+  existing machinery (ring/capability gates/name prefixes) - no RBAC framework dependency
+  (casbin-class frameworks out-weigh the need), no login/token system (bridges co-sign;
+  remote scenarios handle their own tokens).
+
+## 6.3 Web admin stance (D37): read = free rider, write = never in the framework
+
+Read-only views (current values/source layer/plugin health) ride the D32 live-view page
+tabs (trigger shared with D32) - data from introspect only, zero new machinery. Web WRITE
+paths never enter host or framework: the only sanctioned write path is FILES + version
+control (GitOps posture; K8s dashboard/kubectl division, rqt-parameter anti-lesson).
+A full Web admin (write forms/RBAC UI/audit) is a STANDALONE TOOL hearing if a real
+ops-team need materializes - with RBAC + audit + double-confirm + git persistence, still
+bound by D37 effect semantics (files first, restart to apply). AccessBase evaluation
+(adjudicated): not a submodule (TS stack + door-access domain mismatch), not a hosted
+plugin (it assumes itself the authority - conflicts with file-as-truth; permission model
+translation loss; lifecycle black box); adopted only as audit-ledger FORMAT reference
+(who/what/when/evidence) - a forwardable compatibility note exists; conditional future
+path: "external-authority mode" (pluggable persistence + pure-RBAC simplified mode +
+stateless web) would make it a candidate at the standalone-tool hearing.
+
+## 6.4 Admin web stack, when that day comes (D37)
+
+Form/admin pages: Svelte 5 + Vite + TS (signals fit form-dense state, compiler-borne
+performance, smallest bundle for weak environments). Online IDE cabin (script/blueprint/
+DSL debugging, D33 layers): Monaco (editor, language-agnostic) + react-flow (blueprint
+canvas, de-facto standard) - that cabin is React-flavored. Monitoring/log STORAGE is never
+self-built: Grafana/Loki-class external infrastructure fed by our sinks (D19 posture);
+Foxglove stock panels tried first for debug views (D32). Coexistence principle: multi-stack
+allowed, prefer SEPARATE-PAGE isolation (per-page builds, plain navigation links) over
+in-page microfrontends; single-stack collapse (all-React) explicitly allowed at project
+day; re-evaluate React-first if frontend work goes to a larger team. Anything web: a
+standalone tool, never in the host (D17 constitution).
+
 ## 7. What a year-1 manifest deliberately does not solve
 
 Script dependency pinning (runner-level), i18n metadata, UI contribution points (compositor
