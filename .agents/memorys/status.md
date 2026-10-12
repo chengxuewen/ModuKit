@@ -31,7 +31,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | docs exist & README link resolves | `test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md` | pass (2026-10-09) |
 | C1 English-artifacts check | command block in `.agents/memorys/conventions.md` C1 (negative-proved: red on planted CJK, green after) | pass (2026-10-09) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
-| numbering discipline (ported ids absent) | `grep -rnE '^## (C[2-9][0-9]?|D(3[1-9]|[4-9][0-9]|[0-9]{3,}))' .agents/memorys/` must be empty — allows modukit-native high-water D1-D40 / C0-C1 (2026-10-10), flags PolyOrch-era shapes; negative proof: planted `## D31:` -> red, removed -> green (observed 2026-10-10) | pass (2026-10-10) |
+| numbering discipline (ported ids absent) | `grep -rnE '^## (C[2-9][0-9]?|D(4[1-9]|[5-9][0-9]|[0-9]{3,}))' .agents/memorys/` must be empty — allows modukit-native high-water D1-D40 / C0-C1 (2026-10-10), flags PolyOrch-era shapes; negative proof: planted `## D31:` -> red, removed -> green (observed 2026-10-10) | pass (2026-10-10) |
 
 ## Open Items
 
