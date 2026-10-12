@@ -103,8 +103,20 @@ embedded-array compilation (CppMS-style resource compilers couple every plugin l
 the build system; Qt rcc external mode works but its container would duplicate the archive
 we already have).
 
-- **Declaration**: manifest lists `resources[]` (name/path, size, sha256). The D7 cross-check
-  verifies presence + hash at install. Lying fixtures join the D7 liar family.
+- **Tree organization (adjudication 28, D31)**: the directory tree under `resources/` IS the route
+  table - runtime path = tree path, no prefix/alias layer (a `.qrc`-style remap duplicates the
+  declaration we already verify; renaming is `git mv`, not a second source of truth). The
+  only hard rule: `resources/` is the root and the window's single allowed path prefix.
+- **Declaration**: the verification checklist lives in the manifest's `[resources]` section
+  (path, size, sha256) - same file the cross-check already reads, covered by the same
+  integrity envelope, tool-fillable (`modukit resource scan`, CLI-day trigger) without
+  touching hand-written annotations (toml_edit preserves comments). A separate index file
+  (`resources.idx`) was evaluated and rejected: a second truth source that can drift from the
+  manifest (D28 forbids half-new/half-old states); an archive central-directory-as-index was
+  rejected because directory-form bundles (the year-1 primary) have none - the two D28 forms
+  must fork nothing. The D7 cross-check verifies presence + hash at install; undeclared
+  resources are invisible across the boundary (year-1 white-list semantics). Lying fixtures
+  join the D7 liar family.
 - **Reading**: one semantic answer for all three placements (D2). The kernel mounts a
   ResourceService (ledger-native, introspect-trio shape: list / stat / open):
   - **Fast lane (pass-by-trust)**: in-process `dl` plugins at trusted tier receive a plain
@@ -115,7 +127,16 @@ we already have).
     scoped read stream come back. wasm receives data through its linear-memory door, exe
     through the D14 attach-once channel if a stream is needed.
 - **Guards at the window**: capability check (D26), quota + accounting (D22), hash
-  verification on first open. The fast lane skips live accounting by design (accepted for
+  verification on first open.
+- **Cross-bundle references**: in-bundle references use plain relative paths resolved
+  against the caller's own bundle (Qt's `:/` scheme is unnecessary inside one bundle).
+  Reading another bundle's resources is denied by default; a
+  `org.modukit.share-resources` capability word (D26) and a `res://<bundle-id>/...`
+  reference convention are both deferred to their triggers - first cross-bundle need
+  (capability + policy hearing), first UI-compositor theme mixing (URI convention, with
+  the Stage-2 theme day). Qt-style runtime mount/unmount (registerResource) is
+  deliberately not provided: resources update with the bundle under D8 semantics; a
+  second hot channel would fork the update model. The fast lane skips live accounting by design (accepted for
   trusted in-process plugins; install-time hashes remain).
 - **Concurrency**: the window lane may run reads on a pool behind the gate (D6 sync-boundary
   semantics preserved; pool = implementation note, not architecture; build it only when a
@@ -160,7 +181,7 @@ architecture.md §12 — none of them changes the kernel object model.
 
 | Tier | Carrier | Fields | Owner |
 |---|---|---|---|
-| **deploy** | bundle `modukit.toml` | `entry.kind` floor (raise-only), artifact/runner, `start_level`, `start_timeout`, `restart{}`, requires `policy`/`on_down`, `capabilities[]`, `min_host` | ops / packaging |
+| **deploy** | bundle `modukit.toml` (TOML by adjudication 28: human annotations + typed + nested tables + Cargo-grade parser; INI cannot nest the resource tree, JSON cannot carry comments, YAML's indentation minefield and parser divergence are deployment-floor hazards; `resources[]`/config ride the same envelope) | `entry.kind` floor (raise-only), artifact/runner, `start_level`, `start_timeout`, `restart{}`, requires `policy`/`on_down`, `capabilities[]`, `min_host`, `resources[]` (D30) | ops / packaging |
 | **self-report** | `PluginAbiV1` descriptor fields (04 §3) | `id`, `version`, `provides[]` (+ ranking, `parallel_ok`), requires + `topics[]` summaries (D10) | plugin code — or its runner, for script plugins |
 | **verification** | pre-dlopen ELF/Mach-O/PE parse | link/dependency sanity | kernel, stage-5 only; a guard, never a truth source |
 

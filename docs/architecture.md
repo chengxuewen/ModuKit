@@ -220,6 +220,7 @@ them. Re-review trigger recorded in D5.
 | D28 | bundle & install | logical unit (manifest+artifact+ledger refs+hash), directory/archive both on one pipeline; install = staging -> cross-check -> atomic rename; verification ladder hash(now)/signature(untrusted trigger)/repository(OTA trigger), format & rollback deferred with owners |
 | D29 | configuration | schema in the plugin's own .proto (D13 door), values in deploy-TOML verified by the D7 cross-check; change = restart (D8) by default; `config_live` declared keys opt into change events on ordinary topics, hot-lane spec trigger-gated |
 | D30 | resources | bundle members (D28), manifest-declared + D7 cross-check; ResourceService window for exe/wasm/untrusted/archive; fd fast lane for trusted in-process dl only (same process, no boundary to break; exe excluded to keep isolation semantics + accounting intact); wasm-pack resource containers evaluated and rejected; compression = packaging-CLI concern, trigger-gated |
+| D31 | resource tree & manifest format | directory-as-route (`resources/` tree IS the route table, single window prefix, no alias layer); checklist in the manifest `[resources]` section (same D7 envelope, tool-fillable comment-preserving; separate .idx rejected); manifest format = TOML (INI/JSON/YAML rejected on deployment-floor grounds) |
 
 Full records: `.agents/memorys/decisions.md`.
 Queued for later adjudication (not silently dropped): JS dual-product-face (host-loads-JS vs
