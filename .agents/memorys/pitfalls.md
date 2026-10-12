@@ -49,3 +49,10 @@ No pitfalls recorded yet.
 - **Solution**: amend while unpushed (verified via `git log origin/master..HEAD`). Prevention: one commit command per invocation, message inline; never place two commit attempts in one chained call.
 - **Verification**: `git log --format='%h %s' -1` after every commit matches the intended subject.
 - **Forbidden**: placing two commit attempts in one chained invocation.
+
+## PIT-6: Committed despite red C1 output — gate printed, human loop failed (2026-10-12)
+- **Symptom**: batch commit `c9b960a` landed containing CJK in decisions.md (D44 decision line transcribed four chat-language terms verbatim: six-state, resource books, topology, ring); the C1 check in the same command DID print the violation before `git add`/`git commit` ran, and the commit proceeded anyway.
+- **Root cause**: gate and action were sequential statements in one script, not conditioned: `[ -z "$out" ] && echo "C1 OK" || echo "$out" | head -2` only REPORTS - nothing consumed the verdict. Rule #26 was known and still the transcription happened under prose-momentum (decision text paraphrasing is where it always leaks).
+- **Solution**: fix-forward (this batch + follow-up commit); from now on the canonical pattern is fail-closed: `out=$(grep ...); [ -n "$out" ] && { echo "$out"; exit 1; }` BEFORE any git add/commit in the same script - the gate must be able to abort the chain, not merely speak.
+- **Verification**: re-run canonical C1 (conventions.md copy) after the fix - must print C1 OK; `git log -1` shows the fix-forward commit.
+- **Forbidden**: running a gate whose output nobody (and no `exit`) consumes before mutating git state; paraphrase discipline must apply to decisions.md text above all - it is where user phrases get recorded.
