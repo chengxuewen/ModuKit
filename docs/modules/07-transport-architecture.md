@@ -32,7 +32,7 @@ Slot inventory (all simultaneous, per plane, no favorites):
    (2) port-glue cost vs dynamic topics beats the ring budget; (3) win/mac demand before
    PAL maturity. All glue stays inside the adapter (five verbs + name-mapping cache);
    the registry never learns vendor vocabulary. |
-| remote carrier | absent | zenoh-shaped (`iceoryx2.md:39` shipped-carrier precedent; `00-overview.md` §2 sheet) |
+| remote carrier | absent | zenoh-shaped (`iceoryx2.md:39` shipped-carrier precedent; `00-overview.md` §2 sheet); same-machine multiple host processes discover each other through the SAME carrier on loopback (D34 note - no separate local-discovery mechanism ever) |
 | streaming link | absent | WebRTC (Stage 4) as another carrier |
 | **dummy** | test double (inprocess-lineage per `ipc-channel.md:96`) | deterministic supervision tests keep this slot forever |
 

@@ -100,6 +100,27 @@ question becomes a pure walk over the two ledgers:
 The analyzer is a §1-class consumer (CLI `graph` exporting dot/mermaid/json, or a library)
 — zero privileged access, zero kernel growth beyond the ledger itself.
 
+**Three views, one truth chain (D32)**: `graph --view declared|observed|diff`.
+`declared` = the manifest ledger (design view, drawable without running);
+`observed` = the edge ledger (live reality); `diff` = the two ledgers' delta
+(orphans, undeclared use, dead declarations) - **the default view**, the daily
+rot detector. Year 1 ships a minimal analyzer bin (dot export over the existing
+Snapshot/ledger, tens of lines); the full `modukit graph` subcommand rides the
+Stage-2 CLI wagon (D23 wheel). `--diff` as a CI gate is a configuration, not a
+mechanism (D18 already left the stance).
+
+**Live view = trigger-gated (D32)**: an animated graph (edges light up per event,
+thickness from D21 counters) is NOT built now. Trigger: plugin count > 20 or a
+second team joins, whichever first. When it rings, the shape is fixed today: a
+plain browser page acting as an ordinary EventStream client (introspect trio,
+§1) rendering the graph client-side - never embedded in the framework, no new
+kernel code, no bespoke protocol (D17 constitution). Bell-day stack order: try a
+stock Foxglove panel first (zero development if it fits); if not, a single-file
+HTML page with cytoscape.js (graph-dedicated, interaction built-in,
+data-driven styles via mapData; no build chain - d3+dagre and AntV G6 recorded
+as fallbacks). Never: framework-embedded UI, wasm-frontend, hand-rolled layout
+engine. Replay linkage is free via D16 (edge history over a recording).
+
 ### 6.1 Counters at the gate (D21)
 
 No new doorway — the existing ones get richer:

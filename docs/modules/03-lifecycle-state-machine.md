@@ -94,6 +94,24 @@ fn timer(clock, deadline) -> JobToken            // fires as a `done` JobEvent (
   `dl`, unportable to win/mac, fights debuggers); test-only mock clocks (replay would keep
   lying — two clocks, two truths).
 
+## 7. The host's own lifecycle (D34)
+
+The host is a long-lived process; its own lifecycle is three statements, all mirrors of
+existing plugin-side rulings:
+
+1. **Cold start**: bring up the observation ring first (D19 - the host's own logs ride it),
+   read deploy-TOML (D29), then load bundles along the boot DAG (03 §3).
+2. **Graceful shutdown**: on SIGTERM/SIGINT, stop bundles in REVERSE start_level order;
+   each plugin gets its `stop_timeout` (05 §2, D34) with the per-placement expiry outcome;
+   the host itself has a total shutdown budget - exceeded, it exits with a code that says
+   "unclean".
+3. **Self-healing belongs to the OS**: host crash/keepalive is the OS service manager's job
+   (systemd `Restart=`, vehicle power-mode supervisor - general knowledge). The host
+   cooperates with two courtesies: an exit-code vocabulary (clean / config error / fatal,
+   for Restart policies to key on) and best-effort crash testament (last N ring events
+   persisted for post-mortem; implementation trigger-gated on the first field crash
+   analysis need). External watchdogs stay out of scope (03 §4 boundary unchanged).
+
 ## 6. Update path (D8)
 
 The whitepaper lifecycle includes update (§4.1, `whitepaper.md:111`); year-1 semantics are

@@ -23,8 +23,21 @@ trust review. Overriding is config; the plugin never rebuilds to change placemen
 placement:  floor = dl              # host may raise (01 §5, 07 in architecture)
 start_level: 30                      # boot tiers (03 §3)
 start_timeout: 5s
+stop_timeout: 2s                     # shutdown budget per plugin (D34): on expiry,
+                                     #   exe = SIGKILL the process, wasm = cancel execution
+                                     #   (engine epoch), dl = mark FAILED and move on
+                                     #   (in-process code cannot be killed; host never blocks
+                                     #   the shutdown sequence past the budget)
 restart: { policy: on-failure, max_retries: 5, backoff: 1s..30s, cooldown: 5m }
 ```
+
+**Capability freeze (D34)**: the capability set is fixed at install time and re-evaluated on
+every boot - there is no runtime revocation. Restart IS the revocation mechanism (D8
+semantics); anything finer waits for the multi-vendor trigger.
+
+**Duplicate identity (D34)**: installing a second bundle with the same id (any version) is
+rejected at staging - identity is unique per host, not per version. Version supersession is
+an UPDATE (D8), never a parallel install.
 
 `restart` is honored by the supervisor; under `dl` the host is already dead when the plugin
 "crashes" (01 §4), so these fields are inert for `dl` — recorded in the state machine docs,

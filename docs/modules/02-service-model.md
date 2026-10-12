@@ -93,6 +93,13 @@ trait RenderService { fn submit(&self, req: Frame) -> Result<JobToken>; }
 
 ## 5. Deliberately not in year 1
 
+Service-level access control (a provider declaring "only these callers may invoke me") is
+not built - capabilities (D26) gate platform abilities, not inter-plugin calls. Named now,
+trigger-gated on the first multi-vendor ecosystem. Also: state handover between plugin
+generations during hot-update (old plugin passes state to the new one before exit) is NOT
+defined - year-1 update is stop-then-start, cold state, by D8; named for the fleet-update
+trigger.
+
 LDAP filter vocabulary; `ServiceTracker` as a public type; `ServiceFactory` (per-consumer
 instances); per-bundle lease accounting beyond internal refcount; service registry queries
 across namespaces/tenants; multi-instance version routing for `parallel_ok` services

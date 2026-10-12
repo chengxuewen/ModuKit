@@ -51,5 +51,10 @@ carrier/bridge concern, not a kernel concept.
 
 ## 5. Deliberately not
 
-DDS worldviews; per-publisher sequencing guarantees; persistent/durable queues; topics for
+Publisher-side rate LIMITS are not built in year 1 (D34): D21 counters make floods visible
+(the drops/queue-high-water commandments), and year-1 handling is observation + manual
+intervention. An enforcement policy (per-publisher caps, backpressure) is trigger-gated on
+the first real topic-storm incident.
+
+Also deliberately not: DDS worldviews; per-publisher sequencing guarantees; persistent/durable queues; topics for
 RPC; QoS vocabulary borrowed from any vendor (the kernel owns the list, bridges translate).
