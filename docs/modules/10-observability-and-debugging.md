@@ -46,6 +46,13 @@ dual-placement suite — this is the determinism layer, not the honesty layer.
 
 ## 4. Tool faces by stage (all downstream, none privileged)
 
+- **Year 1 (D44)**: `modukit status` - one-screen snapshot over the §1 services (tens of
+  lines of formatting); `modukit ctl start|stop|restart|reap <plugin>` - manual lifecycle
+  through the control panel (03 §8; gates: D37 identity, D26 `org.modukit.control`,
+  ring-landed audit D35).
+- **TUI (D32 bell)**: `modukit watch` - live htop-style tree of states/resources/topology
+  (ratatui; htop/k9s family - general knowledge), same data law: it reads §1 services and
+  subscribes EventStream, zero privileges; obeys 03 §7 lifecycle like any tool.
 - **CLI (Stage 2)**: `ps / inspect / ledger dump|diff / tail / topic stats / record / play /
   call / serve --ws` — every command maps 1:1 to §1 services or ordinary clients;
   `--json` everywhere (unix composability).

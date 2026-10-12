@@ -143,3 +143,24 @@ The whitepaper lifecycle includes update (§4.1, `whitepaper.md:111`); year-1 se
   field exists, is cross-checked (05 §6), and is inert — no multi-instance routing ships.
 - OTA distribution (fetch/verify/rollback of bundles) remains outside the kernel
   (architecture.md §10 out-of-scope list).
+
+## 8. The control panel (D44)
+
+Manual lifecycle operations, a ledger-native service: `start / stop / restart / reap`.
+Every button is a hand-cranked twin of an already-adjudicated automatic mechanism - no
+new machinery:
+
+| Op | Automatic twin |
+|---|---|
+| start / stop / restart | D3 restart family |
+| reap | D34 placement-specific expiry (SIGKILL / epoch-cancel / mark-and-move) |
+| pause-publish | trigger-gated (D21 storm observation gives it reason; first incident builds it) |
+
+Gates: every ctl call passes identity (D37 bridge/local declarations) + capability word
+`org.modukit.control` (D26 vocabulary); accepted AND denied actions land as ring events
+(D35 audit). Monitors wanting a button press this panel through the same gates - there
+is no second control channel.
+
+Honest limits: dl per-plugin resource remains n/a (D22 physics, not laziness - panels
+show aggregates, not illusions); the monitor binary itself obeys this section's sibling
+(§7 host lifecycle) - the oxmgr lesson: a watcher that ignores shutdown blinds the house.
