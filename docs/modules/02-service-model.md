@@ -7,6 +7,10 @@ call sites.**
 
 ## 1. Registration and lookup
 
+**Gate/audit split (D35)**: checks stay at their own gates (install = bundle integrity, D28; resource window = path + capability, D30; executor = trust tier, D2; direct calls = no extra hop, this section). Every gate's allow/deny decision lands as an ordinary event on the observation ring (10 §5) - audits are pure walks over that ring (D17). Cross-tier calls are unrestricted in direction; a callback INTO a lower trust tier passes that tier's capability gate (D26).
+
+
+
 ```
 Registry::register::<S>(Arc<S>, props) -> RegistrationId
 Registry::acquire::<S>() -> Option<ServiceRef<S>>

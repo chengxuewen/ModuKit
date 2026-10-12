@@ -76,7 +76,11 @@ Switch direction is policed: `dl -> exe` (more isolated) is free at deploy time;
 `exe -> dl` is vetoed by the host — reducing isolation is not a deployment decision, it is a
 security decision.
 
-## 6. Deliberately not in year 1
+## 6. Cluster identity (D35)
+
+ModuKit is a single-machine framework with carrier-transparent reach. Three statements: (1) every machine's host is fully sovereign - it installs/runs/supervises its own bundles and keeps working through network partitions (autonomy IS partition resilience); (2) cross-machine service access rides the carrier (zenoh discovery/transport) with call syntax identical to local - distance is a deployment fact (D14); (3) fleet orchestration (what ships where, version consistency, rolling updates) is the orchestrator's job (vehicle SM / K8s-class); ModuKit's two cooperation surfaces are the deploy manifest (packaging unit) and the idempotent install protocol (D28 - safe to replay). No logical multi-machine host, no placement scheduler, no split-brain semantics - refused as identity-level scope.
+
+## 7. Deliberately not in year 1
 
 ProcessExecutor implementation, the shadow-runner binary, cgroup/rlimit supervision,
 witness-based liveness. Interfaces exist (so the closed set is real); implementations land in

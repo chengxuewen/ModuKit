@@ -85,6 +85,10 @@ how big the cells are.
 
 ## 5. Foreign middleware = bridge plugins, never a heart swap
 
+**Terminology (D35): ModuKit has no gateway.** Three worlds, three answers: plugin-to-plugin = direct handle-table calls (no routing layer exists); foreign middleware worlds (DDS etc.) = bridge plugins, any size (the DDS gateway below is the precedent - a bridge can be big, but its identity is always a plugin, gated by D26 capabilities); external entry points (phone/cloud/diagnostic tools) = also bridge plugins (zenoh-to-HTTP and kin) - when traffic policy needs central management, deploy more bridges; never build a kernel component. Observation of cross-world traffic rides the same ring as everything else (D19): sinks that forward to remote aggregators are ordinary subscribers - multi-machine observability is sink topology, not a gateway.
+
+
+
 Interop with ROS2 / DDS / SOME-IP / existing zenoh meshes runs as a **plugin** (it speaks
 the same object API — dogfooding, not a privileged path): opt-in `export`/`import` lists in
 the manifest gate what may cross; each bridge carries its type-mapping table (reverse-DNS
