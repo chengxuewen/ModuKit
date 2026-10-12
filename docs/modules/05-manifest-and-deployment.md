@@ -275,6 +275,42 @@ in-page microfrontends; single-stack collapse (all-React) explicitly allowed at 
 day; re-evaluate React-first if frontend work goes to a larger team. Anything web: a
 standalone tool, never in the host (D17 constitution).
 
+## 6.5 Unified web-admin blueprint (D39 - hearing exhibit, zero year-1 work)
+
+The full-form admin web (all seven sections) is designed now, built only at its
+triggers - this section is the exhibit for the D37 standalone-tool hearing:
+
+- **Shape**: IDE skeleton + cockpit bays - fixed navigation (seven sections: plugins /
+  communication / services / debugging / logs / audit / settings), panel-based interior
+  (draggable layout, Foxglove/Grafana style). Shell = Svelte 5 (nav + RBAC facade +
+  identity bridge); bays = separately-built static packages on separate pages (D37
+  coexistence principle; microfrontends only as fallback).
+- **Data law**: every bay speaks exactly three protocols - introspect calls (read),
+  EventStream subscriptions (streams), ConfigService (live-key writes). New panels never
+  add new protocols (D17 constitution, positive form). The web produces viewports, not
+  data; the host remains untouched.
+- **Multi-host view**: host switcher fed by carrier discovery (D36); every panel
+  annotates data with host_id.
+- **Sections** (panels / data source / trigger): plugins (list/detail/install via D28 /
+  introspect+dump / D32 bell); communication (topology live-view D32, topic browser with
+  D16 replay, D21 rates / EventStream+Snapshot / D32 bell); services (three-view graph
+  D32, edge table D18 / Snapshot+EventStream / D32 bell); debugging (online script/
+  blueprint/DSL IDE per D33 - Monaco+react-flow, DAP shells D17, replay control D16 /
+  bridge debug channel / NEW trigger: first remote-debugging need); logs (live stream +
+  historical search via Loki - external, we ship the sink D19 / EventStream+Loki /
+  deployment-scale trigger); audit (config-change history = ConfigService event replay,
+  governance events per D35 / EventStream / D32 bell); settings (layer-annotated config
+  dump, live-key editing under D37 RBAC, role-prefix map view / ConfigService+dump /
+  ops-team trigger).
+- **Reference designs**: DSH plugin-manager (settings from schema, adopted D38),
+  Foxglove (panel layout/replay - tried first at the D32 bell), Grafana (embedded, never
+  rebuilt), VS Code Web (IDE cabin), Portainer-class light ops consoles (install/log
+  forms).
+- **Trigger ladder**: (1) D32 bell -> shell + plugins/communication/services read-only
+  (live-view expansion, weeks-scale); (2) first remote-debugging need -> debugging bay;
+  (3) ops team appears -> D37 write-path hearing + settings unlock + full RBAC;
+  (4) deployment scale -> Loki; (5) compliance export need -> audit export format.
+
 ## 7. What a year-1 manifest deliberately does not solve
 
 **Config never mounts code (D37, Cordis/DSH cautionary lesson)**: DSH-style "config rows
