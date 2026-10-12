@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). Design baseline whitepaper v1.0 + adjudicated architecture docs (`docs/architecture.md` + `docs/modules/`, 2026-10-10, D2-D5 deltas incl. placement model / availability tier / C+ service model / Stage-1 cut). **Zero source code** (kernel v0 parked outside repo); Stage-1 resumption on explicit instruction only.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). Design baseline whitepaper v1.0 + adjudicated architecture docs (`docs/architecture.md` + `docs/modules/00-10`, 2026-10-10, decisions D2-D29 adjudicated one by one; queue empty, remainder trigger-gated). **Zero source code** (kernel v0 parked outside repo); Stage-1 resumption on explicit instruction only.
 
 ## STRUCTURE
 
@@ -13,8 +13,8 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── README.md             # project front page (English per C1)
 ├── SKILL.md              # skills registry — inventory of .agents/skills + superpowers, activation notes
 ├── docs/whitepaper.md    # v1.0 canon — crate names §2.3, architecture §4, tech stack §5, roadmap §8
-├── docs/architecture.md  # adjudicated engineering baseline 2026-10-10 (D2-D5; §9 delta table)
-├── docs/modules/         # numbered architecture deep dives (00 index, 01-05)
+├── docs/architecture.md  # adjudicated engineering baseline 2026-10-10 (D2-D29; §9 delta table)
+├── docs/modules/         # numbered architecture deep dives (00 index, 01-10)
 ├── .agents/              # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
 ├── docs/reference/       # external-project profiles + audits + decision matrix (20 files)
 ├── docs/codegraph-bootstrap.md  # MCP launcher design doc (reviewed v3)
@@ -32,7 +32,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Task | Location | Notes |
 |---|---|---|
 | What ModuKit is / crate naming authority | `docs/whitepaper.md` | §2.3 namespace plan is canonical |
-| Current architecture decisions (post-v1.0 deltas) | `docs/architecture.md` + `docs/modules/` | D2-D5 provenance; §9 = superseded whitepaper claims |
+| Current architecture decisions (post-v1.0 deltas) | `docs/architecture.md` + `docs/modules/` | D2-D29 provenance; §9 = superseded whitepaper claims |
 | Which skills exist / when they fire | `SKILL.md` | registry; flags inoperative skills (doc-audit re-scope) |
 | Current phase & open items | `.agents/memorys/status.md` | loaded every turn; keep synced with README roadmap (drift = audit finding) |
 | Project conventions | `.agents/memorys/conventions.md` | C0 executable-constraints, C1 English-artifacts |
