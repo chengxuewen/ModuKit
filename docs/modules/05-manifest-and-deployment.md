@@ -95,13 +95,68 @@ Explicitly deferred with owners: archive format choice (decided at CLI packaging
 rollback policy (D16 neighborhood), delta distribution. `min_host` stays the forward-compat
 anchor.
 
-## 5. What a year-1 manifest deliberately does not solve
+## 5. Resources: one bundle, two doors, pass-by-trust (D30)
+
+Resources are non-code assets a plugin ships: icons, layouts, i18n catalogs, model weights,
+calibration curves. They are bundle members per D28 - no second packaging layer, no
+embedded-array compilation (CppMS-style resource compilers couple every plugin language to
+the build system; Qt rcc external mode works but its container would duplicate the archive
+we already have).
+
+- **Declaration**: manifest lists `resources[]` (name/path, size, sha256). The D7 cross-check
+  verifies presence + hash at install. Lying fixtures join the D7 liar family.
+- **Reading**: one semantic answer for all three placements (D2). The kernel mounts a
+  ResourceService (ledger-native, introspect-trio shape: list / stat / open):
+  - **Fast lane (pass-by-trust)**: in-process `dl` plugins at trusted tier receive a plain
+    fd at activation (same process, zero boundary cost) and read natively.
+  - **Window lane (everyone else)**: `exe` (isolation semantics must stay intact; fds are
+    irrevocable and would bypass the accounting gate), `wasm` (no filesystem by design),
+    untrusted tier, and archive-form bundles - open() through the service; bytes or a
+    scoped read stream come back. wasm receives data through its linear-memory door, exe
+    through the D14 attach-once channel if a stream is needed.
+- **Guards at the window**: capability check (D26), quota + accounting (D22), hash
+  verification on first open. The fast lane skips live accounting by design (accepted for
+  trusted in-process plugins; install-time hashes remain).
+- **Concurrency**: the window lane may run reads on a pool behind the gate (D6 sync-boundary
+  semantics preserved; pool = implementation note, not architecture; build it only when a
+  real plugin shows batch-read latency - second trigger after the window itself).
+- **Compression**: a packaging-tool concern, not a manifest field. Per-entry strategy by
+  type (store already-compressed formats, deflate/zstd text) belongs to the future
+  packaging CLI - same trigger day as the archive-format choice (D28).
+- **Year 1**: directory-form bundles + `resources[]` declaration + cross-check only.
+  The ResourceService itself, the fd fast lane, and the window are trigger-gated on the
+  first plugin that needs resources across a boundary (first wasm/exe resource consumer).
+- **Evaluated and rejected**: compiling resource packs as wasm modules (code container for
+  data: format/latency/memory/update-granularity taxes, zero industry adoption); plugin-side
+  direct file reads as the universal path (wasm has no filesystem; archives would need
+  unpacking; breaks D2's one-answer rule).
+
+## 6. Configuration: schema in the contract, values in deploy, live keys opt-in (D29)
+
+Configuration is data, so it goes through doors that already exist:
+
+- **Schema** lives in the plugin's own `.proto` (a `Config` message per D13/D12) - typed,
+  code-generated cross-language, validated by the same contract gates as any field.
+- **Values** live in the deploy-TOML; the D7 cross-check verifies names and value sanity at
+  resolve, together with everything else it already checks.
+- **Change = restart with new values** (D8 stop-based semantics; zero new machinery). Restart
+  is the default and the only year-1 lane.
+- **Hot lane is opt-in**: a plugin may declare `config_live = ["key", ...]` in its manifest.
+  Declared keys additionally receive change events as ordinary topics; the plugin must
+  tolerate mixed old/new values in flight. Undeclared keys never hot-apply - a plugin that
+  assumes hot-apply without declaring it is a liar fixture (same family as the D7 liar).
+
+Year 1 implements schema declaration + value read + cross-check only. The hot-lane event
+specification is recorded here and implemented when the first `config_live` plugin arrives
+(trigger-gated).
+
+## 7. What a year-1 manifest deliberately does not solve
 
 Script dependency pinning (runner-level), i18n metadata, UI contribution points (compositor
 track, demoted), license/marketplace metadata. Each has a named owner stage in
 architecture.md §12 — none of them changes the kernel object model.
 
-## 6. Three-tier residence and cross-check (D7)
+## 8. Three-tier residence and cross-check (D7)
 
 | Tier | Carrier | Fields | Owner |
 |---|---|---|---|

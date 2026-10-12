@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated 2026-10-10: four decisions (D2-D5) documented in `docs/architecture.md` + `docs/modules/` — placement model, availability grade B, C+ service model, thin Stage-1 cut. Kernel v0 experiment parked (backup outside repo); implementation resumption on explicit instruction only.
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-10: decisions D2-D29 in `docs/architecture.md` + `docs/modules/00-10`, walked one by one; adjudication queue EMPTY — everything left is trigger-gated. Kernel v0 experiment parked (backup outside repo); implementation resumption on explicit instruction only.
 
 ## Modules
 
@@ -31,11 +31,11 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated 2026-10-1
 | docs exist & README link resolves | `test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md` | pass (2026-10-09) |
 | C1 English-artifacts check | command block in `.agents/memorys/conventions.md` C1 (negative-proved: red on planted CJK, green after) | pass (2026-10-09) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
-| numbering discipline (ported ids absent) | `grep -rnE '^## (C[2-9][0-9]?|D(29|[3-9][0-9]|[0-9]{3,}))' .agents/memorys/` must be empty — allows modukit-native high-water D1-D28 / C0-C1 (2026-10-10), flags PolyOrch-era shapes; negative proof: planted `## D30:` -> red, removed -> green (observed 2026-10-10) | pass (2026-10-10) |
+| numbering discipline (ported ids absent) | `grep -rnE '^## (C[2-9][0-9]?|D(3[1-9]|[4-9][0-9]|[0-9]{3,}))' .agents/memorys/` must be empty — allows modukit-native high-water D1-D30 / C0-C1 (2026-10-10), flags PolyOrch-era shapes; negative proof: planted `## D31:` -> red, removed -> green (observed 2026-10-10) | pass (2026-10-10) |
 
 ## Open Items
 
-- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/01-05`); approve -> implementation plan (writing-plans); Stage-1 restart only on explicit instruction
+- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-10`, 29 decisions D1-D29); approve -> implementation plan (writing-plans); Stage-1 restart only on explicit instruction
 - [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: P2-P5 user verdicts (github-MCP / arxiv-MCP / openspec-* disposition / affaan-m rerun) + R restart verification
 
 - [ ] `PolyOrch/` is a local reference checkout, git-ignored; decide whether it stays
@@ -47,7 +47,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated 2026-10-1
 
 ## History
 
-- 2026-10-10 (continued 24): twenty-fourth adjudication — bundle distribution (D28): logical install unit + staging/cross-check/atomic-rename protocol, directory and archive both accepted on one pipeline, verification ladder (hash now / signature at untrusted trigger / repository at OTA trigger) each with an owner; archive format and rollback explicitly deferred with owners. modules/05 §4 rewritten + architecture/index synced. High-water D28, fresh D30 probe. The adjudication queue is now EMPTY — remainder are trigger-gated, not discussion-gated.
+- 2026-10-10 (continued 26): twenty-sixth adjudication - resources (D30): bundle members (D28) with manifest declaration + D7 cross-check; ResourceService window for exe/wasm/untrusted/archive readers, fd fast lane for trusted in-process dl only (exe excluded: isolation semantics + irrevocable fds + D22 accounting bypass); wasm-pack resource containers evaluated and rejected (four taxes, zero industry adoption); compression = packaging-CLI parameter (same trigger as archive format); pool behind the window gate = implementation note on measured latency. modules/05 gained section 5 (6-8 renumbered), architecture/00-overview synced. High-water D30, fresh D31 probe. Opened from the resource-file brainstorm; i18n fallback chains and scoped exe fd passes left as triggers. - configuration (D29): schema in the plugin's own .proto, values in deploy-TOML verified by the D7 cross-check, change = restart by default (D8); `config_live` declared keys opt into change events, hot-lane spec trigger-gated on first such plugin; full OSGi Config Admin push-everything and blank-defer rejected. modules/05 gained section 5 (section 6 renumbered to 7), 06 noted reserved system names, architecture/00-overview synced. High-water D29, fresh D30 probe. Opened from the OSGi/CTK/CppMS brainstorm; lazy activation + version ranges left trigger-gated, system-event naming note folded into 06. — bundle distribution (D28): logical install unit + staging/cross-check/atomic-rename protocol, directory and archive both accepted on one pipeline, verification ladder (hash now / signature at untrusted trigger / repository at OTA trigger) each with an owner; archive format and rollback explicitly deferred with owners. modules/05 §4 rewritten + architecture/index synced. High-water D28, fresh D30 probe. The adjudication queue is now EMPTY — remainder are trigger-gated, not discussion-gated.
 
 - 2026-10-10 (continued 23): twenty-third adjudication — error model (D27): two code spaces (kernel enum in runtime.proto, first ledger-native vocabulary; author-owned service enums under sentinel rule), one shared record {code,domain,source,message,kv,hint}; hints feed D3/D6 policies, codes become D21 count dimensions; string-only, universal-table and gRPC-codex options rejected. modules 04/08 + architecture/index synced. High-water D27, fresh D29 probe. Queue left: bundle distribution only.
 

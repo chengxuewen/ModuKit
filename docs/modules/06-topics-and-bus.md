@@ -18,6 +18,9 @@ The registry and the bus share the same late-join discipline: snapshot then delt
 
 ## 2. Topic semantics
 
+System traffic - including the future config-change events for `config_live` keys (D29) -
+rides `org.modukit.*` reserved names (D26 namespace discipline).
+
 - Named by canonical reverse-DNS id (D9); payloads typed by the same single-source schemas
   (04 §1) — one definition, no per-plane dialect. Topics are declared by the
   `(modukit.topic)` option stamp in the authored `.proto` (D13); the manifest only wires

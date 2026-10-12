@@ -218,6 +218,8 @@ them. Re-review trigger recorded in D5.
 | D26 | capability vocabulary | two namespaces: `org.modukit.*` hard-checked (initial 8 words, one per adjudicated mechanism, list lives in the ledger); `com.vendor.*` soft self-registration feeding policy consumers (export/quota/trust) — notes, not keys |
 | D27 | error model | two code spaces (kernel enum in runtime.proto; author-owned service enums under the sentinel rule), one shared record {code, domain, source, message, kv, hint}; hints feed D3/D6 policies, codes become D21 count dimensions; strings never decisional |
 | D28 | bundle & install | logical unit (manifest+artifact+ledger refs+hash), directory/archive both on one pipeline; install = staging -> cross-check -> atomic rename; verification ladder hash(now)/signature(untrusted trigger)/repository(OTA trigger), format & rollback deferred with owners |
+| D29 | configuration | schema in the plugin's own .proto (D13 door), values in deploy-TOML verified by the D7 cross-check; change = restart (D8) by default; `config_live` declared keys opt into change events on ordinary topics, hot-lane spec trigger-gated |
+| D30 | resources | bundle members (D28), manifest-declared + D7 cross-check; ResourceService window for exe/wasm/untrusted/archive; fd fast lane for trusted in-process dl only (same process, no boundary to break; exe excluded to keep isolation semantics + accounting intact); wasm-pack resource containers evaluated and rejected; compression = packaging-CLI concern, trigger-gated |
 
 Full records: `.agents/memorys/decisions.md`.
 Queued for later adjudication (not silently dropped): JS dual-product-face (host-loads-JS vs
