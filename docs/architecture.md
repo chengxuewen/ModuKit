@@ -136,6 +136,12 @@ Unchanged namespace authority (whitepaper §2.3); reinterpretations per §4:
 `modukit-script-*` and `modukit-py/-cs/-js` are runner/SDK packages, `modukit-c` remains the
 C ABI export, `modukit-wasm` is the third executor.
 
+Companion type packs (D45): `modukit-types-<domain>` packages (first candidates:
+vision - camera frames aligned with I420 vocabulary and D15 lanes; motion - IMU/odometry
+aligned with D20 capture_ts discipline). Plain `.proto` packages riding every existing
+gate (D12/D13 versioning, sentinels, fdset, codegen), opt-in by authors, declared as
+provides/requires under D7 - the kernel never embeds them (whitepaper 6.1 red line intact).
+
 Stage-1 deliverable shape:
 
 ```text
@@ -225,6 +231,9 @@ them. Re-review trigger recorded in D5.
 | D32 | dependency graph tool | three views over the D18 ledgers (`graph --view declared|observed|diff`, diff default); year-1 minimal analyzer bin (dot export); full CLI subcommand on the Stage-2 wagon; live animated view trigger-gated (plugins > 20 or second team) with fixed shape: browser page as ordinary EventStream client, Foxglove-stock-panel first, cytoscape.js single-file fallback; never framework-embedded/wasm-frontend/hand-rolled layout |
 | D40 | extension points, drain, team tag | platform extension points = pre-registered platform service interfaces (host is an ordinary consumer; no second channel); side-effect deps modeled as services; key-value blackboard rejected; STOPPING drain = refuse new / finish old / stop_timeout bound (industry-converged); start-approval hook named trigger-gated; manifest `team` label for audit/accounting aggregation only - no permission semantics (D37 RBAC stands); org-level platform mode never self-built; OSGi verdict: lacks are deliberate rejections or filed triggers |
 | D42 | tag semantics | TagEnvelope template in modukit-api (value/quality/timestamp, generated counterparts; voluntary - bus never inspects); run-value downlink = ordinary publish through D26/D37 gates; config vs run-values = two lanes that never merge; deadbands = publisher discipline, bus stays dumb |
+| D45 | standard domain types | companion `modukit-types-<domain>` proto packages (vision/motion first), opt-in, ride D12/D13 gates; kernel never embeds (no-business red line) - closes the ROS2/dora "no shared vocabulary" gap without a kernel type table |
+| D46 | job progress discipline | one latest-value topic per JobToken (`org.modukit.job.<token>`); payload free, kernel routes not interprets; completion/cancel stay on D6 event path |
+| D47 | failover pairs | hot standby free today via D4 ranking (rank = selection, not permission); cold standby named, trigger-gated (first degraded topology) - assembles only from stock parts (D3 Failed / D40 sibling gate / D33 lazy-activation form / D35 audit); general condition-startup DSL rejected (D38) |
 | D44 | control panel & monitor ladder | manual lifecycle ops (start/stop/restart/reap; pause-publish trigger-gated) as ledger-native service - each op is a hand-cranked twin of adjudicated automations (D3/D34); gates: D37 identity + D26 org.modukit.control + every action (denied included) lands on the ring (D35); no second control channel; monitors press the same panel; ladder: year-1 `modukit status` + ctl, TUI `modukit watch` (ratatui) at the D32 bell, web bays at D39 |
 | D43 | tag observation | tag table + trend curves = named bays of the D39 blueprint; history via `modukit history get` CLI tool reading mcap (D16/D23 wagon) - no resident history in host (D17); tag breakpoints = debugger domain (D17); value-triggered action = watchdog plugin, never a rule engine (D38); first-step single-tag trace = introspect query, full causal chains trigger-gated |
 | D41 | DSL bridge (port) | hal-ir PORTED as first-class ModuKit crates at bridge-trigger day (NOT vendored verbatim - maintainer correction: absorb the code, rename to modukit naming/structure/conventions, own it as our crate; provenance note states AUDESYS origin commit); survives upstream death by being OURS outright; bridge wrapper separate (~500 lines); three wrappers carry from the C design (exe-runner step-clock / wasm VM / topics IO / ring observability); trigger = first industrial customer |

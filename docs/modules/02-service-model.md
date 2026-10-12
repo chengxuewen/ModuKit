@@ -114,6 +114,13 @@ provides a readiness signal service; there is no declarative injection ordering.
 shared inter-plugin key-value blackboard is REJECTED - anything shared becomes a service
 (consistency through the one table; otherwise someone invents env vars).
 
+**Job progress (D46)**: each JobToken gets a dedicated progress topic,
+`org.modukit.job.<token>`, latest-value QoS (late joiners see current progress instantly,
+D10). Payload shape is free (percent, items done, stage string - whatever the plugin's
+proto says); the kernel routes, never interprets (D17 no business semantics). Completion
+and cancel stay on the D6 event path; this channel is mid-flight only. Panels (D39) and
+watch (D44) resolve progress with one rule: job -> its topic.
+
 ## 5. Deliberately not in year 1
 
 Service-level access control (a provider declaring "only these callers may invoke me") is

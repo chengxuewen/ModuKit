@@ -58,6 +58,16 @@ Restart budget exhaustion parks in `FAILED` and emits an event — an operator-v
 - Boot is not a latency contract: high-rate hardware data planes bypass the bus entirely
   (architecture.md §6); no microsecond promises here.
 
+**Failover pairs (D47, named - mechanism at its bell)**: hot standby is FREE today -
+two providers of the same service with different ranks (D4's reserved ranking was
+designed for exactly this; consumers select by rank, it is not a permission). Cold
+standby (start the backup on primary Failed) is named and trigger-gated on the first
+real degraded-topology requirement; when it rings, it assembles ONLY from stock parts:
+D3 Failed event -> 03 §3.1's sibling gate (start approval) -> lazy activation in its
+purpose-specific form (D33's deferred general knob), with every switch landing on the
+ring (D35/D36 audit discipline). A general condition-startup DSL is rejected (D38: no
+logic in config, twice-ruled) - nobody may hand-roll a launch rules engine in a plugin.
+
 ## 3.1 Start-approval hook (named, trigger-gated - D40)
 
 A runtime policy checkpoint at RESOLVING ("this id may not start until audited") is named
