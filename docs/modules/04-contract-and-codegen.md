@@ -112,6 +112,18 @@ not a design fact).
 
 ## 5. What is NOT here yet
 
+**Kernel error-code dictionary (D51)** - frozen 14 entries, four domains with sentinel
+tails, never-reuse discipline: lifecycle MANIFEST_INVALID / DEPENDENCY_MISSING /
+DEPENDENCY_CYCLE / START_TIMEOUT / START_REJECTED / STOP_TIMEOUT; contract ABI_MISMATCH /
+CONTRACT_VIOLATION / SCHEMA_INVALID; runtime NOT_FOUND / EPOCH_EXPIRED / CARRIER_UNREACHABLE;
+resource QUOTA_EXCEEDED / CAPABILITY_DENIED. The vocabulary instantiation of D27 (mechanism
+unchanged).
+
+**Generated doc catalogs (D48)** - `modukit doc config|services|topics` emit markdown from
+the registry + fdset, regen-diff gated like the contract suite; TS types from the same
+machine feed the admin web and component route. Reference docs are build artifacts;
+narrative docs stay hand-written.
+
 Cross-check and validation failures report in a structured format (D37, DSH ValidationError
 pattern): offending plugin, config key path, expected vs actual - machine-parseable, one
 line per issue, so deployment-floor triage never decodes prose. The D27 shared error body

@@ -33,7 +33,7 @@ Slot inventory (all simultaneous, per plane, no favorites):
    PAL maturity. All glue stays inside the adapter (five verbs + name-mapping cache);
    the registry never learns vendor vocabulary. |
 | remote carrier | absent | zenoh-shaped (`iceoryx2.md:39` shipped-carrier precedent; `00-overview.md` §2 sheet); same-machine multiple host processes discover each other through the SAME carrier on loopback (D34 note - no separate local-discovery mechanism ever) |
-| streaming link | absent | WebRTC (Stage 4) as another carrier |
+| streaming link | absent | WebRTC (Stage 4) as another carrier; loopback note per D34 |
 | **dummy** | test double (inprocess-lineage per `ipc-channel.md:96`) | deterministic supervision tests keep this slot forever |
 
 **Framing precedent (D12)**: Arrow Flight ships exactly the shape we standardize — small

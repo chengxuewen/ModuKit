@@ -133,27 +133,6 @@ existing plugin-side rulings:
    persisted for post-mortem; implementation trigger-gated on the first field crash
    analysis need). External watchdogs stay out of scope (03 §4 boundary unchanged).
 
-## 6. Update path (D8)
-
-The whitepaper lifecycle includes update (§4.1, `whitepaper.md:111`); year-1 semantics are
-**stop-based with a declared parallel escape hatch**:
-
-| Placement | Mechanism | States traversed |
-|---|---|---|
-| `dl` | new artifact staged (pending marker at `INSTALLED`), activated on next host boot | none for the running instance — the host restart cycle does the swap (01 §4: dlclose is not a reload strategy) |
-| `exe` | supervisor: `ACTIVE -> STOPPING -> (swap artifact) -> STARTING`, restart policy applies | existing §2 edges, no new states |
-
-- Consumers observe exactly one `Unregistered -> Registered` event pair; surviving the gap is
-  governed by the already-adjudicated `on_down` / `policy` fields (02 §2). No silent behavior
-  change: a consumer that chose `wait(timeout)` waits; one that chose `fallback` serves stale.
-- **`parallel_ok` escape hatch (declared, implementation Stage-2)**: an author may declare a
-  provided service stateless/idempotent; only such services, only in `exe` placement, may run
-  two versions concurrently — new registers (version property carries `major`), consumers
-  re-acquire by version affinity, drained old instance unregisters. Year 1: the declaration
-  field exists, is cross-checked (05 §6), and is inert — no multi-instance routing ships.
-- OTA distribution (fetch/verify/rollback of bundles) remains outside the kernel
-  (architecture.md §10 out-of-scope list).
-
 ## 8. The control panel (D44)
 
 Manual lifecycle operations, a ledger-native service: `start / stop / restart / reap`.
@@ -174,3 +153,26 @@ is no second control channel.
 Honest limits: dl per-plugin resource remains n/a (D22 physics, not laziness - panels
 show aggregates, not illusions); the monitor binary itself obeys this section's sibling
 (§7 host lifecycle) - the oxmgr lesson: a watcher that ignores shutdown blinds the house.
+
+
+
+## 9. Update path (D8)
+
+The whitepaper lifecycle includes update (§4.1, `whitepaper.md:111`); year-1 semantics are
+**stop-based with a declared parallel escape hatch**:
+
+| Placement | Mechanism | States traversed |
+|---|---|---|
+| `dl` | new artifact staged (pending marker at `INSTALLED`), activated on next host boot | none for the running instance — the host restart cycle does the swap (01 §4: dlclose is not a reload strategy) |
+| `exe` | supervisor: `ACTIVE -> STOPPING -> (swap artifact) -> STARTING`, restart policy applies | existing §2 edges, no new states |
+
+- Consumers observe exactly one `Unregistered -> Registered` event pair; surviving the gap is
+  governed by the already-adjudicated `on_down` / `policy` fields (02 §2). No silent behavior
+  change: a consumer that chose `wait(timeout)` waits; one that chose `fallback` serves stale.
+- **`parallel_ok` escape hatch (declared, implementation Stage-2)**: an author may declare a
+  provided service stateless/idempotent; only such services, only in `exe` placement, may run
+  two versions concurrently — new registers (version property carries `major`), consumers
+  re-acquire by version affinity, drained old instance unregisters. Year 1: the declaration
+  field exists, is cross-checked (05 §6), and is inert — no multi-instance routing ships.
+- OTA distribution (fetch/verify/rollback of bundles) remains outside the kernel
+  (architecture.md §10 out-of-scope list).

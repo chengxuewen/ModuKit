@@ -23,6 +23,14 @@ replay re-enters through a virtual publisher. No side channels, no kernel additi
 
 ## 2. What gets recorded (policy)
 
+**Storage operations (D49)**: every session carries a retention tier - `debug` (default,
+evicted first), `evidence` (protected, weeks), `golden` (never auto-evicted). Eviction =
+lowest tier then oldest; total quota from deploy-TOML with per-tier shares; exhausted =
+evict debug/evidence oldest, and if nothing evictable remains, PAUSE recording with an
+alarm event on the ring (D19) - golden is never quota-overwritten. Rolling ~256MB shard
+cap keeps replay/upload cheap. The scheduler is userspace file management beside the D16
+recorder.
+
 - Default: **nothing** — recording subscribes per an allowlist that mirrors the D11
   bridge export gates.
 - **Dual-encoding doctrine** (maintainer's prior art, `mediaservo.md:87`): the recording
@@ -43,7 +51,7 @@ replay re-enters through a virtual publisher. No side channels, no kernel additi
   returns); monotonic-offset rule per `dora.md:222`; `capture_ts` stays in the payload,
   seq fields are rewritten to the replay clock.
 - **The dial turns with the film (D20)**: under `step|burst` the replay advances the kernel
-  clock (03 §6); the file header records which clock domain was in force (`real|sim|step`)
+  clock (03 §9); the file header records which clock domain was in force (`real|sim|step`)
   beside the manifest snapshot — so sleeps, timeouts and backoffs replay truthfully.
 - Replayed topics carry the file-header QoS; LOSSY during `burst` means readers fast-forward
   — an ordinary outcome, not a replay bug.

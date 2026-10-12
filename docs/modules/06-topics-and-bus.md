@@ -45,7 +45,7 @@ rides `org.modukit.*` reserved names (D26 namespace discipline).
 
 Industrial point/tag workflows ride the bus unchanged:
 
-- **Envelope by convention**: `modukit-api` (D45) ships a `TagEnvelope<T>` template -
+- **Envelope by convention**: `modukit-api` (D52) ships a `TagEnvelope<T>` template -
   {value, quality good|uncertain|bad, capture timestamp} - with generated TS/Lua/Python
   counterparts. Using it is voluntary (the bus never inspects payloads - D13's door is
   for interfaces, not policing), but enveloped topics render uniformly in panels, trends
