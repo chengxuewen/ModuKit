@@ -47,6 +47,14 @@ an UPDATE (D8), never a parallel install.
 "crashes" (01 §4), so these fields are inert for `dl` — recorded in the state machine docs,
 not hidden.
 
+## 2.1 Team tag (D40)
+
+Optional manifest field `team` (default `default`): a pure LABEL for audit/accounting
+aggregation (D22/D18/D21 outputs group by team; audit events carry it as kv). It has NO
+permission semantics - access control remains D37 prefix RBAC; anyone trying to use team
+as a permission key is corrected by this line. Cross-check ignores it (optional, no
+integrity claim).
+
 ## 3. Dependency and capability declarations
 
 ```

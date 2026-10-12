@@ -17,6 +17,10 @@ UNINSTALLED -> INSTALLED -> RESOLVING -> STARTING -> ACTIVE -> STOPPING -> RESOL
 - `RESOLVING`: contract/link/placement prerequisites checked; required dependencies validated
   (fail here = deterministic boot failure, before any plugin code executes).
 - `STARTING` / `ACTIVE` / `STOPPING`: `start()` / running / cooperative `stop()`.
+  STOPPING drain semantics (D40, the industry-converged three-step): new calls are
+  REFUSED (handle-table marked), in-flight calls complete naturally (bounded by the
+  plugin's `stop_timeout`, D34 expiry rules on overrun) - refuse new, finish old, with
+  an alarm.
 - `FAILED`: reached from `RESOLVING`/`STARTING` (setup error) or — process placement only —
   from `ACTIVE` on supervised death or heartbeat loss.
 - `RESOLVED`: stopped-but-resolved, cheap restart origin.
@@ -53,6 +57,13 @@ Restart budget exhaustion parks in `FAILED` and emits an event — an operator-v
   pending state — the boot graph reports who waits on whom; `failfast` fails the dependent.
 - Boot is not a latency contract: high-rate hardware data planes bypass the bus entirely
   (architecture.md §6); no microsecond promises here.
+
+## 3.1 Start-approval hook (named, trigger-gated - D40)
+
+A runtime policy checkpoint at RESOLVING ("this id may not start until audited") is named
+but not built: the gate exists (resolution order), the policy author is undefined -
+trigger-gated on the first governance-policy requirement. Fits the D35 gate/audit split
+(decisions land on the ring).
 
 ## 4. Watchdog and safety neighbor (out of scope, boundary stated)
 

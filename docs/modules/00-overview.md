@@ -1,7 +1,7 @@
 # ModuKit Module Documentation — Index
 
 Engineering deep-dives complementing [../architecture.md](../architecture.md). Adjudication
-provenance: D2-D39 (`.agents/memorys/decisions.md`), walked one-by-one with the maintainer
+provenance: D2-D40 (`.agents/memorys/decisions.md`), walked one-by-one with the maintainer
 on 2026-10-10.
 
 | # | Document | Covers | Status |

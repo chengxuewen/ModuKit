@@ -97,6 +97,23 @@ trait RenderService { fn submit(&self, req: Frame) -> Result<JobToken>; }
 - **Timers are this pattern's purest citizen (D20)**: `timer(deadline) -> JobToken`, due as
   a `done` event — no new mechanism; waiting joins the job vocabulary (03 §6).
 
+## 4.1 Platform extension points and dependency semantics (D40)
+
+**Extension points = pre-registered platform service interfaces.** The host itself is an
+ordinary service consumer: at startup it registers its extension interfaces on the same
+handle table (transport backend factories, language runner factories, resource stores -
+the list lives in the ledger, same treatment as the D26 vocabulary; changes go through
+the D13 door). Plugins provide implementations as ordinary provides; the boot DAG orders
+them by requires automatically. There is no second registration channel - the service
+table is the only extension mechanism (kernel-framework consensus: OSGi's own later
+guidance, Celix/CppMS/Cordis practice).
+
+Two dependency semantics, made explicit: (1) plugin-to-plugin side-effect dependencies
+("A needs B to have created a directory before A's init") are MODELED AS SERVICES - B
+provides a readiness signal service; there is no declarative injection ordering. (2) A
+shared inter-plugin key-value blackboard is REJECTED - anything shared becomes a service
+(consistency through the one table; otherwise someone invents env vars).
+
 ## 5. Deliberately not in year 1
 
 Service-level access control (a provider declaring "only these callers may invoke me") is
