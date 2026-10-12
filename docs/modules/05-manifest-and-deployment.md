@@ -203,6 +203,10 @@ bundles/<id>/<ver>/modukit.toml   author-owned manifest + proto defaults (immuta
 Precedence: overlay > deploy > manifest defaults (layered overrides, kustomize/drop-in
 pattern). Effective value resolution at load; missing keys take the `.proto` default;
 surplus stale keys warn (rollback-friendly, upgrade-critical); type mismatch fails resolve
+(D37 follow-up from the Cordis/DSH study: overlay sections target plugin ids - patches are
+id-addressed, the shape fleet orchestrators will replay; `modukit config dump` prints the
+resolved effective tree annotated by source layer - one-screen answer to "where does this
+value come from")
 (D7 family). Schema migration is the plugin author's job (docs + migration guide); no
 framework migration DSL (trigger-gated).
 
@@ -272,6 +276,12 @@ day; re-evaluate React-first if frontend work goes to a larger team. Anything we
 standalone tool, never in the host (D17 constitution).
 
 ## 7. What a year-1 manifest deliberately does not solve
+
+**Config never mounts code (D37, Cordis/DSH cautionary lesson)**: DSH-style "config rows
+mount code" (patching config to load arbitrary modules) is rejected - our config carries
+values only; anything executable arrives as a bundle (D28) through the contract door (D13).
+Letting config pull code is the first step around the contract door and collapses the
+trust model.
 
 Script dependency pinning (runner-level), i18n metadata, UI contribution points (compositor
 track, demoted), license/marketplace metadata. Each has a named owner stage in

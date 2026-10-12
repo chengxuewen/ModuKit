@@ -112,6 +112,11 @@ not a design fact).
 
 ## 5. What is NOT here yet
 
+Cross-check and validation failures report in a structured format (D37, DSH ValidationError
+pattern): offending plugin, config key path, expected vs actual - machine-parseable, one
+line per issue, so deployment-floor triage never decodes prose. The D27 shared error body
+is the carrier.
+
 External C-ABI surface freeze (export header versioning policy), cbindgen/uniffi integration
 choices, runner SDK generation, capability negotiation vocabulary. All sit in the §11 queue of
 architecture.md; none of them change the object model above.
