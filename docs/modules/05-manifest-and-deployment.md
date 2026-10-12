@@ -329,6 +329,21 @@ triggers - this section is the exhibit for the D37 standalone-tool hearing:
   (3) ops team appears -> D37 write-path hearing + settings unlock + full RBAC;
   (4) deployment scale -> Loki; (5) compliance export need -> audit export format.
 
+## 6.6 Build-to-bundle: `modukit build` (D55)
+
+The build endpoint for a plugin is a deploy-ready bundle. `modukit build` detects the
+author's build system (CMake/Cargo/build.zig), compiles into a temp area, assembles the
+standard layout (modukit.toml + artifact + lib/ + vendor/ + resources/), locks $ORIGIN
+RPATH, collects dependencies, content-addresses >1MB files (`.modukit/objects/<hash>` +
+hardlinks, read-only 444 + load-time re-verification), and emits the hash manifest -
+output installs via the D28 protocol directly. Dependency privatization: private deps
+build in; OS base libs from the documented whitelist (libc/libstdc++/libm); third-party
+.so per-bundle in lib/ (OpenCV 3 and 4 coexist on one host); venv/node_modules in
+vendor/. No dependency version ranges - privatization removes the negotiation. The
+framework is a packager, never a builder; env-chaining (colcon setup.bash) deliberately
+absent (the host computes its own paths). `modukit pack` (archive + compression) stays
+on the D28 CLI-day trigger; cross-machine dedup is orchestrator-side (D35).
+
 ## 7. What a year-1 manifest deliberately does not solve
 
 **Config never mounts code (D37, Cordis/DSH cautionary lesson)**: DSH-style "config rows

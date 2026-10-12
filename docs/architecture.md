@@ -136,6 +136,8 @@ Unchanged namespace authority (whitepaper §2.3); reinterpretations per §4:
 `modukit-script-*` and `modukit-py/-cs/-js` are runner/SDK packages, `modukit-c` remains the
 C ABI export, `modukit-wasm` is the third executor.
 
+Plugin build-to-bundle (D55): `modukit build` (first-class, split from the D23 wagon) detects the author's build system, compiles into a temp area, assembles the standard bundle layout (modukit.toml + artifact + lib/ + vendor/ + resources/), locks $ORIGIN RPATH, collects dependencies, content-addresses >1MB files into `.modukit/objects/<hash>` with bundle hardlinks (Docker/Nix/ostree-style dedup; read-only bits + load-time re-verification), emits the hash manifest - output installs via D28 directly. Dependency privatization: private deps build in; OS base libs from a documented whitelist; third-party .so per-bundle in lib/ (OpenCV 3 and 4 coexist); venv/node_modules in vendor/; no version ranges (privatization removes negotiation). The framework is a PACKAGER, never a builder; duplicate-id rejection (D34), blue-green via host_ids (D37), parallel_ok valve (Stage-2) unchanged; setup.bash-style env chaining deliberately absent (host computes its own paths).
+
 Companion type packs (D45): `modukit-types-<domain>` packages (first candidates:
 vision - camera frames aligned with I420 vocabulary and D15 lanes; motion - IMU/odometry
 aligned with D20 capture_ts discipline). Plain `.proto` packages riding every existing
