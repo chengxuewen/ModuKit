@@ -55,6 +55,16 @@ permission semantics - access control remains D37 prefix RBAC; anyone trying to 
 as a permission key is corrected by this line. Cross-check ignores it (optional, no
 integrity claim).
 
+## 2.2 Capability additions: net-listen, net-connect, workdir (D54)
+
+Three verbs named for exe plugins (any language, Node/Web included - no special
+privilege): `org.modukit.net-listen` (bind port; address/port in deploy `[net] listen`,
+default loopback, format cross-checked), `org.modukit.net-connect` (outbound third-party
+calls; optional target allowlist in deploy), `org.modukit.workdir` (one writable
+`<data-root>/<plugin-id>/` per plugin, boundary not configurable, uninstall removes it,
+data corruption is the plugin's business). All ride D26 machinery: manifest declaration,
+install-time freeze, ring audit, minimum grant. Vocabulary now 13 words.
+
 ## 3. Dependency and capability declarations
 
 ```
