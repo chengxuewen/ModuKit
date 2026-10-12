@@ -7,6 +7,8 @@ call sites.**
 
 ## 1. Registration and lookup
 
+**Host identity and name resolution (D36)**: plugins keep their contract names (D9, written in `.proto`) - the host_id is a door plate, not part of the contract. Cross-host addressing composes `host_id/name`; resolution: unqualified = this host first (never looks outward if found locally); cross-host access is always explicit (qualified name) or explicitly wildcarded. Same-app multi-path replicas = two hosts installing the same bundle under different host_ids - names never collide. Runtime renaming (ROS-style remapping) is REJECTED: names are contract + deployment fact, nothing else (D13 single door).
+
 **Gate/audit split (D35)**: checks stay at their own gates (install = bundle integrity, D28; resource window = path + capability, D30; executor = trust tier, D2; direct calls = no extra hop, this section). Every gate's allow/deny decision lands as an ordinary event on the observation ring (10 §5) - audits are pure walks over that ring (D17). Cross-tier calls are unrestricted in direction; a callback INTO a lower trust tier passes that tier's capability gate (D26).
 
 

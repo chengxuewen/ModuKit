@@ -23,6 +23,10 @@ trust review. Overriding is config; the plugin never rebuilds to change placemen
 placement:  floor = dl              # host may raise (01 §5, 07 in architecture)
 start_level: 30                      # boot tiers (03 §3)
 start_timeout: 5s
+host_id: cockpit                     # host instance name (D36, deploy-level, not per-plugin);
+                                     #   default = machine hostname; collision on the carrier
+                                     #   (cloned machines) = startup warning + forced explicit
+                                     #   distinct ids
 stop_timeout: 2s                     # shutdown budget per plugin (D34): on expiry,
                                      #   exe = SIGKILL the process, wasm = cancel execution
                                      #   (engine epoch), dl = mark FAILED and move on
@@ -194,7 +198,7 @@ architecture.md §12 — none of them changes the kernel object model.
 
 | Tier | Carrier | Fields | Owner |
 |---|---|---|---|
-| **deploy** | bundle `modukit.toml` (TOML by adjudication 28: human annotations + typed + nested tables + Cargo-grade parser; INI cannot nest the resource tree, JSON cannot carry comments, YAML's indentation minefield and parser divergence are deployment-floor hazards; `resources[]`/config ride the same envelope) | `entry.kind` floor (raise-only), artifact/runner, `start_level`, `start_timeout`, `restart{}`, requires `policy`/`on_down`, `capabilities[]`, `min_host`, `resources[]` (D30) | ops / packaging |
+| **deploy** | bundle `modukit.toml` (TOML by adjudication 28: human annotations + typed + nested tables + Cargo-grade parser; INI cannot nest the resource tree, JSON cannot carry comments, YAML's indentation minefield and parser divergence are deployment-floor hazards; `resources[]`/config ride the same envelope) | `entry.kind` floor (raise-only), artifact/runner, `start_level`, `start_timeout`, `stop_timeout` (D34), `host_id` (D36, host-level config), `restart{}`, requires `policy`/`on_down`, `capabilities[]`, `min_host`, `resources[]` (D30) | ops / packaging |
 | **self-report** | `PluginAbiV1` descriptor fields (04 §3) | `id`, `version`, `provides[]` (+ ranking, `parallel_ok`), requires + `topics[]` summaries (D10) | plugin code — or its runner, for script plugins |
 | **verification** | pre-dlopen ELF/Mach-O/PE parse | link/dependency sanity | kernel, stage-5 only; a guard, never a truth source |
 

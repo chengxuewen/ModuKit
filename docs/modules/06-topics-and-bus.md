@@ -18,6 +18,11 @@ The registry and the bus share the same late-join discipline: snapshot then delt
 
 ## 2. Topic semantics
 
+**Boundary and naming discipline (D36)**: four combinations, all name discipline, zero new machinery. (1) Same-host groups: topics under a component prefix (`safety/*`, `cockpit/*`) with subscribe-discipline; hard group permissions stay behind the multi-vendor trigger (same philosophy as D34 rate limits). (2) Global broadcast: topics designed fleet-wide carry unqualified names (`fleet.telemetry`) - publishing from any machine reaches all via the carrier; wanting global is the author's explicit decision, expressed in the name. (3) Same-app clusters: application-prefix namespaces (`app-a/*`) interconnect, others do not subscribe - pure convention. (4) Runtime renaming stays rejected (see 02 §1, D36). Deliberate violation of naming discipline is not a naming problem - it is malice, handled by capability gates and trust tiers (D26/D2).
+
+System traffic - including the future config-change events for `config_live` keys (D29) -
+rides `org.modukit.*` reserved names (D26 namespace discipline).
+
 System traffic - including the future config-change events for `config_live` keys (D29) -
 rides `org.modukit.*` reserved names (D26 namespace discipline).
 
