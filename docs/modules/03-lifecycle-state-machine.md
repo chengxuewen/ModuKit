@@ -168,7 +168,8 @@ The whitepaper lifecycle includes update (§4.1, `whitepaper.md:111`); year-1 se
 
 - Consumers observe exactly one `Unregistered -> Registered` event pair; surviving the gap is
   governed by the already-adjudicated `on_down` / `policy` fields (02 §2). No silent behavior
-  change: a consumer that chose `wait(timeout)` waits; one that chose `fallback` serves stale.
+  change: a consumer that chose `wait(timeout)` waits; one that chose `fallback` gets error
+  records and decides its own degradation (D62).
 - **`parallel_ok` escape hatch (declared, implementation Stage-2)**: an author may declare a
   provided service stateless/idempotent; only such services, only in `exe` placement, may run
   two versions concurrently — new registers (version property carries `major`), consumers

@@ -129,12 +129,16 @@ does not need to be resolved before Stage 1 lands.
    languages have code (G10)?~~ **EXECUTED 2026-10-09**: instructions 26→16
    (common+rust only; all rule dirs kept on disk per maintainer ruling —
    status.md History).
-4. A6 binding wording ("hand-written binding layers prohibited; generated-only
-   from the single C ABI") — ratify as ModuKit D-record?
+4. ~~A6 binding wording ("hand-written binding layers prohibited; generated-only
+   from the single C ABI") — ratify as ModuKit D-record?~~ **RATIFIED 2026-10-13 as D63**
+   — refined into the three-tier doctrine (generated floor / emitter craft point /
+   constrained sugar) after the maintainer's iceoryx2 usability challenge.
 5. **Header-first vs metadata-first contract** (uniffi finding): ModuKit's
    C-ABI canon could mean hand-authored header is truth (Visia shape) OR
    typed IDL is truth with the C ABI as generated projection (uniffi shape).
    UnFreeze before Stage 5 binding work; decision record either way.
+   **RATIFIED 2026-10-13 as D63** — metadata-first: `.proto` is the contract, the C ABI
+   is its generated projection and the only binary exit (D13's direction made explicit).
 6. Whitepaper Stage-4 wording carries a naming+category error
    (`getstream-rtc` → `getstream` vendor SDK); Stage-1 wording carries a
    misfire (`rustbridge`) and unresolvable names (`event-engine`,

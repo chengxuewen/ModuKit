@@ -99,8 +99,9 @@ modukit_plugin_init -> *const PluginAbiV1 { abi_version, size, name, start, stop
 - Symbol discipline: single exported entry symbol (`modukit_plugin_init`); plugin internals stay
   private; edition-2024 `#[unsafe(no_mangle)]` + `extern "C"` on the entry only.
 - Pre-load validation exists for hostile shapes: ELF/Dylib sanity checks before executing
-  initializers (rutis metadata-first argument — `docs/reference/rutis.md:183-184`; header-first
-  vs metadata-first itself remains a queued canon question, architecture.md §11).
+  initializers (rutis metadata-first argument — `docs/reference/rutis.md:183-184`; the queued
+  polarity question was since ratified by D63: metadata-first — `.proto` is the truth, the C
+  ABI is its generated projection and the only binary exit).
 
 ## 4. Contract suite
 
@@ -132,3 +133,25 @@ is the carrier.
 External C-ABI surface freeze (export header versioning policy), cbindgen/uniffi integration
 choices, runner SDK generation, capability negotiation vocabulary. All sit in the §11 queue of
 architecture.md; none of them change the object model above.
+
+## 6. Bindings layering - generated floor, emitter craft, constrained sugar (D63)
+
+Three tiers, one invariant (one floor, one tool):
+
+- **Generated floor**: contracts are hand-written `.proto` (§1); the C ABI and every
+  language's base binding are outputs of the same codegen toolchain. Hand-writing a
+  REPLACEMENT floor is forbidden - per-language drift (missing methods, semantics
+  diverging between hand copies) is the disease A6 rejected and this rule keeps killing.
+- **Emitter is the only craft point**: ergonomics of the generated surface (Python context
+  managers, JS promise shapes, C option structs) are fixed centrally in emitter templates -
+  one fix, every language benefits. Iceoryx2 evidence: their size/alignment footgun was
+  tamed by ffi-macros, not hand-porting (`docs/reference/iceoryx2.md:82`); uniffi keeps
+  custom types inside the generator's model (`docs/reference/uniffi-rs.md:84`).
+- **Constrained sugar layer**: thin per-language idiom wrappers riding ABOVE the floor are
+  allowed under three hard rules - call only the floor (never host internals, never door
+  bypass); add no new semantics (contract shapes go back through `.proto`); ship tested
+  with the floor against the §4 fixtures (CI red on drift). Lag becomes "sugar arrives
+  late", never "floor lies" (iceoryx2 python/cxx lag is the worked precedent).
+
+Sugar demand per language rides the first real plugin need (trigger-gated); emitter v1
+stays minimal. C-ABI export freeze timing remains its own trigger-gated question (§11).

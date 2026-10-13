@@ -263,14 +263,18 @@ them. Re-review trigger recorded in D5.
 | D59 | ROS site settings | ROS_DOMAIN_ID/RMW_IMPLEMENTATION/ROS_LOCALHOST_ONLY in deploy-TOML [ros2]; host_id logic for the network domain; one host one domain, host-guaranteed; bundles carry no runtime values |
 | D60 | ROS lifecycle + discipline | stop_timeout 3s recommended rclcpp override (suggestion, D34 unchanged); ROS knowledge lives in templates/recipes/declarations - host middleware-illiterate by construction |
 | D61 | Foxglove interop | D16 recorder ours over neutral mcap crate; foxglove-ws bridge plugin (sdk WebSocket server embedded, app unchanged, panels lit); writeback = ordinary client through existing gates, no exemption; per-bridge mapping tables + dictionary-pack trigger; sdk bridge-only, never host; upload site-side |
+| D62 | fallback semantics | error-carrying stub: ServiceRef stays callable, every call returns D27 record (SERVICE_UNAVAILABLE), never blocks never fabricates; stale-cache/default-map are consumer-side patterns (D46); absence counted in D21; required+fallback still fails boot resolve (D3) |
+| D63 | bindings layering (A6 ratified, refined) | generated floor (hand-written substitutes forbidden), ergonomics fixed only in emitter templates, thin per-language sugar allowed above the floor (floor-only, semantics-free, fixture-tested); metadata-first ratified - .proto is truth, C ABI its generated projection |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
 Full records: `.agents/memorys/decisions.md`.
-Queued for later adjudication (not silently dropped): JS dual-product-face (host-loads-JS vs
-kernel-embedded-in-JS-app), capability-vocabulary design pass,
-header-first vs metadata-first ABI (`docs/reference/00-overview.md` §4 queue), C-ABI export
-freeze timing, `fallback` cached-value semantics, external-consumer validation round.
+Queue closed 2026-10-13 (nothing silently dropped): JS dual-product-face settled by
+D33/D51/D54; capability-vocabulary design pass settled by D26/D56; header-first vs
+metadata-first ratified by D63 (metadata-first); `fallback` semantics ruled by D62
+(error-carrying stub). Remainder is trigger-gated, not discussion-gated: C-ABI export
+freeze timing (before first external binding consumer), external-consumer validation
+round (Stage-2 onward; `docs/reference/00-overview.md` §4).
 
 ## 12. Roadmap (amended §8)
 
@@ -293,7 +297,7 @@ per D11, only backend/vendor selection remains open).
 | [modules/01-plugin-placement-model.md](modules/01-plugin-placement-model.md) | placement model: executors, shadow-runner, asymmetries, host lifecycle, cluster identity |
 | [modules/02-service-model.md](modules/02-service-model.md) | C+ registry semantics and invariants |
 | [modules/03-lifecycle-state-machine.md](modules/03-lifecycle-state-machine.md) | states, Failed edge, boot orchestration |
-| [modules/04-contract-and-codegen.md](modules/04-contract-and-codegen.md) | single source, two transports, handshake |
+| [modules/04-contract-and-codegen.md](modules/04-contract-and-codegen.md) | single source, two transports, handshake, bindings layering (D63) |
 | [modules/05-manifest-and-deployment.md](modules/05-manifest-and-deployment.md) | manifest + deployment: capabilities, bundles, resources, config, build-to-bundle, ROS 2 pixi lane |
 | [modules/06-topics-and-bus.md](modules/06-topics-and-bus.md) | object table, topic QoS, tags discipline, instrumentation taps |
 | [modules/07-transport-architecture.md](modules/07-transport-architecture.md) | transport seam, slots, descriptor law, bridges incl. foxglove-ws |

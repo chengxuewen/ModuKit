@@ -56,9 +56,12 @@ Manifest-declared (05 §3), resolved at `RESOLVING`:
 | `policy` | `wait(timeout)` / `failfast` / `fallback` | consumer behavior while absent |
 | `on_down` | `restart-self` / `block` / `fail-self` | behavior after a *previously present* optional/required service vanishes |
 
-`fallback` semantics are an open item (cached-stale vs default-value vs error-carrying stub):
-architecture.md §11 queue. The event stream plus snapshot covers both implementations, so the
-enum can stay unimplemented without freezing the design.
+`fallback` semantics (D62): the ServiceRef stays callable while the dependency is absent,
+and every call returns a D27 error record (SERVICE_UNAVAILABLE) - never blocks, never
+fabricates. Stale-caching and default-mapping are consumer-side degradation patterns written
+atop the honest error (the kernel routes, it does not interpret - D46); absence lands in the
+D21 counters so degradation is observable and alarmable. `required=true` still fails resolve
+at boot (D3) - fallback governs runtime absence only.
 
 **No polling path exists in the API.** A consumer either holds a `ServiceRef` or subscribes;
 repeated `acquire()` loops are a review smell.
