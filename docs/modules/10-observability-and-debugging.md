@@ -9,7 +9,7 @@ custom protocol, no back doors.
 |---|---|---|
 | `LedgerDump.dump()` | the exact fdset bytes this host loaded (+ host/ABI version stamps) | CLI `ledger`, recorder header (09), bridge type-mapping self-check |
 | `Snapshot.all(filter)/one(handle)` | object-table cut: plugins (state/placement/version/restart counts), services (provider/properties/ranking), topics (pubs/subs + **drop counters**), in-flight jobs, open slots + holders | CLI `ps`/`inspect`, dashboards, debug launch presets |
-| `EventStream.tail(since_seq)` | merged ring: lifecycle transitions, registry events, QoS drops, bridge/transport stats — monotonic seq, resumable | CLI `tail`, Foxglove live bridge, gap-audit tools |
+| `EventStream.tail(since_seq)` | merged ring: lifecycle transitions, registry events, QoS drops, bridge/transport stats — monotonic seq, resumable | CLI `tail`, Foxglove live bridge (D61: foxglove-ws bridge plugin), gap-audit tools |
 
 Read-only, side-effect-free; events are trust-tier filtered (D2 table) — a vendor plugin never
 sees the cockpit's full wiring. **Constitutional rule: if a tool wants data that these three

@@ -140,6 +140,8 @@ Plugin build-to-bundle (D55): `modukit build` (first-class, split from the D23 w
 
 ROS 2 via pixi (D56-D60): net-listen grammar gains port ranges + multicast joins (DDS discovery declared, no new word - D56); pixi/conda environments ride class four into vendor/ with pixi.lock as the pin, activation = static injection default + ring-audited activate-script escape hatch, the host never runs bundle-borne shell (D57); modukit build executes author-declared recipe strings, ecosystem knowledge lives in templates (D58); ROS_DOMAIN_ID/RMW_IMPLEMENTATION/ROS_LOCALHOST_ONLY are site facts in deploy-TOML [ros2], host_id logic for the network domain (D59); rclcpp stop_timeout recommended override 3s, the host stays middleware-illiterate by construction (D60).
 
+Foxglove interop (D61): the D16 recorder stays ours over the neutral mcap crate (foxglove-sdk never enters the recording path); a bridge plugin embeds the foxglove-sdk WebSocket server so the app connects unchanged with all stock panels lit; writeback crosses as an ordinary client through the existing gates (no debug exemption, D44); type-mapping tables are per-bridge (D11) with a dictionary-pack promotion trigger at the second ecosystem; foxglove-sdk is bridge-plugin-only (never the host link domain); Foxlet/Data Platform upload is site-side.
+
 Companion type packs (D45): `modukit-types-<domain>` packages (first candidates:
 vision - camera frames aligned with I420 vocabulary and D15 lanes; motion - IMU/odometry
 aligned with D20 capture_ts discipline). Plain `.proto` packages riding every existing
@@ -259,6 +261,7 @@ them. Re-review trigger recorded in D5.
 | D58 | build recipe delegation | modukit build runs author-declared command strings (modukit.toml [build]); ecosystem knowledge lives in D23 templates, never the framework - packager law extended |
 | D59 | ROS site settings | ROS_DOMAIN_ID/RMW_IMPLEMENTATION/ROS_LOCALHOST_ONLY in deploy-TOML [ros2]; host_id logic for the network domain; one host one domain, host-guaranteed; bundles carry no runtime values |
 | D60 | ROS lifecycle + discipline | stop_timeout 3s recommended rclcpp override (suggestion, D34 unchanged); ROS knowledge lives in templates/recipes/declarations - host middleware-illiterate by construction |
+| D61 | Foxglove interop | D16 recorder ours over neutral mcap crate; foxglove-ws bridge plugin (sdk WebSocket server embedded, app unchanged, panels lit); writeback = ordinary client through existing gates, no exemption; per-bridge mapping tables + dictionary-pack trigger; sdk bridge-only, never host; upload site-side |
 
 Full records: `.agents/memorys/decisions.md`.
 Queued for later adjudication (not silently dropped): JS dual-product-face (host-loads-JS vs

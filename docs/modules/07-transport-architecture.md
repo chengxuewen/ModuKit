@@ -97,6 +97,16 @@ zero-copy never crosses it. Nothing is exported by default. (A ROS 2 exe
 plugin's own DDS traffic is not interop - it is the plugin's declared network
 surface under D56; the bridge rules govern what crosses into the object table.)
 
+**Foxglove live bridge (D61)**: a bridge plugin embedding the foxglove-sdk
+(MIT, Rust) WebSocket server speaks the Foxglove WebSocket protocol, so the
+app connects unchanged with every stock panel lit. Writeback (publish /
+service call / parameter set) crosses as an ordinary client through the
+existing gates - object table + D26, normal resolution, D37 ConfigService
+four-gate; no debug exemption (D44). Each bridge carries its own type-mapping
+table (D11); dictionary-pack promotion fires at the second bridge/ecosystem.
+foxglove-sdk lives only in bridge plugins, never the host link domain (D60
+discipline); Foxlet/Data Platform upload is site-side (D61f).
+
 **Bridge toolbox** (D12, trigger-when-needed, unverified here): row-encoded external streams
 may be transcoded wire->columnar directly (`ptars` Rust, `pybufarrow`, `arrowpb` —
 self-reported benchmarks, no claims made in this repo); the kernel itself only ever sees

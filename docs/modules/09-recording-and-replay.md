@@ -28,7 +28,9 @@ evicted first), `evidence` (protected, weeks), `golden` (never auto-evicted). Ev
 lowest tier then oldest; total quota from deploy-TOML with per-tier shares; exhausted =
 evict debug/evidence oldest, and if nothing evictable remains, PAUSE recording with an
 alarm event on the ring (D19) - golden is never quota-overwritten. Rolling ~256MB shard
-cap keeps replay/upload cheap. The scheduler is userspace file management beside the D16
+cap keeps replay/upload cheap (cloud upload is a SITE-side decision: Foxlet /
+Data Platform read the ordinary files, the framework is uninvolved - D61).
+The scheduler is userspace file management beside the D16
 recorder.
 
 - Default: **nothing** — recording subscribes per an allowlist that mirrors the D11
