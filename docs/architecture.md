@@ -1,6 +1,6 @@
 # ModuKit Architecture
 
-**Status**: adjudicated engineering baseline (2026-10-10). Where this document differs from the
+**Status**: adjudicated engineering baseline (2026-10-10; D56-D61 added 2026-10-13). Where this document differs from the
 [whitepaper](whitepaper.md) v1.0 vision text, the delta table in §9 is authoritative and the
 whitepaper remains canon for naming (§2.3) and principles (§3) not amended here.
 **Provenance**: architecture questions were adjudicated one-by-one with the maintainer
@@ -244,6 +244,7 @@ them. Re-review trigger recorded in D5.
 | D50 | check gate | scripts/check.sh five fast local checks (fmt/clippy/test/C1/skill-lint, skip-when-absent) replaces dangling gate.sh refs NOW; coverage = llvm-cov staged (none -> 60% soft after first crate -> 80% hard); CI wired at Stage-1 revival with the same script; cargo audit rides CI |
 | D51 | kernel error codes | 14 entries, all adjudicated-mechanism translations, four domains with RESERVED sentinels, never-reuse/freeze-deprecated - vocabulary instantiation of D27 |
 | D54 | plugin capability surface | net-listen (port in deploy [net] listen, default loopback) / net-connect (separate word, optional allowlist) / workdir (one writable dir per plugin, boundary fixed, uninstall removes, corruption is plugin's business) - D26 vocabulary 10->13, applies to ANY exe plugin equally; napi-rs direction clarified: binding (JS->C ABI) never embedding; implementation at first Node/Web plugin trigger |
+| D55 | build-to-bundle | `modukit build`: detect builder -> compile -> standard layout -> $ORIGIN RPATH -> dep privatization four classes -> >1MB content-addressed dedup -> hash manifest -> D28 install; framework = packager never builder; no version ranges; setup.bash chaining absent |
 | D52 | SDK layout | modukit-api (types+macros+generated re-exports, seconds compile) / modukit-testing (dev-dep only, D24 face) / modukit-cli (standalone wagon) split; runtime machinery host-side, authors untouched; TS SDK from proto generation |
 | D47 | failover pairs | hot standby free today via D4 ranking (rank = selection, not permission); cold standby named, trigger-gated (first degraded topology) - assembles only from stock parts (D3 Failed / D40 sibling gate / D33 lazy-activation form / D35 audit); general condition-startup DSL rejected (D38) |
 | D44 | control panel & monitor ladder | manual lifecycle ops (start/stop/restart/reap; pause-publish trigger-gated) as ledger-native service - each op is a hand-cranked twin of adjudicated automations (D3/D34); gates: D37 identity + D26 org.modukit.control + every action (denied included) lands on the ring (D35); no second control channel; monitors press the same panel; ladder: year-1 `modukit status` + ctl, TUI `modukit watch` (ratatui) at the D32 bell, web bays at D39 |
@@ -262,6 +263,8 @@ them. Re-review trigger recorded in D5.
 | D59 | ROS site settings | ROS_DOMAIN_ID/RMW_IMPLEMENTATION/ROS_LOCALHOST_ONLY in deploy-TOML [ros2]; host_id logic for the network domain; one host one domain, host-guaranteed; bundles carry no runtime values |
 | D60 | ROS lifecycle + discipline | stop_timeout 3s recommended rclcpp override (suggestion, D34 unchanged); ROS knowledge lives in templates/recipes/declarations - host middleware-illiterate by construction |
 | D61 | Foxglove interop | D16 recorder ours over neutral mcap crate; foxglove-ws bridge plugin (sdk WebSocket server embedded, app unchanged, panels lit); writeback = ordinary client through existing gates, no exemption; per-bridge mapping tables + dictionary-pack trigger; sdk bridge-only, never host; upload site-side |
+
+_(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
 Full records: `.agents/memorys/decisions.md`.
 Queued for later adjudication (not silently dropped): JS dual-product-face (host-loads-JS vs
@@ -287,13 +290,13 @@ per D11, only backend/vendor selection remains open).
 | Doc | Subject |
 |---|---|
 | [modules/00-overview.md](modules/00-overview.md) | index and reading order |
-| [modules/01-plugin-placement-model.md](modules/01-plugin-placement-model.md) | executors, shadow-runner, switchability |
+| [modules/01-plugin-placement-model.md](modules/01-plugin-placement-model.md) | placement model: executors, shadow-runner, asymmetries, host lifecycle, cluster identity |
 | [modules/02-service-model.md](modules/02-service-model.md) | C+ registry semantics and invariants |
 | [modules/03-lifecycle-state-machine.md](modules/03-lifecycle-state-machine.md) | states, Failed edge, boot orchestration |
 | [modules/04-contract-and-codegen.md](modules/04-contract-and-codegen.md) | single source, two transports, handshake |
-| [modules/05-manifest-and-deployment.md](modules/05-manifest-and-deployment.md) | manifest fields, deploy-time placement rules |
-| [modules/06-topics-and-bus.md](modules/06-topics-and-bus.md) | topics, QoS, the object table |
-| [modules/07-transport-architecture.md](modules/07-transport-architecture.md) | transport seam, slots, bridges |
+| [modules/05-manifest-and-deployment.md](modules/05-manifest-and-deployment.md) | manifest + deployment: capabilities, bundles, resources, config, build-to-bundle, ROS 2 pixi lane |
+| [modules/06-topics-and-bus.md](modules/06-topics-and-bus.md) | object table, topic QoS, tags discipline, instrumentation taps |
+| [modules/07-transport-architecture.md](modules/07-transport-architecture.md) | transport seam, slots, descriptor law, bridges incl. foxglove-ws |
 | [modules/08-end-to-end-walkthrough.md](modules/08-end-to-end-walkthrough.md) | end-to-end worked example: one video frame across all layers |
 | [modules/09-recording-and-replay.md](modules/09-recording-and-replay.md) | recording, replay, container policy |
 | [modules/10-observability-and-debugging.md](modules/10-observability-and-debugging.md) | introspect trio, logger, edge ledger + analysis, debug lanes, tool constitution |

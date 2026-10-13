@@ -23,7 +23,7 @@ Series of profiles for open-source / sibling projects under `.refinfo/`
 | CTK | [ctk.md](ctk.md) | REFERENCE-ONLY (sliver: SQL install-set persistence + DEPRECATED_SINCE cutoff policy) | 6313-commit Qt/medical OSGi twin of CppMS; kernel frozen legacy (active maintenance is Qt6 hygiene); Qt LGPL runtime is the real gate; alive-but-frozen health read |
 | Apache Celix | [celix.md](celix.md) | BORROW-PATTERNS + CAUTIONARY-TALES (primary Stage-1 mirror #2) | The C-ABI-native OSGi (ASF, 221 .c files, framework 15.2k LoC): option-struct C APIs + sync-use discipline confirm D2/D6/D13; 1.2k-line DS engine + 3.4k-line dfi interpreter = live price of layers we rejected (D4/D13); unpacking bundle cache + flat properties manifest = anti-patterns our D28/D31 answer; error-injector test pattern for the D7 liar family |
 | Cordis | [cordis.md](cordis.md) | BORROW-PATTERNS (composition-kernel reference) | 1.9k-line TS plugin kernel under DeepSeek Harness: registry-universe + scoped config layering + standard-schema validation confirm D4/D37/D7 from an independent stack; runtime-reflection DI is the fork D13 refuses |
-| DeepSeek Harness | [deepseek-harness.md](deepseek-harness.md) | BORROW-PATTERNS + CAUTIONARY contrast | "Everything is a plugin" productized: profiles->bundles->patches layering (D37 product-grade), durable/live event split (D16/D19), plugin-manager as product surface (D28/D29 UX), sdk-minimal anti-layer profile (D5); trust-by-convention is the cautionary contrast to our D2/D26/D28 structural tiers | The C-ABI-native OSGi (ASF, 221 .c files, framework 15.2k LoC): option-struct C APIs + sync-use discipline confirm D2/D6/D13; 1.2k-line DS engine + 3.4k-line dfi runtime-type interpreter = live price of layers we rejected (D4/D13); unpacking bundle cache + flat properties manifest = anti-patterns our D28/D31 already answer; error-injector test pattern for the D7 liar family |
+| DeepSeek Harness | [deepseek-harness.md](deepseek-harness.md) | BORROW-PATTERNS + CAUTIONARY contrast | "Everything is a plugin" productized: profiles->bundles->patches layering (D37 product-grade), durable/live event split (D16/D19), plugin-manager as product surface (D28/D29 UX), sdk-minimal anti-layer profile (D5); trust-by-convention is the cautionary contrast to our D2/D26/D28 structural tiers |
 | AccessBase | [accessbase.md](accessbase.md) | BORROW-PATTERNS (gate/test culture, host-app shape) | TS/Node family sibling; PIT-numbered e2e gate commits as living ledger; ModuKit's .agents ancestor |
 | MediaServo | [mediaservo.md](mediaservo.md) | BORROW-PATTERNS + DOC-DISCIPLINE SOURCE | Stage-4 mirror with a counter-signal (webrtc-rs in our canon vs libwebrtc in production); OBS-modeled declared-capability plugin contract; one-C-ABI-four-surfaces executed; PIT-71/210 link-illusion & artifact-hygiene lessons |
 
@@ -51,7 +51,7 @@ Series of profiles for open-source / sibling projects under `.refinfo/`
   sheet (iceoryx2/Zenoh), cross-cutting lessons, open maintainer items.
 - Local round: eight .refinfo profiles via one 7-member team + substitutes.
 - Remote round: 8 profiles + 2 audits via one 8-member team + 5 recovery
-  substitutes (model failures recovered per PIT-2); all 20 files C1-verified.
+  substitutes (model failures recovered per PIT-2); all files C1-verified at write time.
 - 00-overview.md updated to cover both rounds (full matrix + fork sheet + OQ queue).
 - Method notes: claims measured on local clones where possible; anything not
   locally verifiable is marked UNCERTAIN in the profile itself.

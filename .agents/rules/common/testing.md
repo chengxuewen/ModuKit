@@ -1,6 +1,10 @@
 # Testing Requirements
 
-## Minimum Test Coverage: 80%
+## Test Coverage: staged gate (D50)
+
+No hard gate while Stage-1 is parked; 60% soft gate after the first real crate lands;
+80% hard gate once interfaces stabilize (prevents metric-chasing tests).
+Tool: cargo-llvm-cov (tarpaulin successor - faster, maintained).
 
 Test Types (ALL required):
 1. **Unit Tests** - Individual functions, utilities, components
@@ -15,7 +19,7 @@ MANDATORY workflow:
 3. Write minimal implementation (GREEN)
 4. Run test - it should PASS
 5. Refactor (IMPROVE)
-6. Verify coverage (80%+)
+6. Verify coverage against the staged gate (D50)
 
 ## Troubleshooting Test Failures
 
@@ -62,5 +66,5 @@ test('falls back to substring search when Redis is unavailable', () => {})
 # Verify: tests pass
 cargo test --workspace
 # Verify: coverage
-cargo tarpaulin --workspace 2>/dev/null || echo "tarpaulin not installed"
+cargo llvm-cov --workspace 2>/dev/null || echo "llvm-cov not installed (staged gate per D50)"
 ```

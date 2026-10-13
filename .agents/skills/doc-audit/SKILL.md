@@ -7,11 +7,11 @@ description: "Audit this repository's documentation and agent system for self-co
 
 > **Re-scoped for ModuKit (2026-10-09)**: audit targets are the ModuKit canon —
 > `docs/whitepaper.md` (verbatim canon), root `README.md` / `AGENTS.md` / `SKILL.md`,
-> `docs/reference/` (20 files: index, `00-overview.md`, profiles, audits),
-> `docs/codegraph-bootstrap.md`, `.agents/memorys/` (C0-C1 / D1 / PIT-1..5),
+> `docs/reference/` (roster: its README.md index; `00-overview.md` decision matrix),
+> `docs/codegraph-bootstrap.md`, `.agents/memorys/` (C0-C1 / D1-D61 / PIT-1..6),
 > `.opencode/opencode.json`, `mise.toml` / `bootstrap.sh` / `bootstrap.bat`.
-> PolyOrch-era targets (architecture.md, docs/modules/, C2-C6, D2-D29, vendored
-> xmake set) do not exist here and are NOT audit targets.
+> `docs/architecture.md` + `docs/modules/00-10` are primary targets (adjudicated baseline
+> since 2026-10-10). PolyOrch-era remnants NOT targets here: C2-C6 conventions, vendored xmake set.
 
 A full audit of this repository's document system: cross-document consistency, decision
 validation, agent infrastructure, gap coverage, and phase accuracy.
@@ -85,7 +85,7 @@ decision matrix), and `docs/codegraph-bootstrap.md`.
 - Are the two READMEs still doing different jobs — the root one a repository front door, the
   `docs/` one the documentation hub?
 - Is every local link resolving? (Mechanical probe: the dead-link scan from the 2026-10-09
-  Full-scan run; a formal `scripts/gate.sh` link check is a Stage-1 trigger item.)
+  Full-scan run; extending `scripts/check.sh` (D50, landed 2026-10-13) with a formal link check is a Stage-1 trigger item.)
 
 ### 3. Agent system audit
 
@@ -126,7 +126,7 @@ Scan for documents or design sections that should exist and do not.
   2026-10-09: `AGENTS.md` NOTES "License TBD" after D1 landed, and its generated header
   "Commit: none yet" after real commits existed — both fixed same session.)
 - `scripts/` now holds `skill-lint.py` only; the C1 gate and env probes still live ad hoc in
-  conventions/AGENTS text. Collecting them into `scripts/gate.sh` is a recorded Stage-1
+  conventions/AGENTS text. Collecting them into `scripts/check.sh` (landed per D50) is a recorded Stage-1
   trigger (backlog), not a current-phase gap.
 - Pin hygiene (ModuKit analogue of the build-reproducibility invariant): `mise.toml` pins
   node; plugin versions pinned in `opencode.json` (2026-10-09; superpowers git-ref floats

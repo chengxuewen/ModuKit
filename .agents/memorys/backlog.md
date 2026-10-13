@@ -38,7 +38,7 @@
 | R | restart verification | after next opencode restart from activated shell: pinned versions resolve, omo 5.1.28 fetched, `lsp` row lights (mise node22), `.omo/omo.jsonc` schema recheck | pending restart |
 ## Not this track (cross-reference only — Stage-1 triggers)
 
-`scripts/gate.sh` seed + doc-liveness + D-record mechanics (PORT_NOW bundle),
+`scripts/check.sh` seed (landed 2026-10-13 per D50) + doc-liveness + D-record mechanics (PORT_NOW bundle),
 rust-analyzer component install, Cargo workspace scaffolding, header-first vs
 metadata-first contract, whitepaper reference corrections — see
 `docs/reference/00-overview.md` section 4 and `.agents/memorys/status.md`.

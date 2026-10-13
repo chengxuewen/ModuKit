@@ -344,7 +344,7 @@ build in; OS base libs from the documented whitelist (libc/libstdc++/libm); thir
 .so per-bundle in lib/ (OpenCV 3 and 4 coexist on one host); venv/node_modules in
 vendor/. No dependency version ranges - privatization removes the negotiation. The
 framework is a packager, never a builder; env-chaining (colcon setup.bash) deliberately
-absent (the host computes its own paths). `modukit pack` (archive + compression) stays
+absent (the host computes its own paths). Build systems the detector cannot classify ride the D58 recipe path (modukit.toml `[build]` author-declared command strings) - classification, not ecosystem knowledge, is the detector's job. `modukit pack` (archive + compression) stays
 on the D28 CLI-day trigger; cross-machine dedup is orchestrator-side (D35).
 
 ## 7. What a year-1 manifest deliberately does not solve
@@ -363,7 +363,7 @@ architecture.md §12 — none of them changes the kernel object model.
 
 | Tier | Carrier | Fields | Owner |
 |---|---|---|---|
-| **deploy** | bundle `modukit.toml` (TOML by adjudication 28: human annotations + typed + nested tables + Cargo-grade parser; INI cannot nest the resource tree, JSON cannot carry comments, YAML's indentation minefield and parser divergence are deployment-floor hazards; `resources[]`/config ride the same envelope) | `entry.kind` floor (raise-only), artifact/runner, `start_level`, `start_timeout`, `stop_timeout` (D34), `host_id` (D36, host-level config), `restart{}`, requires `policy`/`on_down`, `capabilities[]`, `min_host`, `resources[]` (D30) | ops / packaging |
+| **deploy** | bundle `modukit.toml` (TOML by adjudication 28: human annotations + typed + nested tables + Cargo-grade parser; INI cannot nest the resource tree, JSON cannot carry comments, YAML's indentation minefield and parser divergence are deployment-floor hazards; `resources[]`/config ride the same envelope) | `entry.kind` floor (raise-only), artifact/runner, `start_level`, `start_timeout`, `stop_timeout` (D34), `host_id` (D36, host-level config), `restart{}`, requires `policy`/`on_down`, `capabilities[]`, `min_host`, `resources[]` (D30), `[net] listen` (D54/D56 grammar), `[ros2]` (D59) | ops / packaging |
 | **self-report** | `PluginAbiV1` descriptor fields (04 §3) | `id`, `version`, `provides[]` (+ ranking, `parallel_ok`), requires + `topics[]` summaries (D10) | plugin code — or its runner, for script plugins |
 | **verification** | pre-dlopen ELF/Mach-O/PE parse | link/dependency sanity | kernel, stage-5 only; a guard, never a truth source |
 
@@ -420,6 +420,7 @@ unchanged. Five rulings close the ROS-specific gaps:
   host_id logic (D36) applied to the network domain. The host translates the
   table into environment variables via D57's static path; all ROS plugins on
   one host share the domain by construction. Bundles carry no runtime values.
+  Bridge plugins read the same `[ros2]` table like any plugin (D59).
 - **Lifecycle (D60)**: ordinary D34 semantics; documented recommended deploy
   override `stop_timeout = 3s` for rclcpp graceful participant departure
   (suggestion, not mechanism). Discipline: ROS knowledge lives in templates,

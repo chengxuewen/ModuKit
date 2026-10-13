@@ -48,7 +48,7 @@
 | "be careful later" | Write concrete check commands into the rule file |
 | Record without prevention | Every pitfall must map to one runnable rule |
 | Rule says "be careful when editing" | Write `grep -c '{' file && grep -c '}' file` |
-| Wait for user reminder before recording | Record as soon as found (C9), don't wait for user to point it out |
+| Wait for user reminder before recording | Record as soon as found (standing trigger table), don't wait |
 
 ## Capture Checklist (ask yourself on every trigger)
 

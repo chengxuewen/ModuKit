@@ -1,7 +1,11 @@
 # Code Edit Safety
 
-> **Target audience**: AI agents editing PolyOrch source code.
+> **Target audience**: AI agents editing ModuKit source code.
 > **Violation of these rules causes token waste from repeated fix cycles.**
+> **Port provenance**: rule bodies and the PIT citations (PIT-28/31/33/41/54/56/68/78a/81/
+> 84/85/88/98/120/121) were carried from the PolyOrch governance tree; those numbered
+> originals live in `PolyOrch/.agents/memorys/pitfalls.md` (reference checkout), NOT in this
+> repo's PIT-1..6 ledger - treat the numbers as provenance pointers, not local references.
 
 ## Tool Selection
 
@@ -274,18 +278,18 @@ grep -c "duplicate-pattern" <file>    # expect 1; >1 = edit inserted duplicates
 
 ### 24. Match verification scope to change scope -- the full gate is not a ritual (PIT round, user aborted twice)
 
-**Rule**: before invoking `scripts/gate.sh` (3-8 min), classify what changed:
+**Rule**: before invoking `scripts/check.sh` (the D50 local gate - seconds), classify what changed:
 `git diff --cached --name-only | grep -vE '\.md$|^\.agents/'` -- if EMPTY, the change is
 docs/memory-only: run ONLY the affected convention block(s) verbatim from conventions.md
 (seconds each). The full gate belongs to code-touching commits, pre-session-close, and phase
 boundaries. Docs-only commits that only add prose may skip even the block run when the scan
-cannot reach them (e.g. memory appends that contain no forbidden literals -- check C1/C4/C6
+cannot reach them (e.g. memory appends that contain no forbidden literals -- check C1
 relevance first).
 
 **Verification**: the classify one-liner above, run before every gate invocation; the gate
 call is justified only when it outputs non-empty OR a code path changed.
 
-**Blocking condition**: running full gate.sh on a docs-only change (burned 3-8 min twice,
+**Blocking condition**: running the full check.sh gate on a docs-only change (burned 3-8 min twice,
 user interrupted both times asking why the session kept blocking).
 
 **Source**: 2026-10-08 naming-unification + audit rounds.

@@ -39,7 +39,7 @@ Rules are project-local and read directly by the AI assistant from `.agents/rule
 
 ## Rules vs Skills
 
-- **Rules** define standards, conventions, and checklists that apply broadly (e.g., "80% test coverage", "no hardcoded secrets").
+- **Rules** define standards, conventions, and checklists that apply broadly (e.g., the staged coverage gate D50, "no hardcoded secrets").
 - **Skills** (`skills/` directory) provide deep, actionable reference material for specific tasks (e.g., `python-patterns`, `golang-testing`).
 
 Language-specific rule files reference relevant skills where appropriate. Rules tell you *what* to do; skills tell you *how* to do it.
@@ -57,7 +57,7 @@ To add support for a new language (e.g., `rust/`):
    - `security.md` — secret management, security scanning tools
 3. Each file should start with:
    ```
-   > This file extends [common/xxx.md](../common/xxx.md) with <Language> specific content.
+   > This file extends `common/xxx.md` with <Language> specific content.
    ```
 4. Reference existing skills if available, or create new ones under `skills/`.
 
@@ -74,7 +74,7 @@ When language-specific rules and common rules conflict, **language-specific rule
 
 `common/coding-style.md` recommends immutability as a default principle. A language-specific `golang/coding-style.md` can override this:
 
-> Idiomatic Go uses pointer receivers for struct mutation — see [common/coding-style.md](../common/coding-style.md) for the general principle, but Go-idiomatic mutation is preferred here.
+> Idiomatic Go uses pointer receivers for struct mutation — see [common/coding-style.md](common/coding-style.md) for the general principle, but Go-idiomatic mutation is preferred here.
 
 ### Common rules with override notes
 

@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). Design baseline whitepaper v1.0 + adjudicated architecture docs (`docs/architecture.md` + `docs/modules/00-10`, 2026-10-12, decisions D2-D52 adjudicated one by one; queue empty, remainder trigger-gated). **Zero source code** (kernel v0 parked outside repo); Stage-1 resumption on explicit instruction only.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). Design baseline whitepaper v1.0 + adjudicated architecture docs (`docs/architecture.md` + `docs/modules/00-10`; decisions adjudicated one by one, ledger in `.agents/memorys/decisions.md`, index architecture.md §11; queue empty, remainder trigger-gated). **Zero source code** (kernel v0 parked outside repo); Stage-1 resumption on explicit instruction only.
 
 ## STRUCTURE
 
@@ -13,13 +13,13 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── README.md             # project front page (English per C1)
 ├── SKILL.md              # skills registry — inventory of .agents/skills + superpowers, activation notes
 ├── docs/whitepaper.md    # v1.0 canon — crate names §2.3, architecture §4, tech stack §5, roadmap §8
-├── docs/architecture.md  # adjudicated engineering baseline 2026-10-12 (D2-D52; §9 delta table)
+├── docs/architecture.md  # adjudicated engineering baseline (§9 delta table, §11 decision index)
 ├── docs/modules/         # numbered architecture deep dives (00 index, 01-10)
 ├── .agents/              # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
-├── docs/reference/       # external-project profiles + audits + decision matrix (20 files)
+├── docs/reference/       # external-project profiles + audits + decision matrix (roster: its README.md)
 ├── docs/codegraph-bootstrap.md  # MCP launcher design doc (reviewed v3)
 ├── LICENSE-MIT / LICENSE-APACHE # D1 dual-license texts
-├── scripts/skill-lint.py   # skill-tree gate (C0-negative-proved 2026-10-09)
+├── scripts/                # skill-lint.py (skill-tree gate, C0-proved) + check.sh (D50 local gate)
 ├── mise.toml             # per-repo toolchain pins (node 22, uv; user-level via ~/.local, system untouched)
 ├── bootstrap.sh|.bat     # one-time machine setup: ensure mise -> activation -> mise install (idempotent)
 ├── .opencode/            # opencode.json (instructions[], lsp:true) + codegraph launcher .sh/.bat
@@ -32,7 +32,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Task | Location | Notes |
 |---|---|---|
 | What ModuKit is / crate naming authority | `docs/whitepaper.md` | §2.3 namespace plan is canonical |
-| Current architecture decisions (post-v1.0 deltas) | `docs/architecture.md` + `docs/modules/` | D2-D52 provenance; §9 = superseded whitepaper claims |
+| Current architecture decisions (post-v1.0 deltas) | `docs/architecture.md` + `docs/modules/` | §11 decision index; §9 = superseded whitepaper claims |
 | Which skills exist / when they fire | `SKILL.md` | registry; flags inoperative skills (doc-audit re-scope) |
 | Current phase & open items | `.agents/memorys/status.md` | loaded every turn; keep synced with README roadmap (drift = audit finding) |
 | Project conventions | `.agents/memorys/conventions.md` | C0 executable-constraints, C1 English-artifacts |
@@ -86,11 +86,14 @@ test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md && echo "do
 
 # skill-tree gate (fixture-negative-proved 2026-10-09)
 python3 scripts/skill-lint.py
+
+# full local gate - five fast checks, skip-when-absent (D50)
+bash scripts/check.sh
 ```
 
 ## NOTES
 
 - `.opencode/node_modules` + npm lock serve opencode plugins (superpowers/ponytail/context-mode), not project dependencies.
 - codegraph MCP installed and running (pinned v1.6.2 under `.opencode/codegraph/`; index in `.codegraph/`, git-ignored). Value starts with docs/config; code index activates with Stage-1 source.
-- Dangling references ported into `rules/common`: `scripts/gate.sh` / `scripts/scan-hardcode.sh` (scripts/ exists, these do not), `~/.claude/agents/` list, `~/.claude/settings.json` / `~/.claude.json` mentions, and `See skill: rust-patterns/python-patterns/golang-testing` pointers (skills not vendored). Inline-or-trim all of them when Stage-1 gate tooling lands (M7, adjudicated 2026-10-10).
+- Dangling references ported into `rules/common` - remainder of the M7 family: `~/.claude/agents/` list, `~/.claude/settings.json` / `~/.claude.json` mentions, and `See skill: rust-patterns/python-patterns/golang-testing` pointers (skills not vendored). Inline-or-trim them when Stage-1 gate tooling lands. The family's `scripts/gate.sh` / `scripts/scan-hardcode.sh` entries are retired: `scripts/check.sh` landed per D50 (2026-10-13 audit fix batch).
 - License decided (D1: MIT OR Apache-2.0); domain guidance: `modukit.dev` / `modukit.rs` (`modukit.com` taken).

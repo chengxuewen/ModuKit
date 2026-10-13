@@ -43,4 +43,4 @@ Memory + rule packs + project skills, injected into every AI turn through `.open
 - `memory_create_entities` / knowledge-graph tools — wrong system, memory is these files (`rules/common/agents.md`).
 - Appending long markdown to `memorys/*.md` via edit tool — use heredoc or python read→replace(assert count==1)→write (`edit-safety.md` #11, #18, #20).
 - Quoting `doc-audit`'s pre-re-scope PolyOrch target claims (C1–C6, D1–D29, `docs/modules/`) — stale; skill re-scoped to ModuKit canon 2026-10-09 (commit 2aa7663).
-- Trusting `rules/common/agents.md`'s `~/.claude/agents/` list or `scripts/gate.sh` checks — ported leftovers, inoperative here (see `/AGENTS.md` NOTES).
+- Trusting `rules/common/agents.md`'s `~/.claude/agents/` list or `scripts/gate.sh` checks — ported leftovers, inoperative here (the live local gate is `scripts/check.sh` per D50; see `/AGENTS.md` NOTES).

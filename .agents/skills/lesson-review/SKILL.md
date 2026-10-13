@@ -21,7 +21,7 @@ think-before-act  →  [Action]  →  lesson-memory  →  doc-audit
                     lesson-review ← batch gap-filling
 ```
 
-| | `lesson-memory` Rule (C9) | `lesson-review` Skill |
+| | `lesson-memory` Rule | `lesson-review` Skill |
 |---|---|---|
 | Timing | Instant (after each error, auto-triggered) | Batch (session end / user-triggered) |
 | Method | Reflection | Interactive review |
@@ -29,7 +29,7 @@ think-before-act  →  [Action]  →  lesson-memory  →  doc-audit
 | Complement | First line of defense (no omissions) | Second line of defense (no misjudgment + classification) |
 
 - `think-before-act` (consult): checks existing lessons before acting, avoids repeating mistakes
-- `lesson-memory` (C9 rule): **instantly auto-writes** after each error, no user request needed
+- `lesson-memory` (standing rule): **instantly auto-writes** after each error, no user request needed
 - `lesson-review` (this skill): **batch review** at session end, fills gaps, classifies and archives
 - `doc-audit` (audit): periodically checks memory file consistency
 

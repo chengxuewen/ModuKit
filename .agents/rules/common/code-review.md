@@ -31,10 +31,10 @@ Before marking code complete:
 - [ ] Files &lt;800 lines: verify with `wc -l` on changed files
 - [ ] No deep nesting (&gt;4 levels): check indent depth in diff
 - [ ] Errors handled explicitly: `grep -c 'unwrap()'` must be 0 in changed .rs
-- [ ] No hardcoded secrets: run `scripts/scan-hardcode.sh` or `/security-hardening`
+- [ ] No hardcoded secrets: run the secret grep from `security.md` Runnable Check, or `/security-hardening`
 - [ ] No dbg!/console.log: `grep -r 'dbg!(' crates/` must return 0
 - [ ] Tests exist: `cargo test --workspace`
-- [ ] Coverage &gt;=80%: `cargo tarpaulin --workspace`
+- [ ] Coverage against the staged gate (D50): `cargo llvm-cov --workspace` (none while parked / 60% soft after first crate / 80% hard at stable interfaces)
 
 ## Security Review Triggers
 
@@ -77,7 +77,7 @@ Use these agents for code review:
 2. Check security checklist first
 3. Review code quality checklist
 4. Run relevant tests
-5. Verify coverage >= 80%
+5. Verify coverage against the staged gate (D50)
 6. Use appropriate agent for detailed review
 ```
 
