@@ -93,7 +93,9 @@ Interop with ROS2 / DDS / SOME-IP / existing zenoh meshes runs as a **plugin** (
 the same object API — dogfooding, not a privileged path): opt-in `export`/`import` lists in
 the manifest gate what may cross; each bridge carries its type-mapping table (reverse-DNS
 ids <-> their topic/type names) and QoS translation; the bridge boundary **copies** —
-zero-copy never crosses it. Nothing is exported by default.
+zero-copy never crosses it. Nothing is exported by default. (A ROS 2 exe
+plugin's own DDS traffic is not interop - it is the plugin's declared network
+surface under D56; the bridge rules govern what crosses into the object table.)
 
 **Bridge toolbox** (D12, trigger-when-needed, unverified here): row-encoded external streams
 may be transcoded wire->columnar directly (`ptars` Rust, `pybufarrow`, `arrowpb` —

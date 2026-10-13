@@ -64,6 +64,9 @@ calls; optional target allowlist in deploy), `org.modukit.workdir` (one writable
 `<data-root>/<plugin-id>/` per plugin, boundary not configurable, uninstall removes it,
 data corruption is the plugin's business). All ride D26 machinery: manifest declaration,
 install-time freeze, ring audit, minimum grant. Vocabulary now 13 words.
+D56 extends the net-listen value grammar with port ranges and multicast
+group joins (DDS discovery declares a range, not a single port - still one
+word, forms verified at the D7 cross-check).
 
 ## 3. Dependency and capability declarations
 
@@ -380,3 +383,49 @@ field (D14, 07 §4): the type side never encodes how cargo moves. Pool geometry
   must fail). This is what makes the file tier safe to trust for ordering at all.
 - Policy fields (`restart{}`, `on_down`, placement overrides) are deliberately not
   code-verifiable — ops-owned by design, enforced by host policy only.
+
+## 9. ROS 2 plugins via pixi (D56-D60)
+
+ROS 2 exe plugins (rclcpp processes built on RoboStack/pixi conda environments)
+are ordinary exe plugins - D34 lifecycle, D54 capabilities, D55 packaging apply
+unchanged. Five rulings close the ROS-specific gaps:
+
+- **Network (D56)**: `net-listen` value grammar extends to PORT RANGES and
+  MULTICAST GROUP JOINS (DDS discovery is inherently a range: participant-id
+  ports 7400-7600, multicast 239.255.0.1; the author cannot name the ports in
+  advance). Still one word; forms verified at the D7 cross-check. Coarse
+  per-middleware words rejected (audit porridge + one-word-per-middleware
+  floodgate); the industry puts port ranges in deploy config (Docker `-p`
+  ranges, K8s NetworkPolicy endPort) - our declare+audit model matches that
+  tier, not the sandbox-bit tier.
+- **Environment (D57)**: the pixi/conda environment rides D55 class FOUR into
+  `vendor/` (pixi-pack output shape env/ + activate.sh; pixi.lock ships as the
+  pin, satisfying no-version-ranges D33 by construction). Activation: DEFAULT
+  static injection - the host computes PATH/LD_LIBRARY_PATH (+DYLD on mac)/
+  CONDA_PREFIX/AMENT_PREFIX_PATH/PYTHONPATH from the single conda prefix plus
+  manifest `[env]` extras; activate.d scripts are not run. ESCAPE HATCH
+  `env_mode = "activate-script"` (opt-in, wrapper contents ring-audited): a
+  generated wrapper sources the bundle's activate.sh and execs the plugin -
+  the script runs in the PLUGIN's process. PERMANENT: the host process never
+  executes bundle-borne shell. GB-size environments are the content-addressed
+  dedup's main stage (D55), never a reason to skip packaging.
+- **Build (D58)**: `modukit build` executes author-declared recipe strings
+  (modukit.toml `[build]`: build_cmd / env_pack_cmd / artifact paths, e.g.
+  `pixi run colcon build` + `pixi-pack`). The framework runs strings; it does
+  not learn colcon workspaces, ament package types, or pixi-pack flags.
+  Recipes ship in D23 templates (`modukit new --template ros2`); detector
+  auto-classification stays for known systems (Cargo.toml/CMakeLists).
+- **Site settings (D59)**: `ROS_DOMAIN_ID`, `RMW_IMPLEMENTATION`,
+  `ROS_LOCALHOST_ONLY` are site deployment facts in deploy-TOML `[ros2]` -
+  host_id logic (D36) applied to the network domain. The host translates the
+  table into environment variables via D57's static path; all ROS plugins on
+  one host share the domain by construction. Bundles carry no runtime values.
+- **Lifecycle (D60)**: ordinary D34 semantics; documented recommended deploy
+  override `stop_timeout = 3s` for rclcpp graceful participant departure
+  (suggestion, not mechanism). Discipline: ROS knowledge lives in templates,
+  recipes, and author declarations - the host stays middleware-illiterate by
+  construction (D25/D11 mirrored onto the build/deploy side).
+
+Interop with a live ROS 2 graph remains bridge-only (07, D11/D25): a plugin's
+DDS traffic is its own declared network surface; the kernel and the object
+table never learn DDS.
