@@ -160,7 +160,6 @@ grep -c "duplicate-pattern" <file>    # expect 1; >1 = edit inserted duplicates
 **Verification**: After script execution, `grep -c "<key replacement content>" <file>` confirms each block took effect; before re-running after failure, check which blocks already wrote.
 
 **Blocking condition**: Multi-block script writing everything at end; re-running without confirming intermediate state after assert failure.
-**Blocking condition**: Multi-block script writing everything at end; re-running without confirming intermediate state after assert failure.
 
 ### 11. Large markdown appends use heredoc, not edit tool JSON (PIT-85 round)
 

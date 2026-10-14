@@ -8,7 +8,7 @@ paths:
 
 ## Formatting
 
-- **rustfmt** for enforcement — always run `cargo fmt` before committing
+- **rustfmt** for enforcement — format ONLY touched files: `rustfmt --edition 2024 <file>` (workspace-wide `cargo fmt` is forbidden here — edit-safety #12, PIT-88 drift history)
 - **clippy** for lints — `cargo clippy -- -D warnings` (treat warnings as errors)
 - 4-space indent (rustfmt default)
 - Max line width: 100 characters (rustfmt default)
