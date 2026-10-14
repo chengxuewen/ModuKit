@@ -73,12 +73,15 @@ After recommending, if the user confirms, invoke the skill directly:
 Confirmed: loading /think-before-act skill...
 ```
 
-## Relationship with context-engineering
+## Relationship with passive matching
+
+- **Passive matching**: each skill's frontmatter description is surfaced by opencode's skill tool and auto-matched to the task scenario — no separate routing table exists in this repo (the PolyOrch-era `context-engineering` pointer here was a phantom; fixed 2026-10-14).
+- **skill-router**: explicit invocation (when the user asks "how should I do this" or intent is ambiguous, performs deep analysis and recommendation)
 
 - **context-engineering**: passive trigger (auto-recommends when scenarios are detected, via the AGENTS.md directory table)
 - **skill-router**: active invocation (when user asks "how should I do this" or intent is ambiguous, performs deep analysis and recommendation)
 
-The two complement each other: context-engineering's routing table handles keyword matching, skill-router handles ambiguous intent and multi-skill combination recommendations.
+Complementary: passive matching handles clear scenario hits, skill-router handles ambiguous intent and multi-skill combinations. The full inventory lives in the root `SKILL.md` registry.
 
 ## When Not to Recommend
 

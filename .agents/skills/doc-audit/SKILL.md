@@ -8,7 +8,7 @@ description: "Audit this repository's documentation and agent system for self-co
 > **Re-scoped for ModuKit (2026-10-09)**: audit targets are the ModuKit canon —
 > `docs/whitepaper.md` (verbatim canon), root `README.md` / `AGENTS.md` / `SKILL.md`,
 > `docs/reference/` (roster: its README.md index; `00-overview.md` decision matrix),
-> `docs/codegraph-bootstrap.md`, `.agents/memorys/` (C0-C1 / D1-D61 / PIT-1..6),
+> `docs/codegraph-bootstrap.md`, `.agents/memorys/` (C0-C1 / D ledger / PIT ledger — never hardcount; probe live high-water: `grep -E '^## D[0-9]+' .agents/memorys/decisions.md | tail -1`),
 > `.opencode/opencode.json`, `mise.toml` / `bootstrap.sh` / `bootstrap.bat`.
 > `docs/architecture.md` + `docs/modules/00-10` are primary targets (adjudicated baseline
 > since 2026-10-10). PolyOrch-era remnants NOT targets here: C2-C6 conventions, vendored xmake set.

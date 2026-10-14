@@ -51,8 +51,8 @@ Opens when no arguments are provided:
 4. memorys cross-reference completeness
 5. Duplicate content detection (grep key passages)
 6. Orphan file detection (exists but unreferenced)
-7. Skill directory table sync: AGENTS.md SKILL DIRECTORY covers all skills
-8. Task routing table sync: context-engineering routing table matches skill inventory
+7. Skill registry sync: SKILL.md registry covers all .agents/skills dirs (gate: python3 scripts/skill-lint.py)
+8. Memory-pointer sync: status.md Open Items next-actions match backlog.md pending table
 ```
 
 ### 1B: External Quick Scan
@@ -92,8 +92,8 @@ Uses `webfetch` to fetch READMEs, 3-dimension quick scoring: tech stack match / 
 | 11 | Cross-references | — | Dead link detection |
 | 12 | Duplicate rules | — | Semantic dedup |
 | 13 | Community trends | — | Market scan with 24h cache |
-| 14 | Skill directory table | Count | AGENTS.md SKILL DIRECTORY vs actual skills consistency |
-| 15 | Task routing table | — | context-engineering routing table vs actual skills consistency |
+| 14 | Skill registry | Count | SKILL.md registry vs actual skills (scripts/skill-lint.py is the gate) |
+| 15 | Memory-pointer sync | — | status.md pointer lines vs backlog.md truth (drift = finding) |
 
 ### 2B: External Deep Scan
 
