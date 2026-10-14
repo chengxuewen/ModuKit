@@ -1,6 +1,6 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-10-09 · **Branch:** master · **Commits:** see `git log` (first committed 2026-10-09; regenerate header via /init-deep)
+**Generated:** 2026-10-14 (/init-deep update pass) · **Branch:** master · **Commits:** see `git log` (first committed 2026-10-09; regenerate header via /init-deep)
 
 ## OVERVIEW
 
