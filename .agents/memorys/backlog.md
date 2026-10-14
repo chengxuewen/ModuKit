@@ -34,8 +34,8 @@
 | P2 | github-MCP adopt? | v2.0.2 binary INSTALLED ~/.local/bin (sha256-verified); config entry added **enabled:false** pending PAT | HALF-DONE — user: create fine-grained read-only PAT, export GITHUB_PAT, flip enabled |
 | P3 | arxiv-MCP adopt? | uv pinned in mise.toml (0.12.24 via it, bootstrap twins cover it); arxiv-mcp-server smoke-passed; config entry **enabled:true** | DONE (active after restart) |
 | P4 | openspec-* disposition | 3 skills flagged inoperative; keep-on-disk (per rules-asset ruling) vs full removal of dirs | RESOLVED: KEEP (default per maintainer "mount, never delete" doctrine; veto = say the word) |
-| P5 | affaan-m/everything-claude-code | profile lane timed out x3 — unprofiled gap from the scan | optional rerun |
-| R | restart verification | after next opencode restart from activated shell: pinned versions resolve, omo 5.1.28 fetched, `lsp` row lights (mise node22), `.omo/omo.jsonc` schema recheck | pending restart |
+| P5 | affaan-m/everything-claude-code | profile lane timed out x3 — unprofiled gap from the scan | DONE 2026-10-14 (FULL rerun; profiled 278.8k stars MIT active; rust-patterns+rust-testing = P1 vendor candidates; star-growth flagged anomalous) |
+| R | restart verification | after next opencode restart from activated shell: pinned versions resolve (ponytail@5.2.0, omo 5.1.33, superpowers ref-pinned @v7.0.0 since 2026-10-14; context-mode 1.0.169 unchanged), `lsp` row lights (mise node22), `.omo/omo.jsonc` schema recheck | pending restart |
 ## Not this track (cross-reference only — Stage-1 triggers)
 
 `scripts/check.sh` seed (landed 2026-10-13 per D50) + doc-liveness + D-record mechanics (PORT_NOW bundle),
