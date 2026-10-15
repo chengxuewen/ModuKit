@@ -1,0 +1,11 @@
+[package]
+name = "example-plugin"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Positive dlopen fixture - template standing per D23 (M3 adds the ABI-v1 activation symbols)"
+
+[lib]
+name = "example_plugin"
+crate-type = ["cdylib"]
+path = "src/lib.rs"
