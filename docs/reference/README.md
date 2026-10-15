@@ -26,6 +26,7 @@ Series of profiles for open-source / sibling projects under `.refinfo/`
 | DeepSeek Harness | [deepseek-harness.md](deepseek-harness.md) | BORROW-PATTERNS + CAUTIONARY contrast | "Everything is a plugin" productized: profiles->bundles->patches layering (D37 product-grade), durable/live event split (D16/D19), plugin-manager as product surface (D28/D29 UX), sdk-minimal anti-layer profile (D5); trust-by-convention is the cautionary contrast to our D2/D26/D28 structural tiers |
 | AccessBase | [accessbase.md](accessbase.md) | BORROW-PATTERNS (gate/test culture, host-app shape) | TS/Node family sibling; PIT-numbered e2e gate commits as living ledger; ModuKit's .agents ancestor |
 | MediaServo | [mediaservo.md](mediaservo.md) | BORROW-PATTERNS + DOC-DISCIPLINE SOURCE | Stage-4 mirror with a counter-signal (webrtc-rs in our canon vs libwebrtc in production); OBS-modeled declared-capability plugin contract; one-C-ABI-four-surfaces executed; PIT-71/210 link-illusion & artifact-hygiene lessons |
+| PolyOrch | [polyorch.md](polyorch.md) | **ADOPTED (D64-D67, 2026-10-15)** — build-organization layer | Sibling-project build orchestrator for polyglot monorepos (CMake helper surface + pixi, no runtime); consumer shape = VisiaEngine gitlink-pin + wrapper lanes; mise/pixi split, root assembly, gitlink pinning all adjudicated — submodule landing on maintainer call |
 
 ### Remote round (2026-10-09; GitHub projects, blobless clones measured in ~/.cache/modukit-research/)
 
@@ -55,3 +56,8 @@ Series of profiles for open-source / sibling projects under `.refinfo/`
 - 00-overview.md updated to cover both rounds (full matrix + fork sheet + OQ queue).
 - Method notes: claims measured on local clones where possible; anything not
   locally verifiable is marked UNCERTAIN in the profile itself.
+
+
+- 2026-10-15 addendum: [polyorch.md](polyorch.md) — sibling-project profile measured on the
+  repo-root PolyOrch checkout (not under `.refinfo/`); verdict-matrix row added to
+  00-overview.md.
