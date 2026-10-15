@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-15: decisions D1-D73 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, walked one by one (build-orchestration batch D64-D67: PolyOrch adopted, votes A/A/A/A; media-base batch D68-D73: control-plane P1 + frame clause, votes A/A''/C/C/C/C, integration stays unwired by choice); adjudication queue EMPTY — everything left is trigger-gated. **Stage-1 RESUMED 2026-10-15 by maintainer order**: M1 build trio landed (PolyOrch submodule + pixi env/lock + root CMake assembly; configure red->green observed); M2 cargo scaffold landed on branch `stage1/m2-cargo-scaffold` (C2 branch discipline); M3 next. Plan of record: `docs/stage-1-plan.md`. Kernel v0 experiment parked (backup outside repo).
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-15: decisions D1-D73 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, walked one by one (build-orchestration batch D64-D67: PolyOrch adopted, votes A/A/A/A; media-base batch D68-D73: control-plane P1 + frame clause, votes A/A''/C/C/C/C, integration stays unwired by choice); adjudication queue EMPTY — everything left is trigger-gated. **Stage-1 RESUMED 2026-10-15 by maintainer order**: M1 build trio landed (PolyOrch submodule + pixi env/lock + root CMake assembly; configure red->green observed); M2 cargo scaffold landed (merged 4326925; workspace resolver 3/edition 2024 + fixtures + CMake version single-source; cargo gates pixi-routed per D65); **M3 kernel vertical slice in flight** — all ModuKit work lands directly on master per the corrected C2 (branch discipline governs the PolyOrch upstream only: dev-modukit -> merge -> test on main -> blessed bump). Plan of record: `docs/stage-1-plan.md`. Kernel v0 experiment parked (backup outside repo).
 
 ## Modules
 
@@ -40,7 +40,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 ## Open Items
 
-- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger D1-D73 in `.agents/memorys/decisions.md`); Stage-1 in resumption since 2026-10-15 per plan of record `docs/stage-1-plan.md` (milestones on `stage1/mN-*` branches per C2)
+- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger D1-D73 in `.agents/memorys/decisions.md`); Stage-1 in resumption since 2026-10-15 per plan of record `docs/stage-1-plan.md` (work lands directly on master; C2 branch discipline governs the PolyOrch submodule upstream only)
 - [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: P2 PAT (user) + R restart verification (now also carries 2026-10-14 plugin bumps) + S2 user-side apiKey rotation; P3/P4/P5 done; ecosystem-scan FULL rerun 2026-10-14 — fix batches 1-3 adjudicated and landed (see history-archive.md later entry); residual Stage-1-gated items listed there
 
 - [x] PolyOrch submodule landed 2026-10-15 (M1 per D64-D67; gitlink bumped same day 3cbc155 -> 76490a5 - maintainer pulled PolyOrch main and created the `dev-modukit` upstream branch, both at 76490a5 and pushed; no branch= field in .gitmodules; root reference checkout retired into the submodule, `.gitignore` entry lifted with an out/ build-root rule in its place)

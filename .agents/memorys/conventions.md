@@ -27,18 +27,19 @@ grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 ```
 
-## C2: "Branch discipline: master receives milestone merges; work lives on stage1/mN branches; submodule edits go to PolyOrch's own branch, the pin bumps separately"
+## C2: "Submodule branch discipline: PolyOrch edits happen on its dev-modukit branch and get blessed on main; ModuKit itself works on master"
 
-Milestone work on this repo is committed on `stage1/m<N>-<slug>` branches; `master` only ever receives a milestone merge after that milestone's gates are green. Changes inside the `PolyOrch/` submodule are made on the dedicated upstream branch `dev-modukit` (created and pushed by the maintainer 2026-10-15; never on the detached pin, never editing in detached HEAD): pull `main` first, develop on `dev-modukit`, merge to `main` and run the tests on `main` before blessing, then ModuKit records the merged commit as a standalone `chore(deps): bump PolyOrch <old>..<new>` gitlink-only commit (D67: the gitlink is the single version authority; no branch= field, no floating).
+ModuKit milestone work is committed directly on `master` (no feature-branch ritual - corrected 2026-10-15 after the maintainer rejected the original misreading). Changes inside the `PolyOrch/` submodule follow the upstream flow: first pull latest `main`; develop on the dedicated branch `dev-modukit` (never edit in detached HEAD on the pin); when a change set is done, merge into `main` and run PolyOrch's test suites ON `main` (switch to main and test - the dev branch is never the blessed state); after the maintainer pushes, ModuKit records the merged commit as a standalone `chore(deps): bump PolyOrch <old>..<new>` gitlink-only commit (D67: the gitlink is the single version authority; no branch= field, no floating).
 
 ```bash
-# Check 1: branch name is master or stage1/mN-slug
-git branch --show-current | grep -qE '^(master|stage1/m[0-9]+-[a-z0-9-]+)$' \
-  && echo "C2 branch OK" || echo "C2 VIOLATION (branch name outside master|stage1/mN-slug)"
-# Check 2: submodule worktree stays clean at the pin (upstream edits must happen on a PolyOrch branch)
-test -z "$(git -C PolyOrch status --porcelain)" && echo "C2 submodule clean" || echo "C2 VIOLATION (dirty PolyOrch worktree on the pin)"
+# Check 1: ModuKit work lands on master only
+git branch --show-current | grep -qx master \
+  && echo "C2 master OK" || echo "C2 VIOLATION (ModuKit work outside master)"
+# Check 2: submodule worktree stays clean at the recorded pin (upstream edits happen on PolyOrch's own branches)
+test -z "$(git -C PolyOrch status --porcelain)" && echo "C2 submodule clean" || echo "C2 VIOLATION (dirty PolyOrch worktree at the pin)"
 ```
-# negative proof observed 2026-10-15: branch `stage1/BAD_NAME_test` -> RED, valid slug -> GREEN
+# negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN
+# (superseded text of the first C2 draft - milestone-branch ritual - kept nowhere; the M2 merge commit stands as history)
 
 
 ## Adding conventions
