@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-15: decisions D1-D73 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, walked one by one (build-orchestration batch D64-D67: PolyOrch adopted, votes A/A/A/A; media-base batch D68-D73: control-plane P1 + frame clause, votes A/A''/C/C/C/C, integration stays unwired by choice); adjudication queue EMPTY — everything left is trigger-gated. **Stage-1 RESUMED 2026-10-15 by maintainer order**: M1 build trio landed (PolyOrch submodule + pixi env/lock + root CMake assembly; configure red->green observed); M2 cargo scaffold landed (merged 4326925; workspace resolver 3/edition 2024 + fixtures + CMake version single-source; cargo gates pixi-routed per D65); **M3 kernel vertical slice in flight** — all ModuKit work lands directly on master per the corrected C2 (branch discipline governs the PolyOrch upstream only: dev-modukit -> merge -> test on main -> blessed bump). Plan of record: `docs/stage-1-plan.md`. Kernel v0 experiment parked (backup outside repo).
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-15: decisions D1-D73 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, walked one by one (build-orchestration batch D64-D67: PolyOrch adopted, votes A/A/A/A; media-base batch D68-D73: control-plane P1 + frame clause, votes A/A''/C/C/C/C, integration stays unwired by choice); adjudication queue EMPTY — everything left is trigger-gated. **Stage-1 RESUMED 2026-10-15 by maintainer order**: M1 build trio + M2 cargo scaffold + **M3 kernel vertical slice landed** (27 tests green incl. in-test-built dlopen walk + ABI-mismatch rejection; clippy -D warnings clean; TDD first-reds recorded; ambiguities adjudicated in the plan row); all ModuKit work lands directly on master per the corrected C2 (branch discipline governs the PolyOrch upstream only: dev-modukit -> merge -> test on main -> blessed bump). Plan of record: `docs/stage-1-plan.md`. M4 (contract codegen v0) next. Kernel v0 experiment parked (backup outside repo).
 
 ## Modules
 
@@ -36,7 +36,8 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
 | M1 build trio green | `bash scripts/check.sh` + `pixi run configure` (self-embedded PolyOrch at gitlink pin; observed red-no-files -> red-CXX-contract -> green, first-red recorded 2026-10-15) | pass (2026-10-15) |
 | M2 cargo scaffold green | `pixi run cargo check -p modukit-core` + `pixi run configure` version wiring (observed red-no-Cargo.toml -> green, Cargo.lock committed; 2026-10-15) | pass (2026-10-15) |
-| C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15: branch `stage1/BAD_NAME_test` -> RED, valid slug -> GREEN) | pass (2026-10-15) |
+| M3 kernel slice green | `pixi run cargo test --workspace` 27 passed (lifecycle 7/manifest 6/registry 10/dlopen 4) + clippy -D warnings + check.sh; TDD first-reds (unresolved-module-imports) recorded by executor agent, orchestrator re-ran gates independently (2026-10-15) | pass (2026-10-15) |
+| C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN) | pass (2026-10-15) |
 
 ## Open Items
 
