@@ -46,6 +46,8 @@ are lifecycle-level.
 6. `start()` must not assume an event loop exists yet; `stop()` must be idempotent.
 7. Any shared-memory handle it obtains must be released before reporting stopped.
 
+> **Rules 3 + 7 carry the frame clause (D69):** the pool + descriptor channel (07 §3) is the only path frame bytes take to a plugin, any placement; a `dl` plugin mapping the pool is permitted but trusted-tier-only.
+
 **Switchability is a tested property.** The contract suite (04 §4) runs against the plugin under
 both placements; a plugin claims dl/exe-switch only after both passes. Documentation-only claims
 are not accepted.
