@@ -155,3 +155,8 @@ Three tiers, one invariant (one floor, one tool):
 
 Sugar demand per language rides the first real plugin need (trigger-gated); emitter v1
 stays minimal. C-ABI export freeze timing remains its own trigger-gated question (§11).
+
+Build lane note (D66/D67): at submodule landing the generated floor's lanes ride the single
+root CMake assembly graph - header emitters (cbindgen among them) run inside the pipeline,
+never as parallel hand-carried FFI surfaces (the two-surface example shape seen in
+`docs/reference/polyorch.md` is explicitly refused).
