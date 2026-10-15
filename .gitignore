@@ -114,3 +114,6 @@ CMakeFiles/
 
 # Rust build artifacts
 /target
+
+# cargo build tree (out/ is the assembly root; both derived, never committed)
+target/

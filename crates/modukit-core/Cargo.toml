@@ -1,0 +1,10 @@
+[package]
+name = "modukit-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "ModuKit kernel: six-state machine, manifest v0, C+ registry, dl executor (Stage-1 scaffold - M3 fills it)"
+
+[lib]
+name = "modukit_core"
+path = "src/lib.rs"

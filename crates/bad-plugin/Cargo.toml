@@ -1,0 +1,11 @@
+[package]
+name = "bad-plugin"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Negative fixture - ABI-mismatch rejection proof (D27 record expected, never a segfault; M3 adds the mismatching handshake)"
+
+[lib]
+name = "bad_plugin"
+crate-type = ["cdylib"]
+path = "src/lib.rs"

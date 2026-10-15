@@ -7,22 +7,31 @@ cd "$(dirname "$0")/.."
 status=0
 note() { printf '%s\n' "$*"; }
 
+# Toolchain routing per D65: when pixi.toml exists the cargo legs run in the pixi
+# build env (mise's cargo shim is refused by design - mise owns host tools only).
 HAS_WS=0
-[ -d crates ] && command -v cargo >/dev/null 2>&1 && HAS_WS=1
+CARGO=(cargo)
+if [ -d crates ]; then
+  HAS_WS=1
+  if [ -f pixi.toml ]; then
+    export PATH="$HOME/.pixi/bin:$PATH"
+    command -v pixi >/dev/null 2>&1 && CARGO=(pixi run cargo)
+  fi
+fi
 
 # 1. cargo fmt --check
 if [ "$HAS_WS" -eq 1 ]; then
-  cargo fmt --all --check || { note "FAIL fmt"; status=1; }
+  "${CARGO[@]}" fmt --all --check || { note "FAIL fmt"; status=1; }
 else note "skip fmt (no crates/ workspace)"; fi
 
 # 2. clippy -D warnings
 if [ "$HAS_WS" -eq 1 ]; then
-  cargo clippy --workspace -- -D warnings || { note "FAIL clippy"; status=1; }
+  "${CARGO[@]}" clippy --workspace -- -D warnings || { note "FAIL clippy"; status=1; }
 else note "skip clippy (no crates/ workspace)"; fi
 
 # 3. cargo test
 if [ "$HAS_WS" -eq 1 ]; then
-  cargo test --workspace || { note "FAIL test"; status=1; }
+  "${CARGO[@]}" test --workspace || { note "FAIL test"; status=1; }
 else note "skip test (no crates/ workspace)"; fi
 
 # 4. C1 English-artifact gate (canonical pattern+scope verbatim from .agents/memorys/conventions.md;
