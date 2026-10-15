@@ -137,3 +137,6 @@ LDAP filter vocabulary; `ServiceTracker` as a public type; `ServiceFactory` (per
 instances); per-bundle lease accounting beyond internal refcount; service registry queries
 across namespaces/tenants; multi-instance version routing for `parallel_ok` services
 (D8 — the declaration field ships inert; the routing mechanism arrives with exe placement).
+
+
+**Node factories and work units (D70, 2026-10-15).** The kind+formats+priority capability query rides the plugin family's own contract, not the registry - the refusal above stands unchanged (kernel routes, does not interpret, D46). A plugin's work unit (per-session pipeline instance, e.g. one encoder instance per stream) is a plain object by default; it registers an EPHEMERAL service record - deregistering on completion - when it needs observation (hot-swap drain, D21 counts, leases). Default rule: drainable or countable -> must register. No new registry syntax; per-unit records are ordinary entries.
