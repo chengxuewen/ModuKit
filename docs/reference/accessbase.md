@@ -64,7 +64,9 @@ signal.
 - Machine-enforced gates live in `.agents/memorys/conventions.md` + CI + package
   scripts, **not** a monolithic `scripts/gate.sh` (no such file exists here). Note
   the asymmetry with ModuKit's ported `rules/common`, which still references a
-  `scripts/gate.sh` that does not exist yet (recorded open item).
+  `scripts/gate.sh` that does not exist yet (recorded open item). [2026-10-15 audit note: closed -
+  ModuKit's live local gate is `scripts/check.sh` per D50, landed 2026-10-13; the ported rule files'
+  gate.sh references were retired from the conventions family at the same time.]
 - Test baselines (flipped in the same commit as any count change, per convention):
   vitest `1530 passed (137 files, PG-up)`, e2e `186 passed + 3 skipped`.
 - E2E discipline: 34 Playwright specs; default config serves `admin-ui` only under

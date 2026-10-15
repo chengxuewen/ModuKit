@@ -121,8 +121,9 @@ does not need to be resolved before Stage 1 lands.
 
 ## 4. Open items for the maintainer (not decidable by this series)
 
-1. §5 wording: keep "iceoryx2/Zenoh" until the Stage-2 gate, or adopt the
-   composition above into a D-entry now?
+1. ~~§5 wording: keep "iceoryx2/Zenoh" until the Stage-2 gate, or adopt the
+   composition above into a D-entry now?~~ **RESOLVED 2026-10-13 by D25** (iceoryx2-first,
+   exact-pinned tag; §2 sheet line updated; whitepaper stays frozen canon - struck at 2026-10-15 audit)
 2. §8 "I420 frames": confirmed as this project's own design term (UI-composition
    payload) per root README — the tribunal's "smuggled residue" suspicion is
    WITHDRAWN (recorded honestly in r2 pool).
