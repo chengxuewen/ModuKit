@@ -104,6 +104,7 @@ export = []                          # bridged planes see NOTHING unless listed 
     notes for policy consumers (bridge export gates D11, quota engine D22, trust routing
     D1). A soft word grants nothing by itself — a note, not a key, read by the policy
     layer that reads them.
+- **Media-vocab audit (D72, 2026-10-15):** existing words cover the media-server base (pool/GPU/clock/net lanes accounted); raw device entrances (capture nodes, encoder render nodes) ride deployment `resources{}` + `com.vendor.*` notes - no new hard word until its enforcement mechanism is adjudicated (iron rule above; D56 precedent).
 - `provides.ranking` is reserved storage only in year 1 (02 §1, invariant 4).
 - `provides.parallel_ok` is an author semantics claim (D8): cross-checked between tiers like
   every other descriptor field, inert until Stage-2 multi-instance routing exists. Nobody may
