@@ -25,7 +25,8 @@ if [ "$HAS_WS" -eq 1 ]; then
   cargo test --workspace || { note "FAIL test"; status=1; }
 else note "skip test (no crates/ workspace)"; fi
 
-# 4. C1 English-artifact gate (canonical scope, verbatim from .agents/memorys/conventions.md)
+# 4. C1 English-artifact gate (canonical pattern+scope verbatim from .agents/memorys/conventions.md;
+#    verdict echo intentionally wrapped into note() helpers - semantics identical; audit F14 note)
 if grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
   AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat \
   docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ \
