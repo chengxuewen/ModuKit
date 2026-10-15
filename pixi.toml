@@ -11,6 +11,7 @@ platforms = ["linux-64", "win-64"]
 [feature.tools.dependencies]
 cmake = ">=3.25"           # embed floor (D66); system cmake 3.16 is deliberately NOT trusted
 ninja = "*"
+libprotobuf = ">=4"         # ships bin/protoc on conda-forge (the `protobuf` package is python bindings only); M4 ledger toolchain (D12/D13), pinned env - never the system one
 
 [feature.tools.target.linux-64.dependencies]
 gxx_linux-64 = "*"       # PolyOrch PlatformSupport needs a CXX identity before embed (observed first-red M1 2026-10-15)
@@ -21,6 +22,9 @@ clang_win-64 = "*"       # windows-side compiler shim (conda convention: activat
 [feature.tools.tasks]
 configure = "cmake -S . -B out/build -G Ninja"
 build = { cmd = "cmake --build out/build", depends-on = ["configure"] }
+regen-fdset = "bash scripts/regen-fdset.sh"                     # regenerate contracts/*.fdset in place (D12 ledger)
+regen-golden = "bash scripts/regen-golden.sh"                    # rewrite crates/modukit-codegen/testdata/golden (review the diff!)
+codegen = "bash scripts/regen-golden.sh"                         # alias for the golden regeneration workflow
 
 [feature.rust.dependencies]
 rust = "*"

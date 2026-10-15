@@ -1,0 +1,85 @@
+// org.modukit.runtime.proto - the kernel's self-registered contract
+// vocabulary (the ledger's FIRST entry, D27/D51).
+//
+// D27: two code spaces, one record. This file owns the shared error body and
+// the frozen kernel code dictionary; business codes stay in the author's own
+// contract packages (see com.modukit.demo.proto for the pattern).
+// D12 rule 1: every field and enum value numbered by hand from day one.
+// D12 rule 3: every enum carries an UNSPECIFIED sentinel at 0; kernel domain
+// tails carry RESERVED_n slots so additions never renumber (D51 allocation).
+syntax = "proto2";
+
+package org.modukit.runtime;
+
+// D27 retry hint - machine-decidable, feeds the policy engines (D3 on_down,
+// D6 backoff). Mirrors modukit-core::error::RetryHint.
+enum Hint {
+  HINT_UNSPECIFIED = 0;
+  RETRY_NOW = 1;
+  RETRY_AFTER = 2;
+  DO_NOT_RETRY = 3;
+}
+
+// One structured key/value attachment (D27 `kv[]`). Values stay bytes so any
+// runner can carry them without a text codec; typed value unions are later
+// contract work (D14 face).
+message KeyValue {
+  optional string key = 1;
+  optional bytes value = 2;
+}
+
+// The shared error body (D27): every cross-boundary failure carries exactly
+// this record. `message` is prose and never a decision input - `code` +
+// `domain` + `hint` are the machine channels.
+message Error {
+  // Vocabulary NAME, SCREAMING_SNAKE: a KernelCode name when domain ==
+  // "kernel", otherwise a name from the owning contract's enum.
+  optional string code = 1;
+  // "kernel" or the owning canonical service id (D27 two-code-space rule).
+  optional string domain = 2;
+  // Originating plugin (bundle id or canonical service id).
+  optional string source = 3;
+  // Human prose. Never parsed for decisions (D27).
+  optional string message = 4;
+  repeated KeyValue kv = 5;
+  optional Hint hint = 6;
+}
+
+// D51: the frozen kernel dictionary - 14 entries, four domains, contiguous
+// values per domain, each domain tail padded with RESERVED_n so a future
+// code lands in a sentinel slot without renumbering. Deprecated entries keep
+// name + value frozen.
+enum KernelCode {
+  // D12 rule 3 sentinel for an unknown/unmapped code.
+  KERNEL_CODE_UNSPECIFIED = 0;
+
+  // lifecycle domain
+  MANIFEST_INVALID = 1;
+  DEPENDENCY_MISSING = 2;
+  DEPENDENCY_CYCLE = 3;
+  START_TIMEOUT = 4;
+  START_REJECTED = 5;
+  STOP_TIMEOUT = 6;
+  RESERVED_LIFECYCLE_7 = 7;
+  RESERVED_LIFECYCLE_8 = 8;
+
+  // contract domain
+  ABI_MISMATCH = 9;
+  CONTRACT_VIOLATION = 10;
+  SCHEMA_INVALID = 11;
+  RESERVED_CONTRACT_12 = 12;
+  RESERVED_CONTRACT_13 = 13;
+
+  // runtime domain
+  NOT_FOUND = 14;
+  EPOCH_EXPIRED = 15;
+  CARRIER_UNREACHABLE = 16;
+  RESERVED_RUNTIME_17 = 17;
+  RESERVED_RUNTIME_18 = 18;
+
+  // resource domain
+  QUOTA_EXCEEDED = 19;
+  CAPABILITY_DENIED = 20;
+  RESERVED_RESOURCE_21 = 21;
+  RESERVED_RESOURCE_22 = 22;
+}

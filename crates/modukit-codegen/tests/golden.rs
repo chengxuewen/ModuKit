@@ -1,0 +1,81 @@
+//! Golden-file gate for the M4 generator (D12: plugin output is golden-file
+//! tested; red on any byte drift). Runs the generator over the checked-in
+//! contract fdsets into a temp dir and byte-compares against
+//! `testdata/golden/`. Regenerate the goldens with `pixi run regen-golden`.
+
+use std::path::{Path, PathBuf};
+
+use modukit_codegen::{CodegenError, generate};
+
+fn repo_root() -> PathBuf {
+    Path::new(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(Path::parent)
+        .expect("crate lives under <repo>/crates/")
+        .to_path_buf()
+}
+
+/// The checked-in ledger fdsets, runtime vocabulary first (the service
+/// skeletons mirror its D27 error record).
+fn ledger_fdsets() -> Vec<PathBuf> {
+    let contracts = repo_root().join("contracts");
+    vec![
+        contracts.join("org.modukit.runtime.proto.fdset"),
+        contracts.join("com.modukit.demo.proto.fdset"),
+    ]
+}
+
+fn golden_names() -> Vec<&'static str> {
+    vec![
+        "org_modukit_runtime.rs",
+        "com_modukit_demo.rs",
+        "com_modukit_demo.abi.rs",
+        "com_modukit_demo.h",
+    ]
+}
+
+#[test]
+fn generated_output_matches_golden() {
+    let root = repo_root();
+    let out_dir =
+        std::env::temp_dir().join(format!("modukit-codegen-golden-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&out_dir);
+
+    let written = match generate(&ledger_fdsets(), &out_dir) {
+        Ok(files) => files,
+        Err(CodegenError::Io(inner)) => panic!("generator io: {inner}"),
+        Err(other) => panic!("generator failed: {other}"),
+    };
+
+    let golden_dir = root.join("crates/modukit-codegen/testdata/golden");
+    let mut expected: Vec<String> = written
+        .iter()
+        .map(|p| p.file_name().and_then(|n| n.to_str()).unwrap().to_string())
+        .collect();
+    expected.sort();
+    let mut want: Vec<String> = golden_names().iter().map(|s| s.to_string()).collect();
+    want.sort();
+    assert_eq!(expected, want, "generator file set drifted");
+
+    for name in golden_names() {
+        let produced = out_dir.join(name);
+        let golden = golden_dir.join(name);
+        let produced_bytes = std::fs::read(&produced)
+            .unwrap_or_else(|e| panic!("read {} failed: {e}", produced.display()));
+        let golden_bytes = std::fs::read(&golden).unwrap_or_else(|e| {
+            panic!(
+                "golden {} missing (pixi run regen-golden): {e}",
+                golden.display()
+            )
+        });
+        if produced_bytes != golden_bytes {
+            panic!(
+                "golden drift in {name}: generated {} bytes vs checked-in {} bytes \
+                 (rerun `pixi run regen-golden` and review the diff)",
+                produced_bytes.len(),
+                golden_bytes.len()
+            );
+        }
+    }
+    let _ = std::fs::remove_dir_all(&out_dir);
+}

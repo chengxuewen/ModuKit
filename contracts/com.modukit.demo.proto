@@ -1,0 +1,63 @@
+// com.modukit.demo.proto - the fixture contract: one service, two methods.
+//
+// The pattern every author follows (D13: .proto is the authored original;
+// D12 rule 1: hand-written field numbers everywhere; D9: the canonical
+// reverse-DNS id is stamped as a service option, not inferred from the name).
+// The two methods exercise the two shapes M4 codegen must dispatch: an echo
+// carrying bytes and a metadata-only probe.
+syntax = "proto2";
+
+package com.modukit.demo;
+
+import "modukit.proto";
+
+// v0 codegen scope: each contract file stays self-contained. Cross-file type
+// references land when the generated modules get import wiring (M5+); the
+// shared D27 error record is emitted per contract from the runtime ledger
+// (org.modukit.runtime.proto) rather than referenced across files.
+
+// Business code space (D27: author-owned). The sentinel at 0 is D12 rule 3 -
+// an unknown wire value maps here, never panics.
+enum DemoStatus {
+  DEMO_STATUS_UNSPECIFIED = 0;
+  DEMO_STATUS_OK = 1;
+  DEMO_STATUS_PARTIAL = 2;
+  RESERVED_DEMO_STATUS_3 = 3;
+}
+
+message EchoRequest {
+  optional bytes payload = 1;
+}
+
+message EchoReply {
+  optional bytes payload = 1;
+  optional DemoStatus status = 2;
+}
+
+message MetaRequest {
+  // Caller identity for the probe (provenance only, no authority implied).
+  optional string caller = 1;
+}
+
+message MetaReply {
+  // Canonical id as the service reports it (D9; the kernel cross-checks it
+  // against the deploy manifest, D7).
+  optional string service_id = 1;
+  optional uint32 method_count = 2;
+  // Status the probe saw itself in (author code space, D27; the shared
+  // error record travels beside it at the transport layer, not inside
+  // this reply).
+  optional DemoStatus state = 3;
+}
+
+service DemoService {
+  // Leading dot = outermost scope: protoc resolves `(modukit.X)` against the
+  // package prefix first, and the extension lives in package `modukit`.
+  option (.modukit.service_id) = "com.modukit.demo.DemoService";
+
+  // Bytes round-trip: the smallest shape that proves buffers cross typed.
+  rpc Echo (EchoRequest) returns (EchoReply);
+
+  // Metadata-only probe: no bulk payload, answers from registration state.
+  rpc Describe (MetaRequest) returns (MetaReply);
+}

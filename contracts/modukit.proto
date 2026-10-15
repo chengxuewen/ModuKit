@@ -1,0 +1,23 @@
+// modukit.proto - the (modukit.*) option vocabulary for contract authoring.
+//
+// D13: one hand-written .proto per contract is the single source; the option
+// stamps below carry what codegen cannot infer from the message shape alone.
+// D9: `service_id` carries the canonical reverse-DNS id - codegen refuses to
+// emit a service without it (the const SERVICE_ID in generated Rust comes
+// from here, never from the proto service name).
+//
+// proto2 syntax: extending descriptor.proto option messages is the classic
+// custom-options pattern (google.protobuf.ServiceOptions reserves tags
+// 50000-max for exactly this).
+syntax = "proto2";
+
+package modukit;
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.ServiceOptions {
+  // Canonical reverse-DNS service id (D9). Hand-written tag 50000, first
+  // slot of the descriptor.proto ServiceOptions extension range (D12 rule 1:
+  // every field numbered by hand).
+  optional string service_id = 50000;
+}

@@ -1,0 +1,19 @@
+[package]
+name = "modukit-codegen"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "ModuKit contract codegen v0: hand-written protobuf wire decoder + protoc plugin emitting Rust skeletons and C ABI shades (D12/D13)"
+
+[lib]
+name = "modukit_codegen"
+path = "src/lib.rs"
+
+[[bin]]
+name = "protoc-gen-modukit"
+path = "src/main.rs"
+
+[dependencies]
+
+[dev-dependencies]
+modukit-core = { path = "../modukit-core" }

@@ -55,6 +55,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "modukit-codegen"
+version = "0.1.0"
+dependencies = [
+ "modukit-core",
+]
+
+[[package]]
 name = "modukit-core"
 version = "0.1.0"
 dependencies = [
