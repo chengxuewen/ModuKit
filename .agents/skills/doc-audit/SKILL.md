@@ -79,7 +79,8 @@ decision matrix), and `docs/codegraph-bootstrap.md`.
   New facts must be externally sourced and marked (the `docs/reference/` series is the
   sanctioned carrier of whitepaper-external content).
 - **Is every file under `docs/` classified?** derived (whitepaper echo), design
-  (codegraph-bootstrap, architecture.md, modules/*), or external-sourced (reference series).
+  (root design docs: codegraph-bootstrap.md, stage-1-plan.md; plus architecture.md,
+  modules/*), or external-sourced (reference series).
   A new unclassified file is a HIGH finding.
 - Do the root documents (`README.md`, `SKILL.md`) agree with `docs/reference/README.md` (the series index) rather than
   restating it differently?

@@ -18,6 +18,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── .agents/              # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
 ├── docs/reference/       # external-project profiles + audits + decision matrix (roster: its README.md)
 ├── docs/codegraph-bootstrap.md  # MCP launcher design doc (reviewed v3)
+├── docs/stage-1-plan.md      # Stage-1 resumption plan M0-M8 (Momus-reviewed OKAY; plan != execution - M1 awaits explicit go)
 ├── LICENSE-MIT / LICENSE-APACHE # D1 dual-license texts
 ├── scripts/                # skill-lint.py (skill-tree gate, C0-proved) + check.sh (D50 local gate)
 ├── mise.toml             # per-repo toolchain pins (node 22, uv; user-level via ~/.local, system untouched)
