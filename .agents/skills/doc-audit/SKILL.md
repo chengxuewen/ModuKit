@@ -10,7 +10,8 @@ description: "Audit this repository's documentation and agent system for self-co
 > `docs/reference/` (roster: its README.md index; `00-overview.md` decision matrix),
 > `docs/codegraph-bootstrap.md`, `.agents/memorys/` (C0-C1 / D ledger / PIT ledger — never hardcount; probe live high-water: `grep -E '^## D[0-9]+' .agents/memorys/decisions.md | tail -1`),
 > `.opencode/opencode.json`, `mise.toml` / `bootstrap.sh` / `bootstrap.bat`.
-> `docs/architecture.md` + `docs/modules/00-10` are primary targets (adjudicated baseline
+> `docs/architecture.md` + `docs/modules/00-11` are primary targets (adjudicated baseline
+> since 2026-10-10; module range and self-claims refreshed at the 2026-10-15 full audit).
 > since 2026-10-10). PolyOrch-era remnants NOT targets here: C2-C6 conventions, vendored xmake set.
 
 A full audit of this repository's document system: cross-document consistency, decision
@@ -78,8 +79,8 @@ decision matrix), and `docs/codegraph-bootstrap.md`.
   New facts must be externally sourced and marked (the `docs/reference/` series is the
   sanctioned carrier of whitepaper-external content).
 - **Is every file under `docs/` classified?** derived (whitepaper echo), design
-  (codegraph-bootstrap), or external-sourced (reference series). A new unclassified file
-  is a HIGH finding.
+  (codegraph-bootstrap, architecture.md, modules/*), or external-sourced (reference series).
+  A new unclassified file is a HIGH finding.
 - Do the root documents (`README.md`, `SKILL.md`) agree with `docs/reference/README.md` (the series index) rather than
   restating it differently?
 - Are the two READMEs still doing different jobs — the root one a repository front door, the
@@ -125,12 +126,13 @@ Scan for documents or design sections that should exist and do not.
 - Is anything marked `TBD` or "not yet" that has since been decided? (Precedents found
   2026-10-09: `AGENTS.md` NOTES "License TBD" after D1 landed, and its generated header
   "Commit: none yet" after real commits existed — both fixed same session.)
-- `scripts/` now holds `skill-lint.py` only; the C1 gate and env probes still live ad hoc in
-  conventions/AGENTS text. Collecting them into `scripts/check.sh` (landed per D50) is a recorded Stage-1
-  trigger (backlog), not a current-phase gap.
+- `scripts/` holds `skill-lint.py` + `check.sh` (D50, landed 2026-10-13); the C1 gate and env
+  probes now live there too; remaining Stage-1 triggers: formal dead-link check seed +
+  doc-liveness/D-record mechanics (PORT_NOW bundle, backlog) - not current-phase gaps.
 - Pin hygiene (ModuKit analogue of the build-reproducibility invariant): `mise.toml` pins
-  node; plugin versions pinned in `opencode.json` (2026-10-09; superpowers git-ref floats
-  by design). `Cargo.lock` rule (constraints.md) activates with the Stage-1 workspace.
+  node; plugin versions pinned in `opencode.json` (2026-10-09; superpowers since ref-pinned
+  @v7.0.0 per commit 3e6baeb 2026-10-15 - "floats by design" retired). `Cargo.lock` rule
+  (constraints.md) activates with the Stage-1 workspace.
 - Is the phase's stated deliverable actually complete?
 
 ### 5. Phase audit
@@ -156,7 +158,8 @@ Check the declared phase against the real state of the repository.
 
 ### A. Team mode (recommended for a full audit)
 
-Three or more large documents → `team_create` with 4-6 parallel members.
+Three or more large documents → `team_create` with 4-6 parallel members (the lead conducts
+dimension 5 - phase audit - inline; a five-member fan-out is not required).
 
 ```
 team_create(inline_spec={
