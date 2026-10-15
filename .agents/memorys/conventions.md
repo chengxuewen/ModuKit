@@ -16,14 +16,14 @@ test -f .opencode/opencode.json && python3 -m json.tool .opencode/opencode.json 
 
 ## C1: "All artifacts English; chat follows the user"
 
-Every file this project produces — code, comments, memory files, markdown docs (README, `docs/`, rules) — is written in English. Only AI-session replies follow the user's language (Chinese in, Chinese out); artifacts stay English regardless.
+Every file this project produces — code, comments, memory files, markdown docs (README, `docs/`, rules), build configuration (pixi.toml, CMakeLists.txt, cmake/) — is written in English. Only AI-session replies follow the user's language (Chinese in, Chinese out); artifacts stay English regardless.
 
 Exception: functional CJK literals that must stay verbatim (trigger keywords in `adjudication-walkthrough`, Chinese chapter-numbering parse data in `book-to-skill`, routing phrases in `skill-router`). `.agents/skills/**` is excluded from the scan; new skills follow the same rule — English prose, verbatim functional literals only.
 
 ```bash
 # Check: no CJK (incl. CJK/full-width punctuation) in scanned artifacts
 grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ $(test -d crates/ && echo crates/) \
+  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 ```
 
