@@ -29,7 +29,7 @@ grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
 
 ## C2: "Branch discipline: master receives milestone merges; work lives on stage1/mN branches; submodule edits go to PolyOrch's own branch, the pin bumps separately"
 
-Milestone work on this repo is committed on `stage1/m<N>-<slug>` branches; `master` only ever receives a milestone merge after that milestone's gates are green. Changes inside the `PolyOrch/` submodule are made on a branch of that repository (never on the detached pin), pushed by the maintainer's own call, and only then does ModuKit record the new gitlink as a standalone `chore(deps): bump PolyOrch <old>..<new>` commit (D67: the gitlink is the single version authority; no branch= field, no floating).
+Milestone work on this repo is committed on `stage1/m<N>-<slug>` branches; `master` only ever receives a milestone merge after that milestone's gates are green. Changes inside the `PolyOrch/` submodule are made on the dedicated upstream branch `dev-modukit` (created and pushed by the maintainer 2026-10-15; never on the detached pin, never editing in detached HEAD): pull `main` first, develop on `dev-modukit`, merge to `main` and run the tests on `main` before blessing, then ModuKit records the merged commit as a standalone `chore(deps): bump PolyOrch <old>..<new>` gitlink-only commit (D67: the gitlink is the single version authority; no branch= field, no floating).
 
 ```bash
 # Check 1: branch name is master or stage1/mN-slug
