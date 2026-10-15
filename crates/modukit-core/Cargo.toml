@@ -8,3 +8,8 @@ description = "ModuKit kernel: six-state machine, manifest v0, C+ registry, dl e
 [lib]
 name = "modukit_core"
 path = "src/lib.rs"
+
+[dependencies]
+libloading = "0.9.0"
+serde = { version = "1.0.229", features = ["derive"] }
+toml = "1.1.8"

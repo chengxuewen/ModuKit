@@ -9,3 +9,6 @@ description = "Negative fixture - ABI-mismatch rejection proof (D27 record expec
 name = "bad_plugin"
 crate-type = ["cdylib"]
 path = "src/lib.rs"
+
+[dependencies]
+modukit-core = { version = "0.1.0", path = "../modukit-core" }

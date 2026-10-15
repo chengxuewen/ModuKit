@@ -9,3 +9,6 @@ description = "Positive dlopen fixture - template standing per D23 (M3 adds the 
 name = "example_plugin"
 crate-type = ["cdylib"]
 path = "src/lib.rs"
+
+[dependencies]
+modukit-core = { version = "0.1.0", path = "../modukit-core" }
