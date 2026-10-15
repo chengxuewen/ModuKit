@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). Design baseline whitepaper v1.0 + adjudicated architecture docs (`docs/architecture.md` + `docs/modules/00-10`; decisions adjudicated one by one, ledger in `.agents/memorys/decisions.md`, index architecture.md §11; queue empty, remainder trigger-gated). **Zero source code** (kernel v0 parked outside repo); Stage-1 resumption on explicit instruction only.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). Design baseline whitepaper v1.0 + adjudicated architecture docs (`docs/architecture.md` + `docs/modules/00-11`; decisions adjudicated one by one, ledger in `.agents/memorys/decisions.md`, index architecture.md §11; queue empty, remainder trigger-gated). **Zero source code** (kernel v0 parked outside repo); Stage-1 resumption on explicit instruction only.
 
 ## STRUCTURE
 
@@ -14,7 +14,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── SKILL.md              # skills registry — inventory of .agents/skills + superpowers, activation notes
 ├── docs/whitepaper.md    # v1.0 canon — crate names §2.3, architecture §4, tech stack §5, roadmap §8
 ├── docs/architecture.md  # adjudicated engineering baseline (§9 delta table, §11 decision index)
-├── docs/modules/         # numbered architecture deep dives (00 index, 01-10)
+├── docs/modules/         # numbered architecture deep dives (00 index, 01-11)
 ├── .agents/              # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
 ├── docs/reference/       # external-project profiles + audits + decision matrix (roster: its README.md)
 ├── docs/codegraph-bootstrap.md  # MCP launcher design doc (reviewed v3)
@@ -24,7 +24,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── bootstrap.sh|.bat     # one-time machine setup: ensure mise -> activation -> mise install (idempotent)
 ├── .opencode/            # opencode.json (instructions[], lsp:true) + codegraph launcher .sh/.bat
 ├── .omo/                 # OMO state; omo.jsonc tracked, run-continuation/ ephemeral
-└── PolyOrch/  .refinfo/  # EXTERNAL reference clones, git-ignored — never edit, never cite as ours
+└── PolyOrch/  .refinfo/  # EXTERNAL reference clones, git-ignored — never edit, never cite as ours (PolyOrch = future submodule per D64, landing on maintainer call)
 ```
 
 ## WHERE TO LOOK

@@ -1,6 +1,6 @@
 # ModuKit Architecture
 
-**Status**: adjudicated engineering baseline (2026-10-10; D56-D61 added 2026-10-13). Where this document differs from the
+**Status**: adjudicated engineering baseline (2026-10-10; D56-D63 added 2026-10-13; D64-D73 added 2026-10-15). Where this document differs from the
 [whitepaper](whitepaper.md) v1.0 vision text, the delta table in §9 is authoritative and the
 whitepaper remains canon for naming (§2.3) and principles (§3) not amended here.
 **Provenance**: architecture questions were adjudicated one-by-one with the maintainer
@@ -142,6 +142,10 @@ ROS 2 via pixi (D56-D60): net-listen grammar gains port ranges + multicast joins
 
 Foxglove interop (D61): the D16 recorder stays ours over the neutral mcap crate (foxglove-sdk never enters the recording path); a bridge plugin embeds the foxglove-sdk WebSocket server so the app connects unchanged with all stock panels lit; writeback crosses as an ordinary client through the existing gates (no debug exemption, D44); type-mapping tables are per-bridge (D11) with a dictionary-pack promotion trigger at the second ecosystem; foxglove-sdk is bridge-plugin-only (never the host link domain); Foxlet/Data Platform upload is site-side.
 
+Build orchestration (D64-D67): PolyOrch is adopted as the repo build-orchestration layer by immediate policy (D64); the physical gitlink submodule lands at a maintainer-called moment. Environment split (D65): mise owns host/agent tooling and carries no build-reproducibility promise; pixi owns build-time environments with a committed `pixi.lock` as the pin (`polyorch_rust_setup(FROM pixi)`, `FROM system` kept as escape hatch) - the build-side mirror of the D57 deploy doctrine. At landing the root carries a full-shape CMake assembly modeled on VisiaEngine (D66): five-part order, `cmake_minimum_required(3.25)` embed floor, `crates/` stay pure Cargo under zero-intrusion (CMake drives native engines, PolyOrch-generated files never enter bridged directories), binding lanes + examples + install/export ride the single root graph, IDE project files are insight projections only. The submodule gitlink is the single version authority (D67): no branch tracking, no second ledger, bumps as standalone auditable commits; host-language artifact naming (`LANGUAGE_PRODUCT`) and version single-source from the workspace `Cargo.toml` are adopted; the cxx+cbindgen two-surface FFI model is refused - the D63 floor stays the single projection, with cbindgen kept as the header emitter inside our pipeline.
+
+Media-server base (D68-D73): when serving a media server the posture is the CONTROL-PLANE base - kernel owns lifecycle/registry/manifest/supervisor/ABI governance; the pipeline core stays compiled; GPU inner loops are core, never plugins (D68). The frame clause (D69): frame bytes reach any plugin only via the pool + descriptor channel; contracts pass handles/descriptors/registration ids, never raw pointers or foreign malloc'd buffers; a dl plugin mapping the pool is a trusted-tier privilege; SDK consumers take frames over API borrow/pull/out-buffer. Node factories (kind+formats+priority queries) ride plugin contracts, not the registry; observable work units register ephemeral records and deregister on completion (D70). Multi-instance coexistence stays inert - base swaps ride the exe-restart and dl-next-boot lanes; the doorbell is drawn and rechecked, not rung (D71). Capability vocabulary audited sufficient; device entrances ride resources{} + vendor notes (D72). MediaServo integration: declared intent, NOT wiring - parallel until the kernel API stabilizes, direction library-first when the day comes (D73). Doctrine card: `docs/modules/11-media-server-base.md`.
+
 Companion type packs (D45): `modukit-types-<domain>` packages (first candidates:
 vision - camera frames aligned with I420 vocabulary and D15 lanes; motion - IMU/odometry
 aligned with D20 capture_ts discipline). Plain `.proto` packages riding every existing
@@ -265,6 +269,16 @@ them. Re-review trigger recorded in D5.
 | D61 | Foxglove interop | D16 recorder ours over neutral mcap crate; foxglove-ws bridge plugin (sdk WebSocket server embedded, app unchanged, panels lit); writeback = ordinary client through existing gates, no exemption; per-bridge mapping tables + dictionary-pack trigger; sdk bridge-only, never host; upload site-side |
 | D62 | fallback semantics | error-carrying stub: ServiceRef stays callable, every call returns D27 record (SERVICE_UNAVAILABLE), never blocks never fabricates; stale-cache/default-map are consumer-side patterns (D46); absence counted in D21; required+fallback still fails boot resolve (D3) |
 | D63 | bindings layering (A6 ratified, refined) | generated floor (hand-written substitutes forbidden), ergonomics fixed only in emitter templates, thin per-language sugar allowed above the floor (floor-only, semantics-free, fixture-tested); metadata-first ratified - .proto is truth, C ABI its generated projection |
+| D64 | PolyOrch adoption | immediate-policy adoption (not trigger-gated): PolyOrch = repo build-orchestration layer; physical integration via git submodule, landing on maintainer call; runtime doctrine untouched |
+| D65 | build-env split | mise = host/agent tools (no reproducibility promise); pixi = build envs, `pixi.lock` the committed pin via `polyorch_rust_setup(FROM pixi)` (`FROM system` escape hatch); mirrors D57 |
+| D66 | root assembly layer | full VisiaEngine-shape CMake assembly at landing (five-part, embed floor 3.25); crates/ stay pure Cargo (zero-intrusion); lanes+examples+install on one graph; IDE files projections |
+| D67 | PolyOrch pinning + doctrine | gitlink = single version authority (no branch tracking, no second ledger, standalone bump commits); adopt naming grammar (LANGUAGE_PRODUCT, -build mediators, version single-source from Cargo.toml); refuse cxx+cbindgen two-surface FFI - floor stays the D63 single projection |
+| D68 | media base posture | control-plane P1: kernel = lifecycle/registry/manifest/supervisor/ABI governance; pipeline core compiled; GPU inner loop never a plugin |
+| D69 | frame clause | frame bytes pool+descriptor ONLY, any placement; contracts carry handles/descriptors, no raw pointers/foreign malloc buffers; dl pool-mapping = trusted-tier privilege; SDK via API borrow/pull/out-buffer |
+| D70 | factories + work units | kind/formats/priority query rides plugin contracts (registry invariants stand); drainable/countable work units register ephemeral records, deregister on completion |
+| D71 | coexistence stays inert | parallel_ok routing inert; media-base swap needs ride exe-restart + dl-next-boot; doorbell: in-process hot-swap WITH in-flight tasks = fresh hearing |
+| D72 | vocab audit | media needs covered; device entrances via resources{} + com.vendor.* notes; hard word only after adjudicated enforcement mechanism (D56 precedent) |
+| D73 | integration posture | parallel, not wired: intent declared, kernel API stabilization is the gate; direction library-first when the day comes; C-ABI freeze trigger stays anonymous |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
@@ -304,10 +318,12 @@ per D11, only backend/vendor selection remains open).
 | [modules/08-end-to-end-walkthrough.md](modules/08-end-to-end-walkthrough.md) | end-to-end worked example: one video frame across all layers |
 | [modules/09-recording-and-replay.md](modules/09-recording-and-replay.md) | recording, replay, container policy |
 | [modules/10-observability-and-debugging.md](modules/10-observability-and-debugging.md) | introspect trio, logger, edge ledger + analysis, debug lanes, tool constitution |
+| [modules/11-media-server-base.md](modules/11-media-server-base.md) | media-server base doctrine card (thin; pointers only) |
 
 ## 14. Appendix: reference projects
 
-Twenty profiles in `docs/reference/` (index: `00-overview.md`). The ones load-bearing for
+Profiles live in `docs/reference/` (index: `00-overview.md`; count deliberately not quoted -
+volatile counts rot, the index file is the authority). The ones load-bearing for
 this document: CppMicroServices (state machine + service semantics mirror; also the cautionary
 "no remote story" — `cppmicroservices.md:80`), dora (same-contract two placements),
 ipc-channel (one API, inprocess+cross-process backends, weight accounting), CLAP (handshake
