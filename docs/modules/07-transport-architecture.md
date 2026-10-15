@@ -71,7 +71,7 @@ no lockstep with the writer ever**.
   destructor — Rust lifetime, C++ RAII (+ debug assert), C release pairing: one ledger,
   three manners.
 
-- **Frame clause (D69, promoted 2026-10-15):** this pool + descriptor channel is the ONLY path frame bytes take to a plugin, in ANY placement (media-base posture, D68). Contract signatures carry handles, descriptors and registration ids - never raw frame pointers, never ad-hoc malloc'd foreign buffers (01 §3 rules 3/7). A `dl` plugin mapping the pool is allowed as a trusted-tier privilege; SDK consumers receive frames over the API (pull / borrowed views / caller-allocated out-buffers). Shapes absorbed, fragility not: opaque pool handles across in-process calls = legal; wild-lifetime frame arguments = refused.
+- **Frame clause (D69, promoted 2026-10-15):** this pool + descriptor channel is the ONLY path frame bytes take to a plugin, in ANY placement (media-base posture, D68) - on-host; off-host frames travel the D15 bridge exchange above, and the clause bans raw-frame-pointer contract arguments in both directions. Contract signatures carry handles, descriptors and registration ids - never raw frame pointers, never ad-hoc malloc'd foreign buffers (01 §3 rules 3/7). A `dl` plugin mapping the pool is allowed as a trusted-tier privilege; SDK consumers receive frames over the API (pull / borrowed views / caller-allocated out-buffers). Shapes absorbed, fragility not: opaque pool handles across in-process calls = legal; wild-lifetime frame arguments = refused.
 
 ## 4. Carrier selection is deployment, not type (D14)
 
