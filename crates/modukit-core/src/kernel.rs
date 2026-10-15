@@ -12,6 +12,7 @@ use std::path::Path;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use crate::abi::{HostAbiV1, NativeService, ServiceCallFn, cstr_to_string};
+use crate::bus::Bus;
 use crate::error::KernelError;
 use crate::executor::{DlopenExecutor, Executor, LoadedPlugin};
 use crate::identity::{PluginId, ServiceId};
@@ -40,6 +41,7 @@ struct ActivationSink<'a> {
 /// The C+ kernel for `dl` plugins.
 pub struct Kernel {
     registry: Registry,
+    bus: Bus,
     executor: Box<dyn Executor>,
     plugins: Mutex<HashMap<PluginId, PluginRecord>>,
 }
@@ -101,6 +103,7 @@ impl Kernel {
     pub fn new() -> Self {
         Self {
             registry: Registry::new(),
+            bus: Bus::new(),
             executor: Box::new(DlopenExecutor::new()),
             plugins: Mutex::new(HashMap::new()),
         }
@@ -110,6 +113,13 @@ impl Kernel {
     #[must_use]
     pub fn registry(&self) -> &Registry {
         &self.registry
+    }
+
+    /// The year-1 in-process topic bus (D10, modules/06 §5) plugins and the
+    /// host publish/subscribe through. Separate channel from `registry()`.
+    #[must_use]
+    pub fn bus(&self) -> &Bus {
+        &self.bus
     }
 
     /// UNINSTALLED -> INSTALLED. §2 guard: manifest valid (already parsed)
