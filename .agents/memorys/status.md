@@ -42,11 +42,11 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 - [ ] PolyOrch submodule landing (policy adopted 2026-10-15 per D64-D67; timing = maintainer call, no auto-trigger); root `PolyOrch/` stays a git-ignored reference checkout until landing, then retires in favor of the gitlink
 - [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — wiring hearing when kernel API stabilizes (D73)
-- [ ] `rules/common` dangling refs family remainder: `~/.claude/agents/`, `~/.claude/settings.json` / `~/.claude.json`, and `See skill: python-patterns` / `golang-testing` pointers — inline or trim when Stage 1 tooling lands (rust-patterns half RESOLVED 2026-10-14 by vendoring ECC rust-patterns; the family's gate.sh/scan-hardcode.sh entries retired 2026-10-13: scripts/check.sh landed per D50)
-- [ ] Cargo workspace scaffolding (`modukit-core` et al.) not created
+- [ ] `rules/common` dangling refs family remainder: `~/.claude/agents/`, `~/.claude/settings.json` / `~/.claude.json`, and `See skill: python-patterns` / `golang-testing` pointers — inline or trim when Stage 1 tooling lands (rust-patterns half RESOLVED 2026-10-14 by vendoring ECC rust-patterns; the family's gate.sh/scan-hardcode.sh entries retired 2026-10-13: scripts/check.sh landed per D50). Added by 2026-10-15 doc-audit: `rules/rust/hooks.md` ~/.claude/settings.json mention + `rules/rust/security.md` "See skill: security-review" pointer
+- [ ] Cargo workspace scaffolding (`modukit-core` et al.) not created — owner: maintainer explicit Stage-1 resumption instruction; first concrete step per architecture.md §10 deliverable shape
 - [x] License decided — MIT OR Apache-2.0 dual (D1, 2026-10-09); texts at repo root; workspace metadata = Stage-1 trigger
 - [x] doc-audit re-scoped to ModuKit canon (commit 2aa7663); first full run 2026-10-10: 18 findings, all user-adjudicated
-- [ ] Maintainer calls pending (docs/reference/00-overview.md §4, among others): §5 iceoryx2/Zenoh fork wording; ratify A6 generated-only binding wording as D-record; adopt tribunal PORT_NOW discipline bundle (check.sh seed landed per D50 2026-10-13; doc-liveness + D-record mechanics pending) when Stage-1 tooling lands
+- [ ] Maintainer calls pending (docs/reference/00-overview.md §4, among others): adopt tribunal PORT_NOW discipline bundle (check.sh seed landed per D50 2026-10-13; doc-liveness + D-record mechanics pending) when Stage-1 tooling lands. Struck at 2026-10-15 doc-audit: A6 wording RATIFIED as D63; §5 fork wording adopted by D25
 
 ## History
 

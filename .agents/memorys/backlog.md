@@ -39,8 +39,8 @@
 ## Not this track (cross-reference only — Stage-1 triggers)
 
 `scripts/check.sh` seed (landed 2026-10-13 per D50) + doc-liveness + D-record mechanics (PORT_NOW bundle),
-rust-analyzer component install, Cargo workspace scaffolding, header-first vs
-metadata-first contract, whitepaper reference corrections — see
+rust-analyzer component install, Cargo workspace scaffolding, whitepaper reference corrections
+(header-first vs metadata-first CLOSED as D63 2026-10-13 - struck at 2026-10-15 audit) — see
 `docs/reference/00-overview.md` section 4 and `.agents/memorys/status.md`.
 
 ## Maintenance
