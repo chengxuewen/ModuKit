@@ -41,6 +41,22 @@ test -z "$(git -C PolyOrch status --porcelain)" && echo "C2 submodule clean" || 
 # negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN
 # (superseded text of the first C2 draft - milestone-branch ritual - kept nowhere; the M2 merge commit stands as history)
 
+## C3: "Commit shape: subject under 60 chars, details as wrapped bullets in the body"
+
+Every commit message in ModuKit: `type(scope): short imperative subject` at most 60 characters (no " - " cramming chains into the subject - the bundling habit this rule kills), then a blank line, then body lines each starting ` - ` and at most 100 characters. Rationale lands in the body or not at all. Mainstream grounding: Conventional Commits recommends ~50 for the subject; the kernel checkpatch warns past 75 and git.git's own submission guide wants a short imperative summary with the why in wrapped paragraphs; rust-lang/rust keeps component-prefix subjects short. Our observed failure 2026-10-15: 100-250 char run-on subjects (M2-M4 era) unreadable in `git log --oneline` and on forges.
+
+```bash
+# Check (run right after each commit; both parts must hold):
+test $(git log -1 --format=%s | wc -m) -le 61 && echo "C3 subject OK" || echo "C3 VIOLATION (subject over 60)"
+git log -1 --format=%b | grep -vE '^$|^ - .{1,99}$' | grep -q . \
+  && echo "C3 VIOLATION (body lines not ' - ' wrapped or over 100)" || echo "C3 body OK"
+```
+# negative proof observed 2026-10-15: HEAD at rule-landing time (14654cf, 145-char
+# subject) -> RED; the dogfooding commit of this rule -> GREEN. Reword of the 20 older
+# local commits deferred until the M5 agent lands (repo-wide history work while a
+# worker runs = PIT-14 class; all rewrites stay local - origin untouched).
+
+
 
 ## Adding conventions
 
