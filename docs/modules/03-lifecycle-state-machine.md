@@ -177,3 +177,5 @@ The whitepaper lifecycle includes update (§4.1, `whitepaper.md:111`); year-1 se
   field exists, is cross-checked (05 §6), and is inert — no multi-instance routing ships.
 - OTA distribution (fetch/verify/rollback of bundles) remains outside the kernel
   (architecture.md §10 out-of-scope list).
+
+- **Media-base recheck (D71, 2026-10-15):** the control-plane-base swap needs ride the two lanes above (exe bundle swap; dl next-boot) - the inert `parallel_ok` routing was explicitly re-examined and NOT activated. Doorbell: a real customer needing an in-process plugin hot-swapped WHILE carrying in-flight tasks = a fresh hearing, not automatic enable.
