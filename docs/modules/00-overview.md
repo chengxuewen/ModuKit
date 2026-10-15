@@ -16,6 +16,7 @@ walked one-by-one with the maintainer since 2026-10-10.
 | 08 | [end-to-end-walkthrough.md](08-end-to-end-walkthrough.md) | one video frame end to end: three sheets, cargo oneof, faces, template status | D14/D15/D23 |
 | 09 | [recording-and-replay.md](09-recording-and-replay.md) | three-part header, gap stats, replay clocks, tiered retention + quota + shards, container policy, site-side upload boundary | D16/D49/D61 |
 | 10 | [observability-and-debugging.md](10-observability-and-debugging.md) | introspect trio, logger, edge ledger + counters + resources, testhost, graph views + analyzer, status/watch/ctl, DAP/Foxglove lanes, check gate + live-bridge consumer | D17/D18/D19/D21/D22/D24/D32/D44/D50/D61 |
+| 11 | [media-server-base.md](media-server-base.md) | doctrine card: P1 posture, frame clause pointers, factories + work units, coexistence doorbell, vocab audit, integration status | D68-D73 |
 
 Reading order for a newcomer: 03 -> 02 -> 01 -> 05 -> 04.
 Reading order for a plugin author: 05 -> 02 -> 04 -> 06.
