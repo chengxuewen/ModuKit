@@ -1,0 +1,29 @@
+# pixi.toml - build-time environments for ModuKit (D65 boundary: pixi owns BUILD envs;
+# mise.toml owns host/agent tooling and carries no reproducibility promise; pixi.lock
+# committed = the reproducibility pin. Channels stay single (conda-forge), following the
+# VisiaEngine measured route (conda-forge rust via pixi, their D5; D57 deploy-side mirror).
+[workspace]
+name = "modukit"
+version = "0.0.0"          # placeholder until M2: real version single-source = workspace Cargo.toml (D67)
+channels = ["conda-forge"]
+platforms = ["linux-64", "win-64"]
+
+[feature.tools.dependencies]
+cmake = ">=3.25"           # embed floor (D66); system cmake 3.16 is deliberately NOT trusted
+ninja = "*"
+
+[feature.tools.target.linux-64.dependencies]
+gxx_linux-64 = "*"       # PolyOrch PlatformSupport needs a CXX identity before embed (observed first-red M1 2026-10-15)
+
+[feature.tools.target.win-64.dependencies]
+clang_win-64 = "*"       # windows-side compiler shim (conda convention: activation injects CC/CXX)
+
+[feature.tools.tasks]
+configure = "cmake -S . -B out/build -G Ninja"
+build = { cmd = "cmake --build out/build", depends-on = ["configure"] }
+
+[feature.rust.dependencies]
+rust = "*"
+
+[environments]
+default = { features = ["tools", "rust"], solve-group = "base" }

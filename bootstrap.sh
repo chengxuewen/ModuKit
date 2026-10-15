@@ -7,6 +7,7 @@
 #   1. ensure mise        (official installer -> ~/.local/bin if missing)
 #   2. ensure shell activation (idempotent append to ~/.bashrc or ~/.zshrc)
 #   3. mise install       (toolchain pins from mise.toml; no-op when satisfied)
+#   4. ensure pixi        (build-env manager per D65; repo pin: pixi.toml + pixi.lock)
 #
 # After first run: open a NEW terminal (activation is read at shell start).
 # Windows native: use bootstrap.bat (same steps, no WSL required).
@@ -45,7 +46,20 @@ fi
 echo "[bootstrap] applying mise.toml pins (no-op if satisfied) ..."
 "$MISE" install
 
+# 4. ensure pixi - build-time environments (D65 boundary: pixi owns build envs,
+#    mise owns host/agent tools; pixi.lock is the committed reproducibility pin) ----
+PIXI="$(command -v pixi 2>/dev/null || true)"
+[ -n "$PIXI" ] || [ ! -x "$HOME/.pixi/bin/pixi" ] || PIXI="$HOME/.pixi/bin/pixi"
+if [ -z "$PIXI" ]; then
+    echo "[bootstrap] pixi not found - installing user-level via https://pixi.sh"
+    curl -fsSL https://pixi.sh/install.sh | sh
+    PIXI="$HOME/.pixi/bin/pixi"
+    [ -x "$PIXI" ] || { echo "[bootstrap] ERROR: pixi installer finished but $PIXI is missing" >&2; exit 1; }
+fi
+echo "[bootstrap] pixi: $("$PIXI" --version)"
+
 echo ""
 echo "[bootstrap] done. Open a NEW terminal, then verify:"
-echo "    node -v      # expect the mise.toml pin (v22.x), not the system node"
+echo "    node -v        # expect the mise.toml pin (v22.x), not the system node"
 echo "    mise doctor"
+echo "    pixi --version # build-env manager (D65); repo envs: pixi run <task>"

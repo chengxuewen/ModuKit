@@ -1,9 +1,10 @@
 @echo off
 rem bootstrap.bat - one-time Windows-native dev-environment setup for ModuKit
-rem (user-level, no admin). Same three steps as bootstrap.sh:
+rem (user-level, no admin). Same steps as bootstrap.sh:
 rem   1. ensure mise   (official GitHub release zip -> %LOCALAPPDATA%\mise\bin)
 rem   2. ensure user PATH contains that bin dir (via .NET User-scope API, not setx)
 rem   3. mise install  (toolchain pins from mise.toml; no-op when satisfied)
+rem   4. ensure pixi   (build-env manager per D65; repo pin: pixi.toml + pixi.lock)
 rem After first run: open a NEW terminal. Linux/macOS: use bootstrap.sh.
 setlocal EnableExtensions
 cd /d "%~dp0"
@@ -25,12 +26,19 @@ if not exist "%MISE%" if "%MISE%"=="mise" (
 echo [bootstrap] step 2/3: ensuring user PATH entry ...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$bin='%MB%'; $up=[Environment]::GetEnvironmentVariable('Path','User'); if (($up -split ';') -notcontains $bin) { [Environment]::SetEnvironmentVariable('Path', ($bin + ';' + $up), 'User'); Write-Host 'added %MB% to user PATH (restart terminal to pick up)' } else { Write-Host 'user PATH already contains mise bin' }"
 
-echo [bootstrap] step 3/3: applying mise.toml pins ...
+echo [bootstrap] step 3/4: applying mise.toml pins ...
 "%MISE%" install
 if errorlevel 1 (
     echo [bootstrap] ERROR: mise install failed 1>&2
     exit /b 1
 )
 
+echo [bootstrap] step 4/4: ensuring pixi (build envs, D65) ...
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; if (-not (Get-Command pixi -ErrorAction SilentlyContinue)) { $b=Join-Path $env:LOCALAPPDATA 'pixi\bin'; if (-not (Test-Path (Join-Path $b 'pixi.exe'))) { Write-Host 'installing pixi (official installer)'; [Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12; $i=Join-Path $env:TEMP 'pixi-install.ps1'; Invoke-WebRequest -UseBasicParsing 'https://pixi.sh/install.ps1' -OutFile $i; & $i }; $up=[Environment]::GetEnvironmentVariable('Path','User'); if (($up -split ';') -notcontains $b) { [Environment]::SetEnvironmentVariable('Path', ($b + ';' + $up), 'User'); Write-Host 'added pixi bin to user PATH (restart terminal to pick up)' } } else { Write-Host 'pixi already present' }"
+if errorlevel 1 (
+    echo [bootstrap] ERROR: pixi install step failed - see message above 1>&2
+    exit /b 1
+)
+
 echo.
-echo [bootstrap] done. Open a NEW terminal, then verify:  node -v  (expect v22.x pin)
+echo [bootstrap] done. Open a NEW terminal, then verify:  node -v  (expect v22.x pin),  pixi --version
