@@ -95,8 +95,12 @@ node_modules
 .sisyphus/
 .omo/*
 
-# Local reference checkout of the port-source project (not part of this repo)
-PolyOrch
+# PolyOrch is now a tracked git submodule (D64-D67, M1 landing 2026-10-15) - the gitlink
+# pin is the version authority (D67); the old ignore-for-reference-checkout entry retired.
+
+# Build/delivery root for the assembly layer (PIT-210 lesson: generated trees live
+# here, never inside the source tree; ignoring out/ is correct because it is derived)
+out/
 
 # Script-managed reference clones (codegraph/ecosystem tooling)
 .refinfo
