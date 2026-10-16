@@ -14,7 +14,7 @@ fi
 
 log=$(mktemp)
 trap 'rm -f "$log"' EXIT
-"${CARGO[@]}" run -p modukit-core --example stage1_demo 2>&1 | tee "$log"
+"${CARGO[@]}" run -p modukit-examples --example stage1_demo 2>&1 | tee "$log"
 status=${PIPESTATUS[0]}
 if [ "$status" -ne 0 ]; then
   echo "demo-stage1: RED (demo exited $status)"

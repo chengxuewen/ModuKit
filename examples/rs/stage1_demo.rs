@@ -36,8 +36,7 @@ const BAD_ID: &str = "com.example.modukit.bad";
 fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
         .parent()
-        .and_then(Path::parent)
-        .expect("demo gate: example lives under <repo>/crates/")
+        .expect("demo gate: examples package lives at <repo>/examples")
         .to_path_buf()
 }
 

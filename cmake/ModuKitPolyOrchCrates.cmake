@@ -114,18 +114,18 @@ function(modukit_polyorch_crates)
   # it self-stages its fixture cdylibs via cargo at runtime (scripts/
   # demo-stage1.sh stays the single script home for the PASS-line gate;
   # nothing is duplicated here - the ctest entry just execs the binary).
-  set(_demo_manifest "${CMAKE_SOURCE_DIR}/crates/modukit-core/Cargo.toml")
+  set(_demo_manifest "${CMAKE_SOURCE_DIR}/examples/Cargo.toml")
   polyorch_rust_build(
       TARGET   modukit-example-stage1_demo
-      PACKAGE  modukit-core
+      PACKAGE  modukit-examples
       CRATE    stage1_demo
       EXAMPLE
       MANIFEST "${_demo_manifest}"
       BASE_DIR "${_base}"
-      FOLDER   "crates/modukit-core")
+      FOLDER   "examples/rs")
   polyorch_rust_run(
       TARGET modukit-example-stage1_demo
-      FOLDER "crates/modukit-core")
+      FOLDER "examples/rs")
   # ctest entry: exec the staged binary with the routed toolchain in its
   # environment. Two prefixes are load-bearing (measured first-red of this
   # wiring: the demo's internal fixture build died on the mise rustc shim):
