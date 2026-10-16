@@ -78,5 +78,18 @@ if [ -d contracts ] && [ -f scripts/regen-fdset.sh ]; then
   rm -rf "$fd_tmp"
 else note "skip regen-diff (no contracts/ ledger or regen script)"; fi
 
+# leg: C3 commit-shape over the pending (unpushed) range (machine gate, PIT-8)
+# scope note: the five pushed C3-era legacy subjects stay RED in any wider window by design
+# - pushed history is immutable (reword covered the pre-push 24 only); the gate owns new work
+c3_shape=$(git log origin/master..HEAD --format='Subject: %s%nBody: %b%n_END_' 2>/dev/null | awk '
+  function isbullet(l) { return substr(l,1,3)==" - " && length(l)<=102 }
+  /^Subject: /{ subj=substr($0,10); if (length(subj)>60) print "SUBJ-VIOL(" length(subj) "): " substr(subj,1,40); inbody=0; next }
+  /^Body: /{ inbody=1; b=substr($0,7); if (b=="") next; if (!isbullet(b)) print "BODY-VIOL: " substr(b,1,40); next }
+  /^_END_$/{ inbody=0; next }
+  inbody==1 { if ($0!="" && !isbullet($0)) print "BODY-VIOL: " substr($0,1,40) }
+')
+if [ -n "$c3_shape" ]; then printf '%s\n' "$c3_shape" | while IFS= read -r l; do note "FAIL commit-shape: $l"; done; status=1
+else note "ok commit-shape (pending range)"; fi
+
 if [ "$status" -eq 0 ]; then note "check.sh: all green"; else note "check.sh: RED"; fi
 exit "$status"

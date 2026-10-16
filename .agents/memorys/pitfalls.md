@@ -63,3 +63,24 @@
 - **Solution**: guard with `if(POLICY CMP0174)` upstream on dev-modukit (control-proven: identical 74/5/29 on 4.4.4, +8 cases restored on 3.30.7; pushed/merged by maintainer, then a routine pin bump); pin the IDE to the same authority via .vscode/settings.json (cmake.cmakePath = pixi env cmake, buildDirectory = out/build, Ninja).
 - **Verification**: the failing user command `/usr/bin/cmake -S . -B build` (3.30.7) now configures clean; every cmake-family gate stays green on both cmake versions.
 - **Forbidden**: trusting "our gates are green" as proof that the ambient/IDE tool path works - any surface a tool can reach must either be pinned (settings) or floor-guarded (if POLICY); and a helper's declared floor must be exercised by its own suite.
+
+## PIT-8: C3 continuation-line bullets shipped twice before the machine gate existed (2026-10-16)
+- **Symptom**: two commits (S2-M1 code, S2-M2 F1 fix) shipped body bullets split into
+  continuation lines ("   text...") violating the `^ - ` bullet shape; the second one also
+  shipped an over-length subject (72 chars).
+- **Root cause**: the C3 checks existed as commands to run "right after each commit" - an
+  honor system; the habit of wrapping long bullets was re-imported from prose style; the
+  subject gate got skipped by printing wc -m without comparing it.
+- **Solution**: check.sh gained a commit-shape leg over the pending (origin/master..HEAD) range,
+  subject length + body bullet regex; authoring rule: one bullet = one physical line <= 100 chars,
+  no wrapping. Wider windows hit five pushed C3-era legacy subjects (immutable by policy) -
+  the gate scope is deliberately the unpushed range.
+- **Verification**: predicate negative proof observed 2026-10-16 (planted bad-shape ->
+  SUBJ-VIOL(79) + BODY-VIOL(shape); good-shape -> silent); check.sh green on the pending range.
+- **Third trap (same leg, same day)**: mawk does NOT support {n,m} interval
+  expressions - /^ - .{1,99}$/ silently matches NOTHING, every bullet read as
+  violation. Gate regex membership rewritten as length+substr (isbullet()).
+  Lesson: any awk regex quantifier must get its own planted-red/green proof
+  through the exact pipeline, not the mental model of the regex.
+- **Forbidden**: shipping a commit whose shape was checked only "from memory of the rule";
+  wrapping a ` - ` bullet across lines.
