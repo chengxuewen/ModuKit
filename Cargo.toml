@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/modukit-core", "crates/modukit-codegen", "crates/modukit-transport", "crates/example-plugin", "crates/bad-plugin"]
+members = ["crates/modukit-core", "crates/modukit-codegen", "crates/modukit-transport", "test-plugins/example-plugin", "test-plugins/bad-plugin"]
 
 # Single version authority for the whole workspace; the root CMakeLists reads this
 # literal at configure time (hard error on mismatch - D67 grammar, iceoryx2's

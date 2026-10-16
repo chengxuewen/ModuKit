@@ -157,8 +157,8 @@ Stage-1 deliverable shape:
 ```text
 Cargo.toml                 # workspace, resolver 3, edition 2024
 crates/modukit-core/       # state / manifest / registry / contract / executor{dl,...} / errors
-crates/example-plugin/     # cdylib fixture, ABI v1
-crates/bad-plugin/         # negative fixture, ABI mismatch
+test-plugins/example-plugin/  # cdylib fixture, ABI v1 (test shelf; plugins/ = production)
+test-plugins/bad-plugin/      # negative fixture, ABI mismatch
 ```
 
 Kernel-v0 (2026-10-10 experiment, parked by maintainer decision) validated the six-state

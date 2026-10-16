@@ -11,4 +11,4 @@ crate-type = ["cdylib"]
 path = "src/lib.rs"
 
 [dependencies]
-modukit-core = { version = "0.1.0", path = "../modukit-core" }
+modukit-core = { version = "0.1.0", path = "../../crates/modukit-core" }
