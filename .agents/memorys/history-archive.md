@@ -109,3 +109,25 @@
 - 2026-10-10: doc-audit FULL first run (4 fresh-eyes background auditors): 18 findings (0 CRIT / 5 HIGH / 9 MEDIUM / 4 LOW), ALL user-adjudicated one-by-one (A×16 / B×2). Fix batch landed across 16 files per the adjudication table (H1 git-pointer line, H2 five-place doc-audit sync, H3 backlog D->P rename with retro-mapping note, H5 codegraph live-state lines, M1 replaced the always-green ERE check with a falsifiable ported-numbering invariant, M2 six license-TBD annotations, M3 §4.3 EXECUTED, M4 child-AGENTS line-by-line sweep incl. measured file count, M5 five-part template normalization + PIT-4/PIT-5 completion, M6 awk quoting+guard, M7 dangling-refs family registered, M8 STRUCTURE +4 entries, M9 PORT_NOW as §4 item 8, L1 eight, L2 empty docs/modules rmdir'd, L3 edit-safety second #11 -> #25, L4 date/pin annotations). C0 instant payoff: M1's own negative proof caught a SAME-SESSION regression (I re-wrote `\|` in the new ERE — planted fixture stayed green, fixed to `|`, then red->green observed). Gates: C1 OK, skill-lint 10/0/0, gate copies identical.
 
 - 2026-10-10: backlog P2-P4 executed (user issued an explicit "get to work" on the three). P3/P4 done: uv pinned via mise.toml (installed 0.12.24; bootstrap twins auto-cover), arxiv-mcp-server smoke-tested cold (uvx exit 0), config `arxiv` enabled; openspec-* trio ruled KEEP per mount-never-delete doctrine (vetoable). P2 half: github-mcp-server v2.0.2 Linux x86_64 installed to ~/.local/bin with sha256 verification against official checksums; `github` config entry present with enabled:false + {env:GITHUB_PAT} interpolation — activation needs a user-created fine-grained read-only PAT, then flip to true. Both new MCPs load at the R restart. C1 OK, opencode.json valid.
+
+## 2026-10-16 - Stage-2 plan of record drafted (docs/stage-2-plan.md)
+- Maintainer opened the §10 Out spine (ProcessExecutor / shadow-runner / cross-
+  process bus / iceoryx2 first entry); plan anchors architecture.md §12 item 2,
+  quotes §10 lists, milestones S2-M0..M5 + optional M6a/b, every gate falsifiable.
+- Scope honesty: D25 (iceoryx2-first) is EXECUTION not re-debate; Zenoh cross-host
+  stays trigger-gated per D11 (first cross-machine link).
+- Call sheet A1-A7 for kickoff adjudication: clock-over-wire (extends D20),
+  declined external-consumer round as freeze-hearing input (D5), vendor-lock
+  amendment for the crates.io ban (A3), freeze-hearing scope (D51/M5, integrity/
+  M7, hint/M8 deferrals), D16/D17 lane in-vs-defer (canon schedules both - defer
+  = supersession), coverage 80% hard-gate switch (D50), and A7: parallel_ok
+  routing contradiction (D8/§11/modules-03 schedule it with THIS stage; my draft
+  had excluded it citing D71's different-scenario wording).
+- Momus review verdict OKAY (1 MAJOR + 5 MINOR): MAJOR = the parallel_ok
+  misquotation -> A7 row; MINORs = watchdog/ASIL attribution (belongs to D3
+  trigger + §10 Out, not modules/01 §7), restart-policy cite (D3 not D4), runner
+  bin naming vs card `modukit-run <plugin.so> --fd=N`, MemfdLane->MemfdBlob drift,
+  "mcat" typo, M0 omissions (numbering-gate widen for first D74, push-decision
+  OPEN per Stage-1 precedent). All fixed in-draft before landing.
+- Execution gate CLOSED: nothing of Stage-2 runs until maintainer go; next step
+  is the A1-A7 walkthrough (adjudication-walkthrough protocol) at kickoff.
