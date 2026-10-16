@@ -1,6 +1,7 @@
 # Stage-2 Plan — Process Placement, Wire Transport, Zero-Copy First Entry
 
-> Status: DRAFT for maintainer adjudication + Momus review. Plan of record once accepted.
+> Status: call sheet A1-A7 USER-ADJUDICATED one by one 2026-10-16 (verdicts: D74-D80);
+> plan adjusted accordingly below. Execution gate remains CLOSED until maintainer go.
 > Scope anchor: `docs/architecture.md` §12 item 2 (supervisor, shadow-runner, wire transport)
 > + the §10 Out-list spine the maintainer opened on 2026-10-16 (ProcessExecutor /
 > shadow-runner / cross-process bus / iceoryx2 first entry). §10 lists are quoted, not reinvented.
@@ -28,12 +29,10 @@ liveness (modules/01 §7); watchdog/safety surface (§10 Out; D3 re-review trigg
 "watchdog/ASIL contract with a real safety vendor"); Zenoh cross-host carrier
 (trigger: first cross-machine topic link); OTA distribution; compositor; all
 language bindings (Stage 5); wasm executor.
-parallel_ok routing: canon D8/§11/modules/03 schedule routing WITH this stage's
-exe-placement build and D71's own wording keeps that trigger alive - the exclusion
-is NOT decided unilaterally here; call-sheet item A7 adjudicates it.
-Recorder/replay (D16) and the CLI trio-face (D17) are candidate lanes - canon
-(D16/D17/D23) currently schedules both for Stage-2; call-sheet item A5 decides
-in-stage vs defer, and a defer verdict explicitly supersedes those schedules.
+parallel_ok routing: SUPERSEDED per A7/D80 - mechanism deferred, declaration field
+gains a typed deferral at the hot-swap door (inside S2-M2/M3); D8 triggers stand.
+Recorder/replay (D16) and CLI (D17/D23): DEFERRED per A5/D78 - the Stage-2
+scheduling superseded with an explicit record; lanes S2-M6a/b struck from this stage.
 
 ## 1. Call sheet — adjudications the maintainer owes at kickoff (walked one by one)
 
@@ -47,21 +46,31 @@ in-stage vs defer, and a defer verdict explicitly supersedes those schedules.
 | A6 | Coverage hard gate (D50: 80% once interfaces stabilize): does the freeze hearing (A4) declare interfaces stable → hard gate switches at S2-M5 acceptance? | Yes — switch at A4 outcome, measured at S2-M5 |
 | A7 | parallel_ok routing: D8 ("routing is a Stage-2 mechanism", §11 delta row, modules/03 "implementation Stage-2") and D71's surviving named trigger ("routing lands with exe placement") schedule version-affinity routing to THIS stage's exe-placement build, while D71 kept the field inert for the media-base scenario. Ship a minimal routing leg inside S2-M2/M3, or supersede the D8 schedule with a D-entry + §11/§12 delta row and a named re-activation trigger? | Adjudicate one by one at kickoff; do NOT decide by omission |
 
+### Verdicts (2026-10-16, user-adjudicated one by one)
+
+- **A1 = A** (D74): supervisor drives the Sim/Step dial over the control socket on the test/replay track, timeout guard; production Real. D17 test-2 lands as canon wrote it.
+- **A2 = A** (D75): the exe dual run IS the declined external-consumer round; friction log feeds the hearing; true-third-party trigger stays alive.
+- **A3 = A amended** (D76): vendor-neutral feature name `vendor-shm`; factory confined to one module + one dep line; default-purity check + feature CI lane + dummy/vendor equivalence suite; core std-only.
+- **A4 = A** (D77): hearing after the suite, freeze door-by-door (only exercised doors welded); the three IOUs + ABI bump policy are agenda items with named dates/triggers.
+- **A5 = B** (D78): recorder and CLI both deferred out of Stage-2 by explicit supersession; no mcap entry; re-activation triggers recorded.
+- **A6 = A** (D79): 80% hard gate workspace-wide at S2-M5, default features; codegen 72.7 debt paid down or exempted at the hearing; anti-gaming clause.
+- **A7 = C** (D80): routing superseded; typed deferral replaces silent ignore at the swap door (~100 lines, joins S2-M2/M3); demand data becomes the reactivation brief.
+
 ## 2. Milestone outline
 
 | # | Milestone | Deliverable | Anchors | Gate / evidence |
 |---|---|---|---|---|
-| S2-M0 | Kickoff hygiene | call sheet A1-A7 walked one by one (adjudication-walkthrough protocol); decisions land `decisions.md` as new D-entries AND the numbering-discipline gate widens in the same change (status.md check currently allows D1-D73 - first D74 mints red until the grep bound is bumped); PolyOrch pin freshness check; push decision OPEN at kickoff (Stage-1 M0 precedent: push only on explicit maintainer instruction; DoD #5 then closes it) | §0, this file | every A-item has a recorded verdict before S2-M1 opens |
+| S2-M0 | Kickoff hygiene | PARTLY DONE 2026-10-16: call sheet A1-A7 walked and verdicts minted as D74-D80 (numbering gate widened same day, negative proof observed); PolyOrch pin freshness checked clean (5945f2a == tip); REMAINING: push decision (OPEN - maintainer) and supervisor bin name chosen at M2 start | §0, this file | verdicts recorded = done except maintainer-side push call |
 | S2-M1 | ProcessExecutor + supervisor loop | executor.exe branch in core: spawn via std::process, control socket handshake (ABI v1 recheck), restart-policy table per D3, crash-watch (wait + FAILED edge + zero-phantom-reload), graceful STOP then timeout→kill teardown (modules/01 §3: `exe` teardown is `kill`); switchability preconditions enforced at install-time where checkable | D3, modules/01 §1-4 | first-red: exe-spawn test fails pre-implementation; crash-injection test: host alive, FAILED edge + ledger record, bounded restart counts visible on counters |
 | S2-M2 | modukit-runtime + shadow-runner | new workspace member `crates/modukit-runtime` (runner bin per the modules/01 §2 command shape `modukit-run <plugin.so> --fd=N`; supervisor bin name has no canon - chosen and recorded at M0); runner dlopens the same fixture cdylib the dl executor would load, pumps identical ABI v1, registers over the control socket (the `--fd=N` inherited end); example-plugin gains an exe-placement twin run in the SAME suite (§10 "contract suite structured for later dual-placement runs" becomes live) | D23 templates, modules/01 §2 | first-red runner-connect handshake; dual-run table: every contract-suite case green under both placements |
-| S2-M3 | Wire transport + cross-process bus | unix-socket SCM_RIGHTS fd passing (documented-unsafe libc shim per the M5 memfd_create precedent, std-only kept), TL-versioned frame on the wire, bus publish/subscribe across process boundary with QoS fan-out tested against a real wire (D10 trigger); A1 clock verdict lands here | D9/D10/D11/D20, modules/07 | first-red fd-pass roundtrip between two test processes; QoS stress: drop-counters visible on both sides, late-join across the wire; D17 test-2 exe leg green (step-replay content equality across placements) |
-| S2-M4 | iceoryx2 first entry | `vendor-iceoryx2` feature on modukit-transport, exact-pinned tag; ported pool + porter behind the D11 backend trait; dummy double stays the CI default; frames cross only as pool+descriptor handles (D69 honored — no raw pointer, no foreign buffer anywhere in the public seam); A3 amendment lands with the Cargo change | D11/D25/D69 | first-red: pool roundtrip over vendor backend equals dummy-backend semantics; vendor_lock test amended per A3 and still green on default features; memory/fd leak check after 10k roundtrips |
-| S2-M5 | Freeze hearing + Stage-2 acceptance | run the dual-placement suite as the declined external-consumer validation (A2), then the hearing (A4): C-ABI export list, D51 origin ruling, integrity codes, hint() — freeze what the suite touched; coverage hard-gate switch if A6 says so (A6); `scripts/demo-stage2.sh` PASS gate + falsifiability probe; §10/§12 delta table re-audit vs architecture.md | D5/D50/D51, §10 | demo-stage2.sh prints STAGE2-DEMO PASS; tampered-runner probe REDs the gate; coverage table re-measured; check.sh + ctest regressions green |
-| S2-M6a/b | Optional lanes (only if A5 says in) | recorder/replay per modules/09 (mcap neutral crate) / minimal CLI mapping 1:1 to the org.modukit.* trio with `--json` | D16/D17 | each lands with its own first-reds + demo hook; each vendor entry passes an A3-style amendment first |
+| S2-M3 | Wire transport + cross-process bus | unix-socket SCM_RIGHTS fd passing (documented-unsafe libc shim per the M5 memfd_create precedent, std-only kept), TL-versioned frame on the wire, bus publish/subscribe across process boundary with QoS fan-out tested against a real wire (D10 trigger); D74 clock verdict lands here (supervisor-driven dial + due-jobs return + timeout guard); D80 typed deferral wiring joins here at the swap door | D9/D10/D11/D20/D74/D80, modules/07 | first-red fd-pass roundtrip between two test processes; QoS stress: drop-counters visible on both sides, late-join across the wire; D17 test-2 exe leg green (step-replay content equality across placements, dialed by the supervisor) |
+| S2-M4 | iceoryx2 first entry | `vendor-shm` neutral feature on modukit-transport (D76: factory name confined to one module + one pinned dep line, never in the public seam); ported pool + porter behind the D11 backend trait; dummy double stays the CI default; frames cross only as pool+descriptor handles (D69 honored); equivalence suite dummy-vs-vendor per D76; vendor_lock amended to default-purity + feature CI lane | D11/D25/D69/D76 | first-red: pool roundtrip over vendor backend equals dummy-backend semantics; amended vendor_lock green on default features; feature-lane CI green; memory/fd leak check after 10k roundtrips |
+| S2-M5 | Freeze hearing + Stage-2 acceptance | run the dual-placement suite as the external-consumer validation round (D75), then the hearing (D77): C-ABI export list door-by-door, D51 origin ruling, integrity codes, hint(), ABI bump policy; coverage 80% hard gate measured workspace-wide in the same run (D79); `scripts/demo-stage2.sh` PASS gate + falsifiability probe; §10/§12 delta table re-audit vs architecture.md | D50/D51/D75/D77/D79, §10 | demo-stage2.sh prints STAGE2-DEMO PASS; tampered-runner probe REDs the gate; coverage >= 80% default-features (or recorded exemption at the hearing); check.sh + ctest regressions green |
+| ~~S2-M6a/b~~ | ~~Optional lanes~~ | STRUCK 2026-10-16 per A5/D78 - recorder and CLI deferred out of Stage-2 by supersession record; re-activation triggers live in decisions.md | D78 | - |
 
 ## 3. Execution sequence
 
-S2-M0 → S2-M1 → S2-M2 → S2-M3 → S2-M4 → S2-M5; optional lanes after M5 or never.
+S2-M0 (nearly closed - push call remains) → S2-M1 → S2-M2 → S2-M3 → S2-M4 → S2-M5.
 Parallelism: the memfd/SCM_RIGHTS shim prototype (M3 first half) is independent of M2 —
 may run as a background lane once M1 merges. M4 starts only after A3 is recorded
 (Cargo changes wait the verdict per the execution-gate convention).
@@ -76,8 +85,8 @@ fd move, any vendor pool, any supervisor binary.
 
 ## 5. Decision dependencies
 
-A1 gates M3 shape; A2+A4+A6 gate M5; A3 gates M4 (and the Cargo.lock leg); A5 gates M6
-existence; A7 gates a minimal routing leg inside M2/M3 (or its supersession record).
+All seven verdicts landed 2026-10-16 (D74-D80);
+dependencies now read as facts:
 New D-entries minted at M0 land in `decisions.md` with re-review triggers per
 the lesson-memory format. No whitepaper/architecture edits without a §9/§10 delta row.
 
