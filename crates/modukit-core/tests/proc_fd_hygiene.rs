@@ -162,12 +162,15 @@ fn spawn_and_teardown_cycles_leak_no_descriptors() {
         .expect("re-install replaces record");
     sup.kernel().resolve(&id).expect("resolve crasher");
     sup.kernel().start(&id).expect("start crasher");
+    // S2-M3b driver switch (the one existing test that folds cleanly):
+    // the host-loop pass owns poll + policy application; this test's own
+    // subject (descriptor counts) is untouched by it.
     let deadline = std::time::Instant::now() + Duration::from_secs(5);
-    while sup.poll().is_empty() && std::time::Instant::now() < deadline {
+    while sup.step().crashed.is_empty() && std::time::Instant::now() < deadline {
         std::thread::sleep(Duration::from_millis(2));
     }
     sup.kernel().advance_clock(Duration::from_secs(1));
-    let _ = sup.revive(&id);
+    let _ = sup.step(); // the same pass respawns when the window opens
     if sup.kernel().state(&id).expect("state") == modukit_core::lifecycle::PluginState::Active {
         // crasher mode may self-exit before the STOP ack lands: the kill
         // path is the other legal teardown here.

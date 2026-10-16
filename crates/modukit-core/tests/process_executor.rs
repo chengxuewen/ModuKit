@@ -16,7 +16,7 @@ use std::time::{Duration, Instant};
 
 use modukit_core::clock::{Clock, ClockDomain};
 use modukit_core::error::KernelError;
-use modukit_core::executor::{Revive, STOP_KILL_GRACE, Supervisor};
+use modukit_core::executor::{DIAL_TIMEOUT, Revive, STOP_KILL_GRACE, Supervisor};
 use modukit_core::identity::PluginId;
 use modukit_core::lifecycle::PluginState;
 use modukit_core::manifest::Manifest;
@@ -570,6 +570,201 @@ fn hung_peer_is_killed_after_named_timeout_constant() {
         "teardown waited {waited:?}; the kill timeout constant is {STOP_KILL_GRACE:?}"
     );
     assert_no_zombie_children();
+}
+
+/// D80 (S2-M3b): the swap door asked to co-host two versions of a declared
+/// parallel_ok service gets a TYPED DEFERRAL — never a silent ignore, never
+/// the bare transition refusal that hides the author's request. Undeclared
+/// co-host requests keep the M7 duplicate-identity path untouched.
+#[test]
+fn cohost_request_on_a_declared_parallel_ok_service_is_deferred_typed() {
+    let Some(dir) = build_standins("d80") else {
+        return;
+    };
+    let sup = step_supervisor();
+    let declared = manifest_toml(
+        &dir.join("standin-good"),
+        "[[provides]]\nservice = \"com.example.proc.stand-in.echo\"\nparallel_ok = true\n",
+    );
+    let manifest = Manifest::from_toml_str(&declared).expect("declared manifest parses");
+    let id = manifest.id.clone();
+    sup.kernel().install(manifest).expect("install");
+    sup.kernel().resolve(&id).expect("resolve");
+    sup.kernel().start(&id).expect("start (ACTIVE)");
+
+    // The co-host request: a new version installed while the old is ACTIVE.
+    let swap = declared.replace("version = \"0.1.0\"", "version = \"0.2.0\"");
+    let swap = Manifest::from_toml_str(&swap).expect("swap manifest parses");
+    let err = sup
+        .kernel()
+        .install(swap)
+        .expect_err("parallel_ok co-host must get a typed voice");
+    assert!(
+        matches!(&err, KernelError::RoutingDeferred { plugin, service }
+            if plugin == ID && service == "com.example.proc.stand-in.echo"),
+        "expected typed RoutingDeferred, got {err}"
+    );
+    // The deferral is a refusal at the door, not a teardown: the run lives.
+    assert_eq!(
+        sup.kernel().state(&id).expect("still ACTIVE"),
+        PluginState::Active
+    );
+
+    // Stop-based swap stays the legal lane: stop, then the install replaces
+    // the record (terminal state) exactly as before. (The swapped 0.2.0 is
+    // not re-resolved here — the stand-in self-reports 0.1.0 and the strict
+    // D7 cross-check would rightly refuse the version lie.)
+    sup.kernel().stop(&id).expect("stop");
+    let legal =
+        Manifest::from_toml_str(&declared.replace("version = \"0.1.0\"", "version = \"0.2.0\""))
+            .expect("parses");
+    sup.kernel()
+        .install(legal)
+        .expect("stop-based swap accepted");
+    sup.kernel()
+        .uninstall(&id)
+        .expect("uninstall swapped record");
+
+    // Undeclared path unchanged: a live re-install with no parallel_ok
+    // declaration stays the generic M7 refusal, not the deferral.
+    let plain = manifest_toml(&dir.join("standin-good"), "");
+    let plain_manifest = Manifest::from_toml_str(&plain).expect("parses");
+    sup.kernel()
+        .install(plain_manifest)
+        .expect("install undeclared");
+    sup.kernel().resolve(&id).expect("resolve undeclared run");
+    sup.kernel().start(&id).expect("start undeclared run");
+    let bump = plain.replace("version = \"0.1.0\"", "version = \"0.3.0\"");
+    let err = sup
+        .kernel()
+        .install(Manifest::from_toml_str(&bump).expect("parses"))
+        .expect_err("undeclared co-host stays the M7 policy refusal");
+    assert!(
+        matches!(err, KernelError::InvalidTransition { .. }),
+        "undeclared path changed: {err}"
+    );
+    sup.kernel().stop(&id).expect("stop undeclared");
+    sup.kernel().uninstall(&id).expect("uninstall");
+    assert_no_zombie_children();
+    std::fs::remove_dir_all(&dir).expect("cleanup scratch");
+    assert!(!dir.exists(), "mk-standin scratch must not leak");
+}
+
+/// S2-M3b host-loop driver: ONE `step` pass replaces the hand-assembled
+/// poll → classify → revive sequence (crash-watch, due-posting, and the
+/// D3 restart policy in one doorway). The backoff window stays a gate —
+/// the same pass defers instead of force-restarting.
+#[test]
+fn one_driver_step_pass_collapses_poll_and_restart_policy_application() {
+    let Some(dir) = build_standins("driver-step") else {
+        return;
+    };
+    let sup = step_supervisor();
+    let restart = "[restart]\npolicy = \"on-failure\"\nmax_retries = 1\nbackoff = \"1s..4s\"\n";
+    let id = install_resolve_start(&sup, &dir.join("standin-crasher"), restart);
+
+    // The crasher self-exits right after the START ack; poll each driver
+    // pass until it observes the death (real process timing, bounded).
+    let deadline = Instant::now() + CRASH_POLL_DEADLINE;
+    let first = loop {
+        let report = sup.step();
+        if !report.crashed.is_empty() {
+            break report;
+        }
+        assert!(
+            Instant::now() < deadline,
+            "crash never observed within the poll deadline"
+        );
+        std::thread::sleep(Duration::from_millis(2));
+    };
+    assert_eq!(first.crashed, vec![ID.to_string()]);
+    assert!(first.revived.is_empty());
+    assert_eq!(
+        first.deferred,
+        vec![ID.to_string()],
+        "the same pass applies the policy: the window is closed, so DEFER"
+    );
+    assert_eq!(
+        sup.kernel().state(&id).expect("tracked"),
+        PluginState::Failed
+    );
+
+    // Turn the boot clock past the window; the next single pass restarts.
+    sup.kernel().advance_clock(Duration::from_secs(4));
+    let second = sup.step();
+    assert_eq!(
+        second.revived,
+        vec![ID.to_string()],
+        "the policy opened the window — one pass, respawned"
+    );
+    assert_eq!(
+        sup.kernel().state(&id).expect("restarted"),
+        PluginState::Active
+    );
+
+    let _ = sup.poll();
+    let _ = sup.kernel().stop(&id); // the respawned crasher may be gone; kill path is legal
+    let _ = sup.poll();
+    assert_no_zombie_children();
+    std::fs::remove_dir_all(&dir).expect("cleanup scratch");
+    assert!(!dir.exists(), "mk-standin scratch must not leak");
+}
+
+/// A quiet supervised run drives to idle after exactly one bounded pass —
+/// the host-loop driver never spins (S2-M3b seam contract).
+#[test]
+fn drive_until_idle_returns_after_one_quiet_pass() {
+    let Some(dir) = build_standins("driver-idle") else {
+        return;
+    };
+    let sup = step_supervisor();
+    let id = install_resolve_start(&sup, &dir.join("standin-good"), "");
+
+    let driven = sup.drive_until_idle(8);
+    assert_eq!(driven.passes, 1, "a quiet host is idle after one pass");
+    assert!(driven.report.crashed.is_empty(), "{:?}", driven.report);
+    assert!(driven.report.revived.is_empty(), "{:?}", driven.report);
+    assert!(driven.report.deferred.is_empty(), "{:?}", driven.report);
+
+    sup.kernel().stop(&id).expect("stop");
+    sup.kernel().uninstall(&id).expect("uninstall");
+    assert_eq!(sup.poll(), Vec::<String>::new());
+    assert_no_zombie_children();
+    std::fs::remove_dir_all(&dir).expect("cleanup scratch");
+    assert!(!dir.exists(), "mk-standin scratch must not leak");
+}
+
+/// D74 timeout guard (S2-M3b): a child that never answers the dial is
+/// killed at the named `DIAL_TIMEOUT` bound and reported through the
+/// ordinary crash family — the dial can never be held open by a wedged
+/// runner (the plan's timeout guard against a blocked runner).
+#[test]
+fn dial_of_a_silent_child_is_killed_at_the_named_dial_timeout() {
+    let Some(dir) = build_standins("dial-timeout") else {
+        return;
+    };
+    let sup = step_supervisor();
+    let id = install_resolve_start(&sup, &dir.join("standin-hung"), "");
+
+    let at = Instant::now();
+    let err = sup
+        .dial(&id, Duration::from_secs(1))
+        .expect_err("a silent peer cannot hold the dial open");
+    let waited = at.elapsed();
+
+    assert!(matches!(err, KernelError::ProcessCrashed { .. }), "{err}");
+    assert!(
+        waited <= DIAL_TIMEOUT * 3,
+        "dial waited {waited:?}; the named guard is {DIAL_TIMEOUT:?}"
+    );
+    assert_eq!(
+        sup.poll(),
+        Vec::<String>::new(),
+        "killed+reaped at the dial doorway"
+    );
+    assert_no_zombie_children();
+    std::fs::remove_dir_all(&dir).expect("cleanup scratch");
+    assert!(!dir.exists(), "mk-standin scratch must not leak");
 }
 
 /// S2-M3 frame versioning, codec doorways: the writer stamps the version

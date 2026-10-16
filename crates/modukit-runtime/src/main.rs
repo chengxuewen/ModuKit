@@ -5,7 +5,7 @@
 //! would load plus the inherited control fd —
 //!
 //! ```text
-//! modukit-run <plugin.so> --fd=N
+//! modukit-run <plugin.so> --fd=N [--clock=step|sim|real]
 //! ```
 //!
 //! (N = 0 today: `ProcessExecutor` injects the child end of the socketpair as
@@ -14,15 +14,19 @@
 //! `DlopenExecutor` — one source of truth for the ABI v1 guards — embeds a
 //! kernel of its own as the in-process host, and pumps the contract over the
 //! fd with the `proc_wire` envelope: HELLO (the plugin's OWN self-report,
-//! D7 tier) on connect, START -> `kernel.start` -> ACK, STOP -> `kernel.stop`
-//! -> ACK, clean exit when the control socket EOFs (the parent is gone).
+//! D7 tier) on connect, START -> `kernel.start` -> REGISTER -> ACK,
+//! CALL -> dispatch -> RESULT (S2-M3a proxy lane), DIAL -> clock turn ->
+//! DUE (D74 replay track; refused typed on `--clock=real`), STOP ->
+//! `kernel.stop` -> ACK, clean exit when the control socket EOFs (the
+//! parent is gone).
 //!
 //! Error posture (bin, application-level): every fallible setup step is
 //! handled explicitly and lands on a nonzero exit code with a one-line
 //! stderr note; a rejected artifact dies BEFORE it can speak a HELLO, so the
 //! parent observes the typed crash family, never a lie. Exit codes: 2 usage,
 //! 3 artifact, 4 dlopen guards, 5 self-report, 6 hello write, 7..9 embedded-
-//! kernel setup, 11 control read, 12 foreign frame version, 13 malformed CALL.
+//! kernel setup, 11 control read, 12 foreign frame version, 13/14 malformed
+//! CALL/DIAL frame.
 
 use std::env;
 use std::io;
@@ -31,6 +35,7 @@ use std::os::unix::net::UnixStream;
 use std::path::Path;
 
 use modukit_core::abi::{ABI_VERSION, NativeService};
+use modukit_core::clock::{Clock, ClockDomain};
 use modukit_core::error::KernelError;
 use modukit_core::executor::{DlopenExecutor, Executor};
 use modukit_core::identity::PluginId;
@@ -38,10 +43,11 @@ use modukit_core::kernel::Kernel;
 use modukit_core::lifecycle::RestartPolicy;
 use modukit_core::manifest::{Entry, Manifest, PlacementKind};
 use modukit_core::proc_wire::{
-    self, MSG_ACK, MSG_CALL, MSG_HELLO, MSG_REGISTER, MSG_RESULT, MSG_START, MSG_STOP,
-    ServiceRegistration, hello_payload, parse_call, read_frame, register_payload, result_payload,
-    write_frame,
+    self, DIAL_STATUS_REFUSED_REAL, DueTurn, MSG_ACK, MSG_CALL, MSG_DIAL, MSG_DUE, MSG_HELLO,
+    MSG_REGISTER, MSG_RESULT, MSG_START, MSG_STOP, ServiceRegistration, due_payload, hello_payload,
+    parse_call, parse_dial, read_frame, register_payload, result_payload, write_frame,
 };
+use modukit_core::testhost::schedule_replay_markers;
 
 /// One handshake string must fit the wire's one-byte length prefix
 /// (`proc_wire::parse_hello` reads `u8` counts — the cap is the format).
@@ -62,26 +68,45 @@ fn die(code: i32, msg: &str) -> ! {
     std::process::exit(code)
 }
 
-fn parse_args() -> (String, i32) {
+fn parse_args() -> (String, i32, ClockDomain) {
     let mut artifact: Option<String> = None;
     let mut fd_num: i32 = 0;
+    // D74 (S2-M3b): the runner boots the test/replay track — the embedded
+    // clock defaults to Step so the supervisor's wire dial is the sole time
+    // authority (zero-sleep discipline across the boundary). Production
+    // placements opt out with `--clock=real`; there the dial is refused,
+    // never silently swallowed.
+    let mut domain = ClockDomain::Step;
     for arg in env::args().skip(1) {
         if let Some(rest) = arg.strip_prefix("--fd=") {
             fd_num = match rest.parse::<i32>() {
                 Ok(n) if n >= 0 => n,
                 _ => die(2, &format!("bad --fd value: {rest}")),
             };
+        } else if let Some(rest) = arg.strip_prefix("--clock=") {
+            domain = match rest {
+                "step" => ClockDomain::Step,
+                "sim" => ClockDomain::Sim,
+                "real" => ClockDomain::Real,
+                other => die(2, &format!("bad --clock value: {other}")),
+            };
         } else if arg.starts_with("--") {
             die(2, &format!("unknown option {arg}"));
         } else if artifact.is_none() {
             artifact = Some(arg);
         } else {
-            die(2, "usage: modukit-run <plugin.so> --fd=N");
+            die(
+                2,
+                "usage: modukit-run <plugin.so> --fd=N [--clock=step|sim|real]",
+            );
         }
     }
     match artifact {
-        Some(path) => (path, fd_num),
-        None => die(2, "usage: modukit-run <plugin.so> --fd=N"),
+        Some(path) => (path, fd_num, domain),
+        None => die(
+            2,
+            "usage: modukit-run <plugin.so> --fd=N [--clock=step|sim|real]",
+        ),
     }
 }
 
@@ -204,7 +229,7 @@ fn ack(control: &mut UnixStream, status: i32) -> io::Result<()> {
     write_frame(control, MSG_ACK, &status.to_le_bytes())
 }
 
-fn run(artifact: &str, fd_num: i32) {
+fn run(artifact: &str, fd_num: i32, domain: ClockDomain) {
     if !Path::new(artifact).is_file() {
         die(3, &format!("artifact not found: {artifact}"));
     }
@@ -226,7 +251,7 @@ fn run(artifact: &str, fd_num: i32) {
     // The embedded host: the same kernel face the dl placement drives, in
     // this process. Nothing about the host table crosses the boundary
     // (01 §3 rule 2) — the wire carries lifecycle, not authority.
-    let kernel = Kernel::new();
+    let kernel = Kernel::with_clock(Clock::new(domain));
     let manifest = internal_manifest(artifact, id, version);
     let pid = match kernel.install(manifest) {
         Ok(id) => id,
@@ -234,6 +259,15 @@ fn run(artifact: &str, fd_num: i32) {
     };
     if let Err(err) = kernel.resolve(&pid) {
         die(8, &format!("embedded resolve: {err}"));
+    }
+
+    // The D74 replay scenario (D17 test-2): the v0 marker pair both
+    // placements schedule identically, dialed by the testhost in-process on
+    // the `dl` arm and over the wire on this one. shortcut: ABI v1 has no
+    // clock verbs for plugins — the markers stand in for plugin-side timer
+    // jobs until the surface hearing (same missing-face class as the bus).
+    if domain != ClockDomain::Real {
+        schedule_replay_markers(kernel.clock());
     }
 
     loop {
@@ -307,6 +341,34 @@ fn run(artifact: &str, fd_num: i32) {
                     return;
                 }
             }
+            MSG_DIAL => {
+                // D74: the supervisor owns the dial on this track. Posting
+                // rides the embedded kernel's own doorway (timers-as-jobs);
+                // the fired batch returns as answer DATA, never callbacks.
+                let Some(delta) = parse_dial(&_payload) else {
+                    die(14, "malformed DIAL frame");
+                };
+                let turn = if kernel.clock().domain() == ClockDomain::Real {
+                    DueTurn {
+                        status: DIAL_STATUS_REFUSED_REAL,
+                        fired_at_ns: 0,
+                        jobs: Vec::new(),
+                    }
+                } else {
+                    // The stamp is read AFTER the turn — struct field order
+                    // is evaluation order, and the answer must carry the
+                    // post-dial clock, not the pre-dial one.
+                    let jobs = kernel.dial_clock(delta);
+                    DueTurn {
+                        status: 0,
+                        fired_at_ns: kernel.clock().now().raw(),
+                        jobs,
+                    }
+                };
+                if write_frame(&mut control, MSG_DUE, &due_payload(&turn)).is_err() {
+                    return;
+                }
+            }
             // Forward-compatible silence: unknown frame types are ignored
             // (no speculative handling before a speaker exists for them).
             _ => {}
@@ -315,6 +377,6 @@ fn run(artifact: &str, fd_num: i32) {
 }
 
 fn main() {
-    let (artifact, fd_num) = parse_args();
-    run(&artifact, fd_num);
+    let (artifact, fd_num, domain) = parse_args();
+    run(&artifact, fd_num, domain);
 }

@@ -54,6 +54,10 @@ pub const START_ACK_TIMEOUT: Duration = Duration::from_secs(5);
 /// killed on the timeout edge (the `dl` arm cannot time out at all; this
 /// is the honest cross-process cost of 01 §3 rule 5 teardown).
 pub const CALL_RESULT_TIMEOUT: Duration = Duration::from_secs(5);
+/// Read bound for one dial turn's DUE answer (D74, S2-M3b): the plan's
+/// timeout guard against a blocked runner — a child that never answers the
+/// dial is killed at this bound, never held open.
+pub const DIAL_TIMEOUT: Duration = Duration::from_secs(5);
 /// Grace between the STOP message and SIGKILL (modules/01 §3 rule 5: `exe`
 /// teardown is `kill`), and between a clean ack and the reap.
 pub const STOP_KILL_GRACE: Duration = Duration::from_secs(1);
@@ -579,6 +583,71 @@ impl ProcPlugin {
             let _ = registry.unregister(rid);
         }
     }
+}
+
+/// Turn one child's dial (D74, S2-M3b): write `DIAL`, await the `DUE`
+/// answer under `DIAL_TIMEOUT`. The lane serializes under the table mutex
+/// (v0: one in-flight verb per child). A refusal (non-zero status) keeps
+/// the child ALIVE — a Real-domain runner is cooperative, just undialable;
+/// protocol death gets the same kill-and-reap treatment as the verbs.
+pub(crate) fn dial_child(
+    live: &Control,
+    id: &str,
+    delta: Duration,
+) -> Result<proc_wire::DueTurn, KernelError> {
+    let mut shared = live.lock();
+    let p = shared
+        .live
+        .get_mut(id)
+        .ok_or_else(|| crashed(id, "already gone"))?;
+    if let Some(status) = &p.status {
+        return Err(crashed(id, status.to_string()));
+    }
+    let sock = p
+        .control
+        .as_mut()
+        .ok_or_else(|| crashed(id, "control closed"))?;
+    sock.set_read_timeout(Some(DIAL_TIMEOUT))
+        .map_err(|e| crashed(id, format!("set timeout: {e}")))?;
+    if proc_wire::write_frame(sock, proc_wire::MSG_DIAL, &proc_wire::dial_payload(delta)).is_err() {
+        kill_and_reap(p);
+        return Err(crashed(id, "dial write: control closed"));
+    }
+    let turn = match proc_wire::read_frame(sock) {
+        Ok((proc_wire::WIRE_VERSION, proc_wire::MSG_DUE, payload)) => {
+            let Some(turn) = proc_wire::parse_due(&payload) else {
+                kill_and_reap(p);
+                return Err(crashed(id, "dial reply: malformed DUE payload"));
+            };
+            turn
+        }
+        Ok((proc_wire::WIRE_VERSION, _, _)) => {
+            kill_and_reap(p);
+            return Err(crashed(id, "dial reply: wrong frame type"));
+        }
+        Ok((found, _, _)) => {
+            kill_and_reap(p);
+            return Err(KernelError::WireVersionMismatch {
+                expected: proc_wire::WIRE_VERSION,
+                found,
+            });
+        }
+        Err(err) if is_timeout(&err) => {
+            kill_and_reap(p);
+            return Err(crashed(id, "dial timeout, killed"));
+        }
+        Err(err) => {
+            kill_and_reap(p);
+            return Err(crashed(id, format!("dial read: {err}")));
+        }
+    };
+    if turn.status != 0 {
+        // Typed refusal on a live, cooperative child — no kill, no reap.
+        return Err(KernelError::ClockDialRefused {
+            status: turn.status,
+        });
+    }
+    Ok(turn)
 }
 
 /// The generation-pinned lookup shared by the verbs and the proxies:

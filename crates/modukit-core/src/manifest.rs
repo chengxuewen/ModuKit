@@ -108,6 +108,18 @@ pub struct Manifest {
 }
 
 impl Manifest {
+    /// The first `[[provides]]` entry that declares `parallel_ok` (D8: the
+    /// stateless/idempotent co-host claim; inert since D80 except for the
+    /// typed deferral at the swap door). The service id comes back for the
+    /// deferral's voice.
+    #[must_use]
+    pub fn parallel_ok_claim(&self) -> Option<&str> {
+        self.provides
+            .iter()
+            .find(|p| p.parallel_ok)
+            .map(|p| p.service.as_str())
+    }
+
     /// Parse a manifest from TOML text (D7: single format, Cargo-grade
     /// parser per D31).
     ///

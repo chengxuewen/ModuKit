@@ -14,7 +14,7 @@ use std::collections::{BTreeSet, HashMap};
 use std::sync::Arc;
 use std::time::Duration;
 
-use crate::clock::{Clock, ClockDomain};
+use crate::clock::{Clock, ClockDomain, Timestamp};
 use crate::events::{ObsEvent, ObsRecord, Tail};
 use crate::introspect::{HostView, Snapshot};
 use crate::kernel::Kernel;
@@ -52,6 +52,25 @@ pub fn fold_services(events: &[ObsRecord]) -> BTreeSet<String> {
         }
     }
     live
+}
+
+/// The D74 replay scenario (S2-M3b, paying D17 test-2): one fixed pair of
+/// timer jobs both placements schedule identically, then step — the due-job
+/// transcripts must come back byte-equal whether the dial was turned
+/// in-process (`TestHost::advance`) or over the control socket
+/// (`Supervisor::dial`). `(deadline_ns, job label)` in schedule order;
+/// the tokens fall out as 1 and 2 on any fresh clock.
+pub const REPLAY_MARKERS: &[(u64, &str)] = &[
+    (1_000_000_000, "replay-alpha"),
+    (3_000_000_000, "replay-beta"),
+];
+
+/// Schedule the replay markers on a clock — the scenario's one source of
+/// truth: the runner embeds it, the `dl`-arm test schedules the same list.
+pub fn schedule_replay_markers(clock: &Clock) {
+    for (deadline_ns, job) in REPLAY_MARKERS {
+        clock.timer(Timestamp::from(*deadline_ns), *job);
+    }
 }
 
 /// The D24 face: a production kernel on the step-domain clock, plus the

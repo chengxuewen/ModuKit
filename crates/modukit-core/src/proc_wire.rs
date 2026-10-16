@@ -3,10 +3,10 @@
 //! version | u8 type byte | payload`. The version byte is the S2-M3 frame
 //! versioning: every frame carries `WIRE_VERSION`, and a peer that sees a
 //! foreign ver rejects it as a typed protocol error (the caller decides —
-//! `read_frame` reports the raw byte, it never guesses a policy). The
-//! clock-advance variant (D74, supervisor-driven dial) lands in S2-M3's
-//! second half, so NOTHING here carries speculative fields for it (plan §1
-//! Verdicts A1 = A).
+//! `read_frame` reports the raw byte, it never guesses a policy). S2-M3a
+//! added the service frames (REGISTER/CALL/RESULT); S2-M3b added the D74
+//! dial pair (DIAL/DUE) — the wire is the product: every frame small,
+//! explicit, version-tagged.
 //!
 //! Parse, don't validate: `parse_hello`/`parse_ack` return `Option` and the
 //! caller decides the typed error; a malformed frame never reaches the
@@ -14,6 +14,9 @@
 
 use std::io::{self, Read, Write};
 use std::os::unix::net::UnixStream;
+use std::time::Duration;
+
+use crate::clock::DueJob;
 
 /// Accepted payload ceiling: a broken or lying peer cannot make the host
 /// allocate from its length prefix unchecked.
@@ -48,6 +51,20 @@ pub const MSG_CALL: u8 = 6;
 /// the kernel-side proxy surfaces `ServiceCallFailed { code }`, same as
 /// the `dl` arm). See `parse_result`.
 pub const MSG_RESULT: u8 = 7;
+/// host -> child (D74, S2-M3b): turn the embedded Step/Sim dial — payload
+/// = `u64 LE delta_micros`. The supervisor is the SOLE authority dialing on
+/// the test/replay track; a Real-domain child REFUSES with a typed status.
+pub const MSG_DIAL: u8 = 8;
+/// child -> host (S2-M3b): answer one dial turn — payload = `i32 LE status
+/// | u64 LE fired_at_ns | u16 LE count | (u64 LE token | pstr job) x count`.
+/// status 0 carries the due jobs the turn crossed (timers-as-jobs, D20/D6 —
+/// the return is data, never callbacks); `DIAL_STATUS_REFUSED_REAL` answers
+/// a dial against a Real-domain clock. See `parse_due`.
+pub const MSG_DUE: u8 = 9;
+/// The documented refusal code: no dial exists on the Real domain (D74).
+/// The parent maps it to `KernelError::ClockDialRefused`, never a silent
+/// zero-turn success.
+pub const DIAL_STATUS_REFUSED_REAL: i32 = -2;
 
 /// The handshake self-report (D7 tier for the `exe` placement): the ABI
 /// major plus the artifact's own `(id, version)` strings and human name,
@@ -295,6 +312,85 @@ pub fn result_payload(seq: u32, status: i32, output: &[u8]) -> Vec<u8> {
     p.extend_from_slice(&(output.len() as u32).to_le_bytes());
     p.extend_from_slice(output);
     p
+}
+
+/// Encode a `DIAL` payload: the turn as `u64 LE microseconds` (named
+/// saturation at `u64::MAX` — a dial that long is a broken parent, and the
+/// child's own bounded semantics stay honest either way).
+#[must_use]
+pub fn dial_payload(delta: Duration) -> Vec<u8> {
+    let micros = u64::try_from(delta.as_micros()).unwrap_or(u64::MAX);
+    micros.to_le_bytes().to_vec()
+}
+
+/// Decode a `DIAL` payload: exactly one `u64 LE` microsecond count.
+#[must_use]
+pub fn parse_dial(payload: &[u8]) -> Option<Duration> {
+    if payload.len() != 8 {
+        return None;
+    }
+    let micros = u64::from_le_bytes(payload[..8].try_into().ok()?);
+    Some(Duration::from_micros(micros))
+}
+
+/// One dial turn's answer: the refusal/exec status, the clock stamp the
+/// turn completed at, and the jobs it crossed (in deadline order).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DueTurn {
+    pub status: i32,
+    pub fired_at_ns: u64,
+    pub jobs: Vec<DueJob>,
+}
+
+/// Encode a `DUE` payload — see `MSG_DUE` for the byte shape.
+#[must_use]
+pub fn due_payload(turn: &DueTurn) -> Vec<u8> {
+    let mut p = turn.status.to_le_bytes().to_vec();
+    p.extend_from_slice(&turn.fired_at_ns.to_le_bytes());
+    debug_assert!(
+        turn.jobs.len() <= u16::MAX as usize,
+        "due batch over the wire cap"
+    );
+    p.extend_from_slice(&(turn.jobs.len() as u16).to_le_bytes());
+    for job in &turn.jobs {
+        p.extend_from_slice(&job.token.value().to_le_bytes());
+        push_pstr(&mut p, &job.job);
+    }
+    p
+}
+
+/// Decode a `DUE` payload. A bad count, a short buffer, or non-UTF-8 job
+/// labels refuse the whole frame (the strict `parse_hello` discipline).
+#[must_use]
+pub fn parse_due(payload: &[u8]) -> Option<DueTurn> {
+    if payload.len() < 14 {
+        return None;
+    }
+    let status = i32::from_le_bytes(payload[..4].try_into().ok()?);
+    let fired_at_ns = u64::from_le_bytes(payload[4..12].try_into().ok()?);
+    let count = usize::from(u16::from_le_bytes(payload[12..14].try_into().ok()?));
+    let mut rest = &payload[14..];
+    let mut jobs = Vec::new();
+    for _ in 0..count {
+        if rest.len() < 8 {
+            return None;
+        }
+        let token = u64::from_le_bytes(rest[..8].try_into().ok()?);
+        rest = &rest[8..];
+        let job = read_pstr(&mut rest)?;
+        jobs.push(DueJob {
+            token: crate::clock::JobToken::at(token),
+            job,
+        });
+    }
+    if !rest.is_empty() {
+        return None;
+    }
+    Some(DueTurn {
+        status,
+        fired_at_ns,
+        jobs,
+    })
 }
 
 fn push_pstr(out: &mut Vec<u8>, s: &str) {

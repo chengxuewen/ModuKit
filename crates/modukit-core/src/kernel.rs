@@ -199,6 +199,21 @@ impl Kernel {
                 record.machine.state(),
                 PluginState::Uninstalled | PluginState::Resolved | PluginState::Failed
             ) {
+                // D80 (S2-M3b): a co-host request at the swap door gets a
+                // typed deferral, not a silent ignore and not the bare M7
+                // refusal — either side's declaration is the voice's cue
+                // (the old version's claim is as real a co-host ask as the
+                // incoming one's). Stop-based swap stays the legal lane.
+                let claim = manifest
+                    .parallel_ok_claim()
+                    .or_else(|| record.manifest.parallel_ok_claim())
+                    .map(str::to_string);
+                if let Some(service) = claim {
+                    return Err(KernelError::RoutingDeferred {
+                        plugin: id.as_str().to_string(),
+                        service,
+                    });
+                }
                 return Err(KernelError::InvalidTransition {
                     from: record.machine.state().to_string(),
                     to: "INSTALLED (re-install refused: M7 duplicate-identity policy)".to_string(),

@@ -19,6 +19,7 @@ use crate::executor_proc::{Control, ProcessExecutor};
 use crate::identity::PluginId;
 use crate::kernel::Kernel;
 use crate::lifecycle::{PluginState, RestartPolicy};
+use crate::manifest::PlacementKind;
 
 /// The supervisor's boot answer: one production `Kernel` wired with the
 /// `exe` executor, the shared live table, and the per-plugin budget memory.
@@ -34,6 +35,50 @@ pub struct Supervisor {
 struct Watch {
     attempts: u32,
     last_crash: Option<Timestamp>,
+}
+
+/// What ONE `Supervisor::step` pass observed (S2-M3b host-loop seam).
+/// Plain data, foldable: the S2-M5 demo host loops `step`/`drive_until_idle`
+/// and reads the report; nothing else needs to know the loop exists.
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct StepReport {
+    /// Ids whose supervised child newly died this pass (the `poll` answer).
+    pub crashed: Vec<String>,
+    /// Ring seqs of timer jobs the boot clock found due (the `Real`-domain
+    /// posting doorway; empty on a never-dialed Step domain).
+    pub posted: Vec<u64>,
+    /// Ids the restart policy respawned and re-started this pass.
+    pub revived: Vec<String>,
+    /// Ids FAILED with the backoff/cooldown window still closed — waiting
+    /// on the boot clock's dial, not on the driver.
+    pub deferred: Vec<String>,
+    /// Ids the policy parked (budget exhausted or `none`): terminal until
+    /// an operator decision, they never re-enter the drive.
+    pub parked: Vec<String>,
+}
+
+impl StepReport {
+    fn merge(&mut self, other: StepReport) {
+        self.crashed.extend(other.crashed);
+        self.posted.extend(other.posted);
+        self.revived.extend(other.revived);
+        self.deferred.extend(other.deferred);
+        self.parked.extend(other.parked);
+    }
+
+    /// A pass counts as progress when it observed a death or performed a
+    /// restart; deferrals wait on the dial and parkings are terminal.
+    fn actionable(&self) -> bool {
+        !self.crashed.is_empty() || !self.revived.is_empty()
+    }
+}
+
+/// The aggregate of a `drive_until_idle` run: how many bounded passes it
+/// took and everything those passes reported, merged.
+#[derive(Debug, Default)]
+pub struct DrivenReport {
+    pub passes: u32,
+    pub report: StepReport,
 }
 
 /// The answer of one `revive` request (05 §2 `restart{}` semantics).
@@ -134,6 +179,88 @@ impl Supervisor {
             let _ = self.kernel.stop(&PluginId::new(id.clone()));
         }
         dead
+    }
+
+    /// One bounded host-loop pass (S2-M3b): crash-watch, due-job posting on
+    /// the boot clock, and D3 restart-policy application to FAILED supervised
+    /// runs — the pass the S2-M5 `demo-stage2` host calls in a loop (the
+    /// E1 escalation finding from S2-M1 finally gets its home; no new binary,
+    /// no thread, no sleep inside). Pacing stays with the caller: the driver
+    /// observes and applies what the policy already decided.
+    pub fn step(&self) -> StepReport {
+        let mut report = StepReport {
+            crashed: self.poll(),
+            ..StepReport::default()
+        };
+        report.posted = self.kernel.post_due_jobs();
+        // FAILED supervised runs are the policy's queue; the drive applies it.
+        // Only `exe` records join: `dl` placement has no supervision budget
+        // (01 §1 — the executor seam polices its kind, the driver mirrors it).
+        let failed: Vec<PluginId> = {
+            let table = self
+                .kernel
+                .plugins
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner);
+            table
+                .iter()
+                .filter(|(_, record)| {
+                    record.machine.state() == PluginState::Failed
+                        && record.manifest.entry.kind == PlacementKind::Exe
+                })
+                .map(|(id, _)| id.clone())
+                .collect()
+        };
+        for id in failed {
+            match self.revive(&id) {
+                Ok(Revive::Revived) => report.revived.push(id.as_str().to_string()),
+                Ok(Revive::Deferred) => report.deferred.push(id.as_str().to_string()),
+                Ok(Revive::Parked) => report.parked.push(id.as_str().to_string()),
+                // Raced away (uninstalled between scan and door) or legally
+                // un-revivable: hands off, the next pass re-reads the truth.
+                Err(_) => {}
+            }
+        }
+        report
+    }
+
+    /// Drive `step` until a pass observes nothing actionable, bounded by
+    /// `max_passes` — a host loop that can spin is a host loop that hides a
+    /// bug. Deferred restarts (waiting on the clock dial) and parked runs
+    /// (terminal until an operator acts) end the drive honestly: they are
+    /// not the driver's to wait for.
+    pub fn drive_until_idle(&self, max_passes: u32) -> DrivenReport {
+        let mut driven = DrivenReport::default();
+        for pass in 1..=max_passes.max(1) {
+            let report = self.step();
+            let actionable = report.actionable();
+            driven.passes = pass;
+            driven.report.merge(report);
+            if !actionable {
+                break;
+            }
+        }
+        driven
+    }
+
+    /// Turn one supervised child's clock dial over the control socket (D74,
+    /// S2-M3b): on the test/replay track the supervisor is the SOLE
+    /// authority advancing the runner's Step/Sim clock. Returns the fired
+    /// batch (`DueTurn`) the child crossed; a Real-domain child refuses with
+    /// the typed `ClockDialRefused`, a silent child is killed at
+    /// `DIAL_TIMEOUT`. The production Real placement stays untouched —
+    /// there is simply no dial there to turn.
+    ///
+    /// # Errors
+    ///
+    /// The crash family for a dead/hung/mismatched child;
+    /// `KernelError::ClockDialRefused` for a live but undialable one.
+    pub fn dial(
+        &self,
+        id: &PluginId,
+        delta: std::time::Duration,
+    ) -> Result<crate::proc_wire::DueTurn, KernelError> {
+        crate::executor_proc::dial_child(&self.live, id.as_str(), delta)
     }
 
     /// Restart one FAILED `exe` plugin per its manifest policy (D3 table:

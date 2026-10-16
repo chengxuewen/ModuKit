@@ -137,6 +137,18 @@ pub enum KernelError {
     /// is added; it joins the ABI_MISMATCH code family with the rest of the
     /// disagreement arms.
     WireVersionMismatch { expected: u8, found: u8 },
+    /// D74 (S2-M3b): the supervisor's dial frame was refused by the child —
+    /// its embedded clock is on the production `Real` domain, where no dial
+    /// exists (Verdicts A1: the dial turns Sim/Step only). `status` is the
+    /// documented refusal code from `proc_wire::DIAL_STATUS_REFUSED_REAL`
+    /// or a runner-side negative; never a silently-swallowed zero turn.
+    ClockDialRefused { status: i32 },
+    /// D80 (S2-M3b, M5 refuse-verb pattern): the swap door was asked to
+    /// co-host two versions of a service whose `provides` declares
+    /// `parallel_ok`. The declaration gets a typed voice — "declared,
+    /// routing not built" — never a silent ignore and never the bare M7
+    /// refusal that hides what the author actually asked for.
+    RoutingDeferred { plugin: String, service: String },
     /// The child's handshake self-report disagrees with the deploy tier
     /// (D7 strict cross-check, `exe` flavor: silence or a lie is refusal —
     /// the `bundle.rs` liar family, never a panic). S2-M1.
@@ -173,6 +185,8 @@ impl KernelError {
             KernelError::ProcessCrashed { .. } => "CONTRACT_VIOLATION",
             KernelError::PluginStartFailed { .. }
             | KernelError::ServiceCallFailed { .. }
+            | KernelError::ClockDialRefused { .. }
+            | KernelError::RoutingDeferred { .. }
             | KernelError::UnsupportedPlacement { .. } => "CONTRACT_VIOLATION",
         }
     }
@@ -240,6 +254,17 @@ impl fmt::Display for KernelError {
             KernelError::ProcessCrashed { id, exit } => {
                 write!(f, "supervised plugin {id} died outside stop ({exit})")
             }
+            KernelError::RoutingDeferred { plugin, service } => write!(
+                f,
+                "plugin {plugin} declares parallel_ok for {service}; the swap door was asked \
+                 to co-host two versions but version-affinity routing is deferred (D80) — \
+                 stop the running instance first: stop + install is the legal swap lane"
+            ),
+            KernelError::ClockDialRefused { status } => write!(
+                f,
+                "clock dial refused by the child (status {status}): the dial turns Step/Sim \
+                 clocks only (D74) — a Real-domain placement has no dial to turn"
+            ),
             KernelError::WireVersionMismatch { expected, found } => write!(
                 f,
                 "frame wire version mismatch: host speaks v{expected}, peer framed v{found}"

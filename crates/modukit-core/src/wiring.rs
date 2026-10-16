@@ -179,6 +179,16 @@ impl Kernel {
     pub fn advance_clock(&self, delta: std::time::Duration) -> Vec<u64> {
         self.post_jobs(self.clock.advance(delta))
     }
+
+    /// Turn the dial and return the due batch (D74 over-the-wire dial,
+    /// S2-M3b): the same posting as `advance_clock` PLUS the fired jobs —
+    /// the `DUE` frame's answer data (timers-as-jobs: a return of content,
+    /// never a callback, D6/D20).
+    pub fn dial_clock(&self, delta: std::time::Duration) -> Vec<crate::clock::DueJob> {
+        let fired = self.clock.advance(delta);
+        self.post_jobs(fired.clone());
+        fired
+    }
 }
 
 /// The plugin table handle shared with the introspect trio (kernel-owned,

@@ -69,6 +69,13 @@ impl JobToken {
     pub const fn value(self) -> u64 {
         self.0
     }
+
+    /// Rebuild a token from its wire value (D74 due-return round trip,
+    /// S2-M3b): the dial answer carries `value()` back.
+    #[must_use]
+    pub const fn at(value: u64) -> Self {
+        Self(value)
+    }
 }
 
 /// One posted timer: the token plus the job label it names (message-shaped,
