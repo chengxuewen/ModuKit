@@ -155,3 +155,21 @@
   AND fake red both observed before scrutiny caught it). Re-run with the command
   typed directly: real green -> planted D81 red -> removed green. PIT-19 class,
   caught by eyeballing the error lines the broken run emitted.
+
+## 2026-10-16 - S2-M1 landed: ProcessExecutor + supervisor loop
+- maintainer go after kickoff; one deep-low agent (rust skills), 1h07m;
+  orchestrator independently re-verified BEFORE commit: 116 passed (108+8),
+  clippy all-targets -D warnings, check.sh green, STAGE1-DEMO PASS regression.
+- design accepted as built: kernel stays synchronous, Supervisor poll/revive
+  external (host loop = M2/M3); fd-0 stdin control channel per 01 §1
+  socketpair/stdio (arbitrary-fd/SCM_RIGHTS deferred to M3 by plan); placement
+  gate moved from kernel into each executor load (kernel placement-agnostic).
+- E3 crash code rides CONTRACT_VIOLATION -> IOU-4 added to the D77 hearing
+  agenda (S2-M5 row).
+- process hygiene landed with the milestone: /proc/self/fd before/after probe
+  caught a real parent-socket leak (reap now take()-closes the control half);
+  zero-zombie scan with bounded retry for the shared-process race (documented).
+- self-caught en route: continuation-line C3 body bullets (amended single-line);
+  two python anchor drifts after the adjudication rewrite were caught by the
+  count==1 asserts BEFORE any write - no half-state shipped, completed on the
+  third pass with anchors copied verbatim from grep output.
