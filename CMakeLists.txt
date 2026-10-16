@@ -19,4 +19,8 @@ include(cmake/ModuKitPolyOrch.cmake)
 modukit_ensure_polyorch()              # sentinel embed: reuse superbuild copy first-wins, else gitlink pin
 modukit_ensure_polyorch_rust()         # T-B1 translation: MODUKIT_USE_PIXI -> polyorch_rust_setup(FROM pixi)
 
-# add_subdirectory(crates/...) lanes arrive with M8.5 W2 - see docs/stage-1-plan.md section 9
+include(cmake/ModuKitGates.cmake)
+modukit_gates_codemodel_probe()      # W4 evidence: File API codemodel dump for the FOLDER assertion
+include(cmake/ModuKitPolyOrchCrates.cmake)
+modukit_polyorch_crates()          # M8.5 W2-W4 lane wiring: five cargo lanes + stage1_demo button + ctest bridge (D66)
+# add_subdirectory(crates/...) stays off - the lanes ride the helper surface, cargo keeps its workspace authority (D65)
