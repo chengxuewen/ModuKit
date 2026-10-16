@@ -240,8 +240,9 @@ pub struct ModuleEntry {
     pub artifact: String,
     /// True once the ABI handshake passed and the image is mapped.
     pub loaded: bool,
-    /// Host/ABI version stamps (10 §1 `LedgerDump` row; the fdset-bytes
-    /// half of the dump is the M4 contract ledger, not the dl kernel).
+    /// Host/ABI version stamps (10 §1 `LedgerDump` row; the fdset half of
+    /// the dump is `LedgerDump::contract_ledger()`, fed by the M7
+    /// `Kernel::set_contract_ledger` boot seam).
     pub abi_stamps: AbiStamps,
 }
 
@@ -256,6 +257,8 @@ pub struct AbiStamps {
 #[derive(Clone)]
 pub struct LedgerDump {
     table: PluginTable,
+    /// M7: the contract-ledger (fdset) bytes the kernel was booted with.
+    contract: std::sync::Arc<std::sync::Mutex<Vec<u8>>>,
 }
 
 impl std::fmt::Debug for LedgerDump {
@@ -265,8 +268,23 @@ impl std::fmt::Debug for LedgerDump {
 }
 
 impl LedgerDump {
-    pub(crate) fn new(table: PluginTable) -> Self {
-        Self { table }
+    pub(crate) fn new(
+        table: PluginTable,
+        contract: std::sync::Arc<std::sync::Mutex<Vec<u8>>>,
+    ) -> Self {
+        Self { table, contract }
+    }
+
+    /// The contract-ledger (protoc fdset, D12) bytes this host was booted
+    /// with via `Kernel::set_contract_ledger` — BYTE-EQUAL to what was
+    /// handed in (the M7 acceptance of the M6 "fdset equality rides
+    /// M7/M8" deferral). Empty until the seam is fed.
+    #[must_use]
+    pub fn contract_ledger(&self) -> Vec<u8> {
+        self.contract
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone()
     }
 
     /// The exact set of modules this host has attempted to load, with the

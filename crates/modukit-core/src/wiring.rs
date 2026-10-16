@@ -49,6 +49,9 @@ impl Kernel {
         obs.attach_edges(Arc::clone(&edges));
         let bus = Arc::new(Bus::new());
         let plugins: PluginTable = Arc::new(Mutex::new(HashMap::new()));
+        // M7 boot seam: the contract-ledger (fdset) bytes, shared with the
+        // `LedgerDump` service so a post-boot set is visible to consumers.
+        let contract_ledger: Arc<Mutex<Vec<u8>>> = Arc::new(Mutex::new(Vec::new()));
         // Introspect trio: read-only services in the reserved namespace
         // (D17 — the kernel publishes itself; every tool is a consumer).
         let snapshot = Snapshot::new(
@@ -66,7 +69,10 @@ impl Kernel {
         );
         register_platform(
             &registry,
-            Arc::new(LedgerDump::new(Arc::clone(&plugins))),
+            Arc::new(LedgerDump::new(
+                Arc::clone(&plugins),
+                Arc::clone(&contract_ledger),
+            )),
             "org.modukit.ledger_dump",
         );
         register_platform(&registry, Arc::new(clock.clone()), "org.modukit.clock");
@@ -80,6 +86,7 @@ impl Kernel {
             edges,
             executor: Box::new(DlopenExecutor::new()),
             plugins,
+            contract_ledger,
         }
     }
 

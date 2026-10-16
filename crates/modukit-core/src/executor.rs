@@ -55,6 +55,15 @@ pub trait LoadedPlugin {
     fn load_base(&self) -> u64 {
         0
     }
+
+    /// The descriptor's self-report strings for the D7 cross-check
+    /// (M7): `(id, version)` as the artifact declares them. Executors
+    /// without a self-report answer `(None, None)` and the cross-check
+    /// treats the silence as disagreement.
+    #[must_use]
+    fn self_report(&self) -> (Option<String>, Option<String>) {
+        (None, None)
+    }
 }
 
 /// The `dl` executor: `libloading` + the ABI v1 handshake of `abi.rs`.
@@ -105,6 +114,21 @@ impl DlopenPlugin {
             return Err(KernelError::HandshakeIncomplete { what: "stop" });
         }
         Ok(())
+    }
+
+    /// Read a descriptor C string as `Option` (null -> `None`).
+    ///
+    /// # Safety
+    /// `ptr` either null or a readable NUL-terminated C string inside a
+    /// mapped image the caller keeps alive.
+    unsafe fn cstr_opt(ptr: *const std::ffi::c_char) -> Option<String> {
+        if ptr.is_null() {
+            return None;
+        }
+        // SAFETY: caller guarantees the pointer contract above.
+
+        let s = unsafe { std::ffi::CStr::from_ptr(ptr) };
+        s.to_str().ok().map(str::to_string)
     }
 
     fn cstr(desc_ptr: *const std::ffi::c_char) -> String {
@@ -179,6 +203,14 @@ impl LoadedPlugin for DlopenPlugin {
         ptr as usize as u64
     }
 
+    fn self_report(&self) -> (Option<String>, Option<String>) {
+        // SAFETY: `_lib` keeps the image mapped; `desc` points into it
+        // and the descriptor was validated at load.
+        let d = unsafe { &*self.desc };
+        (unsafe { Self::cstr_opt(d.id) }, unsafe {
+            Self::cstr_opt(d.version)
+        })
+    }
     fn start(&mut self, host: *const HostAbiV1) -> Result<(), KernelError> {
         // SAFETY: `_lib` keeps the image mapped; validate() at load time
         // guarantees start is Some and the guards passed before any call.

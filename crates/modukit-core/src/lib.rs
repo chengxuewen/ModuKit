@@ -18,11 +18,17 @@
 //! (`testhost`, D24).
 //!
 //! Deliberately NOT here (trigger-gated elsewhere): boot DAG parallelism,
-//! install/cross-check protocol (M7), contract codegen (M4), transport seam
-//! (M5, in the `modukit-transport` crate);
-//! `exe`/`wasm` executors (Stage-2/5).
+//! contract codegen (M4, in the `modukit-codegen` crate), transport seam
+//! (M5, in the `modukit-transport` crate); `exe`/`wasm` executors
+//! (Stage-2/5). The M7 logical-bundle install protocol (D28/D31) lands
+//! in THIS crate: `bundle` (+ `bundle_error`/`bundle_files` helpers) on
+//! the std-only `sha256`; the reverse-DNS grammar validator lives in
+//! `identity`.
 
 pub mod abi;
+pub mod bundle;
+mod bundle_error;
+mod bundle_files;
 pub mod bus;
 pub mod clock;
 pub mod counters;
@@ -38,6 +44,7 @@ pub mod logger;
 pub mod manifest;
 pub mod registry;
 mod registry_types;
+pub mod sha256;
 pub mod testhost;
 pub mod topic;
 mod wiring;

@@ -2,9 +2,8 @@
 //! wired for the `dl` placement only (Stage-1 scope, architecture.md §10).
 //!
 //! Boot orchestration here is the single-plugin spine: `install -> resolve
-//! -> start -> stop -> uninstall` follows the modules/03 §2 guards. The
-//! tiered parallel boot DAG (03 §3) and the install/cross-check protocol
-//! (M7) are deliberately not built yet.
+//! -> start -> stop -> uninstall` follows the modules/03 §2 guards; the M7
+//! install/cross-check protocol lives in `bundle.rs`. Boot DAG: later.
 
 use std::collections::HashMap;
 use std::ffi::{c_char, c_void};
@@ -57,6 +56,9 @@ pub struct Kernel {
     pub(crate) edges: Arc<EdgeLedger>,
     pub(crate) executor: Box<dyn Executor>,
     pub(crate) plugins: Arc<Mutex<HashMap<PluginId, PluginRecord>>>,
+    /// Contract-ledger (fdset, D12) bytes this host booted with — the M7
+    /// seam closing the M6 deferral; read back by `LedgerDump` byte-equal.
+    pub(crate) contract_ledger: Arc<Mutex<Vec<u8>>>,
 }
 
 fn lock(
@@ -132,6 +134,18 @@ impl Kernel {
     #[must_use]
     pub fn bus(&self) -> &Bus {
         &self.bus
+    }
+
+    /// Boot seam (M7, closing the M6 "fdset equality rides M7/M8"
+    /// deferral): record the contract-ledger (protoc fdset, D12) bytes
+    /// this host boots with; `LedgerDump::contract_ledger()` reads them
+    /// back byte-equal. The M6 module-ledger half of the dump is
+    /// untouched.
+    pub fn set_contract_ledger(&self, bytes: Vec<u8>) {
+        *self
+            .contract_ledger
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner) = bytes;
     }
 
     /// The kernel-side transition doorway: move the machine and post the
