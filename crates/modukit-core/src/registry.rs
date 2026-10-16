@@ -18,48 +18,11 @@ use std::ops::Deref;
 use std::sync::mpsc::{Receiver, SyncSender, TrySendError, sync_channel};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
+use crate::events::{ObsEvent, Observatory};
 use crate::identity::ServiceId;
-
-/// Monotonic registration identity (invariant 2).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct RegistrationId(i64);
-
-impl RegistrationId {
-    #[must_use]
-    pub fn value(self) -> i64 {
-        self.0
-    }
-}
-
-/// Flat property value vocabulary (invariant 3: the string-keyed future
-/// host of LDAP vocabulary; year 1 keeps three scalar shapes).
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum PropertyValue {
-    Str(String),
-    Int(i64),
-    Bool(bool),
-}
-
-/// Flat property map with case-insensitive keys (invariant 3). Keys are
-/// stored folded to lowercase; `get` folds the query the same way.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct Properties(BTreeMap<String, PropertyValue>);
-
-impl Properties {
-    #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    pub fn insert(&mut self, key: &str, value: PropertyValue) -> Option<PropertyValue> {
-        self.0.insert(key.to_lowercase(), value)
-    }
-
-    #[must_use]
-    pub fn get(&self, key: &str) -> Option<&PropertyValue> {
-        self.0.get(&key.to_lowercase())
-    }
-}
+pub use crate::registry_types::{
+    Properties, PropertyValue, RegisteredService, RegistrationId, ServiceEvent,
+};
 
 /// Registry-side failure (D27 code space lives in `KernelError::code()`).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -90,31 +53,6 @@ impl std::fmt::Display for RegistryError {
 
 impl std::error::Error for RegistryError {}
 
-/// Presence event (invariant 5). `Modified` is reserved-additive, not shipped.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ServiceEvent {
-    Registered {
-        id: RegistrationId,
-        service_id: ServiceId,
-        props: Properties,
-    },
-    Unregistered {
-        id: RegistrationId,
-        service_id: ServiceId,
-        props: Properties,
-    },
-}
-
-/// Snapshot view of one registration (invariant 5's late-join half).
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RegisteredService {
-    pub id: RegistrationId,
-    pub service_id: ServiceId,
-    /// Reserved storage, year-1 tie-break only (invariant 4).
-    pub ranking: i64,
-    pub props: Properties,
-}
-
 #[derive(Debug)]
 struct Entry {
     id: RegistrationId,
@@ -131,6 +69,9 @@ struct Storage {
     entries: BTreeMap<i64, Entry>,
     next_id: i64,
     senders: Vec<SyncSender<ServiceEvent>>,
+    /// Shared observatory ring (M6): the kernel wires it at boot; a
+    /// standalone `Registry::new()` has none and behaves exactly as before.
+    observability: Option<Arc<Observatory>>,
 }
 
 /// Backpressure floor for the v0 event stream: a bounded window per
@@ -140,6 +81,11 @@ const EVENT_QUEUE: usize = 64;
 
 impl Storage {
     fn emit(&mut self, event: ServiceEvent) {
+        // Merged ring first (modules/10 §1: one stream answers both
+        // channels); the per-subscriber mpsc window keeps its own semantics.
+        if let Some(obs) = &self.observability {
+            obs.emit(ObsEvent::Registry(event.clone()));
+        }
         self.senders.retain(|tx| match tx.try_send(event.clone()) {
             Ok(()) | Err(TrySendError::Full(_)) => true,
             Err(TrySendError::Disconnected(_)) => false,
@@ -161,6 +107,23 @@ impl Registry {
     #[must_use]
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Registry wired to the shared observatory ring (kernel boot path).
+    #[must_use]
+    pub(crate) fn with_observability(obs: Arc<Observatory>) -> Self {
+        Self {
+            storage: Arc::new(Mutex::new(Storage {
+                observability: Some(obs),
+                ..Storage::default()
+            })),
+        }
+    }
+
+    /// Another handle to the SAME storage: the introspect trio and the
+    /// kernel's platform services are wired against one shared table.
+    pub(crate) fn shared(&self) -> Registry {
+        self.clone()
     }
 
     /// Register an instance. The canonical `service.id` (D9) is read from
@@ -188,7 +151,7 @@ impl Registry {
         // ids are positive and monotonic from 1 (invariant 2).
         let id = {
             store.next_id += 1;
-            RegistrationId(store.next_id)
+            RegistrationId::at(store.next_id)
         };
         let event_props = props.clone();
         store.emit(ServiceEvent::Registered {
@@ -224,6 +187,7 @@ impl Registry {
             .filter(|e| e.type_id == want)
             .max_by_key(|e| (e.ranking, -e.id.value()))
             .map(|e| e.id.value())?;
+        let obs = store.observability.clone(); // D21 gate handle (before the entry borrow).
         let entry = store.entries.get_mut(&best)?;
         let instance = Arc::clone(&entry.instance);
         entry.holds += 1;
@@ -231,9 +195,12 @@ impl Registry {
             entry.holds -= 1;
             return None;
         };
+        if let Some(obs) = &obs {
+            obs.counters().note_acquire(); // counted at the acquire doorway.
+        }
         Some(ServiceRef {
             storage: Arc::clone(&self.storage),
-            id: RegistrationId(best),
+            id: RegistrationId::at(best),
             service_id: entry.service_id.clone(),
             instance,
             live: Cell::new(true),
@@ -299,6 +266,16 @@ impl Registry {
     }
 }
 
+impl Clone for Registry {
+    /// Another handle sharing the one storage ("cheap to clone", see the
+    /// type doc). Same table, same events, same counters.
+    fn clone(&self) -> Self {
+        Self {
+            storage: Arc::clone(&self.storage),
+        }
+    }
+}
+
 fn view(e: &Entry) -> RegisteredService {
     RegisteredService {
         id: e.id,
@@ -340,6 +317,9 @@ impl<S> ServiceRef<S> {
         let mut store = lock(&self.storage);
         if let Some(entry) = store.entries.get_mut(&self.id.value()) {
             entry.holds -= 1;
+        }
+        if let Some(obs) = &store.observability {
+            obs.counters().note_release(); // D21: pairs counted at the release doorway.
         }
         Ok(())
     }

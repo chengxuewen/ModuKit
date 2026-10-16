@@ -131,7 +131,8 @@ impl Receiver {
 }
 
 /// Per-topic state: the declared QoS, the latest-value register, the lossy
-/// retention ring (with its own eviction count), and the live subscribers.
+/// retention ring (with its own eviction count), the live subscribers, and
+/// the D21 gate counters riding the SAME publish doorway (observation only).
 #[derive(Default)]
 struct TopicState {
     qos: QoS,
@@ -139,6 +140,12 @@ struct TopicState {
     retention: VecDeque<Vec<u8>>,
     topic_drops: u64,
     subscribers: Vec<Weak<Shared>>,
+    published: u64,
+    delivered: u64,
+    /// Evictions shed from subscriber rings (delivery loss, aggregate of
+    /// the per-`Receiver::drops` counters).
+    sub_dropped: u64,
+    queue_high_water: usize,
 }
 
 /// The in-process bus. Cheap to clone (one shared table); reachable from the
@@ -205,8 +212,12 @@ impl Bus {
         }
 
         // Fan-out. The table lock is held only for this short pass; a slow or
-        // dead subscriber never stalls it.
+        // dead subscriber never stalls it. The D21 gate counters accumulate
+        // on the same walk — no second doorway.
         let cap = cap_of(qos);
+        let mut delivered = 0u64;
+        let mut shed = 0u64;
+        let mut high = 0usize;
         state.subscribers.retain(|weak| {
             let Some(shared) = weak.upgrade() else {
                 return false; // consumer dropped: prune.
@@ -215,19 +226,28 @@ impl Bus {
                 // Lossy(0) or a deferred topic with a leftover subscription:
                 // there is no slot, so the value is shed and counted.
                 shared.drops.fetch_add(1, Ordering::Relaxed);
+                shed += 1;
                 return true;
             }
-            {
+            let qlen = {
                 let mut queue = lock_queue(&shared);
                 while queue.len() >= cap {
                     queue.pop_front();
                     shared.drops.fetch_add(1, Ordering::Relaxed);
+                    shed += 1;
                 }
                 queue.push_back(value.clone());
-            }
+                queue.len()
+            };
+            high = high.max(qlen);
+            delivered += 1;
             shared.not_empty.notify_one();
             true
         });
+        state.published += 1;
+        state.delivered += delivered;
+        state.sub_dropped += shed;
+        state.queue_high_water = state.queue_high_water.max(high);
     }
 
     /// Subscribe to `topic`, obtaining a `Receiver`.
@@ -274,4 +294,39 @@ impl Bus {
             .get(topic)
             .map_or(0, |state| state.topic_drops)
     }
+
+    /// D21 gate read: per-topic `{published, delivered, dropped,
+    /// queue-high-water}` as the publish doorway recorded them.
+    #[must_use]
+    pub fn topic_stats(&self) -> Vec<TopicStats> {
+        let topics = lock_topics(self);
+        topics
+            .iter()
+            .map(|(name, st)| TopicStats {
+                topic: name.to_string(),
+                subscribers: st
+                    .subscribers
+                    .iter()
+                    .filter(|w| w.strong_count() > 0)
+                    .count(),
+                published: st.published,
+                delivered: st.delivered,
+                dropped: st.sub_dropped,
+                retention_dropped: st.topic_drops,
+                queue_high_water: st.queue_high_water,
+            })
+            .collect()
+    }
+}
+
+/// One topic's gate-counter line (plain data for `Snapshot.counters()`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TopicStats {
+    pub topic: String,
+    pub subscribers: usize,
+    pub published: u64,
+    pub delivered: u64,
+    pub dropped: u64,
+    pub retention_dropped: u64,
+    pub queue_high_water: usize,
 }

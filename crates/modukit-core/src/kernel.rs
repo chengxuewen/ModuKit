@@ -13,20 +13,27 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use crate::abi::{HostAbiV1, NativeService, ServiceCallFn, cstr_to_string};
 use crate::bus::Bus;
+use crate::clock::{Clock, ClockDomain};
+use crate::edge_ledger::EdgeLedger;
 use crate::error::KernelError;
-use crate::executor::{DlopenExecutor, Executor, LoadedPlugin};
+use crate::events::{ObsEvent, Observatory};
+use crate::executor::{Executor, LoadedPlugin};
 use crate::identity::{PluginId, ServiceId};
+use crate::introspect::LoadStamp;
 use crate::lifecycle::{PluginState, StateMachine};
+use crate::logger::Logger;
 use crate::manifest::{Manifest, PlacementKind};
 use crate::registry::{Properties, PropertyValue, RegistrationId, Registry, RegistryError};
 
 /// One tracked plugin: its manifest, state machine, loaded handle (while
 /// resolved/started) and the service registrations it produced.
-struct PluginRecord {
-    manifest: Manifest,
-    machine: StateMachine,
-    handle: Option<Box<dyn LoadedPlugin>>,
-    registrations: Vec<RegistrationId>,
+pub(crate) struct PluginRecord {
+    pub(crate) manifest: Manifest,
+    pub(crate) machine: StateMachine,
+    pub(crate) handle: Option<Box<dyn LoadedPlugin + Send>>,
+    pub(crate) registrations: Vec<RegistrationId>,
+    /// Last load-handshake outcome for the `LedgerDump` service (D17).
+    pub(crate) last_load: Option<LoadStamp>,
 }
 
 /// Per-`start` bookkeeping shared with the C ABI trampoline through the
@@ -40,10 +47,16 @@ struct ActivationSink<'a> {
 
 /// The C+ kernel for `dl` plugins.
 pub struct Kernel {
-    registry: Registry,
-    bus: Bus,
-    executor: Box<dyn Executor>,
-    plugins: Mutex<HashMap<PluginId, PluginRecord>>,
+    pub(crate) registry: Registry,
+    pub(crate) bus: Arc<Bus>,
+    pub(crate) clock: Clock,
+    /// Shared observatory ring (D17): the merged event stream behind the
+    /// introspect trio and the logger floor.
+    pub(crate) obs: Arc<Observatory>,
+    pub(crate) logger: Arc<Logger>,
+    pub(crate) edges: Arc<EdgeLedger>,
+    pub(crate) executor: Box<dyn Executor>,
+    pub(crate) plugins: Arc<Mutex<HashMap<PluginId, PluginRecord>>>,
 }
 
 fn lock(
@@ -101,13 +114,12 @@ impl Kernel {
     /// Kernel with the `dl` executor (the only Stage-1 placement).
     #[must_use]
     pub fn new() -> Self {
-        Self {
-            registry: Registry::new(),
-            bus: Bus::new(),
-            executor: Box::new(DlopenExecutor::new()),
-            plugins: Mutex::new(HashMap::new()),
-        }
+        Self::with_clock(Clock::new(ClockDomain::Real))
     }
+
+    // Boot wiring (with_clock, floor accessors, platform service
+    // registration) lives in `wiring.rs` so this file stays the lifecycle
+    // spine. `new()` above delegates to `Kernel::with_clock`.
 
     /// The service registry plugins acquire through.
     #[must_use]
@@ -120,6 +132,25 @@ impl Kernel {
     #[must_use]
     pub fn bus(&self) -> &Bus {
         &self.bus
+    }
+
+    /// The kernel-side transition doorway: move the machine and post the
+    /// lifecycle edge onto the shared ring (same doorway, richer, D21).
+    fn mv(
+        &self,
+        record: &mut PluginRecord,
+        id: &PluginId,
+        to: PluginState,
+    ) -> Result<(), KernelError> {
+        let from = record.machine.state();
+        record.machine.transition(to)?;
+        self.obs.counters().note_transition(); // D21 at the same doorway.
+        self.obs.emit(ObsEvent::Lifecycle {
+            plugin: id.to_string(),
+            from: from.to_string(),
+            to: to.to_string(),
+        });
+        Ok(())
     }
 
     /// UNINSTALLED -> INSTALLED. §2 guard: manifest valid (already parsed)
@@ -155,7 +186,7 @@ impl Kernel {
             table.insert(id.clone(), new_record(manifest));
         }
         let record = table.get_mut(&id).ok_or_else(|| unknown(&id))?;
-        record.machine.transition(PluginState::Installed)?;
+        self.mv(record, &id, PluginState::Installed)?;
         Ok(id)
     }
 
@@ -172,15 +203,30 @@ impl Kernel {
     pub fn resolve(&self, id: &PluginId) -> Result<(), KernelError> {
         let mut table = lock(&self.plugins);
         let record = table.get_mut(id).ok_or_else(|| unknown(id))?;
-        record.machine.transition(PluginState::Resolving)?;
-
+        self.mv(record, id, PluginState::Resolving)?;
         let outcome = resolve_inner(record, self.executor.as_ref(), &self.registry);
+        // D21: the load handshake doorway counts its own outcome — the
+        // bad-plugin class stays visible without adding any new gate.
+        self.obs.counters().note_load(outcome.is_ok());
         match outcome {
-            Ok(()) => record.machine.transition(PluginState::Starting),
+            Ok(()) => {
+                record.last_load = Some(LoadStamp::ok());
+                if let Some(h) = record.handle.as_ref() {
+                    // 10 §2: the cheap trigger for pending breakpoints.
+                    self.obs.emit(ObsEvent::ModuleLoaded {
+                        plugin: id.to_string(),
+                        artifact: record.manifest.entry.artifact.clone(),
+                        load_base: h.load_base(),
+                        symbol_hint: "modukit_plugin_init".to_string(),
+                    });
+                }
+                self.mv(record, id, PluginState::Starting)
+            }
             Err(err) => {
                 // FAILED edge (always legal from RESOLVING; the transition
-                // helper's error cannot mask the original failure here).
-                record.machine.fail()?;
+                // helper's error cannot mask the original failure here.
+                record.last_load = Some(LoadStamp::fail(&err));
+                self.mv(record, id, PluginState::Failed)?;
                 Err(err)
             }
         }
@@ -220,10 +266,10 @@ impl Kernel {
         // orphan services the plugin managed to publish.
         record.registrations.append(&mut sink.registered);
         if let Err(err) = started {
-            record.machine.fail()?;
+            self.mv(record, id, PluginState::Failed)?;
             return Err(err);
         }
-        record.machine.transition(PluginState::Active)
+        self.mv(record, id, PluginState::Active)
     }
 
     /// ACTIVE -> STOPPING -> RESOLVED: cooperative stop, then the kernel
@@ -240,7 +286,7 @@ impl Kernel {
     pub fn stop(&self, id: &PluginId) -> Result<(), KernelError> {
         let mut table = lock(&self.plugins);
         let record = table.get_mut(id).ok_or_else(|| unknown(id))?;
-        record.machine.transition(PluginState::Stopping)?;
+        self.mv(record, id, PluginState::Stopping)?;
 
         let stopped = match record.handle.as_mut() {
             Some(handle) => handle.stop(),
@@ -258,9 +304,9 @@ impl Kernel {
             }
         }
         match (stopped, last_err) {
-            (Ok(()), None) => record.machine.transition(PluginState::Resolved),
+            (Ok(()), None) => self.mv(record, id, PluginState::Resolved),
             (Err(err), _) => {
-                record.machine.fail()?;
+                self.mv(record, id, PluginState::Failed)?;
                 Err(err)
             }
             (Ok(()), Some(err)) => Err(err.into()),
@@ -287,7 +333,7 @@ impl Kernel {
         // Drop the handle before the state move so the artifact is released
         // exactly once.
         record.handle = None;
-        record.machine.transition(PluginState::Uninstalled)
+        self.mv(record, id, PluginState::Uninstalled)
     }
 
     /// Current state of a tracked plugin.
@@ -308,6 +354,7 @@ fn new_record(manifest: Manifest) -> PluginRecord {
         machine: StateMachine::new(),
         handle: None,
         registrations: Vec::new(),
+        last_load: None,
     }
 }
 

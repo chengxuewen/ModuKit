@@ -59,10 +59,21 @@ fn build_fixture(crate_name: &str, lib_stem: &str) -> Option<PathBuf> {
 
 fn manifest_toml(artifact: &Path) -> String {
     format!(
-        "id = \"{EXAMPLE_ID}\"\nversion = \"0.1.0\"\n\
-         [entry]\nkind = \"dl\"\nartifact = \"{}\"\n",
+        "id = \"{EXAMPLE_ID}\"\nversion = \"0.1.0\"\n[entry]\nkind = \"dl\"\nartifact = \"{}\"\n",
         artifact.display()
     )
+}
+
+/// Plugin-visible services only: the M6 floors boot the kernel with
+/// platform services (`org.modukit.*`) on the same table (D40), so the
+/// fixture assertions filter the plugin's own entries out.
+fn plugin_services(kernel: &Kernel) -> Vec<modukit_core::registry::RegisteredService> {
+    kernel
+        .registry()
+        .snapshot()
+        .into_iter()
+        .filter(|s| !s.service_id.as_str().starts_with("org.modukit."))
+        .collect()
 }
 
 #[test]
@@ -90,16 +101,13 @@ fn happy_path_walks_states_and_round_trips_the_service() {
         PluginState::Starting,
         "resolve lands on the STARTING edge (03 §2: deps + handshake pass)"
     );
-    assert!(
-        kernel.registry().snapshot().is_empty(),
-        "no code has run yet"
-    );
+    assert!(plugin_services(&kernel).is_empty(), "no code has run yet");
 
     // start: plugin code runs, registers exactly one service.
     kernel.start(&id).expect("start must pass");
     assert_eq!(kernel.state(&id).expect("started"), PluginState::Active);
 
-    let snap = kernel.registry().snapshot();
+    let snap = plugin_services(&kernel);
     assert_eq!(
         snap.len(),
         1,
@@ -146,7 +154,7 @@ fn happy_path_walks_states_and_round_trips_the_service() {
         PluginState::Resolved,
         "STOPPING -> RESOLVED on clean stop (03 §2)"
     );
-    assert!(kernel.registry().snapshot().is_empty(), "services gone");
+    assert!(plugin_services(&kernel).is_empty(), "services gone");
     let event = events
         .recv_timeout(std::time::Duration::from_secs(2))
         .expect("Unregistered event must arrive");
@@ -192,7 +200,7 @@ fn bad_plugin_abi_mismatch_lands_failed_with_typed_error_never_a_crash() {
         "unknown ABI version -> FAILED at RESOLVING (04 §3), never a partial start"
     );
     assert!(
-        kernel.registry().snapshot().is_empty(),
+        plugin_services(&kernel).is_empty(),
         "a rejected plugin must have run no code"
     );
     // Reaching here without a segfault IS the second half of the assertion.

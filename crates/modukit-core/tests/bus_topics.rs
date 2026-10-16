@@ -203,9 +203,13 @@ fn kernel_exposes_the_bus_handle_and_it_is_a_separate_channel_from_the_registry(
     // Registry presence events and the bus are separate channels: publishing
     // on the bus must not create a registry entry, and the registry's event
     // stream is a distinct typed channel that shares no queue with the bus.
+    // Platform services (clock, logger — M6/D40) are the boot baseline;
+    // the channel-separation claim is that BUS traffic adds nothing.
+    let boot_services = kernel.registry().snapshot().len();
     let registry_events = kernel.registry().subscribe();
-    assert!(
-        kernel.registry().snapshot().is_empty(),
+    assert_eq!(
+        kernel.registry().snapshot().len(),
+        boot_services,
         "bus traffic must not register a service - the two channels are separate",
     );
     assert!(

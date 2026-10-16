@@ -11,18 +11,33 @@
 //! (D10, `bus` + `topic`) is reachable via `Kernel::bus()` and stays a
 //! separate channel from the registry.
 //!
+//! The M6 observability floors ride on top of this: the unified clock
+//! (`clock`, D20), the shared event ring (`events`, D17/D19), the edge
+//! ledger (`edge_ledger`, D18), gate counters (`counters`, D21), the
+//! read-only introspect trio (`introspect`, D17) and the testhost face
+//! (`testhost`, D24).
+//!
 //! Deliberately NOT here (trigger-gated elsewhere): boot DAG parallelism,
 //! install/cross-check protocol (M7), contract codegen (M4), transport seam
-//! (M5, in the `modukit-transport` crate), observability floors (M6),
+//! (M5, in the `modukit-transport` crate);
 //! `exe`/`wasm` executors (Stage-2/5).
 
 pub mod abi;
 pub mod bus;
+pub mod clock;
+pub mod counters;
+pub mod edge_ledger;
 pub mod error;
+pub mod events;
 pub mod executor;
 pub mod identity;
+pub mod introspect;
 pub mod kernel;
 pub mod lifecycle;
+pub mod logger;
 pub mod manifest;
 pub mod registry;
+mod registry_types;
+pub mod testhost;
 pub mod topic;
+mod wiring;

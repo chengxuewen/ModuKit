@@ -22,7 +22,7 @@ pub trait Executor {
     /// # Errors
     ///
     /// `KernelError` handshake/load family (ABI_MISMATCH, NOT_FOUND).
-    fn load(&self, manifest: &Manifest) -> Result<Box<dyn LoadedPlugin>, KernelError>;
+    fn load(&self, manifest: &Manifest) -> Result<Box<dyn LoadedPlugin + Send>, KernelError>;
 }
 
 /// A plugin loaded by an executor: `start` / `stop` drive the plugin-side
@@ -47,6 +47,14 @@ pub trait LoadedPlugin {
     /// `KernelError::PluginStartFailed`-shaped propagation of a non-zero
     /// status (stop path reuses the same typed channel).
     fn stop(&mut self) -> Result<(), KernelError>;
+
+    /// Stable address hint inside the loaded image for the `ModuleLoaded`
+    /// event (10 §2). `dl` reports the descriptor address; executors with
+    /// no image answer 0.
+    #[must_use]
+    fn load_base(&self) -> u64 {
+        0
+    }
 }
 
 /// The `dl` executor: `libloading` + the ABI v1 handshake of `abi.rs`.
@@ -111,7 +119,7 @@ impl DlopenPlugin {
 }
 
 impl Executor for DlopenExecutor {
-    fn load(&self, manifest: &Manifest) -> Result<Box<dyn LoadedPlugin>, KernelError> {
+    fn load(&self, manifest: &Manifest) -> Result<Box<dyn LoadedPlugin + Send>, KernelError> {
         if manifest.entry.kind != PlacementKind::Dl {
             return Err(KernelError::UnsupportedPlacement {
                 kind: manifest.entry.kind.to_string(),
@@ -161,6 +169,14 @@ impl Executor for DlopenExecutor {
 impl LoadedPlugin for DlopenPlugin {
     fn plugin_name(&self) -> &str {
         &self.name
+    }
+
+    fn load_base(&self) -> u64 {
+        // v0 hint: the descriptor lives in the mapped image; its address
+        // is stable for the library's lifetime (debug adapters only need a
+        // per-module distinct anchor until a real base-address query lands).
+        let ptr: *const PluginAbiV1 = self.desc;
+        ptr as usize as u64
     }
 
     fn start(&mut self, host: *const HostAbiV1) -> Result<(), KernelError> {
