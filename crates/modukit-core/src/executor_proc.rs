@@ -188,20 +188,34 @@ impl Executor for ProcessExecutor {
             path: exe.clone(),
             reason: e.to_string(),
         })?;
-        let mut cmd = Command::new(&exe);
-        // modules/01 §2 command shape: `<runner> <plugin.so> --fd=N`; the
-        // M1 stand-in executables are the artifact itself (no runner).
-        if manifest.entry.runner.is_some() {
-            cmd.arg(&manifest.entry.artifact);
-        }
-        cmd.arg(format!("--fd={CHILD_CONTROL_FD}"))
-            .stdin(Stdio::from(OwnedFd::from(child_end)))
-            .stdout(Stdio::null())
-            .stderr(Stdio::null());
-        let mut child = cmd.spawn().map_err(|e| KernelError::LoadFailed {
-            path: exe.clone(),
-            reason: e.to_string(),
-        })?;
+        // F1 fix (S2-M2): the descriptor passed to `Stdio::from(OwnedFd)`
+        // stays open until the Command binding drops. The old shape kept the
+        // builder alive across `read_hello`, so the parent retained a second
+        // copy of the child control-end: a child that died before HELLO
+        // never yielded EOF (the last write reference was the parent's own
+        // leaked descriptor) and every silent death was misclassified at
+        // HANDSHAKE_TIMEOUT. Spawning inside a block drops the builder -
+        // and the injected copy with it - before the handshake read, so
+        // peer death closes the last reference and EOF is observable.
+        // Regression proof: dual_placement.rs silent_death_* (the sub-second
+        // EOF bound doubles as the retention probe: count-based hygiene
+        // checks cannot see this leak because the number is recycled).
+        let mut child = {
+            let mut cmd = Command::new(&exe);
+            // modules/01 §2 command shape: `<runner> <plugin.so> --fd=N`; the
+            // M1 stand-in executables are the artifact itself (no runner).
+            if manifest.entry.runner.is_some() {
+                cmd.arg(&manifest.entry.artifact);
+            }
+            cmd.arg(format!("--fd={CHILD_CONTROL_FD}"))
+                .stdin(Stdio::from(OwnedFd::from(child_end)))
+                .stdout(Stdio::null())
+                .stderr(Stdio::null());
+            cmd.spawn().map_err(|e| KernelError::LoadFailed {
+                path: exe.clone(),
+                reason: e.to_string(),
+            })?
+        };
 
         // ABI v1 recheck over the wire + D7 cross-check, executed BEFORE
         // anything is marked live. Every failure path kills and reaps the

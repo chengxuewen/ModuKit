@@ -22,8 +22,9 @@
 //!  4. cooperative stop lands RESOLVED, services gone
 //!  5. bad-plugin fixture refused: dl `AbiMismatch(999)`, exe the runner
 //!     refuses at its own dlopen guards and dies before HELLO — the parent
-//!     parks FAILED either way (exe classification lands on the handshake
-//!     timeout: built-parent fd-inheritance leak, ESCALATE F1)
+//!     parks FAILED promptly: the runner dies before HELLO, the parent reads
+//!     EOF and classifies it as ProcessCrashed (F1 fixed in S2-M2 follow-up:
+//!     the spawn-time descriptor retention is gone)
 //!
 //! Fixture builds follow the dlopen_kernel.rs in-test pattern (cdylibs are not
 //! built by `cargo test`). A runner-binary build failure is FATAL here, not a
@@ -31,6 +32,7 @@
 
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::time::{Duration, Instant};
 
 use modukit_core::abi::NativeService;
 use modukit_core::clock::{Clock, ClockDomain};
@@ -447,13 +449,12 @@ fn bad_abi_fixture_is_refused_under_both_placements() {
         .kernel()
         .resolve(&id)
         .expect_err("runner refuses v999 before HELLO");
-    // Built-parent behavior (S2-M1, ESCALATE F1): the parent keeps its own
-    // copy of the child socket end (Stdio::from(OwnedFd) does not close it
-    // post-spawn), so a silent child is classified at HANDSHAKE_TIMEOUT,
-    // not by the EOF-crash arm. FAILED edge + reaping + counters hold
-    // either way; only the classification latency differs.
+    // Post-F1-fix parent behavior: the injected child control-end is
+    // dropped with the Command at spawn, so the silent death closes the
+    // last peer reference and the parent reads EOF -> the ProcessCrashed
+    // arm, promptly (the regression bound is proven by silent_death_*).
     assert!(
-        matches!(&err, KernelError::HandshakeIncomplete { what } if what.contains("hello")),
+        matches!(err, KernelError::ProcessCrashed { .. }),
         "exe: {err}"
     );
     assert_eq!(sup.kernel().state(&id).expect("state"), PluginState::Failed);
@@ -461,5 +462,62 @@ fn bad_abi_fixture_is_refused_under_both_placements() {
         sup.poll(),
         Vec::<String>::new(),
         "reaped at load, never entered the live table"
+    );
+}
+
+/// Loose CI bound for the EOF classification — the F1 retention bug made
+/// the read end only at `HANDSHAKE_TIMEOUT` (5s), the fixed path returns in
+/// microseconds. The bound doubles as the fd-retention probe: a stray
+/// parent-side copy of the child control-end keeps the pair open for the
+/// WHOLE timeout, and it is invisible to the count-based hygiene probes
+/// because the leaked descriptor number is recycled by the next `pair()`.
+const SILENT_DEATH_BOUND: Duration = Duration::from_secs(1);
+
+#[test]
+fn silent_death_before_hello_is_eof_processcrashed_not_handshake_timeout() {
+    // F1 regression (S2-M2 escalation): the parent must drop the injected
+    // child control-end (Stdio-held descriptor) BEFORE reading HELLO, so a
+    // child that dies without ever speaking yields EOF -> the ProcessCrashed
+    // arm promptly. The silent child here is a shebang script that exits
+    // immediately (no runner involved: the defect is parent-side). M1 never
+    // reached the EOF arm because every stand-in speaks HELLO first.
+    let dir = std::env::temp_dir().join(format!("mk-silent-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).expect("temp dir");
+    let script = dir.join("silent-child");
+    std::fs::write(&script, "#!/bin/sh\nexit 4\n").expect("write script");
+    std::fs::set_permissions(&script, std::os::unix::fs::PermissionsExt::from_mode(0o755))
+        .expect("chmod");
+
+    let sup = Supervisor::with_clock(Clock::new(ClockDomain::Step));
+    let manifest = Manifest::from_toml_str(&format!(
+        "id = \"com.example.proc.silent\"\nversion = \"0.1.0\"\n[entry]\nkind = \"exe\"\nartifact = \"{}\"\n",
+        script.display()
+    ))
+    .expect("manifest parses");
+    let id = manifest.id.clone();
+    sup.kernel().install(manifest).expect("install");
+
+    let at = Instant::now();
+    let err = sup
+        .kernel()
+        .resolve(&id)
+        .expect_err("a silent child must be refused");
+    let waited = at.elapsed();
+
+    assert!(matches!(err, KernelError::ProcessCrashed { .. }), "{err}");
+    assert!(
+        waited < SILENT_DEATH_BOUND,
+        "EOF classification waited {waited:?}: the read ended at the timeout, meaning the parent still held the child control-end copy (F1 regression)"
+    );
+    assert_eq!(
+        sup.kernel().state(&id).expect("tracked"),
+        PluginState::Failed,
+        "FAILED edge via the resolve error arm"
+    );
+    assert_eq!(sup.kernel().counters().load_fail(), 1);
+    assert_eq!(
+        sup.poll(),
+        Vec::<String>::new(),
+        "killed+reaped at the load doorway, never entered the live table"
     );
 }

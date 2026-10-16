@@ -6,8 +6,8 @@
 //!
 //! Coverage: spawn/handshake/start/stop/uninstall cycles against the real
 //! runner (`/proc/self/fd` before == after), one silent-death cycle (the
-//! bad-plugin: the child dies before HELLO, the parent classifies at the
-//! handshake timeout and reaps via `kill_wait_child` — no descriptor or
+//! bad-plugin: the child dies before HELLO, the parent reads EOF and
+//! classifies ProcessCrashed (post-F1-fix), reaping via `kill_wait_child` —
 //! zombie may survive that path either), and the zero-zombie scan for the
 //! whole process.
 
@@ -163,8 +163,13 @@ fn real_runner_cycles_leak_no_descriptors_or_zombies() {
 
     // Silent-death cycle through the kill_wait_child reap: the runner
     // refuses bad-plugin at its own dlopen guards and dies before HELLO;
-    // the parent classifies at the handshake timeout (ESCALATE F1) and
-    // must release every descriptor and leave no zombie anyway.
+    // the parent reads EOF (the F1 fix dropped its copy of the child
+    // control-end at spawn) and must release every descriptor anyway.
+    // NOTE (limitation worth recording): the count-based probe below and
+    // in proc_fd_hygiene.rs cannot see descriptor RETENTION - a leaked fd
+    // number is recycled by the next socketpair, keeping the count flat.
+    // The deterministic retention proof is the sub-second EOF bound in
+    // dual_placement.rs silent_death_before_hello_is_eof_processcrashed_*.
     let bad = runner_manifest(
         &repo_root()
             .join("out")
@@ -181,10 +186,7 @@ fn real_runner_cycles_leak_no_descriptors_or_zombies() {
         .resolve(&bad_id)
         .expect_err("silent-death child must be refused");
     assert!(
-        matches!(
-            err,
-            modukit_core::error::KernelError::HandshakeIncomplete { .. }
-        ),
+        matches!(err, modukit_core::error::KernelError::ProcessCrashed { .. }),
         "{err}"
     );
     assert_eq!(
