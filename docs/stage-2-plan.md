@@ -63,7 +63,7 @@ scheduling superseded with an explicit record; lanes S2-M6a/b struck from this s
 | S2-M0 | Kickoff hygiene | PARTLY DONE 2026-10-16: call sheet A1-A7 walked and verdicts minted as D74-D80 (numbering gate widened same day, negative proof observed); PolyOrch pin freshness checked clean (5945f2a == tip); REMAINING: push decision (OPEN - maintainer) and supervisor bin name chosen at M2 start | §0, this file | verdicts recorded = done except maintainer-side push call |
 | S2-M1 | ProcessExecutor + supervisor loop | LANDED 2026-10-16 (explicit go; agent-built, orchestrator re-verified 116/0 + check.sh + demo regression): exe arm spawns std::process, socketpair control at fd-0 stdin (01 §1 socketpair/stdio shape; arbitrary-fd lands M3), HELLO = ABI v1 + strict self-report (M7 precedent), Supervisor poll/revive drives crash->FAILED->D3-budget->respawn through existing doors only (zero phantom reloads asserted), graceful STOP -> STOP_KILL_GRACE -> SIGKILL; envelope {len,type,payload} with clock variant reserved by comment for D74/M3; counters process_crashes/restarts folded CountersView; kernel now placement-agnostic (executors police their own kind). ESCALATE adopted: E1 host loop drives poll() (M2/M3), E2 fd-0 convention revisit at M3 SCM_RIGHTS, E3 crash code -> D77 agenda IOU-4. | D3, modules/01 §1-4, D74/D80 | first-reds quoted (E0432 unresolved Supervisor/Revive/STOP_KILL_GRACE + E0599 missing variants); 8 new tests incl. fd-hygiene + zero-zombie; independent re-run: 116 passed, clippy -D warnings, check.sh green, STAGE1-DEMO PASS |
 | S2-M2 | modukit-runtime + shadow-runner | new workspace member `crates/modukit-runtime` (runner bin per the modules/01 §2 command shape `modukit-run <plugin.so> --fd=N`; supervisor bin name chosen-and-deferred at M2 start: runner bin = the card name modukit-run; the host/supervisor binary (working name modukit-host) is deferred until demo-stage2 needs it - no empty shell ships); runner dlopens the same fixture cdylib the dl executor would load, pumps identical ABI v1, registers over the control socket (the `--fd=N` inherited end); example-plugin gains an exe-placement twin run in the SAME suite (§10 "contract suite structured for later dual-placement runs" becomes live) | D23 templates, modules/01 §2 | first-red runner-connect handshake; dual-run table: every contract-suite case green under both placements |
-| S2-M3 | Wire transport + cross-process bus | unix-socket SCM_RIGHTS fd passing (documented-unsafe libc shim per the M5 memfd_create precedent, std-only kept), TL-versioned frame on the wire, bus publish/subscribe across process boundary with QoS fan-out tested against a real wire (D10 trigger); D74 clock verdict lands here (supervisor-driven dial + due-jobs return + timeout guard); D80 typed deferral wiring joins here at the swap door | D9/D10/D11/D20/D74/D80, modules/07 | first-red fd-pass roundtrip between two test processes; QoS stress: drop-counters visible on both sides, late-join across the wire; D17 test-2 exe leg green (step-replay content equality across placements, dialed by the supervisor) |
+| S2-M3 | Wire transport + cross-process bus | unix-socket SCM_RIGHTS fd passing (documented-unsafe libc shim per the M5 memfd_create precedent, std-only kept), TL-versioned frame on the wire, bus publish/subscribe across process boundary with QoS fan-out tested against a real wire (D10 trigger); D74 clock verdict lands here (supervisor-driven dial + due-jobs return + timeout guard); D80 typed deferral wiring joins here at the swap door | D9/D10/D11/D20/D74/D80, modules/07 | first-red fd-pass roundtrip between two test processes; QoS stress: drop-counters visible on both sides, late-join across the wire; D17 test-2 exe leg green (step-replay content equality across placements, dialed by the supervisor); kernel-side echo parity (F2 from M2) becomes observable here |
 | S2-M4 | iceoryx2 first entry | `vendor-shm` neutral feature on modukit-transport (D76: factory name confined to one module + one pinned dep line, never in the public seam); ported pool + porter behind the D11 backend trait; dummy double stays the CI default; frames cross only as pool+descriptor handles (D69 honored); equivalence suite dummy-vs-vendor per D76; vendor_lock amended to default-purity + feature CI lane | D11/D25/D69/D76 | first-red: pool roundtrip over vendor backend equals dummy-backend semantics; amended vendor_lock green on default features; feature-lane CI green; memory/fd leak check after 10k roundtrips |
 | S2-M5 | Freeze hearing + Stage-2 acceptance | run the dual-placement suite as the external-consumer validation round (D75), then the hearing (D77): C-ABI export list door-by-door, D51 origin ruling, integrity codes, hint(), crash-code ownership (IOU-4 from S2-M1 E3), ABI bump policy; coverage 80% hard gate measured workspace-wide in the same run (D79); `scripts/demo-stage2.sh` PASS gate + falsifiability probe; §10/§12 delta table re-audit vs architecture.md | D50/D51/D75/D77/D79, §10 | demo-stage2.sh prints STAGE2-DEMO PASS; tampered-runner probe REDs the gate; coverage >= 80% default-features (or recorded exemption at the hearing); check.sh + ctest regressions green |
 | ~~S2-M6a/b~~ | ~~Optional lanes~~ | STRUCK 2026-10-16 per A5/D78 - recorder and CLI deferred out of Stage-2 by supersession record; re-activation triggers live in decisions.md | D78 | - |
@@ -115,5 +115,30 @@ UI composition, wasm. These have homes in §12 stages 3-5; Stage-2 touches none.
    the fd/pointer-free public seam test.
 4. Freeze-hearing record + new D-entries for every A-item; §10 Out list updated with a
    delta row per closed item.
+## 9. Hearing material - D75 friction log (first non-kernel consumer)
+
+Collected verbatim from the S2-M2 shadow-runner build (the exe arm is the
+round D5 declined; this is its evidence). Items 1-7 feed the S2-M5 agenda:
+
+1. No kernel door to a loaded handle's self-report - the runner must do a
+   throwaway DlopenExecutor load to compose HELLO, then the embedded kernel
+   re-loads the same artifact (double dlopen: harmless, smells).
+2. Manifest has no lightweight constructor - synthesizing a full struct with
+   placeholder fields to feed load() (which reads only entry.kind/artifact)
+   is boilerplate a real consumer pays.
+3. proc_wire codec shipped decode-only - the child side had to add the HELLO
+   builder (landed as the purely additive hello_payload).
+4. Registry::acquire selects by type only - no by-id door for multi-service
+   plugins; acceptable v0, recorded.
+5. No wire way to name the echo probe - runner self-check hardcodes the
+   template method (shortcut comment in main.rs; M3 dissolves it).
+6. ServiceCallFailed.code() rides CONTRACT_VIOLATION (v0 unfrozen mapping,
+   D51 agenda) - dual tests assert typed variants, not code strings.
+7. fd-NUMBER recycling defeats count-based leak probes across spawn cycles -
+   hygiene asserts must key on ownership (map holds no child-end after load),
+   not on counts. F1 (fixed post-M2 as its own commit) and this item were the
+   first non-kernel consumer catching the parent side: the declined round was
+   worth paying for.
+
 5. check.sh + demo-stage2.sh green, coverage per A6 outcome, all memories synced,
    PolyOrch pin fresh, everything pushed once the M0 push decision is given.
