@@ -29,5 +29,13 @@ codegen = "bash scripts/regen-golden.sh"                         # alias for the
 [feature.rust.dependencies]
 rust = "*"
 
+[feature.cov.dependencies]
+# M8 coverage run (D50 soft gate): conda-forge ships the tool itself - no workspace
+# Cargo dependency is touched, the vendor-lock floor stays green.
+cargo-llvm-cov = "*"
+llvm-tools = "*"            # ships llvm-cov / llvm-profdata the wrapper drives
+
 [environments]
 default = { features = ["tools", "rust"], solve-group = "base" }
+# cov rides its own solve group: the default build env resolution stays untouched.
+cov = { features = ["rust", "cov"] }
