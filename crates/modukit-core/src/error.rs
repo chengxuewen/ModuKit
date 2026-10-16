@@ -91,7 +91,7 @@ impl std::fmt::Display for ManifestError {
 
 impl std::error::Error for ManifestError {}
 
-/// The kernel error enum for the M3 slice. Variants map onto D51 codes.
+/// The kernel error enum. Variants map onto D51 codes.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum KernelError {
     /// Lifecycle guard rejected a move (modules/03 §2 table).
@@ -121,10 +121,23 @@ pub enum KernelError {
     /// A message-shaped call through an ABI service returned an error code
     /// (02 §4 sync boundary; the plugin's own code space is the int).
     ServiceCallFailed { code: i32 },
-    /// This kernel slice runs `dl` only (01 §1; exe/wasm are later stages).
+    /// The placement has no executor installed in this kernel (01 §1 closed
+    /// set: each executor answers exactly one kind; wasm stays Stage-5).
     UnsupportedPlacement { kind: String },
     /// No plugin record under this id.
     UnknownPlugin { id: String },
+    /// A supervised `exe` child died outside the cooperative stop path
+    /// (crash-watch reap or kill-after-timeout teardown; 01 §4: the host
+    /// survives and the plugin lands on the FAILED edge). S2-M1.
+    ProcessCrashed { id: String, exit: String },
+    /// The child's handshake self-report disagrees with the deploy tier
+    /// (D7 strict cross-check, `exe` flavor: silence or a lie is refusal —
+    /// the `bundle.rs` liar family, never a panic). S2-M1.
+    IdentityMismatch {
+        what: &'static str,
+        expected: String,
+        found: String,
+    },
 }
 
 impl KernelError {
@@ -143,8 +156,13 @@ impl KernelError {
             | KernelError::HandshakeNull
             | KernelError::AbiMismatch { .. }
             | KernelError::DescriptorTooSmall { .. }
+            | KernelError::IdentityMismatch { .. }
             | KernelError::HandshakeIncomplete { .. } => "ABI_MISMATCH",
             KernelError::DependencyMissing { .. } => "DEPENDENCY_MISSING",
+            // A supervised crash is transient in the D27 sense: the policy
+            // engine may restart it inside the D3 budget; the identity lie
+            // is input-shaped. Both live in the contract/handshake families.
+            KernelError::ProcessCrashed { .. } => "CONTRACT_VIOLATION",
             KernelError::PluginStartFailed { .. }
             | KernelError::ServiceCallFailed { .. }
             | KernelError::UnsupportedPlacement { .. } => "CONTRACT_VIOLATION",
@@ -155,9 +173,9 @@ impl KernelError {
     #[must_use]
     pub fn hint(&self) -> RetryHint {
         match self {
-            KernelError::DependencyMissing { .. } | KernelError::LoadFailed { .. } => {
-                RetryHint::RetryAfter
-            }
+            KernelError::DependencyMissing { .. }
+            | KernelError::LoadFailed { .. }
+            | KernelError::ProcessCrashed { .. } => RetryHint::RetryAfter,
             // RetryNow stays unused in this slice: every other failure here is
             // input-shaped (fix the artifact/manifest/id), not transient.
             _ => RetryHint::DoNotRetry,
@@ -208,9 +226,20 @@ impl fmt::Display for KernelError {
             }
             KernelError::UnsupportedPlacement { kind } => write!(
                 f,
-                "placement {kind} has no executor in the Stage-1 kernel (dl only)"
+                "placement {kind} has no executor in this kernel (dl only until S2-M1 wiring)"
             ),
             KernelError::UnknownPlugin { id } => write!(f, "no plugin record for {id}"),
+            KernelError::ProcessCrashed { id, exit } => {
+                write!(f, "supervised plugin {id} died outside stop ({exit})")
+            }
+            KernelError::IdentityMismatch {
+                what,
+                expected,
+                found,
+            } => write!(
+                f,
+                "handshake self-report {what} mismatch: manifest says {expected:?}, artifact says {found:?}"
+            ),
         }
     }
 }

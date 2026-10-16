@@ -14,7 +14,7 @@ use crate::bus::Bus;
 use crate::clock::Clock;
 use crate::edge_ledger::EdgeLedger;
 use crate::events::Observatory;
-use crate::executor::DlopenExecutor;
+use crate::executor::{DlopenExecutor, Executor};
 use crate::introspect::{EventStream, LedgerDump, Snapshot};
 use crate::kernel::{Kernel, PluginRecord};
 use crate::logger::Logger;
@@ -42,6 +42,14 @@ impl Kernel {
     /// and registers the platform services under `org.modukit.*`.
     #[must_use]
     pub fn with_clock(clock: Clock) -> Self {
+        Self::with_clock_and_executor(clock, Box::new(DlopenExecutor::new()))
+    }
+
+    /// Kernel on an explicit clock and executor seam (S2-M1: the
+    /// supervisor boots with `ProcessExecutor`; each executor answers
+    /// exactly one placement kind and polices it inside `load`).
+    #[must_use]
+    pub fn with_clock_and_executor(clock: Clock, executor: Box<dyn Executor>) -> Self {
         let obs = Arc::new(Observatory::new(clock.clone()));
         let registry = Registry::with_observability(Arc::clone(&obs));
         let logger = Arc::new(Logger::new(Arc::clone(&obs)));
@@ -84,7 +92,7 @@ impl Kernel {
             obs,
             logger,
             edges,
-            executor: Box::new(DlopenExecutor::new()),
+            executor,
             plugins,
             contract_ledger,
         }
@@ -135,6 +143,8 @@ impl Kernel {
             lifecycle_transitions: g.lifecycle_transitions(),
             load_ok: g.load_ok(),
             load_fail: g.load_fail(),
+            process_crashes: g.process_crashes(),
+            process_restarts: g.process_restarts(),
             ..Default::default()
         };
         for st in self.bus.topic_stats() {

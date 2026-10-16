@@ -153,6 +153,8 @@ impl Snapshot {
                 lifecycle_transitions: g.lifecycle_transitions(),
                 load_ok: g.load_ok(),
                 load_fail: g.load_fail(),
+                process_crashes: g.process_crashes(),
+                process_restarts: g.process_restarts(),
                 ..Default::default()
             };
             let topics = self.bus.topic_stats();

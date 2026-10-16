@@ -1,6 +1,8 @@
-//! The Kernel: manifest + state machine + C+ registry + executor seam,
-//! wired for the `dl` placement only (Stage-1 scope, architecture.md §10).
+//! The Kernel: manifest + state machine + C+ registry + executor seam.
 //!
+//! Default executor is the `dl` placement (Stage-1 scope, architecture.md
+//! §10); the seam installs any executor of the closed set — S2-M1 adds the
+//! `exe` branch (`ProcessExecutor`, see `executor`).
 //! Boot orchestration here is the single-plugin spine: `install -> resolve
 //! -> start -> stop -> uninstall` follows the modules/03 §2 guards; the M7
 //! install/cross-check protocol lives in `bundle.rs`. Boot DAG: later.
@@ -21,7 +23,7 @@ use crate::identity::{PluginId, ServiceId};
 use crate::introspect::LoadStamp;
 use crate::lifecycle::{PluginState, StateMachine};
 use crate::logger::Logger;
-use crate::manifest::{Manifest, PlacementKind};
+use crate::manifest::Manifest;
 use crate::registry::{Properties, PropertyValue, RegistrationId, Registry, RegistryError};
 
 /// One tracked plugin: its manifest, state machine, loaded handle (while
@@ -113,10 +115,18 @@ impl Default for Kernel {
 }
 
 impl Kernel {
-    /// Kernel with the `dl` executor (the only Stage-1 placement).
+    /// Kernel with the `dl` executor (the Stage-1 default placement).
     #[must_use]
     pub fn new() -> Self {
         Self::with_clock(Clock::new(ClockDomain::Real))
+    }
+
+    /// Kernel with an explicit executor of the closed set (S2-M1: the
+    /// supervisor installs `ProcessExecutor` here; placement kinds are
+    /// policed by each executor's own `load`, not by the kernel).
+    #[must_use]
+    pub fn with_executor(executor: Box<dyn Executor>) -> Self {
+        Self::with_clock_and_executor(Clock::new(ClockDomain::Real), executor)
     }
 
     // Boot wiring (with_clock, floor accessors, platform service
@@ -372,20 +382,19 @@ fn new_record(manifest: Manifest) -> PluginRecord {
     }
 }
 
-/// The modules/03 §1 resolve pass, executor-flavored. Order is the doc's:
-/// placement and required deps before any code of the plugin runs; the
-/// handshake reads the descriptor (04 §3 "without executing plugin code"
-/// in the sense of no lifecycle/service calls).
+/// The modules/03 §1 resolve pass, executor-flavored: required deps are
+/// validated before anything runs, then the executor's `load` performs the
+/// placement-floor check and the handshake (04 §3 "without executing plugin
+/// code" in the sense of no lifecycle/service calls).
 fn resolve_inner(
     record: &mut PluginRecord,
     executor: &dyn Executor,
     registry: &Registry,
 ) -> Result<(), KernelError> {
-    if record.manifest.entry.kind != PlacementKind::Dl {
-        return Err(KernelError::UnsupportedPlacement {
-            kind: record.manifest.entry.kind.to_string(),
-        });
-    }
+    // 01 §1 closed set, S2-M1: each executor answers exactly one placement
+    // kind and refuses the others inside `load`, before touching the
+    // artifact — the kernel stays placement-agnostic. Both gates remain
+    // code-free and run before any plugin code executes (03 §1).
     for req in record.manifest.requires.iter().filter(|r| r.required) {
         if registry.lookup(&req.service).is_none() {
             return Err(KernelError::DependencyMissing {

@@ -1,11 +1,13 @@
-//! The executor seam (D13 dl side; 01 §1 closed set) with the one Stage-1
+//! The executor seam (D13; 01 §1 closed set): the Stage-1 `dl` side here,
+//! the S2-M1 `exe` side next door (re-exported below).
 //! implementation: `DlopenExecutor`.
 //!
 //! `Executor::load` validates the handshake without executing plugin service
 //! logic; the lifecycle verbs live on the returned boxed handle (modules/03
 //! §2: `RESOLVING -> STARTING` is the load+handshake edge, `start()` runs
-//! under `STARTING`). `exe`/`wasm` arms of the closed set are Stage-2/5 and
-//! intentionally absent here (architecture.md §10 out list).
+//! under `STARTING`). The `exe` arm of the closed set lives next door —
+//! `executor_proc`/`proc_supervisor`, re-exported below (S2-M1); the `wasm`
+//! arm is Stage-5 (architecture.md §10 out list).
 
 use std::path::Path;
 
@@ -14,6 +16,13 @@ use libloading::Library;
 use crate::abi::{ABI_VERSION, ENTRY_SYMBOL, HostAbiV1, PluginAbiV1, PluginInitFn};
 use crate::error::KernelError;
 use crate::manifest::{Manifest, PlacementKind};
+
+// S2-M1: the `exe` branch of the seam, re-exported so this module stays
+// the one front door for executors (lib.rs surface unchanged by module).
+pub use crate::executor_proc::{
+    HANDSHAKE_TIMEOUT, ProcessExecutor, START_ACK_TIMEOUT, STOP_KILL_GRACE,
+};
+pub use crate::proc_supervisor::{Revive, Supervisor};
 
 /// Verbs every executor answers for one artifact (D5 surgery point 1).
 pub trait Executor {

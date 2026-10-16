@@ -20,6 +20,10 @@ pub struct GateCounters {
     lifecycle_transitions: AtomicU64,
     load_ok: AtomicU64,
     load_fail: AtomicU64,
+    /// S2-M1 supervision family: deaths the crash-watch reaped, restarts
+    /// the D3 budget granted. Doorway: `Supervisor::poll` / `revive`.
+    process_crashes: AtomicU64,
+    process_restarts: AtomicU64,
 }
 
 /// The folded read of every gate family for `Snapshot.counters()` — plain
@@ -31,6 +35,8 @@ pub struct CountersView {
     pub lifecycle_transitions: u64,
     pub load_ok: u64,
     pub load_fail: u64,
+    pub process_crashes: u64,
+    pub process_restarts: u64,
     pub bus_published: u64,
     pub bus_delivered: u64,
     pub bus_dropped: u64,
@@ -62,6 +68,18 @@ impl GateCounters {
         }
     }
 
+    /// Crash observed by the supervisor's crash-watch (S2-M1 doorway:
+    /// `Supervisor::poll`, where the reap actually happens).
+    pub(crate) fn note_process_crash(&self) {
+        self.process_crashes.fetch_add(1, Ordering::Relaxed);
+    }
+
+    /// Restart granted inside the D3 budget (S2-M1 doorway:
+    /// `Supervisor::revive`, at the moment the respawn is executed).
+    pub(crate) fn note_process_restart(&self) {
+        self.process_restarts.fetch_add(1, Ordering::Relaxed);
+    }
+
     /// Read-only getters (D21: no policy hangs off these numbers).
     #[must_use]
     pub fn registry_acquires(&self) -> u64 {
@@ -86,5 +104,15 @@ impl GateCounters {
     #[must_use]
     pub fn load_fail(&self) -> u64 {
         self.load_fail.load(Ordering::Relaxed)
+    }
+
+    #[must_use]
+    pub fn process_crashes(&self) -> u64 {
+        self.process_crashes.load(Ordering::Relaxed)
+    }
+
+    #[must_use]
+    pub fn process_restarts(&self) -> u64 {
+        self.process_restarts.load(Ordering::Relaxed)
     }
 }
