@@ -215,3 +215,25 @@
 - ops: 293 stale test-scratch dirs had /tmp at 100% (the "flaky copy" was
   ENOSPC); scratch patterns now cleaned; mk-* dirs only ever mine.
 - M3b (bus/QoS/dial/D80/host-loop) dispatched immediately after.
+
+## 2026-10-16 - S2-M3b landed: wire dial closes D17 test-2; bus clause escalated
+- 1h16m continuation run; independent verify 133/0 (headline step_replay test
+  pins the transcript [(0.5s,[]),(1.5s,[alpha@1]),(4s,[beta@2])] BEFORE the
+  byte-equality assert - and that assert caught a real fired_at ordering bug,
+  proving non-vacuity).
+- D74 verdict landed: MSG_DIAL/MSG_DUE, supervisor-driven dial, Real-domain
+  typed refusal (ClockDialRefused), named DIAL_TIMEOUT kill guard; runner
+  clock default flipped Real->Step (A1 test/replay track) with --clock=real
+  production opt-out; one existing hygiene test switched to Supervisor::step.
+- D80 landed: RoutingDeferred at the co-host swap door; undeclared paths
+  byte-identical to the old InvalidTransition.
+- THE CATCH of the milestone: the cross-process bus clause could not be
+  honestly built - ABI v1 gives plugins exactly one door (register_service);
+  no bus verbs, no acquire, not even in-process (the bus was always a
+  kernel-side face). Agent refused the machinery-to-machinery self-talk
+  bridge (D79 anti-gaming class) and escalated with quotes: the clause
+  waits for the D77 hearing as IOU-5 (ABI-v2 bus/clock verbs vs runner-
+  bridge SDK posture; either needs a bus-speaking fixture). D10 trigger
+  stays unexercised - recorded honestly in the plan row.
+- D74 also surfaced friction #9: plugins lack clock verbs; the runner
+  schedules replay markers itself (shortcut on-site).
