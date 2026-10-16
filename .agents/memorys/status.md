@@ -43,7 +43,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 - [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: P2 PAT (user) + R restart verification (now also carries 2026-10-14 plugin bumps) + S2 user-side apiKey rotation; P3/P4/P5 done; ecosystem-scan FULL rerun 2026-10-14 — fix batches 1-3 adjudicated and landed (see history-archive.md later entry); residual Stage-1-gated items listed there
 
 - [x] PolyOrch submodule live since M1; pin chain 3cbc155..5945f2a (five standalone bumps), policy = follow dev-modukit tip; first full C2 bless cycle closed 2026-10-16 (see Phase + history)
-- [ ] Stage-2 kickoff closed 2026-10-16: A1-A7 adjudicated one by one (D74-D80), verdicts in `docs/stage-2-plan.md`; S2-M1 LANDED 2026-10-16 (116 tests; exe arm + supervisor; E1-E3 adopted); S2-M2 awaits go; push decision open (ahead 2)
+- [ ] Stage-2 kickoff closed 2026-10-16: A1-A7 adjudicated one by one (D74-D80), verdicts in `docs/stage-2-plan.md`; S2-M1+M2 LANDED 2026-10-16 (123 tests; runner + dual-placement table + F1 fix); S2-M3 awaits go; push decision open (ahead 5)
 - [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — wiring hearing when kernel API stabilizes (D73)
 - [ ] `rules/common` dangling refs family remainder (full list in history 2026-10-14/15 entries; resolved branches struck) — inline or trim when Stage-2 tooling lands
 - [x] Cargo workspace landed 2026-10-15 (M2; kernel filled from M3 on)

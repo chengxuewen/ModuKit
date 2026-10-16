@@ -173,3 +173,20 @@
   two python anchor drifts after the adjudication rewrite were caught by the
   count==1 asserts BEFORE any write - no half-state shipped, completed on the
   third pass with anchors copied verbatim from grep output.
+
+## 2026-10-16 - S2-M2 + F1 landed: shadow-runner, dual-placement table, first-consumer catch
+- modukit-runtime/modukit-run (card name; embedded-Kernel host design - zero
+  duplicated ABI machinery); 7-row dual-run table on the untouched fixture;
+  runner bin committed a3205be, F1 fix separate (correct bugfix hygiene).
+- F1 = the D75 round's first payoff: the non-kernel consumer caught the parent
+  silently holding the injected child-end fd (Command lifetime, not kernel
+  weirdness - probe4 isolated builder-lifetime as the mechanism; block-scoped
+  spawn, std-only, no unsafe). Silent pre-HELLO death now = immediate EOF ->
+  ProcessCrashed; the sub-second bound doubles as the deterministic
+  retention probe (count probes missed it: fd numbers recycle).
+- F2 (kernel-side echo parity) stays M3 by design; runner self-check gates the
+  START ack meanwhile (shortcut comment in place).
+- friction log 7 items -> plan section 9 (hearing material).
+- process notes: one C3 subject catch (72 -> 58, amended pre-push); agent
+  disclosed a prior-turn git-diff slip against the zero-git rule (read-only,
+  logged honestly).
