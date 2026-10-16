@@ -512,3 +512,52 @@
 - **Rationale**: a zero-code project must not issue integration orders to a 947-commit sprinting product, and the reverse coupling holds both schedules hostage. Intent without wiring is the only honest state today.
 - **Reference**: `docs/modules/11-media-server-base.md`; `.refinfo/MediaServo` HEAD 6722184 (46 commits in Oct 2026, session-measured); `docs/architecture.md` §11 queue note (freeze trigger wording, untouched); D68/D69 make the future wiring cheap (pools/handles/factories already shaped).
 - **Re-review triggers**: kernel API stabilization day (propose the wiring hearing to the MediaServo maintainer); any real media plugin that needs ModuKit today (that demand outranks this deferral).
+
+## D74: clock authority over the wire - supervisor turns the dial (2026-10-16)
+
+- **Decision**: on the test/replay track the supervisor is the SOLE authority advancing the runner's Step/Sim clock over the control socket (advance + due-jobs return, with a timeout guard against a blocked runner); production placements run the Real domain and no dial exists. Extends D20 across the process boundary so dual-placement step-replay content equality (D17 test-2) lands as canon wrote it. Rejected: Real-clock relaxation (replay lies - the two-clocks-two-truths refusal of D20), field-reserved-but-unbuilt (half-built protocol is worse than none).
+- **Rationale**: user-adjudicated one by one 2026-10-16 (Stage-2 call sheet A1). The core promise "placement changes nothing" is only verifiable with one hand on both clocks.
+- **Reference**: `docs/stage-2-plan.md` S2-M3 + verdict block; clock.rs (advance() dial exists), testhost.rs (zero-sleep discipline proven in-process).
+- **Re-review triggers**: measured dial-latency cost on target hardware; a plugin family that legitimately needs runner-local Real timers under replay (first such request = fresh hearing on mixed-domain clocks).
+
+## D75: the exe-placement dual run IS the declined external-consumer round (2026-10-16)
+
+- **Decision**: the shadow-runner counts as the first non-kernel consumer of the C-ABI/contract (separate process, no privileged types, front door only), so the dual-placement acceptance run formally pays the validation round D5 declined in 2026-10-09. The contract-friction log from that run is the evidence package for the freeze hearing (D77). The true-third-party re-review trigger stays alive - this pays the structural debt, not the ecosystem debt.
+- **Rationale**: user-adjudicated one by one 2026-10-16 (A2). Outsider-ness is measured by which door you can walk through, not whose repo built you.
+- **Reference**: D5 (declined round + accepted risk), D4 trigger wording; `docs/stage-2-plan.md` S2-M2/M5.
+- **Re-review triggers**: first genuinely external plugin author (they re-open the round on the untested surface); any friction log entry contradicting an already-frozen door (freeze audit).
+
+## D76: vendor-shm boundary - neutral feature, one-module confinement, equivalence tests (2026-10-16)
+
+- **Decision**: vendor deps enter ONLY behind a non-default, vendor-neutral feature `vendor-shm` on modukit-transport (the factory name never appears in the public seam, types, errors, or docs; the vendor lives in exactly one module + one Cargo dependency line, pinned per D25). The vendor_lock test is amended to assert DEFAULT purity; a second CI lane builds with the feature on; dummy and vendor backends must pass the SAME semantic-equivalence suite. Kernel core stays std-only, period. Supersedes the blanket zero-dep wording of the Stage-1 M5 vendor-lock note for the transport crate only.
+- **Rationale**: user-adjudicated one by one 2026-10-16 (A3, with the maintainer's own amendment demanding the switch name stay neutral so a future vendor swap cannot lie). The gate prevents silent sprawl; the equivalence suite is the machine proof that the abstraction is not captive.
+- **Reference**: D11 (backend trait + permanent dummy), D25 (iceoryx2-first, exact tag, self-built fallback trigger); `docs/stage-2-plan.md` S2-M4.
+- **Re-review triggers**: second vendor backend request (feature grammar re-checked before any naming drift); any import of a vendor type outside the confined module (rejected by review rule, gate if it repeats).
+
+## D77: freeze hearing at S2-M5, door-by-door, IOUs calendared (2026-10-16)
+
+- **Decision**: the C-ABI export freeze happens in a hearing AFTER the dual-placement suite has run (S2-M5). Only doors the suite actually exercised get frozen; everything else keeps a named re-open date/trigger. The hearing settles the three recorded IOUs as agenda items: D51 shared-vocabulary origin (M5 deferral), integrity error codes (M7 deferral, currently riding CONTRACT_VIOLATION), BundleError hint() (M8 deferral); plus an ABI version-bump policy (what permits v1->v2). Rejected: freeze-everything (welding unexercised doors violates C0's observed-red requirement), keep-waiting (contradicts D75 - the witness already walked in).
+- **Rationale**: user-adjudicated one by one 2026-10-16 (A4). A freeze's authority comes from every welded door having been pushed by real hands.
+- **Reference**: D5, D63, D51; `docs/stage-2-plan.md` S2-M5; the three deferrals quoted verbatim in `docs/stage-1-plan.md` M5/M7/M8 rows.
+- **Re-review triggers**: post-freeze discovery that a frozen door was mis-exercised (freeze audit); first external consumer demanding an unfrozen side door (acceleration request goes through a fresh hearing, not a silent build).
+
+## D78: recorder/replay and the CLI - explicit supersession of their Stage-2 scheduling (2026-10-16)
+
+- **Decision**: D16's "implementation + dependency land with Stage 2" and D17/D23's Stage-2 CLI scheduling are SUPERSEDED: neither the recorder nor the CLI ships in Stage-2. No mcap dependency enters. Re-activation triggers: real cross-process traffic exists after S2-M4 and a demo or fleet tooling demands recorded sessions (recorder); an app team or external tool needs the trio face beyond scripts (CLI). Recorded as a schedule change, not a design change - modules/09 doctrine and D17's trio constitution stand untouched.
+- **Rationale**: user-adjudicated one by one 2026-10-16 (A5). Building side-lanes with no acceptance pressure dilutes the mainline; a deferred-with-a-date promise beats a half-built one.
+- **Reference**: D16, D17, D23, D61 (mcap posture applies whenever the recorder lands); `docs/stage-2-plan.md` S2-M6a/b struck.
+- **Re-review triggers**: first real recording demand (beachhead demo, NVR-style feature, or the MediaServo day of D73); first tool built on the trio that a script honestly cannot serve.
+
+## D79: coverage hard gate switches at S2-M5, workspace-wide, 80% (2026-10-16)
+
+- **Decision**: the D50 staged gate reaches its 80% hard step at Stage-2 acceptance (S2-M5), measured across the whole workspace in the same run as demo-stage2.sh (default features only - the vendor-shm lane is CI-tested but not coverage-gated). The codegen crate's 72.7% from Stage-1 must be paid down or carry an explicit recorded exemption at the hearing. Anti-gaming clause: shell tests that touch lines without asserting behavior are surfaced and rejected at every freeze audit (D75's round re-runs on new surface).
+- **Rationale**: user-adjudicated one by one 2026-10-16 (A6). 78.6 -> 80 is smaller than the acceptance suite everyone has to write anyway; split accounting (per-door gates) would need a reporting machine worth more than the honesty it buys.
+- **Reference**: D50; Stage-1 M8 row coverage table (82.3/80.3/72.7, total 78.6 via pixi cov env); `docs/stage-2-plan.md` S2-M5.
+- **Re-review triggers**: two consecutive misses on any crate at a stage boundary (re-scope the gate, do not delete it); first genuine metric-chasing incident (add the missing assertion class as a named rule).
+
+## D80: parallel_ok routing - schedule superseded, declaration gets a typed deferral (2026-10-16)
+
+- **Decision**: the "routing ships Stage-2" scheduling in D8 (and its §11 row + modules/03 note) is SUPERSEDED without implementing the routing mechanism now: no real scenario has pulled D71's doorbell, and designing version-affinity routing with zero demand risks building the wrong shape. But the silent-inert field becomes honest: a plugin that declares parallel_ok and hits the exe hot-swap door gets a TYPED DEFERRAL ("declared, routing not built") - never a silent ignore (M5's refuse-verb precedent). Roughly 100 lines inside S2-M2/M3. Re-activation triggers stand as written in D8 (first hard zero-gap consumer; fleet update demand) - and the deferral's usage data becomes that demand's evidence.
+- **Rationale**: user-adjudicated one by one 2026-10-16 (A7, the Momus-caught contradiction between this plan's draft exclusion and three canon scheduling lines - resolved by supersession with a voice, not by omission either way).
+- **Reference**: D7/D8 (update semantics, parallel_ok clause), D71 (inert re-check, "routing lands with exe placement" trigger verbatim), D37 (blue-green host_ids); `docs/stage-2-plan.md` S2-M2/M3 + verdict block.
+- **Re-review triggers**: first consumer who would have used parallel_ok routing (their friction report = the routing brief); any in-process hot-swap demand with in-flight tasks (D71's drawn doorbell - fresh hearing before any mechanism reuse).

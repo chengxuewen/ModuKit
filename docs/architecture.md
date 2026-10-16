@@ -279,6 +279,13 @@ them. Re-review trigger recorded in D5.
 | D71 | coexistence stays inert | parallel_ok routing inert; media-base swap needs ride exe-restart + dl-next-boot; doorbell: in-process hot-swap WITH in-flight tasks = fresh hearing |
 | D72 | vocab audit | media needs covered; device entrances via resources{} + com.vendor.* notes; hard word only after adjudicated enforcement mechanism (D56 precedent) |
 | D73 | integration posture | parallel, not wired: intent declared, kernel API stabilization is the gate; direction library-first when the day comes; C-ABI freeze trigger stays anonymous |
+| D74 | clock-over-wire authority | supervisor owns the runner's Step/Sim dial on test/replay track (control socket, timeout guard); production Real; D17 test-2 lands as canon |
+| D75 | external-consumer round paid | exe dual run = first non-kernel validation (friction log feeds D77); true third-party trigger stays alive |
+| D76 | vendor-shm boundary | vendor only behind neutral non-default feature; one-module confinement; default-purity check + feature CI lane + dummy/vendor equivalence suite; core std-only |
+| D77 | freeze hearing S2-M5 | door-by-door freeze (only exercised doors welded); D51-origin/integrity-codes/hint() IOUs as agenda; ABI bump policy |
+| D78 | recorder+CLI supersession | D16/D17/D23 Stage-2 scheduling retired (design untouched); re-activation = real traffic + tooling demand; no mcap entry |
+| D79 | coverage 80 hard at S2-M5 | workspace-wide, default features, same run as demo-stage2; codegen debt paid or exempted at hearing; anti-gaming clause |
+| D80 | parallel_ok supersession+voice | routing mechanism deferred (typed deferral replaces silent ignore at the swap door, ~100 lines); D8 triggers stand verbatim |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 

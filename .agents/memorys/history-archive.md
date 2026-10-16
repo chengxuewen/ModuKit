@@ -131,3 +131,27 @@
   OPEN per Stage-1 precedent). All fixed in-draft before landing.
 - Execution gate CLOSED: nothing of Stage-2 runs until maintainer go; next step
   is the A1-A7 walkthrough (adjudication-walkthrough protocol) at kickoff.
+
+## 2026-10-16 - Stage-2 kickoff walkthrough, all seven verdicts (D74-D80)
+- adjudication-walkthrough protocol run one-at-a-time on the plan call sheet;
+  maintainer asked for plainer language twice mid-walk (fixed in-flight, kept).
+- A1 clock: supervisor owns the cross-process dial (D74) - rejected Real-clock
+  relaxation and field-reserved-but-unbuilt. A2: runner = first non-kernel
+  consumer, dual run pays D5's declined round (D75).
+- A3 vendor boundary: maintainer amended the draft - switch renamed to the
+  neutral `vendor-shm`, factory confined to one module + one pinned dep line,
+  equivalence suite as the machine proof the abstraction is not captive (D76).
+- A4 hearing: door-by-door freeze, three IOUs + ABI bump policy as agenda (D77).
+- A5: recorder + CLI both superseded out of Stage-2 (D78) - honest deferral beat
+  half-built side lanes; no mcap entry. A6: 80% hard gate at S2-M5 workspace-wide
+  with an anti-gaming clause (D79). A7: Momus-caught parallel_ok contradiction
+  resolved by supersession + typed deferral replacing the silent-ignore (D80).
+- write-back: D74-D80 minted in decisions.md; architecture §11 +7 rows; plan
+  verdict block + milestone re-anchors; numbering gate widened to D1-D80 with
+  negative proof observed (planted D81 -> red, removed -> green); pin re-check
+  fresh (5945f2a == origin tip). Execution gate stays CLOSED until go.
+- honesty footnote: the FIRST gate-proof attempt was invalid (regex held in a
+  shell variable split on its embedded space -> grep got junk args; fake green
+  AND fake red both observed before scrutiny caught it). Re-run with the command
+  typed directly: real green -> planted D81 red -> removed green. PIT-19 class,
+  caught by eyeballing the error lines the broken run emitted.
