@@ -56,3 +56,10 @@
 - **Solution**: fix-forward (this batch + follow-up commit); from now on the canonical pattern is fail-closed: `out=$(grep ...); [ -n "$out" ] && { echo "$out"; exit 1; }` BEFORE any git add/commit in the same script - the gate must be able to abort the chain, not merely speak.
 - **Verification**: re-run canonical C1 (conventions.md copy) after the fix - must print C1 OK; `git log -1` shows the fix-forward commit.
 - **Forbidden**: running a gate whose output nobody (and no `exit`) consumes before mutating git state; paraphrase discipline must apply to decisions.md text above all - it is where user phrases get recorded.
+
+## PIT-7: IDE ambient cmake ≠ gate-routed cmake - hidden floor lie in an embedded helper surface (2026-10-16)
+- **Symptom**: VSCode CMake Tools configure exploded with `Policy "CMP0174" is not known` x many, while every scripted gate (pixi-routed cmake 4.4.4) was green; build landed in repo-root build/ instead of the out/ discipline.
+- **Root cause**: two stacked gaps. (1) PolyOrch's rust helpers call `cmake_policy(SET CMP0174 NEW)` un-guarded at six sites, while CMP0174 only exists since cmake 3.31 - their declared 3.25 embed floor was a lie that NO gate in either repo exercised (suites/CI always ran on newer cmake). (2) ModuKit's own gates pin the tool via pixi, but nothing pinned the IDE's tool - ambient tools drift silently when only one path is gated.
+- **Solution**: guard with `if(POLICY CMP0174)` upstream on dev-modukit (control-proven: identical 74/5/29 on 4.4.4, +8 cases restored on 3.30.7; pushed/merged by maintainer, then a routine pin bump); pin the IDE to the same authority via .vscode/settings.json (cmake.cmakePath = pixi env cmake, buildDirectory = out/build, Ninja).
+- **Verification**: the failing user command `/usr/bin/cmake -S . -B build` (3.30.7) now configures clean; every cmake-family gate stays green on both cmake versions.
+- **Forbidden**: trusting "our gates are green" as proof that the ambient/IDE tool path works - any surface a tool can reach must either be pinned (settings) or floor-guarded (if POLICY); and a helper's declared floor must be exercised by its own suite.

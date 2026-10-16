@@ -237,6 +237,8 @@ grep -c "duplicate-pattern" <file>    # expect 1; >1 = edit inserted duplicates
 **Verification**: after every batch, `cmake -P <file>` / `bash -n` / JSON parse of touched artifacts; diff line-count matches the intended delta.
 **Blocking condition**: second failed edit on the same region attempted without a fresh read.
 
+Also: an edit `replace` consumes the ENTIRE anchored line range - changing a fragment inside a long line means re-emitting the WHOLE line (fragment-only replaces truncated status.md's Phase line twice on 2026-10-16).
+
 ### 19. Run repository gates verbatim from conventions.md, never a remembered variant (2026-09-21)
 
 **Rule**: ad-hoc retyped gate probes (different skip-list, different scope dirs, `-q` predicate slips) reported false FAILs and consumed a debug round each. Copy the canonical command blocks from `.agents/memorys/conventions.md` character-for-character; if a check must be extended, extend the convention, then run it.
