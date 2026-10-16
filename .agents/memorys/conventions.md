@@ -27,7 +27,9 @@ grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 ```
 
-## C2: "Submodule branch discipline: PolyOrch edits happen on its dev-modukit branch and get blessed on main; ModuKit itself works on master"
+## C2: "Submodule branch discipline: PolyOrch edits happen on its dev-modukit branch; ModuKit works on master and pins the dev-modukit tip, kept fresh"
+
+ModuKit milestone work is committed directly on `master` (no feature-branch ritual - corrected 2026-10-15 after the maintainer rejected the original misreading). Changes inside the `PolyOrch/` submodule follow the upstream flow: first pull latest `main`; develop on the dedicated branch `dev-modukit` (never edit in detached HEAD on the pin); run the relevant tests before pushing dev. PIN POLICY (maintainer decision 2026-10-15, superseding the earlier main-blessing-only rule): ModuKit pins the CURRENT TIP of `dev-modukit` and keeps it as fresh as practical - each refresh is a standalone `chore(deps): bump PolyOrch <old>..<new>` gitlink-only commit made by fetching, fast-forwarding the submodule checkout, and staging the gitlink (D67: the gitlink remains the single version authority; no branch= field in .gitmodules, no floating refs - every bump records an exact commit).
 
 ModuKit milestone work is committed directly on `master` (no feature-branch ritual - corrected 2026-10-15 after the maintainer rejected the original misreading). Changes inside the `PolyOrch/` submodule follow the upstream flow: first pull latest `main`; develop on the dedicated branch `dev-modukit` (never edit in detached HEAD on the pin); when a change set is done, merge into `main` and run PolyOrch's test suites ON `main` (switch to main and test - the dev branch is never the blessed state); after the maintainer pushes, ModuKit records the merged commit as a standalone `chore(deps): bump PolyOrch <old>..<new>` gitlink-only commit (D67: the gitlink is the single version authority; no branch= field, no floating).
 
@@ -35,7 +37,7 @@ ModuKit milestone work is committed directly on `master` (no feature-branch ritu
 # Check 1: ModuKit work lands on master only
 git branch --show-current | grep -qx master \
   && echo "C2 master OK" || echo "C2 VIOLATION (ModuKit work outside master)"
-# Check 2: submodule worktree stays clean at the recorded pin (upstream edits happen on PolyOrch's own branches)
+# Check 2: submodule worktree stays clean at the recorded pin (refresh = fetch + ff + standalone bump)
 test -z "$(git -C PolyOrch status --porcelain)" && echo "C2 submodule clean" || echo "C2 VIOLATION (dirty PolyOrch worktree at the pin)"
 ```
 # negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN
