@@ -78,6 +78,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "modukit-runtime"
+version = "0.1.0"
+dependencies = [
+ "modukit-core",
+]
+
+[[package]]
 name = "modukit-transport"
 version = "0.1.0"
 

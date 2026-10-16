@@ -93,6 +93,28 @@ pub fn parse_hello(payload: &[u8]) -> Option<Hello> {
     })
 }
 
+/// Encode a `HELLO` payload — the exact mirror of `parse_hello` (S2-M2:
+/// the runner's one source of truth for the handshake bytes; the frame
+/// format itself is unchanged by this addition). Every string must already
+/// fit the wire's one-byte length cap — the caller validates (the runner
+/// checks `HELLO_STR_MAX` before speaking); debug builds assert it.
+#[must_use]
+pub fn hello_payload(hello: &Hello) -> Vec<u8> {
+    fn pstr(out: &mut Vec<u8>, s: &str) {
+        debug_assert!(
+            s.len() <= u8::MAX as usize,
+            "hello string over the wire cap"
+        );
+        out.push(s.len() as u8);
+        out.extend_from_slice(s.as_bytes());
+    }
+    let mut p = hello.abi.to_le_bytes().to_vec();
+    pstr(&mut p, &hello.id);
+    pstr(&mut p, &hello.version);
+    pstr(&mut p, &hello.name);
+    p
+}
+
 /// Decode an `ACK` payload: exactly one `i32 LE` status (the D27 author
 /// code space rides the same int channel the `dl` stop path uses).
 #[must_use]

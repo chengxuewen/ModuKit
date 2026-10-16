@@ -44,7 +44,7 @@ pub mod lifecycle;
 pub mod logger;
 pub mod manifest;
 mod proc_supervisor;
-mod proc_wire;
+pub mod proc_wire;
 pub mod registry;
 mod registry_types;
 pub mod sha256;

@@ -1,0 +1,14 @@
+[package]
+name = "modukit-runtime"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Shadow-runner binary `modukit-run` for the `exe` placement (S2-M2, modules/01 §2): dlopen the same artifact the dl executor would load, pump the same ABI v1 contract over the inherited control fd"
+publish = false
+
+[[bin]]
+name = "modukit-run"
+path = "src/main.rs"
+
+[dependencies]
+modukit-core = { path = "../modukit-core" }
