@@ -43,6 +43,7 @@ pub mod kernel;
 pub mod lifecycle;
 pub mod logger;
 pub mod manifest;
+mod proc_proxy;
 mod proc_supervisor;
 pub mod proc_wire;
 pub mod registry;

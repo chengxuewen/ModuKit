@@ -15,10 +15,12 @@
 //!  2. self-report tier: manifest id/version accepted by both arms
 //!     (dl: descriptor, exe: strict HELLO cross-check)
 //!  3. service call echo, D69 bytes-only: dl observes the `NativeService`
-//!     round trip through the KERNEL registry; exe the runner round-trips the
-//!     SAME `NativeService` path inside its own process and only then acks
-//!     START — kernel-side cross-process dispatch is S2-M3 by design
-//!     (modules/01 §3 rule 2: the host table never crosses the boundary)
+//!     round trip through the KERNEL registry; exe the kernel-side PROXY
+//!     service (installed from the runner's REGISTER frames, S2-M3a)
+//!     dispatches CALL/RESULT across the boundary through the SAME kernel
+//!     door — byte-equal results and byte-equal unknown-method rejection
+//!     (modules/01 §3 rule 2 stands: the host table never crosses; the wire
+//!     carries message bytes, ids and method names only)
 //!  4. cooperative stop lands RESOLVED, services gone
 //!  5. bad-plugin fixture refused: dl `AbiMismatch(999)`, exe the runner
 //!     refuses at its own dlopen guards and dies before HELLO — the parent
@@ -37,6 +39,7 @@ use std::time::{Duration, Instant};
 use modukit_core::abi::NativeService;
 use modukit_core::clock::{Clock, ClockDomain};
 use modukit_core::error::KernelError;
+use modukit_core::executor::ProxyService;
 use modukit_core::executor::Supervisor;
 use modukit_core::kernel::Kernel;
 use modukit_core::lifecycle::PluginState;
@@ -199,32 +202,48 @@ fn exe_arm(so: &Path, runner: &Path) -> (Vec<String>, Vec<u8>, Vec<String>) {
     sup.kernel()
         .start(&id)
         .expect("START ack 0: the runner round-tripped the echo service");
-
-    // The plugin's service lives behind the runner's own host table; the
-    // kernel registry stays empty until the S2-M3 wire transport dispatches
-    // across the boundary (modules/01 §3 rule 2, executor_proc.rs header).
-    let kernel_services_gone: Vec<String> = plugin_services(sup.kernel())
-        .iter()
-        .map(|s| s.service_id.as_str().to_string())
-        .collect();
-
+    // S2-M3a: the runner announced its plugin's service via REGISTER and
+    // the executor installed a kernel-observable proxy. The host table
+    // never crossed (01 §3 rule 2) — CALL/RESULT ride message bytes only.
+    let svc = plugin_services(sup.kernel());
+    assert_eq!(svc.len(), 1, "the proxy service is kernel-observable");
+    assert_eq!(svc[0].service_id.as_str(), ID, "canonical id (D9)");
+    let proxy = sup
+        .kernel()
+        .registry()
+        .acquire::<ProxyService>()
+        .expect("exe proxy installed through the registry door");
+    assert_eq!(
+        proxy.methods(),
+        ["echo"],
+        "REGISTER carried the method list"
+    );
+    let echo = proxy
+        .invoke("echo", PROBE)
+        .expect("exe echo round trip across the boundary");
+    let bad = proxy
+        .invoke("no-such-method", b"x")
+        .err()
+        .map(|e| e.code().to_string())
+        .unwrap_or_default();
+    if sup.kernel().registry().release(&proxy).is_err() {
+        panic!("proxy release pair");
+    }
     sup.kernel()
         .stop(&id)
-        .expect("STOP acked, graceful teardown");
+        .expect("STOP acked, graceful teardown (proxy unregistered)");
     sup.kernel().uninstall(&id).expect("exe uninstall");
+    assert_eq!(
+        plugin_services(sup.kernel()),
+        Vec::<modukit_core::registry::RegisteredService>::new(),
+        "proxy gone after stop — same service lifecycle as the dl arm"
+    );
     assert_eq!(
         sup.poll(),
         Vec::<String>::new(),
         "the runner exited cooperatively, no supervised crash"
     );
-    // The acked START proves the byte round trip inside the runner; the same
-    // PROBE bytes cross-checked from this side are what the kernel would send
-    // once M3 dispatches — record the echo as verified-by-ack.
-    (
-        lifecycle_walk(sup.kernel()),
-        PROBE.to_vec(),
-        kernel_services_gone,
-    )
+    (lifecycle_walk(sup.kernel()), echo, vec![bad])
 }
 
 #[test]
@@ -238,8 +257,8 @@ fn full_lifecycle_walk_is_identical_under_both_placements() {
 
     assert_eq!(dl_echo, PROBE, "dl: bytes round trip via NativeService");
     assert_eq!(
-        exe_echo, PROBE,
-        "exe: echo verified by the runner's START ack"
+        dl_echo, exe_echo,
+        "F2 closed: byte-equal echo across placements — dl direct, exe via the proxy"
     );
     assert_eq!(
         dl_walk,
@@ -259,9 +278,9 @@ fn full_lifecycle_walk_is_identical_under_both_placements() {
     // freeze is the S2-M5 hearing agenda), so mirror the typed variant, not a
     // code string — same check shape as dlopen_kernel.rs.
     assert_eq!(dl_notes, vec!["CONTRACT_VIOLATION".to_string()]);
-    assert!(
-        exe_notes.is_empty(),
-        "exe kernel registry stays empty pre-M3, got {exe_notes:?}"
+    assert_eq!(
+        dl_notes, exe_notes,
+        "unknown-method rejection byte-equal too (typed passthrough, as the dl arm)"
     );
 }
 
@@ -376,9 +395,9 @@ fn cooperative_stop_unregisters_services_under_both_placements() {
         "cooperative stop lands RESOLVED (03 §2)"
     );
 
-    // exe arm: the kernel-side mirror of the same invariant — registry
-    // stays empty across the whole run (M3 owns cross-process registration),
-    // and stop lands RESOLVED with a cooperatively reaped child.
+    // exe arm (S2-M3a): the proxy mirrors the same invariant — present
+    // while ACTIVE (installed from the runner's REGISTER frames), gone
+    // after a cooperative stop, which lands RESOLVED with a reaped child.
     let sup = Supervisor::with_clock(Clock::new(ClockDomain::Step));
     let m = Manifest::from_toml_str(&exe_manifest_toml(&so, &runner)).expect("parses");
     let id = m.id.clone();
@@ -386,15 +405,17 @@ fn cooperative_stop_unregisters_services_under_both_placements() {
     sup.kernel().resolve(&id).expect("resolve");
     sup.kernel()
         .start(&id)
-        .expect("start (echo self-checked in-runner)");
-    assert!(plugin_services(sup.kernel()).is_empty());
-    sup.kernel().stop(&id).expect("stop acked");
+        .expect("start: the runner REGISTERed its service before the ack");
+    assert_eq!(plugin_services(sup.kernel()).len(), 1, "proxy installed");
+    sup.kernel()
+        .stop(&id)
+        .expect("stop acked, proxy unregistered");
     assert_eq!(
         sup.kernel().state(&id).expect("state"),
         PluginState::Resolved,
         "exe cooperative stop lands RESOLVED too"
     );
-    assert!(plugin_services(sup.kernel()).is_empty());
+    assert!(plugin_services(sup.kernel()).is_empty(), "proxy gone");
     assert_eq!(sup.poll(), Vec::<String>::new());
 }
 

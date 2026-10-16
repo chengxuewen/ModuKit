@@ -11,7 +11,7 @@
 use std::ffi::{CString, c_char, c_int, c_uint};
 use std::fs::File;
 use std::io::{Read, Seek, SeekFrom, Write};
-use std::os::fd::FromRawFd;
+use std::os::fd::{AsRawFd, FromRawFd, RawFd};
 
 use crate::error::TransportError;
 use crate::seam::Transport;
@@ -69,6 +69,20 @@ impl MemfdBlob {
     #[must_use]
     pub fn name(&self) -> &str {
         &self.name
+    }
+
+    /// The underlying descriptor while the blob is open — the fd the
+    /// `fdpass` lane rides (modules/07 §3: the fd is handed over exactly
+    /// once and the SENDER keeps its own copy alive).
+    ///
+    /// # Errors
+    ///
+    /// `TransportError::Closed` after `close()` dropped the file.
+    pub fn raw_fd(&self) -> Result<RawFd, TransportError> {
+        self.file
+            .as_ref()
+            .map(|f| f.as_raw_fd())
+            .ok_or(TransportError::Closed)
     }
 
     fn file_mut(&mut self) -> Result<&mut File, TransportError> {

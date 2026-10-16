@@ -20,8 +20,9 @@ use crate::manifest::{Manifest, PlacementKind};
 // S2-M1: the `exe` branch of the seam, re-exported so this module stays
 // the one front door for executors (lib.rs surface unchanged by module).
 pub use crate::executor_proc::{
-    HANDSHAKE_TIMEOUT, ProcessExecutor, START_ACK_TIMEOUT, STOP_KILL_GRACE,
+    CALL_RESULT_TIMEOUT, HANDSHAKE_TIMEOUT, ProcessExecutor, START_ACK_TIMEOUT, STOP_KILL_GRACE,
 };
+pub use crate::proc_proxy::ProxyService;
 pub use crate::proc_supervisor::{Revive, Supervisor};
 
 /// Verbs every executor answers for one artifact (D5 surgery point 1).

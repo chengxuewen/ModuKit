@@ -130,6 +130,13 @@ pub enum KernelError {
     /// (crash-watch reap or kill-after-timeout teardown; 01 §4: the host
     /// survives and the plugin lands on the FAILED edge). S2-M1.
     ProcessCrashed { id: String, exit: String },
+    /// The control envelope carries a foreign wire version (S2-M3 frame
+    /// versioning): peer and host disagree on the frame format itself. The
+    /// closest existing family was HandshakeIncomplete ("descriptor field ...
+    /// is null" — a SHAPE complaint, not a version one), so this one variant
+    /// is added; it joins the ABI_MISMATCH code family with the rest of the
+    /// disagreement arms.
+    WireVersionMismatch { expected: u8, found: u8 },
     /// The child's handshake self-report disagrees with the deploy tier
     /// (D7 strict cross-check, `exe` flavor: silence or a lie is refusal —
     /// the `bundle.rs` liar family, never a panic). S2-M1.
@@ -157,6 +164,7 @@ impl KernelError {
             | KernelError::AbiMismatch { .. }
             | KernelError::DescriptorTooSmall { .. }
             | KernelError::IdentityMismatch { .. }
+            | KernelError::WireVersionMismatch { .. }
             | KernelError::HandshakeIncomplete { .. } => "ABI_MISMATCH",
             KernelError::DependencyMissing { .. } => "DEPENDENCY_MISSING",
             // A supervised crash is transient in the D27 sense: the policy
@@ -232,6 +240,10 @@ impl fmt::Display for KernelError {
             KernelError::ProcessCrashed { id, exit } => {
                 write!(f, "supervised plugin {id} died outside stop ({exit})")
             }
+            KernelError::WireVersionMismatch { expected, found } => write!(
+                f,
+                "frame wire version mismatch: host speaks v{expected}, peer framed v{found}"
+            ),
             KernelError::IdentityMismatch {
                 what,
                 expected,

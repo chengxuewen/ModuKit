@@ -61,8 +61,13 @@ impl Supervisor {
     #[must_use]
     pub fn with_clock(clock: Clock) -> Self {
         let (executor, live) = ProcessExecutor::paired();
+        let kernel = Kernel::with_clock_and_executor(clock, Box::new(executor));
+        // S2-M3a: the exe executor installs kernel-side proxies for the
+        // child's REGISTER announcements through the kernel's own registry
+        // door — one shared storage, wired once here.
+        live.lock().registry = Some(kernel.registry().shared());
         Self {
-            kernel: Kernel::with_clock_and_executor(clock, Box::new(executor)),
+            kernel,
             live,
             watch: Mutex::new(HashMap::new()),
         }

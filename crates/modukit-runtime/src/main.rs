@@ -22,7 +22,7 @@
 //! stderr note; a rejected artifact dies BEFORE it can speak a HELLO, so the
 //! parent observes the typed crash family, never a lie. Exit codes: 2 usage,
 //! 3 artifact, 4 dlopen guards, 5 self-report, 6 hello write, 7..9 embedded-
-//! kernel setup, 11 control read.
+//! kernel setup, 11 control read, 12 foreign frame version, 13 malformed CALL.
 
 use std::env;
 use std::io;
@@ -38,7 +38,9 @@ use modukit_core::kernel::Kernel;
 use modukit_core::lifecycle::RestartPolicy;
 use modukit_core::manifest::{Entry, Manifest, PlacementKind};
 use modukit_core::proc_wire::{
-    self, MSG_ACK, MSG_HELLO, MSG_START, MSG_STOP, hello_payload, read_frame, write_frame,
+    self, MSG_ACK, MSG_CALL, MSG_HELLO, MSG_REGISTER, MSG_RESULT, MSG_START, MSG_STOP,
+    ServiceRegistration, hello_payload, parse_call, read_frame, register_payload, result_payload,
+    write_frame,
 };
 
 /// One handshake string must fit the wire's one-byte length prefix
@@ -46,10 +48,12 @@ use modukit_core::proc_wire::{
 const HELLO_STR_MAX: usize = u8::MAX as usize;
 
 /// The `NativeService` probe the runner round-trips inside its own process
-/// after `start` (D69: bytes only). shortcut: the M2 envelope carries no CALL
-/// frame, so the runner verifies the template fixture's contract (modules/04
-/// §4, example-plugin) process-locally and gates the START ack on it; S2-M3
-/// cross-process dispatch replaces this self-check as the observable path.
+/// after `start` (D69: bytes only) — kept as an INTERNAL guard: a plugin
+/// whose template contract broke never acks START. The kernel-observable
+/// path is no longer gated on this: S2-M3a announces the verified service
+/// via REGISTER and dispatches CALL/RESULT across the boundary (F2
+/// closed; friction log item 5 dissolved — the CALL frame carries the
+/// caller's method name).
 const PROBE_METHOD: &str = "echo";
 const PROBE_BYTES: &[u8] = b"shadow-runner-selfcheck";
 
@@ -135,18 +139,21 @@ fn self_report(artifact: &str) -> (String, String, String) {
     (id, version, name)
 }
 
-/// START handling: run the embedded kernel's start, then round-trip the
+/// START handling: run the embedded kernel's start, round-trip the
 /// plugin's own service through the SAME `NativeService` path the dl
-/// placement uses (D69 bytes only). Returns the ACK status. A plugin that
-/// registers no native service is not failed by the runner — there is
-/// nothing here to verify; the kernel-side claim stays honest either way.
-fn handle_start(kernel: &Kernel, id: &PluginId) -> i32 {
+/// placement uses (D69 bytes only, now the internal guard), then
+/// announce the verified service with a REGISTER frame BEFORE the ack —
+/// the parent installs a kernel-side proxy from it (S2-M3a). Returns the
+/// ACK status. A plugin that registers no native service is not failed
+/// by the runner — there is nothing here to verify or announce.
+fn handle_start(kernel: &Kernel, id: &PluginId, control: &mut UnixStream) -> i32 {
     if let Err(err) = kernel.start(id) {
         return verb_status(err);
     }
     let Some(svc) = kernel.registry().acquire::<NativeService>() else {
         return 0;
     };
+    let announced = svc.service_id().as_str().to_string();
     let echo = svc.invoke(PROBE_METHOD, PROBE_BYTES);
     let unknown_rejected = svc
         .invoke("no-such-method", b"x")
@@ -156,7 +163,20 @@ fn handle_start(kernel: &Kernel, id: &PluginId) -> i32 {
         eprintln!("modukit-run: release pair failed");
     }
     match echo {
-        Ok(bytes) if bytes == PROBE_BYTES && unknown_rejected => 0,
+        Ok(bytes) if bytes == PROBE_BYTES && unknown_rejected => {
+            let reg = ServiceRegistration {
+                service_id: announced,
+                // shortcut: ABI v1 has no method introspection — advertise
+                // exactly what the self-check round-tripped (the template's
+                // echo); generated contracts own the list (04 §1).
+                methods: vec![PROBE_METHOD.to_string()],
+            };
+            if write_frame(control, MSG_REGISTER, &register_payload(&reg)).is_err() {
+                eprintln!("modukit-run: control closed before the register was read");
+                return -1;
+            }
+            0
+        }
         Ok(_) => {
             eprintln!("modukit-run: service self-check mismatch");
             -1
@@ -217,15 +237,24 @@ fn run(artifact: &str, fd_num: i32) {
     }
 
     loop {
-        let (kind, _payload) = match read_frame(&mut control) {
+        let (ver, kind, _payload) = match read_frame(&mut control) {
             Ok(frame) => frame,
             // Parent hung up: leave cleanly (the supervised run is over).
             Err(err) if err.kind() == io::ErrorKind::UnexpectedEof => return,
             Err(err) => die(11, &format!("control read: {err}")),
         };
+        // A foreign envelope version is a protocol disagreement: refuse it
+        // typed (exit 12) and die here — never reinterpret a v2 frame as v1
+        // (S2-M3 frame versioning, mirrors the parent's read_hello check).
+        if ver != proc_wire::WIRE_VERSION {
+            die(
+                12,
+                &format!("control frame wire version {ver}, runner frames v1"),
+            );
+        }
         match kind {
             MSG_START => {
-                let status = handle_start(&kernel, &pid);
+                let status = handle_start(&kernel, &pid, &mut control);
                 if ack(&mut control, status).is_err() {
                     return;
                 }
@@ -239,8 +268,47 @@ fn run(artifact: &str, fd_num: i32) {
                 let _ = ack(&mut control, status);
                 return; // teardown complete: exit cooperatively (01 §3 rule 5)
             }
+            MSG_CALL => {
+                // Kernel-side proxy dispatch (S2-M3a): answer exactly one
+                // CALL, echoing the seq back (04 §2 request/response). The
+                // plugin's own code is the method authority — the runner
+                // never pre-rejects, so the rejection is byte-equal with the
+                // dl arm; -1 is reserved for "no native service here".
+                let Some(call) = parse_call(&_payload) else {
+                    die(13, "malformed CALL frame");
+                };
+                let (status, output) = match kernel.registry().acquire::<NativeService>() {
+                    Some(svc) => {
+                        let outcome = svc.invoke(&call.method, &call.input);
+                        if kernel.registry().release(&svc).is_err() {
+                            eprintln!("modukit-run: release pair failed");
+                        }
+                        match outcome {
+                            Ok(bytes) => (0i32, bytes),
+                            Err(KernelError::ServiceCallFailed { code }) => (code, Vec::new()),
+                            Err(err) => {
+                                eprintln!("modukit-run: call {err}");
+                                (-1, Vec::new())
+                            }
+                        }
+                    }
+                    None => {
+                        eprintln!("modukit-run: CALL but no native service registered");
+                        (-1, Vec::new())
+                    }
+                };
+                if write_frame(
+                    &mut control,
+                    MSG_RESULT,
+                    &result_payload(call.seq, status, &output),
+                )
+                .is_err()
+                {
+                    return;
+                }
+            }
             // Forward-compatible silence: unknown frame types are ignored
-            // until S2-M3 defines them (no speculative handling here).
+            // (no speculative handling before a speaker exists for them).
             _ => {}
         }
     }

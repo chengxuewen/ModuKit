@@ -30,8 +30,10 @@ const CRASH_POLL_DEADLINE: Duration = Duration::from_secs(5);
 
 /// The in-test stand-in: one binary, behavior chosen by its file stem.
 /// Speaks the same wire envelope as `proc_wire` (u32-LE payload length,
-/// one type byte, payload) on the inherited control fd (`--fd=N` per
-/// modules/01 §2; the M1 host delivers it as fd 0 via stdio inheritance).
+/// one wire-version byte, one type byte, payload) on the inherited control
+/// fd (`--fd=N` per modules/01 §2; the host delivers it as fd 0 via stdio
+/// inheritance). S2-M3 frame versioning: `VER` rides every frame; the
+/// `ver-liar` stem frames its HELLO with a foreign version.
 const STANDIN_SRC: &str = r#"
 use std::io::{Read, Write};
 use std::os::fd::FromRawFd;
@@ -41,9 +43,15 @@ const HELLO: u8 = 1;
 const START: u8 = 2;
 const STOP: u8 = 3;
 const ACK: u8 = 4;
+const VER: u8 = 1;
 
 fn frame(kind: u8, payload: &[u8]) -> Vec<u8> {
+    frame_ver(VER, kind, payload)
+}
+
+fn frame_ver(ver: u8, kind: u8, payload: &[u8]) -> Vec<u8> {
     let mut out = (payload.len() as u32).to_le_bytes().to_vec();
+    out.push(ver);
     out.push(kind);
     out.extend_from_slice(payload);
     out
@@ -93,7 +101,10 @@ fn main() {
         id.push_str(".lie");
     }
     let hello = hello_payload(abi, &id, "0.1.0", "stand-in");
-    if sock.write_all(&frame(HELLO, &hello)).is_err() {
+    // ver-liar: a foreign envelope version rides the HELLO frame itself —
+    // the host must refuse the frame FORMAT, not the self-report (S2-M3).
+    let hello_ver = if stem.contains("ver-liar") { 9 } else { VER };
+    if sock.write_all(&frame_ver(hello_ver, HELLO, &hello)).is_err() {
         std::process::exit(1);
     }
     let _ = sock.flush();
@@ -103,13 +114,13 @@ fn main() {
         std::process::exit(0);
     }
 
-    let mut buf = [0u8; 5];
+    let mut buf = [0u8; 6];
     loop {
         if !read_all(&mut sock, &mut buf) {
             std::process::exit(0); // parent hung up: leave cleanly
         }
         let len = u32::from_le_bytes([buf[0], buf[1], buf[2], buf[3]]) as usize;
-        let kind = buf[4];
+        let kind = buf[5]; // buf[4] is the envelope wire version
         let mut payload = vec![0u8; len];
         if len > 0 && !read_all(&mut sock, &mut payload) {
             std::process::exit(0);
@@ -171,7 +182,7 @@ fn build_standins(tag: &str) -> Option<PathBuf> {
         }
     }
     let base = dir.join("standin-bin");
-    for stem in ["good", "abi-liar", "id-liar", "crasher", "hung"] {
+    for stem in ["good", "abi-liar", "id-liar", "ver-liar", "crasher", "hung"] {
         let to = dir.join(format!("standin-{stem}"));
         std::fs::copy(&base, &to).expect("copy standin");
         std::fs::set_permissions(&to, std::os::unix::fs::PermissionsExt::from_mode(0o755))
@@ -557,6 +568,82 @@ fn hung_peer_is_killed_after_named_timeout_constant() {
     assert!(
         waited <= STOP_KILL_GRACE * 3,
         "teardown waited {waited:?}; the kill timeout constant is {STOP_KILL_GRACE:?}"
+    );
+    assert_no_zombie_children();
+}
+
+/// S2-M3 frame versioning, codec doorways: the writer stamps the version
+/// byte, the reader reports a foreign version as data for the caller to
+/// type (parse, don't validate — the kernel doors answer with
+/// `KernelError::WireVersionMismatch`, the codec itself stays io-level).
+#[test]
+fn frame_codec_stamps_the_wire_version_and_surfaces_a_foreign_one() {
+    use modukit_core::proc_wire;
+    use std::os::unix::net::UnixStream;
+    let (mut a, mut b) = UnixStream::pair().expect("socketpair");
+
+    // One honest round trip: the raw header is len(4) | ver=1 | kind.
+    proc_wire::write_frame(&mut a, proc_wire::MSG_ACK, b"xy").expect("write");
+    let mut raw = [0u8; 8];
+    std::io::Read::read_exact(&mut b, &mut raw).expect("raw header+payload");
+    assert_eq!(
+        &raw,
+        &[
+            2,
+            0,
+            0,
+            0,
+            proc_wire::WIRE_VERSION,
+            proc_wire::MSG_ACK,
+            b'x',
+            b'y'
+        ],
+        "envelope = len | ver | type | payload"
+    );
+
+    // A hand-framed foreign ver arrives intact: read_frame reports it,
+    // it does not reinterpret or silently drop (the caller types it).
+    let foreign = [4u8, 0, 0, 0, 9, 1, 0, 0, 0, 0]; // len 4, ver 9, kind 1
+    std::io::Write::write_all(&mut b, &foreign).expect("write foreign");
+    let (ver, kind, payload) = proc_wire::read_frame(&mut a).expect("read foreign");
+    assert_eq!((ver, kind, payload.as_slice()), (9, 1, &[0u8, 0, 0, 0][..]));
+}
+
+/// The parent refuses a foreign envelope version on the HELLO with the
+/// typed protocol error — never a decode, never a supervised run.
+#[test]
+fn handshake_abort_on_foreign_wire_version_is_typed_version_mismatch() {
+    let Some(dir) = build_standins("ver-lie") else {
+        return;
+    };
+    let sup = step_supervisor();
+    let manifest = parse_manifest(&dir.join("standin-ver-liar"), "");
+    let id = manifest.id.clone();
+    sup.kernel().install(manifest).expect("install");
+
+    let err = sup
+        .kernel()
+        .resolve(&id)
+        .expect_err("a v9 frame must never be decoded as v1");
+    assert!(
+        matches!(
+            err,
+            KernelError::WireVersionMismatch {
+                expected: 1,
+                found: 9
+            }
+        ),
+        "{err}"
+    );
+    assert_eq!(
+        sup.kernel().state(&id).expect("still tracked"),
+        PluginState::Failed
+    );
+    assert_eq!(sup.kernel().counters().load_fail(), 1);
+    assert_eq!(
+        sup.poll(),
+        Vec::<String>::new(),
+        "the mismatched child was reaped at load, no phantom"
     );
     assert_no_zombie_children();
 }

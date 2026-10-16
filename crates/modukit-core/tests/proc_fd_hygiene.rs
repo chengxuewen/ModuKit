@@ -21,8 +21,11 @@ use std::io::{Read, Write};
 use std::os::fd::FromRawFd;
 use std::os::unix::net::UnixStream;
 
+const VER: u8 = 1; // S2-M3: the envelope wire version rides every frame
+
 fn frame(kind: u8, payload: &[u8]) -> Vec<u8> {
     let mut out = (payload.len() as u32).to_le_bytes().to_vec();
+    out.push(VER);
     out.push(kind);
     out.extend_from_slice(payload);
     out
@@ -48,7 +51,7 @@ fn main() {
     }
     let _ = sock.write_all(&frame(1, &p));
     let _ = sock.flush();
-    let mut buf = [0u8; 5];
+    let mut buf = [0u8; 6];
     loop {
         let mut done = 0;
         while done < buf.len() {
@@ -62,7 +65,7 @@ fn main() {
         if len > 0 {
             let _ = sock.read_exact(&mut junk);
         }
-        match buf[4] {
+        match buf[5] { // buf[4] is the envelope wire version
             2 => {
                 let _ = sock.write_all(&frame(4, &0i32.to_le_bytes()));
                 let _ = sock.flush();

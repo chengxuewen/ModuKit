@@ -9,8 +9,10 @@
 //! runner argv shape of modules/01 §2 is already honored: if the manifest
 //! names a `runner`, it becomes the executable and `entry.artifact` rides as
 //! the positional; otherwise the artifact itself is the executable. The
-//! cross-process host-table dispatch is S2-M3 wire transport, so `start`
-//! carries no authority through the process boundary (01 §3 rule 2).
+//! cross-process host-table dispatch is S2-M3a wire transport: the child's
+//! REGISTER frames install kernel-side proxies (`proc_proxy`), and calls ride
+//! as CALL/RESULT message bytes — `start` still carries no authority through
+//! the process boundary (01 §3 rule 2).
 
 use std::collections::HashMap;
 use std::io;
@@ -24,23 +26,34 @@ use std::time::{Duration, Instant};
 use crate::abi::{ABI_VERSION, HostAbiV1};
 use crate::error::KernelError;
 use crate::executor::{Executor, LoadedPlugin};
+use crate::identity::ServiceId;
 use crate::manifest::{Manifest, PlacementKind};
+use crate::proc_proxy::ProxyService;
 use crate::proc_wire::MSG_HELLO;
-use crate::proc_wire::{self, MSG_ACK, MSG_START, MSG_STOP};
+use crate::proc_wire::{self, MSG_ACK, MSG_REGISTER, MSG_START, MSG_STOP};
+use crate::registry::{Properties, PropertyValue, RegistrationId, Registry, RegistryError};
 
 /// The fd number the child's control end gets in M1: std cannot hand an
-/// arbitrary fd across exec (that is the documented-unsafe libc-shim /
-/// SCM_RIGHTS work of S2-M3), so the child end of the socketpair is
-/// injected as stdin = fd 0 — the stdio form of the modules/01 §1 "wire
-/// over socketpair/stdio" row. The `--fd=N` argv convention is already
-/// the runner's; M2/M3 keep the convention, not the number.
+/// arbitrary fd across exec (that is the documented-unsafe libc-shim work of
+/// S2-M3), so the child end of the socketpair is injected as stdin = fd 0 —
+/// the stdio form of the modules/01 §1 "wire over socketpair/stdio" row.
+/// The `--fd=N` argv convention is already the runner's; M2/M3 keep the
+/// convention, not the number. E2 disposition: the control channel STAYS
+/// fd-0/stdio (01 §1 shape) — SCM_RIGHTS passes BUFFER fds riding the
+/// channel, it never renumbers this control fd.
 const CHILD_CONTROL_FD: u32 = 0;
 
 /// Read bound for the HELLO handshake (a peer that never speaks is a
 /// crash, not an infinite wait).
 pub const HANDSHAKE_TIMEOUT: Duration = Duration::from_secs(5);
-/// Read bound for the START ack.
+/// Read bound for the START ack and the REGISTER-before-ack exchange.
 pub const START_ACK_TIMEOUT: Duration = Duration::from_secs(5);
+/// Read bound for one proxied service CALL's RESULT (S2-M3a): the child
+/// runs plugin code synchronously, so the budget matches the handshake/
+/// START family — a peer slower than that is hung, not busy, and is
+/// killed on the timeout edge (the `dl` arm cannot time out at all; this
+/// is the honest cross-process cost of 01 §3 rule 5 teardown).
+pub const CALL_RESULT_TIMEOUT: Duration = Duration::from_secs(5);
 /// Grace between the STOP message and SIGKILL (modules/01 §3 rule 5: `exe`
 /// teardown is `kill`), and between a clean ack and the reap.
 pub const STOP_KILL_GRACE: Duration = Duration::from_secs(1);
@@ -72,6 +85,11 @@ pub(crate) struct LiveProc {
 pub(crate) struct Shared {
     pub(crate) live: HashMap<String, LiveProc>,
     next_gen: u64,
+    /// The kernel's registry door (S2-M3a): set once at Supervisor boot;
+    /// proxies for REGISTERed services install through it. A standalone
+    /// `ProcessExecutor::new()` has no door — a child that REGISTERs there
+    /// is refused at start with a typed crash (no silent half-run).
+    pub(crate) registry: Option<Registry>,
 }
 
 /// The live-children table shared by `ProcessExecutor`, its handles and the
@@ -85,7 +103,7 @@ impl Control {
     }
 }
 
-fn is_timeout(err: &io::Error) -> bool {
+pub(crate) fn is_timeout(err: &io::Error) -> bool {
     matches!(
         err.kind(),
         io::ErrorKind::TimedOut | io::ErrorKind::WouldBlock
@@ -93,7 +111,7 @@ fn is_timeout(err: &io::Error) -> bool {
 }
 
 /// Crash observation carrying the reaped child's honest exit description.
-fn crashed(id: &str, exit: impl Into<String>) -> KernelError {
+pub(crate) fn crashed(id: &str, exit: impl Into<String>) -> KernelError {
     KernelError::ProcessCrashed {
         id: id.to_string(),
         exit: exit.into(),
@@ -108,7 +126,7 @@ fn kill_wait_child(child: &mut Child) {
 }
 
 /// Kill + reap a table entry unless the crash-watch already reaped it.
-fn kill_and_reap(p: &mut LiveProc) {
+pub(crate) fn kill_and_reap(p: &mut LiveProc) {
     if p.status.is_some() {
         return;
     }
@@ -279,6 +297,7 @@ impl Executor for ProcessExecutor {
             self_version: hello.version,
             run_gen,
             live: self.live.clone(),
+            proxy_rids: Vec::new(),
         };
         Ok(Box::new(handle))
     }
@@ -290,7 +309,7 @@ fn read_hello(parent: &mut UnixStream, id: &str) -> Result<proc_wire::Hello, Ker
     parent
         .set_read_timeout(Some(HANDSHAKE_TIMEOUT))
         .map_err(|e| crashed(id, format!("set timeout: {e}")))?;
-    let (kind, payload) = match proc_wire::read_frame(parent) {
+    let (ver, kind, payload) = match proc_wire::read_frame(parent) {
         Ok(frame) => frame,
         Err(err) if is_timeout(&err) => {
             return Err(KernelError::HandshakeIncomplete {
@@ -301,6 +320,14 @@ fn read_hello(parent: &mut UnixStream, id: &str) -> Result<proc_wire::Hello, Ker
             return Err(crashed(id, format!("control closed before hello: {err}")));
         }
     };
+    // A foreign envelope version is a protocol disagreement, checked before
+    // anything is decoded from the payload (S2-M3 frame versioning).
+    if ver != proc_wire::WIRE_VERSION {
+        return Err(KernelError::WireVersionMismatch {
+            expected: proc_wire::WIRE_VERSION,
+            found: ver,
+        });
+    }
     if kind != MSG_HELLO {
         return Err(KernelError::HandshakeIncomplete {
             what: "hello (wrong frame type)",
@@ -321,6 +348,9 @@ struct ProcPlugin {
     self_version: String,
     run_gen: u64,
     live: Control,
+    /// Registration ids of the kernel-side proxies installed from the
+    /// child's REGISTER frames (S2-M3a) — torn down with the run.
+    proxy_rids: Vec<RegistrationId>,
 }
 
 impl LoadedPlugin for ProcPlugin {
@@ -336,10 +366,14 @@ impl LoadedPlugin for ProcPlugin {
     fn start(&mut self, host: *const HostAbiV1) -> Result<(), KernelError> {
         // The host table is the in-process `dl` shape and deliberately does
         // NOT cross the process boundary (01 §3 rule 2: nothing ambient is
-        // inherited). Cross-process service dispatch rides the wire
-        // transport of S2-M3 — no speculative machinery here.
+        // inherited). S2-M3a: the child's REGISTER frames install kernel-side
+        // PROXIES; calls ride as CALL/RESULT message bytes (D69, 04 §2).
         let _ = host;
-        let mut shared = self.live.lock();
+        // Clone the table handle before locking: the proxy installs below
+        // need `&mut self` while the guard is alive (a guard would borrow
+        // `self.live` for its whole region).
+        let live = self.live.clone();
+        let mut shared = live.lock();
         let p = self.entry(&mut shared)?;
         let control_io = |e: io::Error| crashed(&self.id, format!("control io: {e}"));
         p.control
@@ -358,35 +392,66 @@ impl LoadedPlugin for ProcPlugin {
             kill_and_reap(p);
             control_io(e)
         })?;
-        let status = match proc_wire::read_frame(
-            p.control
-                .as_mut()
-                .ok_or_else(|| crashed(&self.id, "control closed"))?,
-        ) {
-            Ok((MSG_ACK, payload)) => proc_wire::parse_ack(&payload).unwrap_or(i32::MIN),
-            Ok(_) => {
-                kill_and_reap(p);
-                return Err(crashed(&self.id, "start reply: wrong frame type"));
+        // S2-M3a: the child answers with zero or more REGISTER frames and
+        // then the START ack. Each read is bounded by START_ACK_TIMEOUT
+        // (a REGISTER-streaming child is throttled by FRAME_MAX per frame).
+        // shortcut: per-frame bound, no total exchange budget yet — the
+        // M3b host loop owns the pump that can bound the whole exchange.
+        let status;
+        let mut registrations = Vec::new();
+        loop {
+            match proc_wire::read_frame(
+                p.control
+                    .as_mut()
+                    .ok_or_else(|| crashed(&self.id, "control closed"))?,
+            ) {
+                Ok((proc_wire::WIRE_VERSION, MSG_ACK, payload)) => {
+                    status = proc_wire::parse_ack(&payload).unwrap_or(i32::MIN);
+                    break;
+                }
+                Ok((proc_wire::WIRE_VERSION, MSG_REGISTER, payload)) => {
+                    let Some(reg) = proc_wire::parse_register(&payload) else {
+                        kill_and_reap(p);
+                        return Err(crashed(&self.id, "register: malformed payload"));
+                    };
+                    registrations.push(reg);
+                }
+                Ok((proc_wire::WIRE_VERSION, _, _)) => {
+                    kill_and_reap(p);
+                    return Err(crashed(&self.id, "start reply: wrong frame type"));
+                }
+                Ok((found, _, _)) => {
+                    kill_and_reap(p);
+                    return Err(KernelError::WireVersionMismatch {
+                        expected: proc_wire::WIRE_VERSION,
+                        found,
+                    });
+                }
+                Err(err) if is_timeout(&err) => {
+                    kill_and_reap(p);
+                    return Err(crashed(&self.id, "start ack timeout, killed"));
+                }
+                Err(err) => {
+                    kill_and_reap(p);
+                    return Err(crashed(&self.id, format!("start read: {err}")));
+                }
             }
-            Err(err) if is_timeout(&err) => {
-                kill_and_reap(p);
-                return Err(crashed(&self.id, "start ack timeout, killed"));
-            }
-            Err(err) => {
-                kill_and_reap(p);
-                return Err(crashed(&self.id, format!("start read: {err}")));
-            }
-        };
+        }
         if status != 0 {
             // The child refused the start but is alive and cooperative —
-            // same typed channel as the `dl` non-zero start (03 §2).
+            // same typed channel as the `dl` non-zero start (03 §2). Any
+            // announcements die with the refused start: nothing installs.
             return Err(KernelError::PluginStartFailed { status });
+        }
+        if !registrations.is_empty() {
+            self.install_proxies(&mut shared, registrations)?;
         }
         Ok(())
     }
 
     fn stop(&mut self) -> Result<(), KernelError> {
-        let mut shared = self.live.lock();
+        let live = self.live.clone();
+        let mut shared = live.lock();
         let p = self.entry(&mut shared)?;
         let control_io = |e: io::Error| crashed(&self.id, format!("control io: {e}"));
         p.control
@@ -407,23 +472,31 @@ impl LoadedPlugin for ProcPlugin {
             kill_and_reap(p);
             control_io(e)
         })?;
-        match proc_wire::read_frame(
+        let outcome = match proc_wire::read_frame(
             p.control
                 .as_mut()
                 .ok_or_else(|| crashed(&self.id, "control closed"))?,
         ) {
-            Ok((MSG_ACK, payload)) => {
+            Ok((proc_wire::WIRE_VERSION, MSG_ACK, payload)) => {
                 let status = proc_wire::parse_ack(&payload).unwrap_or(i32::MIN);
                 reap_with_grace(p, STOP_KILL_GRACE);
                 if status != 0 {
                     // Cooperative-but-failed stop: same typed channel as dl.
-                    return Err(KernelError::PluginStartFailed { status });
+                    Err(KernelError::PluginStartFailed { status })
+                } else {
+                    Ok(())
                 }
-                Ok(())
             }
-            Ok(_) => {
+            Ok((proc_wire::WIRE_VERSION, _, _)) => {
                 kill_and_reap(p);
                 Err(crashed(&self.id, "stop reply: wrong frame type"))
+            }
+            Ok((found, _, _)) => {
+                kill_and_reap(p);
+                Err(KernelError::WireVersionMismatch {
+                    expected: proc_wire::WIRE_VERSION,
+                    found,
+                })
             }
             Err(err) if is_timeout(&err) => {
                 kill_and_reap(p);
@@ -433,7 +506,12 @@ impl LoadedPlugin for ProcPlugin {
                 kill_and_reap(p);
                 Err(crashed(&self.id, format!("stop read: {err}")))
             }
-        }
+        };
+        // S2-M3a: the proxied services leave the kernel registry with the
+        // run — whatever the ack outcome (the crash arms are also covered
+        // by Drop; dl bookkeeping parity, 03 §2 "services gone").
+        self.drop_proxies(&mut shared);
+        outcome
     }
 }
 
@@ -443,18 +521,84 @@ impl ProcPlugin {
     /// bounded and observable, never a second reap or socket ping-pong).
     /// A handle whose generation was superseded never touches the table.
     fn entry<'s>(&self, shared: &'s mut Shared) -> Result<&'s mut LiveProc, KernelError> {
-        let p = shared
-            .live
-            .get_mut(&self.id)
-            .ok_or_else(|| crashed(&self.id, "already gone"))?;
-        if p.run_gen != self.run_gen {
-            return Err(crashed(&self.id, "superseded generation"));
-        }
-        if let Some(status) = &p.status {
-            return Err(crashed(&self.id, status.to_string()));
-        }
-        Ok(p)
+        live_entry(shared, &self.id, self.run_gen)
     }
+
+    /// Install one kernel-side proxy per REGISTER frame through the SAME
+    /// registry door the dl trampoline uses (`Registry::register`, D69:
+    /// message bytes in and out, no pointer crosses). On any refusal the
+    /// partial install is rolled back — no half-registered service.
+    fn install_proxies(
+        &mut self,
+        shared: &mut Shared,
+        registrations: Vec<proc_wire::ServiceRegistration>,
+    ) -> Result<(), KernelError> {
+        let Some(registry) = shared.registry.clone() else {
+            if let Ok(p) = live_entry(shared, &self.id, self.run_gen) {
+                kill_and_reap(p);
+            }
+            return Err(crashed(
+                &self.id,
+                "service REGISTER with no kernel registry door (boot via Supervisor)",
+            ));
+        };
+        for reg in registrations {
+            if reg.service_id.is_empty() {
+                self.drop_proxies(shared);
+                return Err(KernelError::Registry(RegistryError::MissingServiceId));
+            }
+            let mut props = Properties::new();
+            props.insert("service.id", PropertyValue::Str(reg.service_id.clone()));
+            let proxy = Arc::new(ProxyService::new(
+                ServiceId::new(reg.service_id.clone()),
+                reg.methods,
+                self.id.clone(),
+                self.run_gen,
+                self.live.clone(),
+            ));
+            match registry.register(proxy, props) {
+                Ok(rid) => self.proxy_rids.push(rid),
+                Err(e) => {
+                    self.drop_proxies(shared);
+                    return Err(e.into());
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Remove this run's proxies from the kernel registry. Idempotent:
+    /// an already-removed registration is not an error (the kernel's own
+    /// stop bookkeeping uses the same tolerance, 03 §2 services gone).
+    fn drop_proxies(&mut self, shared: &mut Shared) {
+        let Some(registry) = shared.registry.clone() else {
+            self.proxy_rids.clear();
+            return;
+        };
+        for rid in self.proxy_rids.drain(..) {
+            let _ = registry.unregister(rid);
+        }
+    }
+}
+
+/// The generation-pinned lookup shared by the verbs and the proxies:
+/// `id` alone would let a stale handle touch the respawned run.
+pub(crate) fn live_entry<'s>(
+    shared: &'s mut Shared,
+    id: &str,
+    run_gen: u64,
+) -> Result<&'s mut LiveProc, KernelError> {
+    let p = shared
+        .live
+        .get_mut(id)
+        .ok_or_else(|| crashed(id, "already gone"))?;
+    if p.run_gen != run_gen {
+        return Err(crashed(id, "superseded generation"));
+    }
+    if let Some(status) = &p.status {
+        return Err(crashed(id, status.to_string()));
+    }
+    Ok(p)
 }
 
 impl Drop for ProcPlugin {
@@ -464,7 +608,11 @@ impl Drop for ProcPlugin {
         // releases the control half — but only while its own generation
         // still owns the entry (a dropped predecessor at respawn must
         // leave the new run alone). Idempotent when already reaped.
-        let mut shared = self.live.lock();
+        let live = self.live.clone();
+        let mut shared = live.lock();
+        // S2-M3a: proxies leave with the handle whatever killed the run
+        // (stop removed them already — unregister is idempotent).
+        self.drop_proxies(&mut shared);
         if shared
             .live
             .get(&self.id)
