@@ -15,9 +15,8 @@ project(modukit VERSION ${CMAKE_MATCH_1} LANGUAGES CXX)   # CXX identity require
 
 enable_testing()                       # must run before ALL add_subdirectory calls (measured lesson)
 
-enable_testing()                       # must run before ALL add_subdirectory calls (measured lesson)
-
 include(cmake/ModuKitPolyOrch.cmake)
 modukit_ensure_polyorch()              # sentinel embed: reuse superbuild copy first-wins, else gitlink pin
+modukit_ensure_polyorch_rust()         # T-B1 translation: MODUKIT_USE_PIXI -> polyorch_rust_setup(FROM pixi)
 
-# add_subdirectory(crates/...) lanes + install/export arrive with M2/M3 - see docs/stage-1-plan.md
+# add_subdirectory(crates/...) lanes arrive with M8.5 W2 - see docs/stage-1-plan.md section 9
