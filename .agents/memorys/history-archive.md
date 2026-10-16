@@ -204,3 +204,14 @@
 - five pushed legacy subjects stay outside scope by policy (immutable).
 - C0 for the leg: planted SUBJ-VIOL(63) + BODY-VIOL red observed, pending
   range silent green, check.sh green including the leg. PIT-8 the class.
+
+## 2026-10-16 - S2-M3a landed: TL frames, SCM_RIGHTS crossing, F2 closed
+- 41m agent run; independent verify 127/0 + surface match (15 files); zero
+  ESCALATE (04 §2 / 07 §3 cross-read before building matched the proxy shape).
+- behaviour red taught the real semantics: SCM_RIGHTS passes the WHOLE open
+  file description incl offset - receiver positions from the meta token.
+- F2 closure evidence: dual_placement acquires ProxyService kernel-side;
+  echo + unknown-method rejections byte-equal dl-vs-exe.
+- ops: 293 stale test-scratch dirs had /tmp at 100% (the "flaky copy" was
+  ENOSPC); scratch patterns now cleaned; mk-* dirs only ever mine.
+- M3b (bus/QoS/dial/D80/host-loop) dispatched immediately after.
