@@ -190,3 +190,17 @@
 - process notes: one C3 subject catch (72 -> 58, amended pre-push); agent
   disclosed a prior-turn git-diff slip against the zero-git rule (read-only,
   logged honestly).
+
+## 2026-10-16 - C3 machine-gate birth saga (three traps in one shift)
+- commit-shape leg landed in check.sh (pending range origin/master..HEAD);
+  eight pending commits reworded via filter-branch (msg-only, trees
+  identical by construction; refs/original cleaned after).
+- trap 1: quoted regex in a shell variable split on its embedded space -
+  first negative proof ran against junk args (fake red AND fake green).
+- trap 2: mawk has no {n,m} intervals - regex leg flagged every legit
+  bullet (false flood); predicates moved to length+substr (isbullet).
+- trap 3: the author's own messages carried continuation lines twice; the
+  new leg caught its own creator live - first real reds were self-caught.
+- five pushed legacy subjects stay outside scope by policy (immutable).
+- C0 for the leg: planted SUBJ-VIOL(63) + BODY-VIOL red observed, pending
+  range silent green, check.sh green including the leg. PIT-8 the class.
