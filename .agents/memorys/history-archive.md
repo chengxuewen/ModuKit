@@ -245,3 +245,18 @@
 - numbering gate widened to D1-D81 (second widening same day; negative
   proof observed red->green both times); §11 index +D81 row.
 - M4 (A3-ready: vendor-shm boundary adjudicated) awaits its own go.
+
+## 2026-10-18 - S2-M4 landed: vendor-shm / iceoryx2 first entry
+- 16m run; independent verify: default 134/0 (41 suites), vendor lane
+  19/0, clippy green BOTH feature shapes, check.sh fast-gate untouched
+  (D50), confinement grep = 3 files only (module, Cargo.toml, the gate).
+- vendor_lock amended honestly: frozen-19 baseline UNION lock-graph
+  closure of iceoryx2 only; +4th proof that no workspace member's
+  transitive closure reaches the vendor (core std-only, mechanically).
+- measured vendor cold wall 17.8s / warm 0.25s; task `pixi run vendor-test`.
+- pre-existing flake to know: modukit-core hung_peer timing test failed
+  once under first full-parallel load, green isolated and in every
+  re-run since - logged, not masked (M5 acceptance re-runs it many times).
+- orchestrator counting lesson x2: concurrent cargo interleaves and
+  corrupts terminal lines - totals must be parsed from a redirected
+  file, never a pipe through a busy tty.
