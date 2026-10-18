@@ -260,3 +260,13 @@
 - orchestrator counting lesson x2: concurrent cargo interleaves and
   corrupts terminal lines - totals must be parsed from a redirected
   file, never a pipe through a busy tty.
+
+## 2026-10-18 - ETXTBSY flake class eliminated (not just logged)
+- the hung_peer "timing flake" and the crash_injection failure share one
+  root: full-parallel runs caught exec racing a half-copied standin file
+  (Text file busy). Standin builds now stage (.new/.tmp) and land via
+  rename; the complete-marker checks the LAST stem. Defense hardened in
+  both builder copies. Workspace x2 full-parallel 134/0, demo PASS.
+- new orchestrator habit proven: amend commits get verified by building
+  the COMMITTED tree in a throwaway worktree (caught the base-definition
+  ordering bug that the working tree alone would have hidden).
