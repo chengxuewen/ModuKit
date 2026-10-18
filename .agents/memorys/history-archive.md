@@ -270,3 +270,22 @@
 - new orchestrator habit proven: amend commits get verified by building
   the COMMITTED tree in a throwaway worktree (caught the base-definition
   ordering bug that the working tree alone would have hidden).
+
+## 2026-10-18 - S2-M5a landed: the host loop finds its home; hearing evidence complete
+- 57m run; NO new constructor needed (Supervisor::with_clock already wires
+  the pair) - the E1 feared seam did not exist.
+- ONE deviation, escalated not swallowed: bundle cross_check probe now
+  rides kind=Dl whatever the bundle declares (probe door = dlopen read,
+  no code runs; mirrors the runner internal_manifest posture). Existing
+  bundle tests untouched and green. Hearing decides native exe admission
+  vs InstalledBundle-level runner field (IOU-6 candidate).
+- ORPHAN-PROOF is the milestone's new evidence class: SIGKILL the host,
+  the runner grandchild dies on its own (control EOF), /proc census = 0.
+  The process tree's crash-blast-radius promise now has a live demo.
+- falsifiability: DEMO_STAGE2_SABOTAGE=1 -> STAGE2-DEMO FAIL exit 1,
+  observed and kept documented (single named read point in the demo).
+- coverage (D79 hearing input, no chasing): TOTAL 71.76 vs 80 hard;
+  core 78.42 / codegen 73.19 (M8 debt stands) / transport 80.78 /
+  runtime bins 0 pct (instrumentation boundary, M8 fixture precedent).
+- ops: sab-run first read showed exit 0 - pipe-tail echo artifact;
+  true exit is 1 (PIT-17 class, caught by re-running with captured rc).
