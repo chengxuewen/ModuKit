@@ -10,5 +10,9 @@ publish = false
 name = "modukit-run"
 path = "src/main.rs"
 
+[[bin]]
+name = "modukit-host"
+path = "src/host.rs"
+
 [dependencies]
 modukit-core = { path = "../modukit-core" }

@@ -12,3 +12,7 @@ modukit-core = { path = "../crates/modukit-core" }
 [[example]]
 name = "stage1_demo"
 path = "rs/stage1_demo.rs"
+
+[[example]]
+name = "stage2_demo"
+path = "rs/stage2_demo.rs"

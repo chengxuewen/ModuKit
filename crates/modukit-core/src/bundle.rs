@@ -29,7 +29,7 @@ use serde::Deserialize;
 use crate::bundle_files::{self, HashEntry};
 use crate::executor::{DlopenExecutor, Executor};
 use crate::identity::{PluginId, validate_reverse_dns};
-use crate::manifest::Manifest;
+use crate::manifest::{Manifest, PlacementKind};
 
 // The standalone failure type lives in `bundle_error` (file-size discipline).
 pub use crate::bundle_error::BundleError;
@@ -340,6 +340,11 @@ fn cross_check(manifest: &Manifest, staged: &Path) -> Result<(), BundleError> {
         .join(&manifest.entry.artifact)
         .to_string_lossy()
         .into_owned();
+    // The probe door is dlopen (descriptor read, no plugin code runs —
+    // 04 §3), so the probe rides the dl kind whatever the bundle declares:
+    // `DlopenExecutor` polices its own placement kind, and an exe bundle's
+    // spawn-time identity is cross-checked again at HELLO (executor_proc).
+    probe.entry.kind = PlacementKind::Dl;
     let handle = DlopenExecutor::new()
         .load(&probe)
         .map_err(BundleError::Kernel)?;
