@@ -25,6 +25,9 @@ build = { cmd = "cmake --build out/build", depends-on = ["configure"] }
 regen-fdset = "bash scripts/regen-fdset.sh"                     # regenerate contracts/*.fdset in place (D12 ledger)
 regen-golden = "bash scripts/regen-golden.sh"                    # rewrite crates/modukit-codegen/testdata/golden (review the diff!)
 codegen = "bash scripts/regen-golden.sh"                         # alias for the golden regeneration workflow
+# S2-M4 vendor lane (D76): the non-default `vendor-shm` feature lane — equivalence
+# + leak tests. Deliberately NOT part of check.sh (D50 fast-gate discipline).
+vendor-test = "cargo test -p modukit-transport --features vendor-shm"
 
 [feature.rust.dependencies]
 rust = "*"

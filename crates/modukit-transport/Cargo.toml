@@ -3,12 +3,20 @@ name = "modukit-transport"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "ModuKit transport seam (D11): a narrow local-lane trait, socketpair/memfd/dummy backends, and the descriptor access-protocol shape (D14/D15). std-only — no vendor linkage."
+description = "ModuKit transport seam (D11): a narrow local-lane trait, socketpair/memfd/dummy backends, and the descriptor access-protocol shape (D14/D15). The default path is std-only; a vendor pool enters only behind the neutral `vendor-shm` feature (D76)."
 
 [lib]
 name = "modukit_transport"
 path = "src/lib.rs"
 
-# Year-1 boundary (D11/D73): the seam stays std-only. No crates.io dependency
-# and no iceoryx2/zenoh vendor is permitted here — proven by tests/vendor_lock.rs.
+# Default boundary (D11/D73, amended by D76 at S2-M4): the default feature set
+# carries zero crates.io dependencies — proven by tests/vendor_lock.rs. The one
+# sanctioned exception is the optional, NON-DEFAULT `vendor-shm` entry below:
+# pinned exact per D25, confined to src/vendor_shm.rs per D76.
 [dependencies]
+iceoryx2 = { version = "=0.10.0", optional = true }
+
+[features]
+# D76: vendor-neutral switch name — the factory name never appears in the public
+# seam. Enabling it links exactly iceoryx2 and its transitive tree, nothing else.
+vendor-shm = ["dep:iceoryx2"]

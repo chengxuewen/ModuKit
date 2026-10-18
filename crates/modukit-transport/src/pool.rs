@@ -1,8 +1,9 @@
 //! A tiny in-process `PoolStub` (Stage-1 M5): a `Vec`-backed slot allocator that
-//! proves the descriptor access-protocol SHAPE before any real SHM exists. The
-//! first real pool backend is iceoryx2 at Stage-2 and is deliberately NOT
-//! linked here (D73 — vendor linkage is forbidden and gated by
-//! `tests/vendor_lock.rs`).
+//! proves the descriptor access-protocol SHAPE before any real SHM exists. A
+//! vendor pool backend enters this crate only behind the neutral `vendor-shm`
+//! feature, confined to `src/vendor_shm.rs` (D76); this stub stays the
+//! default-path pool and the equivalence baseline, gated by
+//! `tests/vendor_lock.rs`.
 //!
 //! The rules it enforces are the 07 §3 ones: reuse bumps the `epoch`, a stale
 //! token fails with `EPOCH_EXPIRED` as an ordinary error value (never UB), and

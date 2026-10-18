@@ -1,6 +1,7 @@
 //! Descriptor access-protocol SHAPE + two-stage retrieval (D14, modules/07 §3-4),
 //! exercised against a tiny `PoolStub` so the API shape is testable BEFORE any
-//! real SHM (iceoryx2 is Stage-2 and is deliberately NOT linked — D73).
+//! real SHM (a vendor pool enters only behind the neutral `vendor-shm`
+//! feature, confined to one module — D76; the default path never links one).
 //!
 //! Written before `descriptor.rs`/`pool.rs` existed (C0: the first red is an
 //! unresolved-import compile error, the same recipe as the bus and the seam).
