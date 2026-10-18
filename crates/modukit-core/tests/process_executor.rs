@@ -150,7 +150,37 @@ fn main() {
 /// Compile the stand-in once per test into a private temp dir, then copy it
 /// under the mode stems. `None` = cannot build here (test skips green with
 /// the printed reason, the dlopen-fixture pattern).
+/// Sweep leftover scratch dirs from DEAD previous runs (the 237-dir /tmp
+/// exhaustion class, 2026-10-16): dirs embed their owner pid in the name;
+/// a live pid means a concurrent test binary - never touch those.
+fn sweep_dead_standins() {
+    let me = std::process::id().to_string();
+    let Ok(rd) = std::fs::read_dir(std::env::temp_dir()) else {
+        return;
+    };
+    for entry in rd.flatten() {
+        let name = entry.file_name().to_string_lossy().into_owned();
+        let Some(rest) = name.strip_prefix("mk-standin") else {
+            continue;
+        };
+        // names: mk-standin-<pid>-<tag> (process_executor) or mk-standin-fd-<pid>
+        let pid = rest
+            .trim_matches('-')
+            .split('-')
+            .find(|t| t.chars().all(|c| c.is_ascii_digit()) && !t.is_empty());
+        let Some(pid) = pid else { continue };
+        if pid == me {
+            continue;
+        }
+        if std::path::Path::new(&format!("/proc/{pid}")).exists() {
+            continue;
+        }
+        let _ = std::fs::remove_dir_all(entry.path());
+    }
+}
+
 fn build_standins(tag: &str) -> Option<PathBuf> {
+    sweep_dead_standins();
     let dir = std::env::temp_dir().join(format!("mk-standin-{}-{tag}", std::process::id()));
     let exe = dir.join("standin-good");
     if exe.is_file() {
