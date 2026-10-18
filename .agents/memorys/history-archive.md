@@ -237,3 +237,11 @@
   stays unexercised - recorded honestly in the plan row.
 - D74 also surfaced friction #9: plugins lack clock verbs; the runner
   schedules replay markers itself (shortcut on-site).
+
+## 2026-10-16 - D81: bus clause transfers to the hearing (adjudication C)
+- maintainer ruled the single-option walkthrough: neither ABI-v2 pulled
+  forward nor the self-talk bridge; clause rides the S2-M5 agenda as IOU-5
+  with friction items 8-9 as evidence; D10 trigger recorded unexercised.
+- numbering gate widened to D1-D81 (second widening same day; negative
+  proof observed red->green both times); §11 index +D81 row.
+- M4 (A3-ready: vendor-shm boundary adjudicated) awaits its own go.

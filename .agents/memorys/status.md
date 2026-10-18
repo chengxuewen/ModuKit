@@ -31,7 +31,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | docs exist & README link resolves | `test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md` | pass (2026-10-09) |
 | C1 English-artifacts check | command block in conventions.md C1 (scope grown with artifact classes: +M1 build files, +contracts/, +examples/ - each extension red/green proved) | pass (2026-10-16) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
-| numbering discipline | `grep -rnE '^## (C[4-9][0-9]?|D(8[1-9]|9[0-9]|[0-9]{3,}))' .agents/memorys/` must be empty — allows D1-D80 / C0-C3 (widened 2026-10-16 when D74-D80 minted; negative proof same day: planted `## D81:` -> red, removed -> green) | pass (2026-10-16) |
+| numbering discipline | `grep -rnE '^## (C[4-9][0-9]?|D(8[2-9]|9[0-9]|[0-9]{3,}))' .agents/memorys/` must be empty — allows D1-D81 / C0-C3 (widened 2026-10-16 x2: D74-D80 then D81; negative proofs observed both times) | pass (2026-10-16) |
 | local check gate (D50) | `bash scripts/check.sh` - fast checks, cargo legs pixi-routed per D65, skip-when-absent | pass (2026-10-15) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
 | M1-M8.6 milestone gates | check.sh + demo-stage1.sh PASS + 108 tests + clippy all-targets + coverage 78.6% + cmake 7 edges + ctest 6/6 + codemodel FOLDER exact; first-reds & falsifiability probes per plan row; orchestrator re-ran independently | pass (2026-10-16) |
@@ -43,7 +43,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 - [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: P2 PAT (user) + R restart verification (now also carries 2026-10-14 plugin bumps) + S2 user-side apiKey rotation; P3/P4/P5 done; ecosystem-scan FULL rerun 2026-10-14 — fix batches 1-3 adjudicated and landed (see history-archive.md later entry); residual Stage-1-gated items listed there
 
 - [x] PolyOrch submodule live since M1; pin chain 3cbc155..5945f2a (five standalone bumps), policy = follow dev-modukit tip; first full C2 bless cycle closed 2026-10-16 (see Phase + history)
-- [ ] Stage-2 kickoff closed 2026-10-16: A1-A7 adjudicated one by one (D74-D80), verdicts in `docs/stage-2-plan.md`; S2-M1+M2+M3(a,b) LANDED 2026-10-16 (133 tests; D17 test-2 closed via wire dial; D80 deferral; bus clause ESCALATED to D77 hearing as IOU-5); S2-M4 awaits A3-gated go; push decision open (ahead 12)
+- [ ] Stage-2 kickoff closed 2026-10-16: A1-A7 adjudicated one by one (D74-D80), verdicts in `docs/stage-2-plan.md`; S2-M1+M2+M3(a,b) LANDED 2026-10-16 (133 tests; D17 test-2 closed via wire dial; D80 deferral; bus clause -> hearing IOU-5 by D81 ruling); S2-M4 awaits A3-gated go; push decision open (ahead 14)
 - [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — wiring hearing when kernel API stabilizes (D73)
 - [ ] `rules/common` dangling refs family remainder (full list in history 2026-10-14/15 entries; resolved branches struck) — inline or trim when Stage-2 tooling lands
 - [x] Cargo workspace landed 2026-10-15 (M2; kernel filled from M3 on)

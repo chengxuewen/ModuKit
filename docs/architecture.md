@@ -286,6 +286,7 @@ them. Re-review trigger recorded in D5.
 | D78 | recorder+CLI supersession | D16/D17/D23 Stage-2 scheduling retired (design untouched); re-activation = real traffic + tooling demand; no mcap entry |
 | D79 | coverage 80 hard at S2-M5 | workspace-wide, default features, same run as demo-stage2; codegen debt paid or exempted at hearing; anti-gaming clause |
 | D80 | parallel_ok supersession+voice | routing mechanism deferred (typed deferral replaces silent ignore at the swap door, ~100 lines); D8 triggers stand verbatim |
+| D81 | bus clause waits for the hearing | neither build-now nor silent bridge; IOU-5 carries ABI-v2-vs-bridge to S2-M5; D10 trigger honestly open |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
