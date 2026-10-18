@@ -183,7 +183,7 @@ fn build_standins(tag: &str) -> Option<PathBuf> {
     sweep_dead_standins();
     let dir = std::env::temp_dir().join(format!("mk-standin-{}-{tag}", std::process::id()));
     let exe = dir.join("standin-good");
-    if exe.is_file() {
+    if exe.is_file() && dir.join("standin-hung").is_file() {
         return Some(dir);
     }
     std::fs::create_dir_all(&dir).expect("temp dir");
@@ -194,7 +194,7 @@ fn build_standins(tag: &str) -> Option<PathBuf> {
     let rustc = std::env::var("RUSTC").unwrap_or_else(|_| "rustc".to_string());
     let out = Command::new(&rustc)
         .args(["--edition", "2024", "-o"])
-        .arg(dir.join("standin-bin"))
+        .arg(dir.join("standin-bin-rustc-standin.tmp"))
         .arg(&src)
         .output();
     match out {
@@ -211,12 +211,17 @@ fn build_standins(tag: &str) -> Option<PathBuf> {
             return None;
         }
     }
+    // atomic landings: writes go to .new/.tmp names and rename into place, so a
+    // concurrent exec NEVER sees a half-written file (ETXTBSY class, 2026-10-18).
     let base = dir.join("standin-bin");
+    std::fs::rename(dir.join("standin-bin-rustc-standin.tmp"), &base).expect("rename bin");
     for stem in ["good", "abi-liar", "id-liar", "ver-liar", "crasher", "hung"] {
         let to = dir.join(format!("standin-{stem}"));
-        std::fs::copy(&base, &to).expect("copy standin");
-        std::fs::set_permissions(&to, std::os::unix::fs::PermissionsExt::from_mode(0o755))
+        let stage = dir.join(format!("standin-{stem}.new"));
+        std::fs::copy(&base, &stage).expect("copy standin");
+        std::fs::set_permissions(&stage, std::os::unix::fs::PermissionsExt::from_mode(0o755))
             .expect("chmod +x");
+        std::fs::rename(&stage, &to).expect("land standin");
     }
     Some(dir)
 }

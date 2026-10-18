@@ -116,7 +116,7 @@ fn sweep_dead_standins() {
 fn build_standins() -> Option<PathBuf> {
     sweep_dead_standins();
     let dir = std::env::temp_dir().join(format!("mk-standin-fd-{}", std::process::id()));
-    if dir.join("standin-good").is_file() {
+    if dir.join("standin-good").is_file() && dir.join("standin-crasher").is_file() {
         return Some(dir);
     }
     std::fs::create_dir_all(&dir).expect("temp dir");
@@ -125,7 +125,7 @@ fn build_standins() -> Option<PathBuf> {
     let rustc = std::env::var("RUSTC").unwrap_or_else(|_| "rustc".to_string());
     let out = Command::new(&rustc)
         .args(["--edition", "2024", "-o"])
-        .arg(dir.join("standin-bin"))
+        .arg(dir.join("standin-bin.fdtmp"))
         .arg(&src)
         .output();
     match out {
@@ -142,11 +142,14 @@ fn build_standins() -> Option<PathBuf> {
             return None;
         }
     }
+    std::fs::rename(dir.join("standin-bin.fdtmp"), dir.join("standin-bin")).expect("land bin");
     for stem in ["good", "crasher"] {
         let to = dir.join(format!("standin-{stem}"));
-        std::fs::copy(dir.join("standin-bin"), &to).expect("copy");
-        std::fs::set_permissions(&to, std::os::unix::fs::PermissionsExt::from_mode(0o755))
+        let stage = dir.join(format!("standin-{stem}.new"));
+        std::fs::copy(dir.join("standin-bin"), &stage).expect("copy");
+        std::fs::set_permissions(&stage, std::os::unix::fs::PermissionsExt::from_mode(0o755))
             .expect("chmod");
+        std::fs::rename(&stage, &to).expect("land standin");
     }
     Some(dir)
 }
