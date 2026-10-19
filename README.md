@@ -88,7 +88,7 @@ Five stages per the whitepaper implementation path:
 
 ## Development status
 
-As-built: four shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen` (194 tests; v1 API surface frozen STABLE per `docs/architecture.md` §11, D87). Stage 1 (in-process kernel) and Stage 2 (process placement) are closed; Stage 3 (stability + docs) is active. Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
+As-built: four shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen` (198 tests; v1 API surface frozen STABLE per `docs/architecture.md` §11, D87). Stage 1 (in-process kernel) and Stage 2 (process placement) are closed; Stage 3 (stability + docs) is active. Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
 
 First-time machine setup for dev toolchains (user-level, via mise; idempotent): `./bootstrap.sh` (Linux/macOS) or `bootstrap.bat` (Windows native). Pins live in `mise.toml`.
 

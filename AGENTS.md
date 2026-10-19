@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stage-1 (in-process kernel) and Stage-2 (process placement) are CLOSED** (D88); Stage-3 is open as a stability/docs stage — its UI-composition tier stays demoted until a real beachhead demand (D89-K2). Working code: `crates/modukit-core / -runtime / -transport / -codegen` (194 tests; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D92 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stage-1 (in-process kernel) and Stage-2 (process placement) are CLOSED** (D88); Stage-3 is open as a stability/docs stage — its UI-composition tier stays demoted until a real beachhead demand (D89-K2). Working code: `crates/modukit-core / -runtime / -transport / -codegen` (198 tests; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D92 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
 
 ## STRUCTURE
 
