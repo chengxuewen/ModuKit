@@ -297,6 +297,7 @@ them. Re-review trigger recorded in D5.
 | D89 | Stage-3 kickoff | K1-K7 adjudicated one by one: serial gate first, UI/Zenoh/v2-shapes all stay gated, K7 middle path = fact sent no proposal |
 | D90 | hook LIFTED | both debt crates cleared (85.52/85.24) at re-measurement; steady 80 hard resumes; lift never rode the rejected 81.33 figure |
 | D91 | Stage-3 accepted | DoD four-for-four; UI stays demoted (K2 trigger named); gates at 194 tests with the 80-line held post-lanes |
+| D92 | static blueprint armed | six rulings (generated list / single-version gate / text manifest / capability-removal unload / third standalone executor / candidate seat); no lane without a creditor; recheck freeze before opening |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
@@ -320,6 +321,12 @@ per D11, only backend/vendor selection remains open).
 4. **Stage 4** — remote WebRTC: unchanged; engine-tiering canon question still queued.
 5. **Stage 5** — polyglot ecosystem on the language axis; the JS dual-face product decision
    is scheduled here.
+6. **Candidate (not a stage)** — static placement per the D92 blueprint (six rulings armed:
+   generated registration list, single-version gate, text manifest through the one parser,
+   capability-removal unload, standalone third executor, registry-level mixed-placement
+   future). Trigger: first real consumer demand (single-file delivery, no-dlopen target,
+   read-only rootfs, fixture-side pain); re-check the frozen surfaces (D87/D83) before any
+   lane opens.
 
 ## 13. Module documentation index
 

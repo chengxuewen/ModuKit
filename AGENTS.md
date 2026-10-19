@@ -4,14 +4,14 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stage-1 (in-process kernel) and Stage-2 (process placement) are CLOSED** (D88); Stage-3 is open as a stability/docs stage — its UI-composition tier stays demoted until a real beachhead demand (D89-K2). Working code: `crates/modukit-core / -runtime / -transport / -codegen` (194 tests; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D91 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stage-1 (in-process kernel) and Stage-2 (process placement) are CLOSED** (D88); Stage-3 is open as a stability/docs stage — its UI-composition tier stays demoted until a real beachhead demand (D89-K2). Working code: `crates/modukit-core / -runtime / -transport / -codegen` (194 tests; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D92 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
 
 ## STRUCTURE
 
 ```
 ├── README.md / SKILL.md      # front door / skills registry
 ├── docs/whitepaper.md        # v1.0 canon - crate names §2.3, roadmap §8 (superseded by §9/§10/§12)
-├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D90, §12 roadmap)
+├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D92, §12 roadmap)
 ├── docs/modules/             # 00-11 deep dives (placement, service model, lifecycle, codegen,
 │                             #   manifest, bus, transport, walkthrough, record, observability, media base)
 ├── docs/stage-{1,2,3}-plan.md # PLANS OF RECORD: S1 complete, S2 accepted (D88), S3 active (D89/D90)
@@ -38,7 +38,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Task | Location | Notes |
 |---|---|---|
 | What ModuKit is / naming authority | `docs/whitepaper.md` | §2.3 canonical; §8 roadmap superseded by architecture §12 |
-| Current architecture + deltas | `docs/architecture.md` + `docs/modules/` | §11 = decision index D1-D91; §9 = whitepaper deltas; §12 = roadmap |
+| Current architecture + deltas | `docs/architecture.md` + `docs/modules/` | §11 = decision index D1-D92; §9 = whitepaper deltas; §12 = roadmap |
 | What stage are we in, what's next | `.agents/memorys/status.md` | loaded every turn; plans of record in docs/stage-*.md |
 | Which skills exist / when they fire | `SKILL.md` | registry incl. inoperative flags |
 | Conventions & gates | `.agents/memorys/conventions.md` | C0 executable-checks, C1 English, C2 branch/pin, C3 commit-shape |
