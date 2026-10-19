@@ -568,3 +568,52 @@
 - **Rationale**: user-adjudicated one by one 2026-10-16 (the single-option walkthrough after M3b; option C). The hearing exists precisely for decisions whose evidence is still accumulating; spending the wait on M4 (transport seam, pool equivalence - no bus dependency) keeps the critical path moving.
 - **Reference**: S2-M3b escalation (HostAbiV1 = register_service only, abi.rs; kernel.rs bus doc names a handle plugins never receive); modules/06 §5 (Stage-2 topics over the seam); D77 agenda; docs/stage-2-plan.md §9.
 - **Re-review triggers**: the S2-M5 hearing itself (ABI-v2 bus/clock verbs vs runner-bridge posture, decided with the dual-placement friction in hand); first real plugin that needs topics cross-process (that demand accelerates the hearing, it does not bypass it); M4 discovering the vendor pool path secretly requires the bus (it should not - descriptors ride the seam, D69).
+
+## D82: ABI v2 direction - plugin-facing bus/clock verbs admitted as the first residents (2026-10-18)
+
+- **Decision**: the freeze hearing opens the v2 door as a DIRECTION, not a shape: publish, subscribe, and schedule-timer become the first plugin-facing host-table verbs of a future ABI v2; v1 (register_service, byte-identical) stays frozen and is declared STABLE for ecosystem use. v2 verb signatures are explicitly NOT drawn (ruling 6: intent is not a frozen door). The M3 bus clause (D81) converts from "waiting" to "direction admitted - implementation arrives with the v2 door"; the D10 trigger gets its honest execution path; the runner-side shortcuts (friction 8-9: markers, probe naming) become the migration seeds.
+- **Rationale**: user-adjudicated one by one (hearing ruling 1). Runner-bridge was refused a second time (dl-arm symmetry break); open-ended waiting was refused (hearing exists for exactly this).
+- **Reference**: D81, D77, friction log items 8-9; abi.rs HostAbiV1; ruling 6 verdict.
+- **Re-review triggers**: first real plugin needing topics/timers (accelerates the v2 door); codegen round for v2 shapes (drawing day = fresh hearing on signatures).
+
+## D83: ABI amendment policy - tail-additions by record, breakages by hearing (2026-10-18)
+
+- **Decision**: from v2 onward: APPENDING a verb (or a trailing field) to the host table needs only a ledger record to enter the next version candidate; MODIFYING or REMOVING any existing verb/field requires a fresh hearing; a semantic change to an unchanged signature counts as a breakage. v1 remains exempt from additions until v2 lands (ruling 1 keeps v1 byte-identical).
+- **Rationale**: user-adjudicated (ruling 2). A policy must be one sentence to survive; hearing inflation kills discipline, deregistration kills credit.
+- **Reference**: ruling 1 structure (add-only v2), D63 (single projection cost asymmetry), semver practice.
+- **Re-review triggers**: first attempted semantic-edit attempt (policy test); binding-generator design day (policy feeds the generator contract).
+
+## D84: coverage 80 hard gate - bins boundary-exempt, real debt calendared (2026-10-18)
+
+- **Decision**: D79 executes SPLIT: (a) modukit-runtime bins and fixture crates are measurement-boundary (llvm-cov cannot attribute spawned-process coverage; M8 fixture precedent) - excluded from the denominator, recorded as boundary not gap; (b) the REAL debt is calendared: core 78.42 -> 80 and codegen 73.19 -> 80 (the M8-era 72.7 debt) must both clear at the STAGE-3 KICKOFF GATE re-measurement; (c) anti-second-delay hook: if either crate misses at that gate, Stage-3 acceptance blocks new features until cleared. The 80% hard line itself is NOT relaxed.
+- **Rationale**: user-adjudicated (ruling 3). Ruler problems and debt problems are different animals; punishing physics manufactures fake tests (ruling 6's return-the-goods clause), ignoring debt kills the gate (C refused).
+- **Reference**: M5a coverage table (71.76 total / 78.42 / 73.19 / 80.78 / 0% bins), M8 precedent row, ruling 6 anti-gaming text.
+- **Re-review triggers**: Stage-3 kickoff measurement (the calendar fires); any new bin crate joining the workspace (boundary scope re-checked).
+
+## D85: dictionary amendment - supervision domain, tags 23-27 (2026-10-18)
+
+- **Decision**: the D51 dictionary grows 14 -> 19 by APPEND-ONLY tail: new supervision domain PROCESS_CRASHED(23) IDENTITY_MISMATCH(24) SERVICE_CALL_FAILED(25) DEFERRAL_DECLINED(26) CLOCK_DIAL_REFUSED(27); the 14 frozen names byte-identical (no renames, no renumbers, reserved slots stay reserved). INTEGRITY_FAILED enters as the BUNDLE-door tier name (BundleError hash/size family), not a kernel enum member - the door's integrity failures were the original borrower. Execution landed same-day: error.rs code() remapped, bundle INTEGRITY_FAILED split, hint() shipped (one human line per variant), parity/golden/fdset recast, tests upgraded to assert true codes.
+- **Rationale**: user-adjudicated (rulings 4+5+7). A frozen dictionary's dignity is "changes have a door", not "never changes"; borrowing forever teaches future borrowers to default.
+- **Reference**: M7/M1/M3b deferral quotes; friction 6; ruling 2 policy (tail-addition = record tier); commit "feat(dict): supervision codes and hints (M5b execution)".
+- **Re-review triggers**: next dictionary demand rides D83 policy (record, not hearing); any consumer assuming CONTRACT_VIOLATION for these five cases (migration note in the parity test).
+
+## D86: door-front cleanup - hint() paid, probe posture promoted to rule (2026-10-18)
+
+- **Decision**: (a) BundleError::hint() lands - the M8 white slip is paid at the second hearing, one stable human line per variant (asserted in the tamper test); (b) the M5a cross_check probe deviation is promoted from ESCALATE to RULE: the install probe reads the descriptor as dl ALWAYS (probe = dlopen read, no code runs), identity verification lives at HELLO per placement - the executor's dl-kind policing is untouched, mirrors the runner internal_manifest precedent. "Bundle natively admits exe" (widening DlopenExecutor's door for an unbuilt bundle shape) is refused per ruling 2 policy.
+- **Rationale**: user-adjudicated (ruling 5). A three-line slip must not survive two milestones; a verified workaround becomes law by writing down WHY it works.
+- **Reference**: M8 hint deferral; S2-M5a IOU-6 candidate; bundle.rs cross_check comment; dual_placement full-chain verification.
+- **Re-review triggers**: a bundle shape that genuinely embeds a runner (self-contained exe bundles) opens the native-admission hearing with D83's tail-addition policy in hand.
+
+## D87: freeze declaration - v1 STABLE, v2 PLANNED (2026-10-18)
+
+- **Decision**: THE FREEZE. Declared stable (all doors the external-consumer round and the full suite actually exercised): ABI v1 host table (register_service), the proc_wire v1 envelope (TL-versioned, 9 frame kinds, both directions), the D28 install protocol + bundle manifest grammar, the supervisor verb surface (spawn/STOP/dial/revive/typed-deferral), the ProxyService dispatch face, and the D51 dictionary as amended by D85. Ecosystem code may be written against these; changes now route through D83. Declared PLANNED (explicitly NOT frozen, no shape): ABI v2 bus/clock verbs (D82). The ABI amendment policy (D83) takes effect today.
+- **Rationale**: user-adjudicated (ruling 6, the closing gavel). Only pushed doors get welded; intent hangs a sign, not a frozen door.
+- **Reference**: D77 door-by-door principle; D75 external-consumer round; hearing evidence package (dual-placement byte-equality, ORPHAN-PROOF, 9 friction items, sabotage RED).
+- **Re-review triggers**: any attempt to modify a stable surface (routes through D83 hearing); v2 signature drawing day (fresh hearing, D82 trigger).
+
+## D88: Stage-2 accepted and closed (2026-10-18)
+
+- **Decision**: Stage-2 is ACCEPTED against the plan's five-point Definition of Done: (1) dual-placement suite green in one run + D17 test-2 byte-equality (M3b); (2) crash-injection host-alive with observable policy (M1/M3b, crowned by the M5a ORPHAN-PROOF); (3) vendor pool behind vendor-shm, default CI unchanged, D69 re-verified (M4); (4) hearing record + per-ruling D-entries + delta rows (D82-D87, this batch); (5) all gates green (check.sh, both demo PASS-gates falsifiable), coverage per D84, memories synced, push decision with the maintainer. The v2 verbs are PLANNED-signage, not a blocker (D87). Stage-3 scoping may open on the maintainer's word.
+- **Rationale**: user-adjudicated (ruling 8, final). A hearing ends by adjourning, not by scheduling another one.
+- **Reference**: docs/stage-2-plan.md §8 DoD; rulings 1-8 one-by-one ledger; D79/D84; the M0-era push decision (with the maintainer).
+- **Re-review triggers**: Stage-3 kickoff gate (D84 calendar fires); any stable-surface breakage report from the first external consumer (freeze audit, D77 trigger).

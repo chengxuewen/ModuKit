@@ -289,3 +289,25 @@
   runtime bins 0 pct (instrumentation boundary, M8 fixture precedent).
 - ops: sab-run first read showed exit 0 - pipe-tail echo artifact;
   true exit is 1 (PIT-17 class, caught by re-running with captured rc).
+
+## 2026-10-18 - THE FREEZE HEARING: eight rulings, Stage-2 closed (D82-D88)
+- walked one by one, plain-language on demand (two re-renders mid-walk).
+1 v2 DIRECTION admitted (bus/clock verbs, shapes not drawn) - D82.
+2 amendment policy: tail-add by record, break/semantic-edit by hearing - D83.
+3 coverage split: bins = ruler boundary (M8 precedent), core+codegen debt
+  calendared to the Stage-3 kickoff gate, second-delay hook - D84.
+4 dictionary 14->19: supervision domain tags 23-27; INTEGRITY_FAILED at the
+  bundle tier; 7b/c/e folded in (five true names, one execution) - D85.
+5 hint() paid + probe posture promoted to rule (reads-as-dl,
+  verifies-at-HELLO); native exe admission refused per the new policy - D86.
+6 THE GAVEL: v1 STABLE (host table, wire v1, install protocol, supervisor
+  verbs, proxy face, dictionary-as-amended); v2 PLANNED signage - D87.
+7 7a dictionary-origin=kernel, 7d friction 1-2 = testimony received - D85/D86.
+8 Stage-2 ACCEPTED against all five DoD points - D88.
+- execution same-day: proto supervision domain + fdset + goldens recast,
+  error remap, INTEGRITY_FAILED split, hint() shipped, tests assert true
+  codes; 134/0, check.sh green, both demos PASS. Red/green proof for the
+  widened numbering gate observed (planted D89 red, removed green).
+- self-caught x3 en route: goldens caught the enum growth by design (recast
+  per its own instruction), produced-set needed samples for new variants,
+  pipe-tail exit-code artifact again (checked rc directly).

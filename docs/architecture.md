@@ -287,6 +287,13 @@ them. Re-review trigger recorded in D5.
 | D79 | coverage 80 hard at S2-M5 | workspace-wide, default features, same run as demo-stage2; codegen debt paid or exempted at hearing; anti-gaming clause |
 | D80 | parallel_ok supersession+voice | routing mechanism deferred (typed deferral replaces silent ignore at the swap door, ~100 lines); D8 triggers stand verbatim |
 | D81 | bus clause waits for the hearing | neither build-now nor silent bridge; IOU-5 carries ABI-v2-vs-bridge to S2-M5; D10 trigger honestly open |
+| D82 | ABI v2 direction | publish/subscribe/schedule-timer admitted as first v2 residents; v1 frozen byte-identical; shapes NOT drawn (ruling 6) |
+| D83 | ABI amendment policy | tail-add by record; modify/remove/semantic-change by hearing; effective today |
+| D84 | coverage 80 split | bins boundary-exempt; core+codegen debt calendared to the Stage-3 kickoff gate; second-delay hook: features blocked until cleared |
+| D85 | dictionary 14->19 | supervision domain tags 23-27 appended; INTEGRITY_FAILED at the bundle tier; hint() shipped |
+| D86 | door-front cleanup | hint() paid; probe reads-as-dl/verifies-at-HELLO promoted to rule; native-exe admission refused |
+| D87 | FREEZE declaration | v1 surfaces STABLE (host table, wire v1, install protocol, supervisor verbs, proxy face, dictionary); v2 PLANNED signage |
+| D88 | Stage-2 accepted | five-point DoD all green; closed 2026-10-18; Stage-3 scoping on maintainer word |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
