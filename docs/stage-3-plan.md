@@ -1,6 +1,6 @@
 # Stage-3 Plan — Multi-Process UI Composition (Demoted Track, Scoping Draft)
 
-> Status: PLAN OF RECORD (Momus OKAY; kickoff K1-K7 adjudicated -> D89; doc-audit dispositions below).
+> Status: STAGE-3 COMPLETE (D91, 2026-10-19). K1-K7 -> D89; audit -> dispositions; lanes M3S-1/2/3/G/5 all closed.
 > Audit fixes 2026-10-19, user-adjudicated one by one (clusters A-F).
 > Scope anchor: `docs/architecture.md` §12 item 3 ("multi-process UI composition:
 > extension/research track (demoted; revisit with the beachhead's real UI demands)")
@@ -63,7 +63,7 @@ adjudication (K0) is choosing which tiers this stage actually contains.
 | M3S-2 | v1-stable documentation pass | README "Development status" un-staled (whitepaper §6 staleness pass separately); README roadmap boxes tick (Stage 1/2 done); module cards 01/07/06 gain the Stage-2 as-built notes (fd-0 stdio, TL frames, supervision domain); friction-log learnings folded into SDK-facing notes | C1, D87 | doc-audit clean run; C1 green; no canon contradiction; any canon line change lands with a delta row (stage-2 mechanics precedent) | LANDED 2026-10-19 (agent 11.5m, re-verified): README roadmap S1/S2 ticked+dated+linked, Development-status as-built (194 tests, v1 STABLE D87), getstream-rtc corrected to audited truth per OQ-1, crate map split SHIPPED/PLANNED; cards 01/06/07 gained dated "As built" addenda (exe arm + TL wire + bus-posture truth incl. the honest UNBUILT row); doc-liveness leg widened to README (52 refs green; C0 red receipt planted); 08 gap judged no-fit, skipped with reason. Whitepaper twin stays in the canon-fix queue.
 | M3S-3 | Example gallery | examples/ gains stage3 band? NO - gallery = curated README linking stage1/stage2 demos + their transcripts; plugins/ shelf stays reserved | rulings F+B | README gallery section; both demos runnable from clean checkout | LANDED 2026-10-19: README "Runnable examples" gallery table (both demos + what each proves + run lines; stage1 negatives wording matched to the M8 ruling; plugins/ reserved line kept).
 | ~~M3S-4~~ | ~~Optional UI tier~~ | SKIPPED per K2=A (E-ruling annotation): UI OUT; trigger = first beachhead UI demand | …reserved, populated by K2's verdict; pre-scoped sketch: PAL device lanes (D72 triggers), dmabuf ticket growth (D15), compositor crate skeleton | §12-3, D15/D72/D44 | would carry its own rows |
-| M3S-5 | Stage-3 acceptance | DoD written at M3S-0 close from the tier set chosen; gates: all existing + any new; coverage re-measured (post-debt); push + pin checks | D88 precedent | demo-style falsifiable gate if any new surface ships |
+| M3S-5 | Stage-3 acceptance | DoD written at M3S-0 close from the tier set chosen; gates: all existing + any new; coverage re-measured (post-debt); push + pin checks | D88 precedent | demo-style falsifiable gate if any new surface ships | LANDED 2026-10-19: ACCEPTED per D91 - DoD four-for-four (coverage re-verified 85.80/85.24/80.78 post-lanes, zero ETXTBSY under cov load = flake fix extra-proof; pin fresh; audit findings all dispositioned).
 
 ## 3. Sequence
 

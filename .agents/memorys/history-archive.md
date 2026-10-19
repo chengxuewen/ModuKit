@@ -365,3 +365,17 @@
   The writer class is fully accounted for; the historical shared-path
   site never recurred.
 - both items landed without touching any frozen surface.
+
+## 2026-10-19 - Stage-3 accepted (D91): the quiet closing of a quiet stage
+- final gate fired: coverage re-verified post-lanes (core 85.80 / codegen
+  85.24 / transport 80.78; runtime boundary 0% per D84a), check.sh all
+  green, pin fresh; zero ETXTBSY under the instrumented final run = the
+  spawn-door retry's last word.
+- the stage's shape, in one line per lane: hearing rulings minted (D82-D88
+  were the previous day's close-out), gate-first honored (K1 order kept -
+  debt paid before anything else), docs brought to as-built, gallery added,
+  flake proven-to-death and absorbed at the door, doc-liveness leg caught
+  a real (reserved-shelf) citation on day one and got prose, not a waiver.
+- numbering gate widened D1-D91 (red/green observed); UI tier stays behind
+  its named trigger (K2); Stage-4 remains remote WebRTC with untouched
+  engine-tiering question; push decision: maintainer, as ever.

@@ -296,6 +296,7 @@ them. Re-review trigger recorded in D5.
 | D88 | Stage-2 accepted | five-point DoD all green; closed 2026-10-18; Stage-3 scoping on maintainer word |
 | D89 | Stage-3 kickoff | K1-K7 adjudicated one by one: serial gate first, UI/Zenoh/v2-shapes all stay gated, K7 middle path = fact sent no proposal |
 | D90 | hook LIFTED | both debt crates cleared (85.52/85.24) at re-measurement; steady 80 hard resumes; lift never rode the rejected 81.33 figure |
+| D91 | Stage-3 accepted | DoD four-for-four; UI stays demoted (K2 trigger named); gates at 194 tests with the 80-line held post-lanes |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 

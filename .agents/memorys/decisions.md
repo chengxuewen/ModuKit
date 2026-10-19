@@ -631,3 +631,10 @@
 - **Rationale**: the calendar fired (M3S-G measured both crates below the line), the hook armed, the debt was paid as the first work of the stage exactly per K1's gate-then-build serial order - the mechanism ran end-to-end without a single waiver.
 - **Reference**: D84 (the armed hook), K1 (serial gate), the M3S-G row in docs/stage-3-plan.md (measurement + lane outcomes), D85/D27/D86 (the contracts the new tests pin).
 - **Re-review triggers**: the NEXT stage-boundary measurement (steady 80 hard applies); any crate dropping below 80 at a boundary re-arms the same hook automatically.
+
+## D91: Stage-3 ACCEPTED and closed (2026-10-19)
+
+- **Decision**: Stage-3 (stability + docs re-scoping per D89) is ACCEPTED against its finalized Definition of Done: (1) D84 gate measured, debt paid, hook lifted (D90) and RE-VERIFIED post-lanes: core 85.80, codegen 85.24, transport 80.78 - all >= 80, runtime bins boundary-exempt per D84a; (2) every Tier-0 lane closed with evidence or recorded honest no-ops (M3S-1 incl. flake follow-up: async-close theory proven, spawn-door retry shipped, zero ETXTBSY under instrumented load; M3S-2 docs as-built; M3S-3 runnable-examples gallery); (3) doc-audit 2026-10-19 findings all dispositioned (clusters A-F), doc-liveness leg live and already earning catches (plugins/ backtick case); (4) memories synced, numbering gate at D1-D91, pin fresh (5945f2a), push decision explicit - still with the maintainer. UI tier remains demoted per D89-K2 with its named trigger; no new surfaces shipped, so no demo-style gate was owed beyond the existing ones.
+- **Rationale**: the stage did what the rulings said, in the K1 order, without a single waiver; acceptance is bookkeeping, not celebration.
+- **Reference**: docs/stage-3-plan.md (M3S rows + DoD); D88 precedent; final coverage run + check.sh tails in history.
+- **Re-review triggers**: any regression of the 80-line at the next stage boundary (same hook, rearmed); first beachhead UI demand (D89-K2 demotion lift); any stable-surface breakage report (D77 freeze audit).

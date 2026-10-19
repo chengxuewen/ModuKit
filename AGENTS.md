@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stage-1 (in-process kernel) and Stage-2 (process placement) are CLOSED** (D88); Stage-3 is open as a stability/docs stage — its UI-composition tier stays demoted until a real beachhead demand (D89-K2). Working code: `crates/modukit-core / -runtime / -transport / -codegen` (194 tests; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D90 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stage-1 (in-process kernel) and Stage-2 (process placement) are CLOSED** (D88); Stage-3 is open as a stability/docs stage — its UI-composition tier stays demoted until a real beachhead demand (D89-K2). Working code: `crates/modukit-core / -runtime / -transport / -codegen` (194 tests; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D91 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
 
 ## STRUCTURE
 
@@ -38,7 +38,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Task | Location | Notes |
 |---|---|---|
 | What ModuKit is / naming authority | `docs/whitepaper.md` | §2.3 canonical; §8 roadmap superseded by architecture §12 |
-| Current architecture + deltas | `docs/architecture.md` + `docs/modules/` | §11 = decision index D1-D90; §9 = whitepaper deltas; §12 = roadmap |
+| Current architecture + deltas | `docs/architecture.md` + `docs/modules/` | §11 = decision index D1-D91; §9 = whitepaper deltas; §12 = roadmap |
 | What stage are we in, what's next | `.agents/memorys/status.md` | loaded every turn; plans of record in docs/stage-*.md |
 | Which skills exist / when they fire | `SKILL.md` | registry incl. inoperative flags |
 | Conventions & gates | `.agents/memorys/conventions.md` | C0 executable-checks, C1 English, C2 branch/pin, C3 commit-shape |
@@ -53,7 +53,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 - **C1**: all artifacts English; chat follows user. (CJK scan is the canonical block below — keep it synced with conventions.md verbatim.)
 - **C0**: every constraint carries a runnable check, observed red once before trusted.
-- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D90/C3/PIT-10; numbering gate in status.md guards bounds.
+- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D91/C3/PIT-10; numbering gate in status.md guards bounds.
 - **C2**: ModuKit lands on master; PolyOrch edits on dev-modukit, tests blessed on main; pin = fresh dev-modukit tip via standalone bumps.
 - **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
 - `Cargo.lock` commits with `Cargo.toml`.
