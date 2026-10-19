@@ -60,6 +60,13 @@ test('throws error when API key is missing', () => {})
 test('falls back to substring search when Redis is unavailable', () => {})
 ```
 
+## Metric Integrity (orchestrator rule, 2026-10-19)
+
+Any metric an agent reports (coverage %, test totals, timing) gets RE-COMPUTED with the
+orchestrator's own parser before it can move a gate - the S2-M4 "core 81.33" was a
+different aggregation, rejected; the honest 78.52 kept the D84 hook armed until real
+payment. The metric definition is part of the claim.
+
 ## Runnable Check
 
 ```bash

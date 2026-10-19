@@ -22,6 +22,9 @@ The Feature Implementation Workflow describes the development pipeline: research
 1.5 **Execution Confirmation Gate** _(mandatory — NEVER skip)_
    - **MUST get explicit user confirmation** before executing ANY plan or todo list:
      - Use the `question` tool with a "Proceed with execution?" prompt (interactive confirm)
+  - Action verbs in an instruction ARE its scope: "file the document and audit" orders docs
+    updates + review ONLY - running gates, measuring, or fixing requires its own order
+    (maintainer correction 2026-10-19, paraphrased per rule 26)
      - Wait for user's affirmative response ("yes", "proceed", "execute")
    - **What requires confirmation**:
      - Creating or deleting crates/workspace members
