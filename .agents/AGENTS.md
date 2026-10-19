@@ -18,7 +18,7 @@ Memory + rule packs + project skills, injected into every AI turn through `.open
 │   ├── history-archive.md      # full History log (on-demand; status.md keeps only a pointer)
 │   └── pitfalls.md             # PIT{n} five-part, on-demand
 ├── rules/
-│   ├── common/                 # 12 files: development-workflow, edit-safety (#1–#26; historical double-#11 renumbered 2026-10-10), lesson-memory, …
+│   ├── common/                 # 12 files: development-workflow, edit-safety (#1–#27; historical double-#11 renumbered 2026-10-10), lesson-memory, …
 │   ├── rust/                       # mounted language pack (coding-style + hooks); ts/py/web/golang/cpp UNMOUNTED G10 — files stay on disk; 7 never-mounted dirs also kept (maintainer ruling 2026-10-09)
 │   └── csharp|dart|java|kotlin|perl|php|swift/  # unmounted pool — add to instructions[] to activate
 └── skills/                     # 12 dirs (rust-patterns + rust-testing vendored from affaan-m/ECC 2026-10-14, provenance in SKILL.md registry); book-to-skill carries a scripts/ python package (22 files, measured 2026-10-10)
@@ -29,7 +29,7 @@ Memory + rule packs + project skills, injected into every AI turn through `.open
 | Task | Location |
 |---|---|
 | Record decision / pitfall / convention | `rules/common/lesson-memory.md` (templates + triggers) |
-| Edit-tool corruption history & defenses | `rules/common/edit-safety.md` #8–#26 |
+| Edit-tool corruption history & defenses | `rules/common/edit-safety.md` #8–#27 |
 | Why memory files say "ported/reset 2026-10-09" | `memorys/history-archive.md` |
 | Pre-action research protocol | `skills/think-before-act/SKILL.md` |
 

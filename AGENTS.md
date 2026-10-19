@@ -1,100 +1,101 @@
 # PROJECT KNOWLEDGE BASE
 
-**Generated:** 2026-10-14 (/init-deep update pass) · **Branch:** master · **Commits:** see `git log` (first committed 2026-10-09; regenerate header via /init-deep)
+**Generated:** 2026-10-19 (doc-audit A-ruling regen pass, init-deep-equivalent) · **Branch:** master · **Commits:** see `git log` (first committed 2026-10-09; regenerate header via /init-deep)
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). Design baseline whitepaper v1.0 + adjudicated architecture docs (`docs/architecture.md` + `docs/modules/00-11`; decisions adjudicated one by one, ledger in `.agents/memorys/decisions.md`, index architecture.md §11; queue empty, remainder trigger-gated). **Zero source code** (kernel v0 parked outside repo); Stage-1 resumption on explicit instruction only.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stage-1 (in-process kernel) and Stage-2 (process placement) are CLOSED** (D88); Stage-3 is open as a stability/docs stage — its UI-composition tier stays demoted until a real beachhead demand (D89-K2). Working code: `crates/modukit-core / -runtime / -transport / -codegen` (192 tests; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D90 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
 
 ## STRUCTURE
 
 ```
-./
-├── README.md             # project front page (English per C1)
-├── SKILL.md              # skills registry — inventory of .agents/skills + superpowers, activation notes
-├── docs/whitepaper.md    # v1.0 canon — crate names §2.3, architecture §4, tech stack §5, roadmap §8
-├── docs/architecture.md  # adjudicated engineering baseline (§9 delta table, §11 decision index)
-├── docs/modules/         # numbered architecture deep dives (00 index, 01-11)
-├── .agents/              # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
-├── docs/reference/       # external-project profiles + audits + decision matrix (roster: its README.md)
-├── docs/codegraph-bootstrap.md  # MCP launcher design doc (reviewed v3)
-├── docs/stage-1-plan.md      # Stage-1 resumption plan M0-M8 (Momus-reviewed OKAY; plan != execution - M1 awaits explicit go)
-├── LICENSE-MIT / LICENSE-APACHE # D1 dual-license texts
-├── scripts/                # skill-lint.py (skill-tree gate, C0-proved) + check.sh (D50 local gate)
-├── mise.toml             # per-repo toolchain pins (node 22, uv; user-level via ~/.local, system untouched)
-├── bootstrap.sh|.bat     # one-time machine setup: ensure mise -> activation -> mise install (idempotent)
-├── .opencode/            # opencode.json (instructions[], lsp:true) + codegraph launcher .sh/.bat
-├── .omo/                 # OMO state; omo.jsonc tracked, run-continuation/ ephemeral
-└── PolyOrch/  .refinfo/  # EXTERNAL reference clones, git-ignored — never edit, never cite as ours (PolyOrch = future submodule per D64, landing on maintainer call)
+├── README.md / SKILL.md      # front door / skills registry
+├── docs/whitepaper.md        # v1.0 canon - crate names §2.3, roadmap §8 (superseded by §9/§10/§12)
+├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D90, §12 roadmap)
+├── docs/modules/             # 00-11 deep dives (placement, service model, lifecycle, codegen,
+│                             #   manifest, bus, transport, walkthrough, record, observability, media base)
+├── docs/stage-{1,2,3}-plan.md # PLANS OF RECORD: S1 complete, S2 accepted (D88), S3 active (D89/D90)
+├── docs/reference/           # external profiles + audits (roster: its README.md; 00 §4 maintainer register)
+├── crates/modukit-core/      # kernel: lifecycle/registry/manifest/bundle/bus/clock/logger/
+│   │                         #   executor{dl,exe}+supervisor/proc_wire TL-frames/proxy/observability
+│   ├── tests/                # incl. dual_placement + step_replay (v1-frozen proofs)
+│   └── ../modukit-runtime/   # bins: modukit-run (shadow-runner), modukit-host (supervisor loop)
+├── crates/modukit-transport/ # seam + socketpair/memfd + SCM_RIGHTS fdpass + vendor-shm (iceoryx2 =0.10.0,
+│                             #   non-default feature, one-module confinement, D76/D90 lineage)
+├── crates/modukit-codegen/   # protoc plugin: Rust skeleton + C ABI shade + fdset decoder
+├── contracts/                # .proto ledger + checked-in fdsets (regen-diff gated)
+├── examples/ test-plugins/   # demo shelf (rs band) / fixture crates - rulings F+B; plugins/ = reserved, NOT created
+├── CMakeLists.txt + cmake/   # PolyOrch-driven graph: pixi translation, cargo lanes, ctest bridges, demo lanes
+├── pixi.toml / mise.toml     # build envs (tools/rust/cov; vendor-test task) / host tooling pins
+├── scripts/                  # check.sh (D50 local gate incl demo legs + commit-shape), demo-stage{1,2}.sh,
+│                             #   regen-fdset/golden.sh, skill-lint.py
+├── .agents/                  # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
+└── .vscode/ .opencode/ .omo/ # IDE cmake pin (PIT-7) / agent config / OMO state
 ```
 
 ## WHERE TO LOOK
 
 | Task | Location | Notes |
 |---|---|---|
-| What ModuKit is / crate naming authority | `docs/whitepaper.md` | §2.3 namespace plan is canonical |
-| Current architecture decisions (post-v1.0 deltas) | `docs/architecture.md` + `docs/modules/` | §11 decision index; §9 = superseded whitepaper claims |
-| Which skills exist / when they fire | `SKILL.md` | registry; flags inoperative skills (doc-audit re-scope) |
-| Current phase & open items | `.agents/memorys/status.md` | loaded every turn; keep synced with README roadmap (drift = audit finding) |
-| Project conventions | `.agents/memorys/conventions.md` | C0 executable-constraints, C1 English-artifacts |
-| Dev toolchain (node/uv etc.) | `bootstrap.sh`/`bootstrap.bat` + `mise.toml` | user-level runtime manager; system node stays as-is. OMO's `lsp` MCP needs node>=20 — satisfied by the mise shim, but opencode must be restarted from an activated shell |
-| Mount/unmount a language rule pack | `.opencode/opencode.json` `instructions[]` | 1 set mounted (rust, coding-style+hooks) + common always-on; 5 sets unmounted G10 2026-10-09 (zero source yet); 7 never-mounted dirs KEPT on disk per maintainer decision (csharp/dart/java/kotlin/perl/php/swift) |
-| LSP/MCP startup behavior | `.opencode/opencode.json` | LSP: product built-ins (`"lsp": true`, auto-download per official docs; rust activates once `rust-analyzer` is on PATH); MCP: `init-mcp-codegraph.sh`/`.bat` twins per `docs/codegraph-bootstrap.md` — launcher pattern is MCP-only, see asymmetry note |
-| Memory write formats | `.agents/rules/common/lesson-memory.md` | C/D/PIT templates |
+| What ModuKit is / naming authority | `docs/whitepaper.md` | §2.3 canonical; §8 roadmap superseded by architecture §12 |
+| Current architecture + deltas | `docs/architecture.md` + `docs/modules/` | §11 = decision index D1-D90; §9 = whitepaper deltas; §12 = roadmap |
+| What stage are we in, what's next | `.agents/memorys/status.md` | loaded every turn; plans of record in docs/stage-*.md |
+| Which skills exist / when they fire | `SKILL.md` | registry incl. inoperative flags |
+| Conventions & gates | `.agents/memorys/conventions.md` | C0 executable-checks, C1 English, C2 branch/pin, C3 commit-shape |
+| v1 frozen surface (what may NOT break) | architecture §11 D87 row + `docs/stage-2-plan.md` §9 | amendment policy = D83 (tail-add by record, break by hearing) |
+| Dev toolchain | `bootstrap.sh`/`.bat` + `mise.toml`/`pixi.toml` | ALL cargo/rustfmt via `pixi run` (mise shims broken, PIT-7 class) |
 
 ## CODE MAP
 
-**Partial** — `local-codegraph` MCP installed and running (v1.6.2 via launcher; live index in git-ignored `.codegraph/`), but no source files exist to give it code to index. Re-measure (incl. `lsp_*`) after Cargo workspace scaffolding (`modukit-*` crates) lands in Stage 1.
+**Live** — codegraph MCP (v1.6.2 launcher) indexes real code since Stage-1; value covers crates/. Entry points: `kernel.rs` (state machine + doors), `executor_proc.rs`+`proc_wire.rs`+`proc_supervisor.rs` (exe placement), `modukit-run`/`modukit-host` (process side), `bundle.rs` (D28 install protocol), `seam.rs`/`fdpass.rs`/`vendor_shm.rs` (transport).
 
 ## CONVENTIONS
 
-- **C1**: all artifacts English (code, comments, docs, memory files); only chat follows the user's language. Functional CJK literals exempt inside `.agents/skills/**`.
-- **C0**: every constraint carries a runnable check that has been observed red and green.
-- Memory: `C{n}` + check / `D{n}` / five-part `PIT-{n}`, numbering fresh post-port reset.
-- `Cargo.lock` commits with `Cargo.toml` (constraints.md).
-- **Execution gate**: plans/todos need explicit user confirmation. `.omo/run-continuation` nudges, TODO CONTINUATION reminders, and self-issued task hooks are NOT approval — several stale continuation prompts this session referenced plans the user never requested.
+- **C1**: all artifacts English; chat follows user. (CJK scan is the canonical block below — keep it synced with conventions.md verbatim.)
+- **C0**: every constraint carries a runnable check, observed red once before trusted.
+- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D90/C3/PIT-10; numbering gate in status.md guards bounds.
+- **C2**: ModuKit lands on master; PolyOrch edits on dev-modukit, tests blessed on main; pin = fresh dev-modukit tip via standalone bumps.
+- **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
+- `Cargo.lock` commits with `Cargo.toml`.
 
 ## ANTI-PATTERNS (THIS PROJECT)
 
-- Treating whitepaper crate/`modukit-*` listings as existing code — all PLANNED.
-- Editing/citing `PolyOrch/` or `.refinfo/` (contains VisiaEngine, AccessBase) as project content.
-- Citing `doc-audit`'s pre-re-scope PolyOrch-era target claims — the skill was re-scoped to ModuKit canon 2026-10-09; old "inoperative/port note" wording is itself now the stale claim.
-- Chinese in artifacts (C1 red); writing artifacts in chat-language reflex is the common failure.
-- Workspace-wide `cargo fmt` (edit-safety #12), `pgrep/pkill -f` matching own cmdline (#15/#16), edit-tool without fresh tags (#13/#17/#18).
-
-## UNIQUE STYLES
-
-- The repo currently *is* documentation + agent infrastructure; the only "sources" are `.agents/` and `.opencode/`. Audit-style skills treat docs as the deliverable.
-- Polyglot target fixed by whitepaper: bindings are generated from one C ABI, never hand-written per language.
+- Treating `compositor` / unshipped crate names as existing code — D87 froze what exists; v2 verbs are SIGNAGE (D82).
+- Editing/citing `PolyOrch/` or `.refinfo/` as project content (submodule = upstream flow per C2; reference clones git-ignored).
+- Quoting pre-2026-10-15 "zero source / docs-only repo" claims — stale, caught by doc-audit.
+- Workspace-wide `cargo fmt` (edit-safety #12), `pgrep/pkill -f` on own cmdline (#15/#16), tty-pipe test counting (PIT-9), batch doc edits mid-agent-run (PIT-14).
+- Registering the D50 fast gate as a ritual: scope the verification to the change (PIT-24) - but demo legs now RUN IN check.sh, don't skip them.
 
 ## COMMANDS
 
 ```bash
-# C1 English-artifact gate (canonical copy lives in .agents/memorys/conventions.md — keep synced)
+# C1 English-artifact gate (canonical copy lives in .agents/memorys/conventions.md - keep synced)
 grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ $(test -d crates/ && echo crates/) \
+  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
-# first-time machine setup (idempotent; user-level, no sudo)
-./bootstrap.sh        # Linux/macOS  (Windows native: bootstrap.bat)
-
-# runtime pin (OMO lsp-tools-mcp needs node>=20)
-bash -ic 'node -v' 2>/dev/null   # expect v22.x via mise; /usr/bin/node stays v10
-
-# config + docs sanity
-python3 -m json.tool .opencode/opencode.json > /dev/null && echo "config valid"
-test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md && echo "docs link ok"
-
-# skill-tree gate (fixture-negative-proved 2026-10-09)
-python3 scripts/skill-lint.py
-
-# full local gate - five fast checks, skip-when-absent (D50)
+# full local gate - fast checks incl BOTH demo gates (D50 + 2026-10-19 audit leg)
 bash scripts/check.sh
+
+# stage acceptance gates
+bash scripts/demo-stage1.sh      # STAGE1-DEMO PASS
+bash scripts/demo-stage2.sh      # STAGE2-DEMO PASS (sabotage hook documented)
+
+# build/test via pixi ONLY (mise cargo/rustfmt shims are broken on this box)
+export PATH="$HOME/.pixi/bin:$PATH"
+pixi run cargo test --workspace          # totals: parse from redirected file (PIT-9)
+pixi run cargo clippy --workspace --all-targets -- -D warnings
+pixi run vendor-test                     # vendor-shm lane (17-18s cold, not in fast gate)
+pixi run -e cov cargo llvm-cov --workspace   # D79 80-line at stage boundaries
+
+# cmake graph (IDE/ctest surface)
+pixi run configure && pixi run build && pixi run ctest --test-dir out/build
 ```
 
 ## NOTES
 
-- `.opencode/node_modules` + npm lock serve opencode plugins (superpowers/ponytail/context-mode), not project dependencies.
-- codegraph MCP installed and running (pinned v1.6.2 under `.opencode/codegraph/`; index in `.codegraph/`, git-ignored). Value starts with docs/config; code index activates with Stage-1 source.
-- Dangling references ported into `rules/common` - remainder of the M7 family: `~/.claude/agents/` list, `~/.claude/settings.json` / `~/.claude.json` mentions, and `See skill: rust-patterns/python-patterns/golang-testing` pointers (skills not vendored). Inline-or-trim them when Stage-1 gate tooling lands. The family's `scripts/gate.sh` / `scripts/scan-hardcode.sh` entries are retired: `scripts/check.sh` landed per D50 (2026-10-13 audit fix batch).
-- License decided (D1: MIT OR Apache-2.0); domain guidance: `modukit.dev` / `modukit.rs` (`modukit.com` taken).
+- `.opencode/node_modules` + npm lock serve opencode plugins, not project deps.
+- **Push decision is the maintainer's** (origin=gitee, push only on explicit instruction; C3 history rewrites stay local).
+- Dangling-refs family: full list re-hung to Stage-3 M3S-1 via backlog dispositions 2026-10-19; rust-patterns vendored, python/golang-testing pointers still open.
+- plugins/ shelf: grammar-reserved, NOT created empty (ruling F+B); first production plugin opens it with its landing.
+- License decided (D1: MIT OR Apache-2.0); domain guidance `modukit.dev` / `modukit.rs`.
