@@ -43,7 +43,11 @@ rust-analyzer component install, whitepaper reference corrections (Cargo workspa
 (header-first vs metadata-first CLOSED as D63 2026-10-13 - struck at 2026-10-15 audit) — see
 `docs/reference/00-overview.md` section 4 and `.agents/memorys/status.md`.
 
-- O-M3S1 flake watchlist (M3S-1/G-cluster): 3 sightings total - hung_peer (plain parallel), crash_injection (plain parallel), one_driver_step (plain, audit build pass); every case ETXTBSY-or-timeout family on process_executor tests, all green on re-run. Data point for the stability lane's verdict: if a 4th appears OUTSIDE cargo-test parallel load, treat as real bug (fanotify probe), else schedule the unique-dir hardening already done as sufficient.
+- O-M3S1 flake watchlist (M3S-1/G-cluster): 3 sightings total - hung_peer (plain parallel), crash_injection (plain parallel), one_driver_step (plain, audit build pass); every case ETXTBSY-or-timeout family on process_executor tests, all green on re-run. UPDATE 2026-10-19 (post-hardening): sighting #4 fired INSIDE a unique per-invocation
+dir (mk-standin-902786-<ns>-hung) at execve - shared-path theory FALSIFIED, the
+unique-dir fix is insufficient. New criterion: this is a real-bug track; probe =
+strace/fanotify on the standin inode at spawn time, or switch spawn to
+Command::spawn-failure retry-on-ETXTBSY (one bounded retry, documented).'s verdict: if a 4th appears OUTSIDE cargo-test parallel load, treat as real bug (fanotify probe), else schedule the unique-dir hardening already done as sufficient.
 ## Maintenance
 
 - This file is loaded-adjacent: `status.md` (auto-mounted) carries the pointer.
