@@ -1,0 +1,81 @@
+# Stage-3 Plan — Multi-Process UI Composition (Demoted Track, Scoping Draft)
+
+> Status: DRAFT for maintainer adjudication + Momus review. Plan of record once accepted.
+> Scope anchor: `docs/architecture.md` §12 item 3 ("multi-process UI composition:
+> extension/research track (demoted; revisit with the beachhead's real UI demands)")
+> + whitepaper §4/§6 (compositor as extension capability, never core).
+> Execution gate: nothing executes until the maintainer says go (standing rule).
+
+## 0. The honesty problem this plan must survive
+
+§12 demoted Stage-3 to an extension/research track **conditional on real UI
+demand** ("revisit with the beachhead's real UI demands"). No beachhead product
+with UI demands has arrived. What HAS arrived: (a) Stage-2's stable v1 surface,
+(b) D84's coverage-debt calendar that fires at the Stage-3 kickoff gate, (c) a
+pile of trigger-gated UI-adjacent hooks in the ledger (D15 dmabuf ticket, D44
+device-ACL day, media-base D68-D73, Foxglove D61).
+
+Therefore this plan is intentionally structured as **Tier 0 + optional tiers**:
+Tier 0 is demanded by existing adjudications regardless of UI demand; the UI
+tiers stay gated on demand that has not arrived. The maintainer's first
+adjudication (K0) is choosing which tiers this stage actually contains.
+
+## 1. Call sheet — kickoff adjudications
+
+| # | Question | Recommendation |
+|---|---|---|
+| K1 | D84 calendar: the kickoff gate measures core/codegen against 80. Does the measurement happen BEFORE any Stage-3 milestone starts (blocking per the hook), or in parallel with Tier-0 work? | Measure FIRST, before M3S-1 — the hook is explicit: miss = features blocked until cleared; Tier-0 test-debt work IS the clearing work, so gate-then-build is the only honest order |
+| K2 | Does Stage-3 include ANY UI/compositor tier now, or is the whole stage a "stability + debt + tooling" stage with UI deferred to a demand-triggered Stage-3.5? | Deferred (the §12 condition still not met); keep a named re-open trigger: first beachhead UI demand OR D15's GPU lane trigger |
+| K3 | Zenoh cross-host carrier (D11's remaining open slot): in or out? | Out (trigger unchanged: first cross-machine topic link); Stage-3 stays single-host |
+| K4 | v2 bus/clock verbs (D82): draw signatures this stage or keep PLANNED? | Keep PLANNED unless a Tier-0 deliverable forces shapes (none should); drawing day needs its own hearing per D82 |
+| K5 | Does the stage produce a public "v1 stable" artifact set (docs site, binding-stage groundwork, example gallery)? | Minimal: a docs pass + the example gallery from the two demo shelves; no binding work (Stage 5 owns it) |
+| K6 | PolyOrch freshness policy stays tip-following? | Yes, unchanged; routine bumps |
+| K7 | D73's wiring-hearing trigger ("kernel API stabilization day") plausibly FIRED with D87 (v1 STABLE, 2026-10-18): does the freeze constitute the trigger - open the MediaServo wiring-hearing proposal, or record the reasoned no? (Momus finding 1; §6's "none fire today" is otherwise false) | Adjudicate honestly one by one at kickoff; do NOT decide by omission |
+
+## 2. Milestone outline
+
+| # | Milestone | Deliverable | Anchors | Gate / evidence |
+|---|---|---|---|---|
+| M3S-0 | Kickoff | K1-K6 walked one by one; D-entry per verdict; numbering gate widen; pin freshness check; push decision OPEN at kickoff | §0-1, D84 | every K-item recorded before work opens |
+| M3S-G | **D84 kickoff gate (fires here)** | re-measure cov (M8/M5a incantation); core ≥80 AND codegen ≥80 required; on miss: feature-freeze until cleared (hook), debt tests land as the first real work | D84, D50 | coverage table vs 80; the hook demonstrably armed (documented in plan row) |
+| M3S-1 | Stability + tooling lanes | (a) recorder/replay re-evaluation IF real traffic now exists (D78 triggers check — honest yes/no with evidence); (b) `rules/common` dangling-refs sweep (Stage-2 tooling now exists); (c) dangling `~/.claude` refs inline-or-trim; (d) Friction-log items 1-2 (throwaway-load, Manifest ctor) paid unless the lane evidence note shows the pain was one-off (the D75 round was real use) — recorded disposition either way | D78/D75/§9 | each lane: evidence note + landing or a recorded no-op with reason |
+| M3S-2 | v1-stable documentation pass | README "Development status" un-staled (whitepaper §6 staleness pass separately); README roadmap boxes tick (Stage 1/2 done); module cards 01/07/06 gain the Stage-2 as-built notes (fd-0 stdio, TL frames, supervision domain); friction-log learnings folded into SDK-facing notes | C1, D87 | doc-audit clean run; C1 green; no canon contradiction; any canon line change lands with a delta row (stage-2 mechanics precedent) |
+| M3S-3 | Example gallery | examples/ gains stage3 band? NO - gallery = curated README linking stage1/stage2 demos + their transcripts; plugins/ shelf stays reserved | rulings F+B | README gallery section; both demos runnable from clean checkout |
+| M3S-4 | Optional UI tier (ONLY if K2 says in) | …reserved, populated by K2's verdict; pre-scoped sketch: PAL device lanes (D72 triggers), dmabuf ticket growth (D15), compositor crate skeleton | §12-3, D15/D72/D44 | would carry its own rows |
+| M3S-5 | Stage-3 acceptance | DoD written at M3S-0 close from the tier set chosen; gates: all existing + any new; coverage re-measured (post-debt); push + pin checks | D88 precedent | demo-style falsifiable gate if any new surface ships |
+
+## 3. Sequence
+
+M3S-0 → M3S-G (gate first, blocking) → M3S-1/2/3 (parallel lanes after the gate)
+→ M3S-4 (only if K2) → M3S-5. No UI code before the gate clears — that is the
+point of the hook.
+
+## 4. What exists at entry / what does NOT
+
+Exists: v1 frozen surface (D87), dual placement + ORPHAN-PROOF, vendor-shm lane,
+host loop, wire dial, typed deferrals, 134 default + 19 vendor tests, both demo
+gates. NOT (this stage): compositor code, Wayland/X11 anything, dmabuf lanes,
+v2 verb shapes, Zenoh carrier, bindings.
+
+## 5. Risks and rollback
+
+| # | Risk | Mitigation |
+|---|---|---|
+| 1 | Coverage gate misses and the stage stalls | the hook makes debt-work the FIRST work, not a blocker at the end; Tier-0 lanes are test-natural |
+| 2 | Scope creep toward UI despite K2 | §12-3's own condition quoted at every milestone close; the demoted-track language is the fence |
+| 3 | "Stability stage" becomes busywork | every lane is evidence-first (D78 trigger check, real friction re-verified) or it is dropped |
+| 4 | Docs drift vs as-built | doc-audit run as M3S-2's gate, not a formality |
+
+## 6. Non-goals (one breath)
+
+Compositor implementation (unless K2 opens it), Wayland/X11 protocol code,
+dmabuf lanes, v2 signatures, Zenoh, bindings, wasm — all have named triggers;
+none fire today.
+
+## 7. Definition of Done (draft, finalized at M3S-0)
+
+1. D84 gate measured and cleared (or the hook visibly armed and debt paid).
+2. Every Tier-0 lane closed with evidence or a recorded no-op.
+3. Docs as-built pass + gallery, doc-audit clean.
+4. All memories synced; numbering gate widened per verdicts; pin fresh; push
+   decision explicit.
