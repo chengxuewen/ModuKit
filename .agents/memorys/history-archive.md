@@ -311,3 +311,17 @@
 - self-caught x3 en route: goldens caught the enum growth by design (recast
   per its own instruction), produced-set needed samples for new variants,
   pipe-tail exit-code artifact again (checked rc directly).
+
+## 2026-10-18 - Stage-3 kickoff walked one by one (K1-K7 -> D89)
+- protocol-corrected start: orchestrator first listed all seven in one
+  message (anti-pattern), user invoked the walkthrough skill, restart
+  one-at-a-time with plain-language re-renders on demand (x3).
+- verdicts: K1 serial gate (A), K2 UI out (A), K3 Zenoh gated (A), K4 v2
+  signatures stay planned (A), K5 minimal truth-set (A), K6 pin unchanged
+  (A), K7 = C - the D73 trigger resolved as the middle path: inform the
+  fact, defer the hearing proposal, proposal trigger stays armed.
+- the recurring principle, now three rulings deep: work with no creditor
+  does not enter the stage.
+- numbering gate widened D1-D89 (red/green observed: planted D90 red,
+  removed green); D89 consolidated one entry for the seven (K1-K6 are
+  confirmations of existing doctrine; only K7 carries new information).

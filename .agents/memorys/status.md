@@ -31,7 +31,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | docs exist & README link resolves | `test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md` | pass (2026-10-09) |
 | C1 English-artifacts check | command block in conventions.md C1 (scope grown with artifact classes: +M1 build files, +contracts/, +examples/ - each extension red/green proved) | pass (2026-10-16) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
-| numbering discipline | `grep -rnE '^## (C[4-9][0-9]?|D(89|[0-9]{3,}))' .agents/memorys/` must be empty — allows D1-D88 / C0-C3 (widened 2026-10-18 for D82-D88; negative proof observed below) | pass (2026-10-16) |
+| numbering discipline | `grep -rnE '^## (C[4-9][0-9]?|D(9[0-9]|[0-9]{3,}))' .agents/memorys/` must be empty — allows D1-D89 / C0-C3 (widened 2026-10-18 for the Stage-3 kickoff entry; negative proof observed below) | pass (2026-10-16) |
 | local check gate (D50) | `bash scripts/check.sh` - fast checks, cargo legs pixi-routed per D65, skip-when-absent | pass (2026-10-15) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
 | M1-M8.6 milestone gates | check.sh + demo-stage1.sh PASS + 108 tests + clippy all-targets + coverage 78.6% + cmake 7 edges + ctest 6/6 + codemodel FOLDER exact; first-reds & falsifiability probes per plan row; orchestrator re-ran independently | pass (2026-10-16) |

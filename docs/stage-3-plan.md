@@ -32,6 +32,16 @@ adjudication (K0) is choosing which tiers this stage actually contains.
 | K6 | PolyOrch freshness policy stays tip-following? | Yes, unchanged; routine bumps |
 | K7 | D73's wiring-hearing trigger ("kernel API stabilization day") plausibly FIRED with D87 (v1 STABLE, 2026-10-18): does the freeze constitute the trigger - open the MediaServo wiring-hearing proposal, or record the reasoned no? (Momus finding 1; §6's "none fire today" is otherwise false) | Adjudicate honestly one by one at kickoff; do NOT decide by omission |
 
+### Verdicts (2026-10-18, user-adjudicated one by one)
+
+- **K1 = A**: gate-then-build, full serial; D84 honored to the letter on first due date.
+- **K2 = A**: UI tier OUT; demotion fence verbatim; trigger named (first beachhead UI demand).
+- **K3 = A**: Zenoh stays gated (first cross-machine link); ready template argues against pre-pulling.
+- **K4 = A**: v2 signatures stay PLANNED; drawing day is its own hearing (D82).
+- **K5 = A**: minimal truth-set (README as-built + card notes + gallery); no site, no hand-copied reference.
+- **K6 = A**: PolyOrch freshness unchanged (tip-following, routine bumps).
+- **K7 = C**: the D73 trigger - v1-STABLE FACT communicated to the MediaServo maintainer, NO wiring-hearing proposal yet; proposal trigger stays ARMED (open item: maintainer sends the factual note - external comms).
+
 ## 2. Milestone outline
 
 | # | Milestone | Deliverable | Anchors | Gate / evidence |
