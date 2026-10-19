@@ -115,3 +115,13 @@
 
 ## PIT-13 (trivial): resumed adjudications reverted to summary tables (2026-10-19, x2)
 - Once adjudication-walkthrough is the active protocol, EVERY item - including after interruptions/team noise - goes seven-part plain text; the closing summary table is only due AFTER all items are individually ruled.
+
+## PIT-14: Agent delivery is untrustworthy - verdict from tree + own gates, never from the report channel (2026-10-19, x2)
+- **Symptom**: two failure shapes the same session-arc: (1) librarian runs returned task=COMPLETED while the final message was only a planning trace (zero tool calls actually executed); (2) HOLDINGS-lane agent completed a fully green 9-minute run but the delivery channel truncated mid-work-stream (background_output from_end + session-file tails both stopped at a mid-message cut).
+- **Root cause**: model-side deaths (see PIT-2 balance lineage) and return-channel message truncation both leave the REPORT incomplete while the WORK (shape 2) is real; trusting either report shape - "completed means reported" or "truncated means failed" - misroutes the orchestrator into re-running expensive lanes or accepting undelivered claims.
+- **Solution**: on any suspicious delivery (plan-only trace, mid-stream cut, missing report sections): first read the working tree (git status --short, grep the expected surfaces), then run the orchestrator's own gates; the tree+gates verdict decides. Shape 2 resolved exactly this way: 198 tests + both demo gates proved the lane landed while the report never arrived.
+- **Verification**: after every background completion, the acceptance sequence is `git status --short` + targeted surface greps + own gate run BEFORE any retry decision; a retry launched purely on a truncated report (with the tree already carrying complete verified work) is a double-work violation.
+- **Forbidden**: accepting claims from a dead channel; retrying a whole lane because its MESSAGE died when its OUTPUT lives; the inverse too - never ship from report text without tree verification (cross-refs: PIT-2 model deaths, testing.md Metric Integrity).
+
+## PIT-15 (trivial): adjudication items drift back to jargon after 4+ in a row (2026-10-19)
+- Plain-language rule reasserted mid-walkthrough by the maintainer twice; the drift shape is sources/impact sections reverting to insider shorthand as item count grows - run every section through the "read-aloud to a non-CMake colleague" check before sending.

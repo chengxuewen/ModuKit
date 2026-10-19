@@ -95,6 +95,7 @@ pixi run configure && pixi run build && pixi run ctest --test-dir out/build
 ## NOTES
 
 - `.opencode/node_modules` + npm lock serve opencode plugins, not project deps.
+- The agent box has no outbound network (curl and webfetch both dead) - `.refinfo/` local clones are the first-class verification asset for external-project claims; mark anything unpinable as memory-grade explicitly.
 - **Push decision is the maintainer's** (origin=gitee, push only on explicit instruction; C3 history rewrites stay local).
 - Dangling-refs family: full list re-hung to Stage-3 M3S-1 via backlog dispositions 2026-10-19; rust-patterns vendored, python/golang-testing pointers still open.
 - plugins/ shelf: grammar-reserved, NOT created empty (ruling F+B); first production plugin opens it with its landing.
