@@ -61,3 +61,5 @@ Series of profiles for open-source / sibling projects under `.refinfo/`
 - 2026-10-15 addendum: [polyorch.md](polyorch.md) — sibling-project profile measured on the
   repo-root PolyOrch checkout (not under `.refinfo/`); verdict-matrix row added to
   00-overview.md.
+- 2026-10-19 outbound draft: [k7-v1-stable-note-draft.md](k7-v1-stable-note-draft.md) —
+  factual v1-STABLE notice for the MediaServo maintainer (D89-K7; send is maintainer-owned).

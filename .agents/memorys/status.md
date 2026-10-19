@@ -45,7 +45,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 - [x] PolyOrch submodule live since M1; pin chain 3cbc155..5945f2a (five standalone bumps), policy = follow dev-modukit tip; first full C2 bless cycle closed 2026-10-16 (see Phase + history)
 - [x] Stage-2 COMPLETE 2026-10-18: M1-M5 + freeze hearing (D82-D88); v1 STABLE per D87, v2 PLANNED, dictionary 19 names, hint() paid, coverage debt calendared (D84); Stage-3 scoping opens on maintainer word; push decision open
-- [ ] K7 follow-through (OWNER: MAINTAINER): send MediaServo the v1-STABLE factual note; proposal stays ARMED until maintainer word (D89-K7)
+- [ ] K7 follow-through (OWNER: MAINTAINER): send the v1-STABLE note (draft: docs/reference/k7-v1-stable-note-draft.md); proposal stays ARMED (D89-K7)
 - [x] Stage-3 COMPLETE 2026-10-19: K1-K7 (D89), freeze hearing (D82-D88), debt paid + hook lifted (D90), lanes closed, acceptance D91; UI tier stays demoted per K2; push decision remains maintainer-owned
 - [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — K7=C (D89): v1-STABLE factual note pending maintainer send; wiring-hearing proposal ARMED, not opened
 - [x] rules/common dangling-refs family CLOSED 2026-10-19 (M3S-1 sweep; doc-liveness leg live in check.sh; unmounted pool kept per G10)
