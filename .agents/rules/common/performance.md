@@ -2,20 +2,16 @@
 
 ## Model Selection Strategy
 
-**Haiku 4.5** (90% of Sonnet capability, 3x cost savings):
-- Lightweight agents with frequent invocation
-- Pair programming and code generation
-- Worker agents in multi-agent systems
+> Model names and prices below were ported Claude-Code-era specifics - environment-
+> dependent (dangling-refs sweep, 2026-10-19). The tiering principle is what holds:
+> match model cost to task depth across whatever models the host config offers.
 
-**Sonnet 4.6** (Best coding model):
-- Main development work
-- Orchestrating multi-agent workflows
-- Complex coding tasks
-
-**Opus 4.5** (Deepest reasoning):
-- Complex architectural decisions
-- Maximum reasoning requirements
-- Research and analysis tasks
+- **Fast/cheap tier**: lightweight agents with frequent invocation; pair programming;
+  worker agents in multi-agent systems
+- **Mid/coding tier**: main development work; orchestrating multi-agent workflows;
+  complex coding tasks
+- **Deepest-reasoning tier**: complex architectural decisions; maximum reasoning
+  requirements; research and analysis tasks
 
 ## Context Window Management
 
@@ -32,13 +28,9 @@ Lower context sensitivity tasks:
 
 ## Extended Thinking + Plan Mode
 
-Extended thinking is enabled by default, reserving up to 31,999 tokens for internal reasoning.
-
-Control extended thinking via:
-- **Toggle**: Option+T (macOS) / Alt+T (Windows/Linux)
-- **Config**: Set `alwaysThinkingEnabled` in `~/.claude/settings.json`
-- **Budget cap**: `export MAX_THINKING_TOKENS=10000`
-- **Verbose mode**: Ctrl+O to see thinking output
+(Ported as Claude-Code keybindings and settings flags - dead on this host, stripped
+2026-10-19. What holds is the habit, not the mechanism: deep reasoning has an
+adjustable budget on most hosts; raise it for architecture-grade problems.)
 
 For complex tasks requiring deep reasoning:
 1. Ensure extended thinking is enabled (on by default)

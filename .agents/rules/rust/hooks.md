@@ -9,7 +9,8 @@ paths:
 
 ## PostToolUse Hooks
 
-Configure in `~/.claude/settings.json`:
+No live hook mechanism on this host (the ported `~/.claude/settings.json` pointer was
+stripped in the 2026-10-19 dangling-refs sweep); apply these as manual post-edit habits:
 
 - **rustfmt (single file only)**: `rustfmt --edition 2024 <edited-file>` after edit — never workspace `cargo fmt` (edit-safety #12)
 - **cargo clippy**: Run lint checks after editing Rust files

@@ -15,7 +15,11 @@ This path is configured in `.opencode/opencode.json`. Do NOT use memory_create_e
 
 ## Available Agents
 
-Located in `~/.claude/agents/`:
+> **INOPERATIVE HERE** (dangling-refs sweep, closed 2026-10-19): this roster was ported
+> from a Claude-Code scaffold and the agents directory it named does not exist on this
+> host. Read the names below as INTENT LABELS for delegation, not addressable agents -
+> dispatch through the host's live subagent tooling (explore/librarian) or a skill from
+> the `SKILL.md` registry. The mapping itself stays valid: which intent serves which job.
 
 | Agent | Purpose | When to Use |
 |-------|---------|-------------|

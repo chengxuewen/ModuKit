@@ -120,5 +120,5 @@ This rule works with:
 
 - [testing.md](testing.md) - Test coverage requirements
 - [security.md](security.md) - Security checklist
-- [git-workflow.md](git-workflow.md) - Commit standards
+- [constraints.md](constraints.md) and `.agents/memorys/conventions.md` C3 - Commit standards
 - [agents.md](agents.md) - Agent delegation

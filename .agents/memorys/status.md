@@ -48,7 +48,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 - [ ] K7 follow-through (OWNER: MAINTAINER): send MediaServo the v1-STABLE factual note; proposal stays ARMED until maintainer word (D89-K7)
 - [ ] Stage-3 plan of record `docs/stage-3-plan.md` (K1-K7 -> D89; debt paid, hook lifted D90); lanes M3S-1/2/3 open on go
 - [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — K7=C (D89): v1-STABLE factual note pending maintainer send; wiring-hearing proposal ARMED, not opened
-- [ ] `rules/common` dangling refs family remainder (full list in history 2026-10-14/15 entries; resolved branches struck) — inline or trim when Stage-2 tooling lands
+- [ ] `.agents/rules/common` dangling refs family remainder (full list in history 2026-10-14/15 entries; resolved branches struck) — inline or trim when Stage-2 tooling lands
 - [x] Cargo workspace landed 2026-10-15 (M2; kernel filled from M3 on)
 - [x] License decided — MIT OR Apache-2.0 dual (D1, 2026-10-09); texts at repo root; workspace metadata = Stage-1 trigger
 - [x] doc-audit re-scoped to ModuKit canon (commit 2aa7663); first full run 2026-10-10: 18 findings, all user-adjudicated

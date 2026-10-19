@@ -6,6 +6,10 @@
 > 84/85/88/98/120/121) were carried from the PolyOrch governance tree; those numbered
 > originals live in `PolyOrch/.agents/memorys/pitfalls.md` (reference checkout), NOT in this
 > repo's PIT-1..6 ledger - treat the numbers as provenance pointers, not local references.
+> Verified 2026-10-19 (dangling-refs sweep): the reference checkout exists and
+> PIT-28/31/33/41/54/56 resolve in it (its ledger ends at PIT-65); 68/78a/81/84/85/88/
+> 98/120/121 have no entry in the pinned checkout. Every rule below is self-contained,
+> so the pointers stay as provenance and are never load-bearing for the content.
 
 ## Tool Selection
 

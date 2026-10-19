@@ -67,7 +67,9 @@ The Feature Implementation Workflow describes the development pipeline: research
 
 Types: feat, fix, refactor, docs, test, chore, perf, ci
 
-Note: Attribution disabled globally via ~/.claude/settings.json.
+Note: the binding commit shape for ModuKit is `.agents/memorys/conventions.md` C3
+(type(scope): subject <= 60 chars, ` - ` body bullets <= 100 chars); the portable
+block above is the general form.
 
 ## Pull Request Workflow
 

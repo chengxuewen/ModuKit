@@ -28,10 +28,10 @@ Memory + rule packs + project skills, injected into every AI turn through `.open
 
 | Task | Location |
 |---|---|
-| Record decision / pitfall / convention | `rules/common/lesson-memory.md` (templates + triggers) |
-| Edit-tool corruption history & defenses | `rules/common/edit-safety.md` #8–#27 |
-| Why memory files say "ported/reset 2026-10-09" | `memorys/history-archive.md` |
-| Pre-action research protocol | `skills/think-before-act/SKILL.md` |
+| Record decision / pitfall / convention | `.agents/rules/common/lesson-memory.md` (templates + triggers) |
+| Edit-tool corruption history & defenses | `.agents/rules/common/edit-safety.md` #8–#27 |
+| Why memory files say "ported/reset 2026-10-09" | `.agents/memorys/history-archive.md` |
+| Pre-action research protocol | `.agents/skills/think-before-act/SKILL.md` |
 
 ## CONVENTIONS (this subtree)
 
@@ -42,7 +42,7 @@ Memory + rule packs + project skills, injected into every AI turn through `.open
 
 ## ANTI-PATTERNS
 
-- `memory_create_entities` / knowledge-graph tools — wrong system, memory is these files (`rules/common/agents.md`).
+- `memory_create_entities` / knowledge-graph tools — wrong system, memory is these files (`.agents/rules/common/agents.md`).
 - Appending long markdown to `memorys/*.md` via edit tool — use heredoc or python read→replace(assert count==1)→write (`edit-safety.md` #11, #18, #20).
 - Quoting `doc-audit`'s pre-re-scope PolyOrch target claims (C1–C6, D1–D29, `docs/modules/`) — stale; skill re-scoped to ModuKit canon 2026-10-09 (commit 2aa7663).
-- Trusting `rules/common/agents.md`'s `~/.claude/agents/` list or `scripts/gate.sh` checks — ported leftovers, inoperative here (the live local gate is `scripts/check.sh` per D50; see `/AGENTS.md` NOTES).
+- Trusting `.agents/rules/common/agents.md`'s `~/.claude/agents/` list or its gate.sh checks — ported leftovers, inoperative here (roster now flagged INOPERATIVE in place; the live local gate is `scripts/check.sh` per D50; see `/AGENTS.md` NOTES).

@@ -101,5 +101,9 @@ c3_shape=$(git log origin/master..HEAD --format='Subject: %s%nBody: %b%n_END_' 2
 if [ -n "$c3_shape" ]; then printf '%s\n' "$c3_shape" | while IFS= read -r l; do note "FAIL commit-shape: $l"; done; status=1
 else note "ok commit-shape (pending range)"; fi
 
+# leg: doc-liveness (M3S-1 c1 - PORT_NOW survivor, D-ruling 2026-10-19). Always-on once
+# landed: it is a gate of this repo, not an optional tool - no skip-when-absent branch.
+bash scripts/check-doc-refs.sh || { note "FAIL doc-liveness"; status=1; }
+
 if [ "$status" -eq 0 ]; then note "check.sh: all green"; else note "check.sh: RED"; fi
 exit "$status"
