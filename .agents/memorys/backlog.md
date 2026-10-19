@@ -50,7 +50,8 @@ rust-analyzer component install, whitepaper reference corrections (Cargo workspa
 - On any change here, keep the status.md pointer line truthful (drift = audit finding).
 
 ## Doc-audit 2026-10-19 dispositions (ruled one by one, clusters D+F)
-- P-REHANG rule-pack runnable execution (trigger "needs crates/" FIRED; Stage-1/2 both closed) -> M3S-1 stable lane.
-- P-REHANG eval harness + jscpd/addyosmani cherry-picks (triggers closed) -> re-check at M3S-1 with today's ecosystem state, or record drop.
+- [x] P-REHANG rule-pack runnable -> LANDED 2026-10-19 (real run; receipt: 2 over-cap files caught -> new row below).
+- [x] dangling-refs family CLOSED 2026-10-19 (M3S-1 sweep; unmounted language pool deliberately left - G10 doctrine).
+- P-NEW split/annotate 2 over-cap test files (error_contracts.rs 1053, process_executor.rs 888 vs 800 cap) - next lane touching crates/ tests absorbs it.
 - P-ADD S2 row: user-side apiKey rotation (was history-prose only; status cites it ownerless).
 - P-DEFER (F-split, ride next real touch): C1 block + test-plugins/ (needs its own C0 red/green, M3S-1); .agents/AGENTS.md book-to-skill "22 files" is 2; C3 negative-proof "145-char" measures 156; check.sh:92 "five legacy" figure is 56 (48 pre-C3 + 8 Oct-16 gap).
