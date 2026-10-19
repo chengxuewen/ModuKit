@@ -279,7 +279,7 @@ fn main() {
     )).expect("lie manifest parses");
     let lie_id = sup.kernel().install(lie_manifest).expect("§2 guard sees the file");
     let err = sup.kernel().resolve(&lie_id).expect_err("version-lie child must RED at handshake");
-    if err.code() != "ABI_MISMATCH" { fail(&format!("version lie REDed as {err} ({}), expected ABI_MISMATCH", err.code())); }
+    if err.code() != "IDENTITY_MISMATCH" { fail(&format!("version lie REDed as {err} ({}), expected IDENTITY_MISMATCH", err.code())); }
     if sup.kernel().state(&lie_id).expect("state") != PluginState::Failed {
         fail("version lie must park FAILED");
     }

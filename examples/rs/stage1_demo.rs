@@ -227,16 +227,16 @@ fn main() {
     stage_bundle(installer.staging_dir(), GOOD_ID, &good_so, true);
     let err = installer.install(GOOD_ID).expect_err("demo gate: tampered bundle RED");
     assert!(matches!(err, BundleError::HashMismatch { .. }), "{err}");
-    assert_eq!(err.code(), "CONTRACT_VIOLATION", "integrity rides the frozen D51 bucket");
+    assert_eq!(err.code(), "INTEGRITY_FAILED", "D85: the integrity tier carries its own name");
     assert!(!installer.bundles_dir().join(GOOD_ID).exists(), "install root untouched");
     assert!(installer.staging_dir().join(GOOD_ID).is_dir(), "staged bundle kept for the operator");
     println!("[10] negative A RED as expected: {err} (code {} domain=contract source=bundle-installer)", err.code());
 
     // [11] Negative B through the bundle door: the D7 cross-check loads the
-    // staged descriptor; the version guard refuses with ABI_MISMATCH.
+    // staged descriptor; the bad fixture lies about its ABI, so the door refuses with ABI_MISMATCH.
     stage_bundle(installer.staging_dir(), BAD_ID, &bad_so, false);
     let err = installer.install(BAD_ID).expect_err("demo gate: bad bundle RED");
-    assert_eq!(err.code(), "ABI_MISMATCH", "the handshake code flows through the bundle door");
+    assert_eq!(err.code(), "ABI_MISMATCH", "bad fixture lies about its ABI; the D85 IDENTITY_MISMATCH tier is for id/version lies");
     assert!(!installer.bundles_dir().join(BAD_ID).exists(), "install root untouched");
     println!("[11] negative B (bundle door) RED: {err} (code {} domain=contract source=d7-cross-check)", err.code());
 
