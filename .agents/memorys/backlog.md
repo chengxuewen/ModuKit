@@ -47,7 +47,14 @@ rust-analyzer component install, whitepaper reference corrections (Cargo workspa
 dir (mk-standin-902786-<ns>-hung) at execve - shared-path theory FALSIFIED, the
 unique-dir fix is insufficient. New criterion: this is a real-bug track; probe =
 strace/fanotify on the standin inode at spawn time, or switch spawn to
-Command::spawn-failure retry-on-ETXTBSY (one bounded retry, documented).'s verdict: if a 4th appears OUTSIDE cargo-test parallel load, treat as real bug (fanotify probe), else schedule the unique-dir hardening already done as sufficient.
+Command::spawn-failure retry-on-ETXTBSY (one bounded retry, documented).
+CLOSED 2026-10-19: /proc-holders probe caught sightings 5-7 - holders_at_
+failure=0, exec OK at +20ms on private fresh inodes: kernel async-close
+window CONFIRMED, real-writer theory dead. Fix = bounded 3x50ms retry at
+the production spawn door (executor_proc), 2 deterministic unit tests
+(held-fd trick), kill-criterion met (3x gate + 1x concurrent-load run,
+0 sightings). Upgrade condition noted in-code: a sighting surviving the
+bound reopens the hunt.'s verdict: if a 4th appears OUTSIDE cargo-test parallel load, treat as real bug (fanotify probe), else schedule the unique-dir hardening already done as sufficient.
 ## Maintenance
 
 - This file is loaded-adjacent: `status.md` (auto-mounted) carries the pointer.

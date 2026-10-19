@@ -21,7 +21,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 | Module | What |
 |---|---|
-| modukit-core / -runtime / -transport / -codegen | SHIPPED (workspace since 2026-10-15; 192 tests; v1 frozen D87) |
+| modukit-core / -runtime / -transport / -codegen | SHIPPED (workspace since 2026-10-15; 194 tests; v1 frozen D87) |
 | modukit-compositor | planned — §12-3 demoted track; UI demand trigger stands (D89-K2) |
 
 ## Verification
