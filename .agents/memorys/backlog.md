@@ -63,6 +63,6 @@ bound reopens the hunt.'s verdict: if a 4th appears OUTSIDE cargo-test parallel 
 ## Doc-audit 2026-10-19 dispositions (ruled one by one, clusters D+F)
 - [x] P-REHANG rule-pack runnable -> LANDED 2026-10-19 (real run; receipt: 2 over-cap files caught -> new row below).
 - [x] dangling-refs family CLOSED 2026-10-19 (M3S-1 sweep; unmounted language pool deliberately left - G10 doctrine).
-- P-NEW split/annotate 2 over-cap test files (error_contracts.rs 1053, process_executor.rs 888 vs 800 cap) - next lane touching crates/ tests absorbs it.
+- [x] P-NEW CLOSED 2026-10-19: both suites -> directory modules (same targets, verbatim bodies; 194/194, max file 359; cargo now prefixes module:: in test paths - cosmetic).
 - P-ADD S2 row: user-side apiKey rotation (was history-prose only; status cites it ownerless).
 - [x] P-DEFER (F-quad) CLOSED 2026-10-19: C1 scope +test-plugins/ (C0 red/green observed); book-to-skill claim corrected at its TRUE shape (package = book_to_skill/, 15 files, skill tree 22 - the "is 2" disposition figure was scripts/-only and would have mis-attributed); "145-char" -> 156; check.sh "five" -> 56.
