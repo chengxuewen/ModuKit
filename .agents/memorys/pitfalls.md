@@ -98,3 +98,20 @@
 - **Solution**: (1) unique per-invocation standin dirs (mk-standin-{pid}-{nanos}-{seq}), landed with the debt lane - the historical shared-path site never recurred (0/13); (2) LLVM_PROFILE_FILE redirected into target/llvm-cov-target via the pixi cov activation env - spawned children inherit it, the writer class is fully accounted for (zero fresh litter after a clean-sweep run, zero ETXTBSY across three post-fix cov runs). CLOSED 2026-10-18.
 - **Verification**: a clean full-text `pixi run -e cov cargo llvm-cov --workspace` completing green (the D84 per-crate split still needs exactly this).
 - **Forbidden**: writing instrumented-run litter into the source tree (the cov env now redirects it); running the per-crate split through a tty pipe (PIT-9).
+
+## PIT-11: Team-audit ack storm - conductor replies manufactured a mail flood (2026-10-19)
+- **Symptom**: user saw repeated "you have N new team messages" bursts during a 4-member doc-audit; asked why.
+- **Root cause**: conductor acknowledged EVERY member report and broadcast status pings; each ack landed as a new inbox item on a member, whose reply landed as a new item for the lead - a self-sustaining echo loop, multiplied by 4 members.
+- **Solution**: team conductors go silent on receipt - collect into the merge table, digest ONCE at the end; no per-message acks, no "stand by" pings after the first call.
+- **Verification**: if member-inbox messages after dispatch exceed 1 per member total, the pattern recurred.
+- **Forbidden**: ack-per-report orchestration; broadcasting "final call" more than once.
+
+## PIT-12: Multi-language command blocks leave bare code after a heredoc terminator (2026-10-19, x3)
+- **Symptom**: bash "unexpected syntax near open('...')" errors and "warning: here-document delimited by end-of-file (wanted MSG)" - commands half-executed, chains short-circuited.
+- **Root cause**: pasting python lines after a closed PY/MARKER heredoc (they become bash), or ending a heredoc with the WRONG terminator (EOF vs MSG) which swallows every following line into the message body - twice shipping commit messages that inhaled script tails.
+- **Solution**: one language per invocation; verify each heredoc's opener/terminator pair match before running; after any such error, ALWAYS re-check which steps actually ran (git status / file greps) before re-running the rest.
+- **Verification**: grep -c "EOF" inside a MSG-terminated block must be 0; post-error, `git status --short` + `grep -c "<marker string>" target` before retry.
+- **Forbidden**: assuming a chained block ran to the end after a syntax error mid-block.
+
+## PIT-13 (trivial): resumed adjudications reverted to summary tables (2026-10-19, x2)
+- Once adjudication-walkthrough is the active protocol, EVERY item - including after interruptions/team noise - goes seven-part plain text; the closing summary table is only due AFTER all items are individually ruled.
