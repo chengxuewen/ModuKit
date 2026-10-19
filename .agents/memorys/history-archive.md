@@ -334,3 +334,11 @@
   fixed. Debt-crate numbers quoted from the M5a table (78.42 / 73.19).
 - verdict per D84: both debt crates miss; hook ARMED; gate NOT cleared.
 - M3S-G row carries the observation verbatim; the flake stays untouched.
+
+## 2026-10-18 - profraw litter swept at maintainer word
+- 61 files (root + crates/*, all default_<ts>_<pid>_<seq>.profraw from
+  instrumented runs) deleted; .gitignore gained the *.profraw rule so
+  spawned-child and uninstrumented-exit litter can never be staged.
+- root cause pointer stays in the debt-lane report (LLVM_PROFILE_FILE
+  not exported to test-spawned children; proper redirect = hearing
+  candidate if the litter regrows at scale).
