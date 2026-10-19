@@ -24,7 +24,7 @@ Adjudicated architecture baseline (2026-10-15, records specific post-v1.0 deltas
 | Polyglot bindings | C/C++/Rust native · Python (PyO3) · C# (csbindgen) · JS/Node (napi-rs), all generated from the C ABI |
 | Script & sandbox | Lua (mlua) · embedded JS (QuickJS/Boa) · WASM sandbox (wasmtime) for untrusted plugins |
 | UI composition | main HMI as compositor; child processes submit frames via Wayland/X11 or SHM (I420), input events routed back |
-| Remote streaming | WebRTC (webrtc-rs / getstream-rtc); receiver decodes to I420 and hands frames to the host over SHM |
+| Remote streaming | WebRTC (webrtc-rs); the whitepaper-era name `getstream-rtc` is an audited mis-citation — the crate is `getstream`, a vendor cloud-SFU SDK candidate, not an open-source transport lib (`docs/reference/webrtc-rust-state.md`); receiver decodes to I420 and hands frames to the host over SHM |
 
 ## Architecture layers
 
@@ -39,13 +39,22 @@ flowchart TD
 - **Ecosystem**: native / managed / sandboxed / script plugins
 - **Extensions**: multi-process UI compositor, zero-copy SHM transport, remote WebRTC streaming
 
-## Crate map (planned)
+## Crate map
+
+Shipped — workspace under `crates/` (v1 surface frozen STABLE, `docs/architecture.md` §11 / D87):
+
+```text
+crates/modukit-core        # kernel: lifecycle, registry, manifest, bundle, bus, clock, logger,
+                           #   executors (dl + exe) with supervisor, TL-versioned proc wire
+crates/modukit-runtime     # host binaries: modukit-run (shadow runner) · modukit-host (supervisor loop)
+crates/modukit-transport   # transport seam: socketpair/memfd, SCM_RIGHTS fd-passing, optional vendor-shm (iceoryx2)
+crates/modukit-codegen     # protoc plugin (protoc-gen-modukit): Rust skeletons, C ABI shades, fdset decoder
+```
+
+Planned (whitepaper §2.3 namespace; naming authority `docs/whitepaper.md` §2/§4):
 
 ```toml
-modukit-core          # core: plugin lifecycle, service registry, IPC abstraction
-modukit-runtime       # runtime host (optional)
 modukit-compositor    # multi-process UI compositor (extension)
-modukit-transport     # transport abstraction: local SHM / remote WebRTC (extension)
 
 modukit-c             # C ABI export
 modukit-py            # Python bindings
@@ -63,8 +72,8 @@ modukit-cli           # command-line tooling
 
 Five stages per the whitepaper implementation path:
 
-- [ ] **Stage 1** — in-process plugin kernel: OSGi-style lifecycle & service registry
-- [ ] **Stage 2** — multi-process plugins & zero-copy IPC: iceoryx2/Zenoh, I420 SHM transport
+- [x] **Stage 1** — in-process plugin kernel: OSGi-style lifecycle & service registry — closed 2026-10-16 ([plan of record](docs/stage-1-plan.md))
+- [x] **Stage 2** — multi-process plugins & zero-copy IPC: iceoryx2/Zenoh, I420 SHM transport — closed 2026-10-18 ([plan of record](docs/stage-2-plan.md))
 - [ ] **Stage 3** — multi-process UI composition: main-HMI compositor, Wayland/X11
 - [ ] **Stage 4** — multi-machine remote WebRTC: encode, stream, route input back
 - [ ] **Stage 5** — polyglot & script ecosystem: C ABI export, generated bindings, Lua/QuickJS/WASM hosts
@@ -79,7 +88,7 @@ Five stages per the whitepaper implementation path:
 
 ## Development status
 
-Design-baseline stage: whitepaper v1.0 defined, no implementation code yet. Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
+As-built: four shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen` (194 tests; v1 API surface frozen STABLE per `docs/architecture.md` §11, D87). Stage 1 (in-process kernel) and Stage 2 (process placement) are closed; Stage 3 (stability + docs) is active. Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
 
 First-time machine setup for dev toolchains (user-level, via mise; idempotent): `./bootstrap.sh` (Linux/macOS) or `bootstrap.bat` (Windows native). Pins live in `mise.toml`.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # leg: doc-liveness (M3S-1 c1 - the sole PORT_NOW tribunal survivor, D-ruling 2026-10-19).
-# Extract backtick-quoted repo-relative paths from the four EVERY-TURN instruction files
-# (root AGENTS.md, .agents/AGENTS.md, conventions.md, status.md) and assert each exists.
+# Extract backtick-quoted repo-relative paths from the five instruction-scope files
+# (root AGENTS.md, .agents/AGENTS.md, conventions.md, status.md, + README.md since M3S-2).
 # Scope is tight on purpose - on-demand docs are not scanned.
 # Filter bias: SKIP the candidate when in doubt, never FAIL on a guess. So anything that
 # looks like a command (spaces, shell metachars), prose, an absolute/home path, a pure
@@ -11,7 +11,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
-FILES=(AGENTS.md .agents/AGENTS.md .agents/memorys/conventions.md .agents/memorys/status.md)
+FILES=(AGENTS.md .agents/AGENTS.md .agents/memorys/conventions.md .agents/memorys/status.md README.md)
 
 missing=0
 checked=0

@@ -128,3 +128,22 @@ Vendor libraries' threads/allocators are quarantined inside a backend implementa
 
 Any vendor linkage; DDS mappings; full QoS matrices; cross-host discovery (the kernel's
 network story is transport-level until a real multi-machine need).
+
+## 8. As built (2026-10-19, S2 shipped)
+
+Slot ① is live in `crates/modukit-transport` and `proc_wire.rs`. The control frame is
+exactly the TL envelope — `u32 LE len | u8 ver | u8 type | payload` — with
+`WIRE_VERSION = 1`: every frame carries the version byte and a foreign `ver` is a typed
+protocol error, never a reinterpret. Nine kinds ride it today (HELLO, START, STOP, ACK,
+REGISTER, CALL, RESULT, plus the S2-M3b dial pair DIAL/DUE); payload ceiling `FRAME_MAX`
+(64 KiB) so a lying length prefix cannot make the host allocate unbounded. Descriptor
+passing over `SCM_RIGHTS` (`fdpass.rs`) shipped as slot ①'s fd courier — §3's
+"attach once, hot path zero syscalls" is now the mechanism, not the plan. The first pool
+backend is `vendor-shm`: iceoryx2 pinned exact (`=0.10.0`), behind a non-default
+vendor-neutral feature, confined to one module plus one dependency line per D76, with
+dummy/vendor semantic-equivalence tests as the machine proof that the abstraction is not
+captive. The self-built memfd ring shipped as the always-available backend. §2's
+inventory otherwise holds: remote carrier and streaming slots stay empty (triggers
+unchanged), and §7's blanket "no vendor linkage year 1" became the D76-gated exception.
+The D74 dial pair (DIAL/DUE) is the wire-side rendezvous the §2 sketch left unnamed.
+Nothing in §5 or §6 moved — bridges and the never-cross list are as adjudicated.

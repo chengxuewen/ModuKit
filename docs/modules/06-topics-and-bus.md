@@ -87,3 +87,17 @@ the first real topic-storm incident.
 
 Also deliberately not: DDS worldviews; per-publisher sequencing guarantees; persistent/durable queues; topics for
 RPC; QoS vocabulary borrowed from any vendor (the kernel owns the list, bridges translate).
+
+## 7. As built (2026-10-19, S2 shipped)
+
+The bus remains the kernel-side face: in-process publish/subscribe and latest-value live
+in `bus.rs`, and a plugin still receives no bus handle — §5's "Stage 2: topics cross the
+wire" row is honestly UNBUILT, not quietly bridged. The cross-process clause (D81) was
+resolved at the freeze hearing as an admitted direction, not a frozen door: plugin-facing
+bus/clock verbs (publish, subscribe, schedule-timer) are the first residents of a future
+ABI v2, signatures explicitly NOT drawn — drawing day is its own hearing (D82); v1
+(register_service, byte-identical) stays STABLE (D87). The lineage continues outward: the
+v1-STABLE fact fired the media-base wiring trigger (D73), recorded as D89-K7 — the
+factual note to the external consumer's maintainer is pending, the wiring-hearing
+proposal stays armed. §3, §4 and §6 are untouched by any of this: the bus is still the
+instrumentation point, and the deliberately-not list stands.
