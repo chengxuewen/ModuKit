@@ -624,3 +624,10 @@
 - **Rationale**: each verdict walked one by one with paired pros/cons; the recurring principle across K2/K3/K4: work with no creditor does not enter the stage; K7's C trades a little honesty-slack (B's literalism avoided) for a lighter opening (A's full proposal deferred).
 - **Reference**: docs/stage-3-plan.md call sheet + verdicts section; D84 (K1 executes it), D73/D87 (K7), D82 (K4), D11/§12-2 (K3), C2/D67 (K6), §12-3 (K2).
 - **Re-review triggers**: K2's fence - first beachhead UI demand; K7's armed proposal - maintainer word or first MediaServo signal; K1 - the gate measurement itself is M3S-G, the first work of the stage.
+
+## D90: the D84 hook is LIFTED - both debt crates cleared at re-measurement (2026-10-18)
+
+- **Decision**: the anti-second-delay hook (D84c) is LIFTED: core measured 85.52 and codegen 85.24 against the 80 line (orchestrator-grade parser, independent re-verification), both crates having cleared at re-measurement. The D50 staged gate returns to its steady posture: 80% hard applies going forward, measured at stage/acceptance boundaries as before. Note for the record: the orchestrator rejected the agent-run's 81.33 core figure (different aggregation) at re-verify and paid MORE, not less - the hook was never lifted on a soft number. New features are unfrozen; Stage-3 lanes (M3S-1/2/3) may open on maintainer go.
+- **Rationale**: the calendar fired (M3S-G measured both crates below the line), the hook armed, the debt was paid as the first work of the stage exactly per K1's gate-then-build serial order - the mechanism ran end-to-end without a single waiver.
+- **Reference**: D84 (the armed hook), K1 (serial gate), the M3S-G row in docs/stage-3-plan.md (measurement + lane outcomes), D85/D27/D86 (the contracts the new tests pin).
+- **Re-review triggers**: the NEXT stage-boundary measurement (steady 80 hard applies); any crate dropping below 80 at a boundary re-arms the same hook automatically.

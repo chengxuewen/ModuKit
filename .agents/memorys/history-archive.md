@@ -342,3 +342,14 @@
 - root cause pointer stays in the debt-lane report (LLVM_PROFILE_FILE
   not exported to test-spawned children; proper redirect = hearing
   candidate if the litter regrows at scale).
+
+## 2026-10-18 - D90 hook lifted; demo D85 drift paid (same-day follow-through)
+- maintainer ruled 1+2: hook LIFT (D90 minted; numbering gate widened
+  D1-D90 with red/green proof) and the demo fix as the first unfrozen
+  work.
+- demo fix honesty note: the first attempt assumed both stage1 negatives
+  were version-lies; the live demo corrected it - bad-plugin lies about
+  its ABI (both doors ABI_MISMATCH); only stage2's manifest-version lie
+  is a true IDENTITY_MISMATCH. Reality over memory, again.
+- end state: both demos PASS, 192/0, check.sh green. The check.sh
+  gate-coverage gap (demos not in the gate) stays an open hearing item.
