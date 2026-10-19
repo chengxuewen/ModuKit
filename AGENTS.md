@@ -71,7 +71,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ```bash
 # C1 English-artifact gate (canonical copy lives in .agents/memorys/conventions.md - keep synced)
 grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ $(test -d crates/ && echo crates/) \
+  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
 # full local gate - fast checks incl BOTH demo gates (D50 + 2026-10-19 audit leg)

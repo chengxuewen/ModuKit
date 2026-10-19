@@ -89,7 +89,7 @@ if [ -f scripts/demo-stage2.sh ]; then
 else note "skip demo-stage2 (no script)"; fi
 
 # leg: C3 commit-shape over the pending (unpushed) range (machine gate, PIT-8)
-# scope note: the five pushed C3-era legacy subjects stay RED in any wider window by design
+# scope note: the 56 pushed legacy subjects (48 pre-C3 + 8 Oct-16 gap; recounted 2026-10-19) subjects stay RED in any wider window by design
 # - pushed history is immutable (reword covered the pre-push 24 only); the gate owns new work
 c3_shape=$(git log origin/master..HEAD --format='Subject: %s%nBody: %b%n_END_' 2>/dev/null | awk '
   function isbullet(l) { return substr(l,1,3)==" - " && length(l)<=102 }

@@ -23,7 +23,7 @@ Exception: functional CJK literals that must stay verbatim (trigger keywords in 
 ```bash
 # Check: no CJK (incl. CJK/full-width punctuation) in scanned artifacts
 grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ $(test -d crates/ && echo crates/) \
+  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 ```
 
@@ -51,7 +51,7 @@ test $(git log -1 --format=%s | wc -m) -le 61 && echo "C3 subject OK" || echo "C
 git log -1 --format=%b | grep -vE '^$|^ - .{1,99}$' | grep -q . \
   && echo "C3 VIOLATION (body lines not ' - ' wrapped or over 100)" || echo "C3 body OK"
 ```
-# negative proof observed 2026-10-15: HEAD at rule-landing time (14654cf, 145-char
+# negative proof observed 2026-10-15: HEAD at rule-landing time (14654cf, 156-char
 # subject) -> RED; the dogfooding commit of this rule -> GREEN. Reword of the 20 older
 # local commits deferred until the M5 agent lands (repo-wide history work while a
 # worker runs = PIT-14 class; all rewrites stay local - origin untouched).

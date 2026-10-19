@@ -65,4 +65,4 @@ bound reopens the hunt.'s verdict: if a 4th appears OUTSIDE cargo-test parallel 
 - [x] dangling-refs family CLOSED 2026-10-19 (M3S-1 sweep; unmounted language pool deliberately left - G10 doctrine).
 - P-NEW split/annotate 2 over-cap test files (error_contracts.rs 1053, process_executor.rs 888 vs 800 cap) - next lane touching crates/ tests absorbs it.
 - P-ADD S2 row: user-side apiKey rotation (was history-prose only; status cites it ownerless).
-- P-DEFER (F-split, ride next real touch): C1 block + test-plugins/ (needs its own C0 red/green, M3S-1); .agents/AGENTS.md book-to-skill "22 files" is 2; C3 negative-proof "145-char" measures 156; check.sh:92 "five legacy" figure is 56 (48 pre-C3 + 8 Oct-16 gap).
+- [x] P-DEFER (F-quad) CLOSED 2026-10-19: C1 scope +test-plugins/ (C0 red/green observed); book-to-skill claim corrected at its TRUE shape (package = book_to_skill/, 15 files, skill tree 22 - the "is 2" disposition figure was scripts/-only and would have mis-attributed); "145-char" -> 156; check.sh "five" -> 56.

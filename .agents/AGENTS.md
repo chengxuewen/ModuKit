@@ -21,7 +21,7 @@ Memory + rule packs + project skills, injected into every AI turn through `.open
 │   ├── common/                 # 12 files: development-workflow, edit-safety (#1–#27; historical double-#11 renumbered 2026-10-10), lesson-memory, …
 │   ├── rust/                       # mounted language pack (coding-style + hooks); ts/py/web/golang/cpp UNMOUNTED G10 — files stay on disk; 7 never-mounted dirs also kept (maintainer ruling 2026-10-09)
 │   └── csharp|dart|java|kotlin|perl|php|swift/  # unmounted pool — add to instructions[] to activate
-└── skills/                     # 12 dirs (rust-patterns + rust-testing vendored from affaan-m/ECC 2026-10-14, provenance in SKILL.md registry); book-to-skill carries a scripts/ python package (22 files, measured 2026-10-10)
+└── skills/                     # 12 dirs (rust-patterns + rust-testing vendored from affaan-m/ECC 2026-10-14, provenance in SKILL.md registry); book-to-skill carries a book_to_skill/ python package (15 package files, 22-file skill tree; recounted 2026-10-19)
 ```
 
 ## WHERE TO LOOK
