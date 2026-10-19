@@ -163,7 +163,8 @@ fn sweep_dead_standins() {
         let Some(rest) = name.strip_prefix("mk-standin") else {
             continue;
         };
-        // names: mk-standin-<pid>-<tag> (process_executor) or mk-standin-fd-<pid>
+        // names: mk-standin-<pid>-<nanos>-<tag> (process_executor) or
+        // mk-standin-fd-<pid>-<nanos> - pid is always the first numeric segment.
         let pid = rest
             .trim_matches('-')
             .split('-')
@@ -181,7 +182,15 @@ fn sweep_dead_standins() {
 
 fn build_standins(tag: &str) -> Option<PathBuf> {
     sweep_dead_standins();
-    let dir = std::env::temp_dir().join(format!("mk-standin-{}-{tag}", std::process::id()));
+    // PIT-10: the dir is unique per invocation (pid + unix-nanos + tag) so
+    // concurrent test binaries - and llvm-cov instrumented runs - can never
+    // race on one shared standin path (ETXTBSY class, 2026-10-18).
+    sweep_dead_standins();
+    let ts = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_nanos() as u64)
+        .unwrap_or(0);
+    let dir = std::env::temp_dir().join(format!("mk-standin-{}-{ts}-{tag}", std::process::id()));
     let exe = dir.join("standin-good");
     if exe.is_file() && dir.join("standin-hung").is_file() {
         return Some(dir);
