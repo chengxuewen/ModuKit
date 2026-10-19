@@ -39,7 +39,7 @@
 ## Not this track (cross-reference only — Stage-1 triggers)
 
 `scripts/check.sh` seed (landed 2026-10-13 per D50) + doc-liveness + D-record mechanics (PORT_NOW bundle),
-rust-analyzer component install, Cargo workspace scaffolding, whitepaper reference corrections
+rust-analyzer component install, whitepaper reference corrections (Cargo workspace scaffolding STRUCK 2026-10-19 doc-audit: landed 2026-10-15)
 (header-first vs metadata-first CLOSED as D63 2026-10-13 - struck at 2026-10-15 audit) — see
 `docs/reference/00-overview.md` section 4 and `.agents/memorys/status.md`.
 
@@ -47,3 +47,9 @@ rust-analyzer component install, Cargo workspace scaffolding, whitepaper referen
 
 - This file is loaded-adjacent: `status.md` (auto-mounted) carries the pointer.
 - On any change here, keep the status.md pointer line truthful (drift = audit finding).
+
+## Doc-audit 2026-10-19 dispositions (ruled one by one, clusters D+F)
+- P-REHANG rule-pack runnable execution (trigger "needs crates/" FIRED; Stage-1/2 both closed) -> M3S-1 stable lane.
+- P-REHANG eval harness + jscpd/addyosmani cherry-picks (triggers closed) -> re-check at M3S-1 with today's ecosystem state, or record drop.
+- P-ADD S2 row: user-side apiKey rotation (was history-prose only; status cites it ownerless).
+- P-DEFER (F-split, ride next real touch): C1 block + test-plugins/ (needs its own C0 red/green, M3S-1); .agents/AGENTS.md book-to-skill "22 files" is 2; C3 negative-proof "145-char" measures 156; check.sh:92 "five legacy" figure is 56 (48 pre-C3 + 8 Oct-16 gap).

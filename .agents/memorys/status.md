@@ -15,13 +15,14 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-16: D1-D88 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, all walked one by one; queue EMPTY, remainder trigger-gated. **STAGE-1 COMPLETE 2026-10-16**: M1-M8 + M8.5 lanes + M8.6 shelves all landed (108 tests; demo PASS falsifiable; coverage 78.6% vs 60 soft; ctest 6/6; shelves: crates/ engine, test-plugins/ fixtures, examples/ demos, plugins/ reserved - rulings F+B) - per-milestone evidence in `docs/stage-1-plan.md`, narrative in history-archive. C2 (corrected): ModuKit lands directly on master; PolyOrch upstream = dev-modukit branch; PIN POLICY: gitlink tracks the dev-modukit tip, fresh standalone bumps (pin `5945f2a` = CMP0174 guards, first full bless cycle merge->main-tests->push->bump; IDE pinned to pixi cmake via .vscode, PIT-7). **STAGE-2 ACCEPTED AND CLOSED 2026-10-18**: plan `docs/stage-2-plan.md` (Momus OKAY; kickoff A1-A7 -> D74-D81; M1-M5 landed incl. wire dial, vendor-shm, modukit-host, dual demo + ORPHAN-PROOF); freeze hearing 8 rulings -> D82-D88: **v1 surfaces STABLE (D87)**, v2 bus/clock verbs PLANNED (D82), dictionary 14->19 + hint() paid (D85/D86), coverage debt calendared to the Stage-3 kickoff gate (D84), ABI amendment policy live (D83). Stage-3 scoping on maintainer word. Kernel v0 parked.
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-19: D1-D90 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, all walked one by one; queue EMPTY, remainder trigger-gated. **STAGE-1 COMPLETE 2026-10-16**: M1-M8 + M8.5 lanes + M8.6 shelves all landed (then: 108 tests; demo PASS falsifiable; coverage 78.6% vs 60 soft; ctest 6/6; shelves: crates/ engine, test-plugins/ fixtures, examples/ demos, plugins/ reserved - rulings F+B) - per-milestone evidence in `docs/stage-1-plan.md`, narrative in history-archive. C2 (corrected): ModuKit lands directly on master; PolyOrch upstream = dev-modukit branch; PIN POLICY: gitlink tracks the dev-modukit tip, fresh standalone bumps (pin `5945f2a` = CMP0174 guards, first full bless cycle merge->main-tests->push->bump; IDE pinned to pixi cmake via .vscode, PIT-7). **STAGE-2 ACCEPTED AND CLOSED 2026-10-18**: plan `docs/stage-2-plan.md` (Momus OKAY; kickoff A1-A7 -> D74-D81; M1-M5 landed incl. wire dial, vendor-shm, modukit-host, dual demo + ORPHAN-PROOF); freeze hearing 8 rulings -> D82-D88: **v1 surfaces STABLE (D87)**, v2 bus/clock verbs PLANNED (D82), dictionary 14->19 + hint() paid (D85/D86), coverage debt calendared to the Stage-3 kickoff gate (D84), ABI amendment policy live (D83). Stage-3 scoping on maintainer word. Kernel v0 parked.
 
 ## Modules
 
 | Module | What |
 |---|---|
-| modukit-core / runtime / compositor / transport | planned — namespace per whitepaper §2.3; no Cargo workspace yet |
+| modukit-core / -runtime / -transport / -codegen | SHIPPED (workspace since 2026-10-15; 192 tests; v1 frozen D87) |
+| modukit-compositor | planned — §12-3 demoted track; UI demand trigger stands (D89-K2) |
 
 ## Verification
 
@@ -39,17 +40,19 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 ## Open Items
 
-- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger D1-D88 in `.agents/memorys/decisions.md`); Stage-1 plan of record `docs/stage-1-plan.md` complete; C2 branch discipline governs the PolyOrch submodule upstream only
+- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger D1-D90 in `.agents/memorys/decisions.md`); Stage-1 plan of record `docs/stage-1-plan.md` complete; C2 branch discipline governs the PolyOrch submodule upstream only
 - [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: P2 PAT (user) + R restart verification (now also carries 2026-10-14 plugin bumps) + S2 user-side apiKey rotation; P3/P4/P5 done; ecosystem-scan FULL rerun 2026-10-14 — fix batches 1-3 adjudicated and landed (see history-archive.md later entry); residual Stage-1-gated items listed there
 
 - [x] PolyOrch submodule live since M1; pin chain 3cbc155..5945f2a (five standalone bumps), policy = follow dev-modukit tip; first full C2 bless cycle closed 2026-10-16 (see Phase + history)
 - [x] Stage-2 COMPLETE 2026-10-18: M1-M5 + freeze hearing (D82-D88); v1 STABLE per D87, v2 PLANNED, dictionary 19 names, hint() paid, coverage debt calendared (D84); Stage-3 scoping opens on maintainer word; push decision open
-- [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — wiring hearing when kernel API stabilizes (D73)
+- [ ] K7 follow-through (OWNER: MAINTAINER): send MediaServo the v1-STABLE factual note; proposal stays ARMED until maintainer word (D89-K7)
+- [ ] Stage-3 plan of record `docs/stage-3-plan.md` (K1-K7 -> D89; debt paid, hook lifted D90); lanes M3S-1/2/3 open on go
+- [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — K7=C (D89): v1-STABLE factual note pending maintainer send; wiring-hearing proposal ARMED, not opened
 - [ ] `rules/common` dangling refs family remainder (full list in history 2026-10-14/15 entries; resolved branches struck) — inline or trim when Stage-2 tooling lands
 - [x] Cargo workspace landed 2026-10-15 (M2; kernel filled from M3 on)
 - [x] License decided — MIT OR Apache-2.0 dual (D1, 2026-10-09); texts at repo root; workspace metadata = Stage-1 trigger
 - [x] doc-audit re-scoped to ModuKit canon (commit 2aa7663); first full run 2026-10-10: 18 findings, all user-adjudicated
-- [ ] Maintainer calls pending (docs/reference/00-overview.md §4, among others): adopt tribunal PORT_NOW discipline bundle (check.sh seed landed per D50 2026-10-13; doc-liveness + D-record mechanics pending) when Stage-1 tooling lands. Struck at 2026-10-15 doc-audit: A6 wording RATIFIED as D63; §5 fork wording adopted by D25
+- [ ] Maintainer calls pending (docs/reference/00-overview.md §4, among others): tribunal PORT_NOW bundle: check.sh seed + D-record mechanics LANDED (daily use D74-D90); sole survivor doc-liveness check re-hung to Stage-3 M3S-1 (2026-10-19 doc-audit D-ruling). Struck at 2026-10-15 doc-audit: A6 wording RATIFIED as D63; §5 fork wording adopted by D25
 
 ## History
 

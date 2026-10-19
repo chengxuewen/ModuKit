@@ -150,8 +150,9 @@ does not need to be resolved before Stage 1 lands.
 7. Stage-4 engine axis: keep BOTH sans-I/O candidates (webrtc `rtc` primary,
    str0m LAN/embedded tier) as the profile recommends, or re-evaluate when
    the SFU scope question (webrtc-rust-state OQ list) is answered.
-8. Adopt the tribunal PORT_NOW discipline bundle when Stage-1 tooling
-   lands: `scripts/check.sh` seed (landed 2026-10-13 per D50) + doc-liveness check + D-record mechanics
+8. Tribunal PORT_NOW bundle - RE-SCOPED 2026-10-19 doc-audit: check.sh seed
+   (landed 2026-10-13, D50) and D-record mechanics (daily use, D74-D90) are
+   DONE; sole survivor = doc-liveness check, re-hung to Stage-3 M3S-1.
    (source: VisiaEngine adoption tribunal distillation, status.md History
    2026-10-09; elevated into this register by the 2026-10-10 doc-audit, M9).
 

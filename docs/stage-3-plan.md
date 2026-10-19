@@ -1,6 +1,7 @@
 # Stage-3 Plan — Multi-Process UI Composition (Demoted Track, Scoping Draft)
 
-> Status: DRAFT for maintainer adjudication + Momus review. Plan of record once accepted.
+> Status: PLAN OF RECORD (Momus OKAY; kickoff K1-K7 adjudicated -> D89; doc-audit dispositions below).
+> Audit fixes 2026-10-19, user-adjudicated one by one (clusters A-F).
 > Scope anchor: `docs/architecture.md` §12 item 3 ("multi-process UI composition:
 > extension/research track (demoted; revisit with the beachhead's real UI demands)")
 > + whitepaper §4/§6 (compositor as extension capability, never core).
@@ -42,16 +43,26 @@ adjudication (K0) is choosing which tiers this stage actually contains.
 - **K6 = A**: PolyOrch freshness unchanged (tip-following, routine bumps).
 - **K7 = C**: the D73 trigger - v1-STABLE FACT communicated to the MediaServo maintainer, NO wiring-hearing proposal yet; proposal trigger stays ARMED (open item: maintainer sends the factual note - external comms).
 
+### Doc-audit dispositions (2026-10-19, user-adjudicated one by one; 47 findings -> 6 clusters)
+
+- **A = init-deep-equivalent manual regen** of root AGENTS.md (10 stale claims; ceremony skipped for budget, disclosed).
+- **B = C**: full ledger catch-up (index D89/D90 rows; status counts, Modules row, "(then)" marker; K7 open item registered).
+- **C = B**: README fixes FOLDED INTO M3S-2 (scope extended: getstream-rtc name + crate-map shipped/planned split).
+- **D = A**: per-item strikes (PORT_NOW re-scoped to doc-liveness survivor; ecosystem/S2 re-hung to M3S-1/backlog).
+- **E = C**: this file caught up + sequencing deviation recorded honestly (M3S-0 row).
+- **F = C**: drive-bys landed with this pass (C2 dedup, "(then)", Modules row); deferred trio in backlog dispositions.
+
+
 ## 2. Milestone outline
 
 | # | Milestone | Deliverable | Anchors | Gate / evidence |
 |---|---|---|---|---|
-| M3S-0 | Kickoff | K1-K6 walked one by one; D-entry per verdict; numbering gate widen; pin freshness check; push decision OPEN at kickoff | §0-1, D84 | every K-item recorded before work opens |
-| M3S-G | **D84 kickoff gate (fires here)** | MEASURED 2026-10-18 (filed, not acted on - orchestrator gate-then-build per K1): `pixi run -e cov cargo llvm-cov --workspace --summary-only` -> TOTAL 71.70% (matches the M5a 71.76 within run-to-run jitter). Per-crate split from the full text run ABORTED by a test failure (see observation below) - the two adjudicated debt crates re-quoted from the M5a table until a clean split run: core 78.42 (need >=80, gap 1.6), codegen 73.19 (need >=80, gap 6.8). VERDICT PER D84: BOTH DEBT CRATES MISS -> the anti-second-delay hook is ARMED (new features blocked until cleared); gate NOT cleared. OBSERVATION (not acted on): the full-text cov run tripped a known-family flake (process_executor.rs:251, Text file busy on standin copy - ETXTBSY class, same family as the 2026-10-18 hardened builds; appeared under llvm-cov instrumentation load). | D84, D50 | coverage table 71.70 total; two debt crates below 80; hook armed; observation logged, untouched. DEBT LANE (2026-10-18, two agent runs, orchestrator re-verified): codegen 73.19 -> 85.24 (33 behavior tests); core 78.52 -> 85.52 (25 error-contract tests pinning the D85/D27/D86 contracts; error.rs+bundle_error.rs at 100). BOTH DEBT CRATES NOW CLEAR 80 - hook ready to lift on maintainer word. Residues: PIT-10 cov signature OPEN (2 instrumented sightings, none since the unique-dir fix); demos RED pre-existing (D85 remap vs stale asserts) with the check.sh gate-coverage gap noted |
-| M3S-1 | Stability + tooling lanes | (a) recorder/replay re-evaluation IF real traffic now exists (D78 triggers check — honest yes/no with evidence); (b) `rules/common` dangling-refs sweep (Stage-2 tooling now exists); (c) dangling `~/.claude` refs inline-or-trim; (d) Friction-log items 1-2 (throwaway-load, Manifest ctor) paid unless the lane evidence note shows the pain was one-off (the D75 round was real use) — recorded disposition either way | D78/D75/§9 | each lane: evidence note + landing or a recorded no-op with reason |
+| M3S-0 | Kickoff | CLOSED 2026-10-19 (audit E; row lag says K1-K6 - K7 added later by the Momus fix, corrected here): K1-K7 verdicts minted (D89), pin fresh, numbering gate widened to D90; push decision OPEN (owner maintainer). SEQUENCE DEVIATION on record: M3S-G ran before this row closed because K1 ruled debt-first - substance honored, paperwork lagged, fixed now | §0-1, D84, D89 | all K-items have recorded verdicts |
+| M3S-G | **D84 kickoff gate (fires here)** | MEASURED 2026-10-18 (filed, not acted on - orchestrator gate-then-build per K1): `pixi run -e cov cargo llvm-cov --workspace --summary-only` -> TOTAL 71.70% (matches the M5a 71.76 within run-to-run jitter). Per-crate split from the full text run ABORTED by a test failure (see observation below) - the two adjudicated debt crates re-quoted from the M5a table until a clean split run: core 78.42 (need >=80, gap 1.6), codegen 73.19 (need >=80, gap 6.8). VERDICT PER D84: BOTH DEBT CRATES MISS -> the anti-second-delay hook is ARMED (new features blocked until cleared); gate NOT cleared. OBSERVATION (not acted on): the full-text cov run tripped a known-family flake (process_executor.rs:251, Text file busy on standin copy - ETXTBSY class, same family as the 2026-10-18 hardened builds; appeared under llvm-cov instrumentation load). | D84, D50 | coverage table 71.70 total; two debt crates below 80; hook armed; observation logged, untouched. DEBT LANE (2026-10-18, two agent runs, orchestrator re-verified): codegen 73.19 -> 85.24 (33 behavior tests); core 78.52 -> 85.52 (25 error-contract tests pinning the D85/D27/D86 contracts; error.rs+bundle_error.rs at 100). BOTH DEBT CRATES NOW CLEAR 80 - hook ready to lift on maintainer word. Residues: PIT-10 cov signature OPEN (2 instrumented sightings, none since the unique-dir fix); demos RED pre-existing (D85 remap vs stale asserts) the check.sh gap since CLOSED (demo leg in gate, 8695879). CLOSING (2026-10-19): hook LIFTED per D90 (re-verify figures; the rejected 81.33 never carried the lift); PIT-10 CLOSED; demos fixed + both PASS (8bfc7db). Lane DONE.
+| M3S-1 | Stability + tooling lanes | (a) recorder/replay re-evaluation IF real traffic now exists (D78 triggers check — honest yes/no with evidence); (b) `rules/common` dangling-refs sweep (Stage-2 tooling now exists); (c) dangling `~/.claude` refs inline-or-trim; (c1) doc-liveness check (PORT_NOW survivor, D-ruling) + rule-pack runnable re-hang + S2 surfacing (backlog dispositions 2026-10-19); (d) Friction-log items 1-2 (throwaway-load, Manifest ctor) paid unless the lane evidence note shows the pain was one-off (the D75 round was real use) — recorded disposition either way | D78/D75/§9 | each lane: evidence note + landing or a recorded no-op with reason |
 | M3S-2 | v1-stable documentation pass | README "Development status" un-staled (whitepaper §6 staleness pass separately); README roadmap boxes tick (Stage 1/2 done); module cards 01/07/06 gain the Stage-2 as-built notes (fd-0 stdio, TL frames, supervision domain); friction-log learnings folded into SDK-facing notes | C1, D87 | doc-audit clean run; C1 green; no canon contradiction; any canon line change lands with a delta row (stage-2 mechanics precedent) |
 | M3S-3 | Example gallery | examples/ gains stage3 band? NO - gallery = curated README linking stage1/stage2 demos + their transcripts; plugins/ shelf stays reserved | rulings F+B | README gallery section; both demos runnable from clean checkout |
-| M3S-4 | Optional UI tier (ONLY if K2 says in) | …reserved, populated by K2's verdict; pre-scoped sketch: PAL device lanes (D72 triggers), dmabuf ticket growth (D15), compositor crate skeleton | §12-3, D15/D72/D44 | would carry its own rows |
+| ~~M3S-4~~ | ~~Optional UI tier~~ | SKIPPED per K2=A (E-ruling annotation): UI OUT; trigger = first beachhead UI demand | …reserved, populated by K2's verdict; pre-scoped sketch: PAL device lanes (D72 triggers), dmabuf ticket growth (D15), compositor crate skeleton | §12-3, D15/D72/D44 | would carry its own rows |
 | M3S-5 | Stage-3 acceptance | DoD written at M3S-0 close from the tier set chosen; gates: all existing + any new; coverage re-measured (post-debt); push + pin checks | D88 precedent | demo-style falsifiable gate if any new surface ships |
 
 ## 3. Sequence
@@ -82,9 +93,9 @@ Compositor implementation (unless K2 opens it), Wayland/X11 protocol code,
 dmabuf lanes, v2 signatures, Zenoh, bindings, wasm — all have named triggers;
 none fire today.
 
-## 7. Definition of Done (draft, finalized at M3S-0)
+## 7. Definition of Done (FINALIZED 2026-10-19 from K1-K7 - E-ruling)
 
-1. D84 gate measured and cleared (or the hook visibly armed and debt paid).
+1. D84 gate: DONE early (measured, debt paid, hook lifted D90) - accepted as pre-lane completion.
 2. Every Tier-0 lane closed with evidence or a recorded no-op.
 3. Docs as-built pass + gallery, doc-audit clean.
 4. All memories synced; numbering gate widened per verdicts; pin fresh; push
