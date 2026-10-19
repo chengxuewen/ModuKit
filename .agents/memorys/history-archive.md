@@ -325,3 +325,12 @@
 - numbering gate widened D1-D89 (red/green observed: planted D90 red,
   removed green); D89 consolidated one entry for the seven (K1-K6 are
   confirmations of existing doctrine; only K7 carries new information).
+
+## 2026-10-18 - D84 gate measured and filed (no execution, maintainer order)
+- summary-only run: TOTAL 71.70% (stable vs M5a 71.76, jitter 0.06).
+- per-crate split run aborted mid-run by the ETXTBSY-family flake
+  (process_executor.rs:251, standin copy busy under llvm-cov load);
+  maintainer ordered measure-and-file ONLY - nothing executed, nothing
+  fixed. Debt-crate numbers quoted from the M5a table (78.42 / 73.19).
+- verdict per D84: both debt crates miss; hook ARMED; gate NOT cleared.
+- M3S-G row carries the observation verbatim; the flake stays untouched.
