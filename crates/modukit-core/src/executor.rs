@@ -81,10 +81,85 @@ pub trait LoadedPlugin {
 #[derive(Debug, Default)]
 pub struct DlopenExecutor;
 
+/// The self-report a probe reads from an artifact without running any service
+/// logic (D83 additive door): the descriptor's human name plus the D7
+/// id/version strings the artifact declares. `None` id/version mirrors the
+/// silent-descriptor case the `LoadedPlugin::self_report` default answers.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SelfReport {
+    pub plugin_name: String,
+    pub id: Option<String>,
+    pub version: Option<String>,
+}
+
 impl DlopenExecutor {
     #[must_use]
     pub fn new() -> Self {
         Self
+    }
+
+    /// The shared `dl` artifact guard sequence (04 §3) - the single source of
+    /// truth for the ABI v1 guards. present-file, dlopen, entry symbol,
+    /// non-null descriptor, version/size/function pointers, then read the
+    /// name. `load` runs EXACTLY this and boxes the result;
+    /// `probe_self_report` runs the same and reads the self-report out before
+    /// releasing the handle. A successful dlopen is NOT a compatibility test
+    /// (04 §3, rutis' declared anti-goal) - every guard runs before any call.
+    fn open_validated(path: &str) -> Result<DlopenPlugin, KernelError> {
+        if !Path::new(path).is_file() {
+            return Err(KernelError::ArtifactMissing {
+                path: path.to_string(),
+            });
+        }
+        // SAFETY: loading native code runs initializers from a file path
+        // supplied by the caller (trusted internal code at the dl tier, 01 §5);
+        // the descriptor guards below run before any plugin call.
+        let lib = unsafe { Library::new(path) }.map_err(|e| KernelError::LoadFailed {
+            path: path.to_string(),
+            reason: e.to_string(),
+        })?;
+        // SAFETY: the symbol's declared type is the ABI v1 entry signature;
+        // the name is a NUL-terminated literal and `lib` outlives `_lib`.
+        let init: libloading::Symbol<'_, PluginInitFn> =
+            unsafe { lib.get(ENTRY_SYMBOL) }.map_err(|_| KernelError::SymbolMissing {
+                path: path.to_string(),
+            })?;
+        let desc: *const PluginAbiV1 = init();
+        if desc.is_null() {
+            return Err(KernelError::HandshakeNull);
+        }
+        // SAFETY: `desc` non-null and points into the mapped image we just
+        // obtained from the same library (kept alive by `lib`).
+        let validated = unsafe { &*desc };
+        DlopenPlugin::validate(validated)?;
+        let name = DlopenPlugin::cstr(validated.name);
+        Ok(DlopenPlugin {
+            _lib: lib,
+            desc,
+            name,
+        })
+    }
+
+    /// Read an artifact's self-report through the SAME guard sequence as
+    /// `Executor::load` (single source of truth) and release the handle before
+    /// returning. It rejects exactly what `load` rejects, with the same typed
+    /// `KernelError` - there is no second door with weaker semantics.
+    ///
+    /// # Errors
+    ///
+    /// The `KernelError` handshake/load family `load` runs: ArtifactMissing,
+    /// LoadFailed, SymbolMissing, HandshakeNull, AbiMismatch,
+    /// DescriptorTooSmall, HandshakeIncomplete.
+    pub fn probe_self_report(artifact: &Path) -> Result<SelfReport, KernelError> {
+        let plugin = Self::open_validated(&artifact.to_string_lossy())?;
+        let (id, version) = plugin.self_report();
+        let report = SelfReport {
+            plugin_name: plugin.plugin_name().to_string(),
+            id,
+            version,
+        };
+        drop(plugin); // release the mapping before the report leaves
+        Ok(report)
     }
 }
 
@@ -160,44 +235,12 @@ impl Executor for DlopenExecutor {
                 kind: manifest.entry.kind.to_string(),
             });
         }
-        let path = manifest.entry.artifact.as_str();
-        if !Path::new(path).is_file() {
-            return Err(KernelError::ArtifactMissing {
-                path: path.to_string(),
-            });
-        }
-        // A successful dlopen is NOT a compatibility test (04 §3, rutis'
-        // declared anti-goal) - every guard below runs before any call.
-        // SAFETY: loading native code runs initializers from a file path
-        // supplied by the deploy manifest (trusted internal code at the dl
-        // tier, 01 §5); the caller-reviewed guards follow immediately.
-        let lib = unsafe { Library::new(path) }.map_err(|e| KernelError::LoadFailed {
-            path: path.to_string(),
-            reason: e.to_string(),
-        })?;
-        // SAFETY: the symbol's declared type is the ABI v1 entry signature;
-        // the name is a NUL-terminated literal and `lib` outlives `_lib`.
-        let init: libloading::Symbol<'_, PluginInitFn> =
-            unsafe { lib.get(ENTRY_SYMBOL) }.map_err(|_| KernelError::SymbolMissing {
-                path: path.to_string(),
-            })?;
-        let desc: *const PluginAbiV1 = init();
-        if desc.is_null() {
-            return Err(KernelError::HandshakeNull);
-        }
-        // SAFETY: `desc` non-null and points into the mapped image we just
-        // obtained from the same library (kept alive by `lib`).
-        let validated = unsafe { &*desc };
-        DlopenPlugin::validate(validated)?;
-        let name = DlopenPlugin::cstr(validated.name);
-        // Copy the descriptor struct out of the image: reads stay valid for
-        // the wrapper's whole life, and the raw fn pointers are owned by the
-        // mapping we hold.
-        Ok(Box::new(DlopenPlugin {
-            _lib: lib,
-            desc,
-            name,
-        }))
+        // The artifact guards run in ONE place - `open_validated`, shared
+        // verbatim with `probe_self_report` - so the two doors can never
+        // diverge on what a bad artifact means.
+        Ok(Box::new(Self::open_validated(
+            manifest.entry.artifact.as_str(),
+        )?))
     }
 }
 

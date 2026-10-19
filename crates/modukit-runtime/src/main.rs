@@ -37,7 +37,7 @@ use std::path::Path;
 use modukit_core::abi::{ABI_VERSION, NativeService};
 use modukit_core::clock::{Clock, ClockDomain};
 use modukit_core::error::KernelError;
-use modukit_core::executor::{DlopenExecutor, Executor};
+use modukit_core::executor::DlopenExecutor;
 use modukit_core::identity::PluginId;
 use modukit_core::kernel::Kernel;
 use modukit_core::lifecycle::RestartPolicy;
@@ -139,14 +139,15 @@ fn internal_manifest(artifact: &str, id: String, version: String) -> Manifest {
 /// of `DlopenExecutor::load` run HERE first so a rejected artifact dies
 /// before HELLO (fail-closed), then run again inside the embedded kernel.
 fn self_report(artifact: &str) -> (String, String, String) {
-    let empty = internal_manifest(artifact, String::new(), String::new());
-    let probe = match DlopenExecutor::new().load(&empty) {
-        Ok(handle) => handle,
+    // The probe door runs the SAME ABI v1 guard sequence as the executor's
+    // `load` (single source of truth), so a rejected artifact still dies here
+    // before HELLO; no manifest is synthesized just to read a self-report.
+    let report = match DlopenExecutor::probe_self_report(Path::new(artifact)) {
+        Ok(report) => report,
         Err(err) => die(4, &format!("load {artifact}: {err}")),
     };
-    let (id, version) = probe.self_report();
-    let name = probe.plugin_name().to_string();
-    drop(probe);
+    let name = report.plugin_name;
+    let (id, version) = (report.id, report.version);
     let (Some(id), Some(version)) = (id, version) else {
         die(
             5,
