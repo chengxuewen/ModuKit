@@ -38,6 +38,13 @@ rust = "*"
 cargo-llvm-cov = "*"
 llvm-tools = "*"            # ships llvm-cov / llvm-profdata the wrapper drives
 
+[feature.cov.activation]
+# PIT-10 disposition (2026-10-18): profile raw files get ONE redirect
+# target inside the cov target dir - spawned children inherit the env,
+# so no default_*.profraw ever lands in the source tree, and the
+# instrumented-run writer class is fully accounted for.
+env = { LLVM_PROFILE_FILE = "target/llvm-cov-target/cov-%p-%m.profraw" }
+
 [environments]
 default = { features = ["tools", "rust"], solve-group = "base" }
 # cov rides its own solve group: the default build env resolution stays untouched.

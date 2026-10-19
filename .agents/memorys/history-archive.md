@@ -353,3 +353,15 @@
   is a true IDENTITY_MISMATCH. Reality over memory, again.
 - end state: both demos PASS, 192/0, check.sh green. The check.sh
   gate-coverage gap (demos not in the gate) stays an open hearing item.
+
+## 2026-10-18 - leftover sweep: demo leg in check.sh, PIT-10 closed
+- check.sh gained the demo leg (ok/FAIL per demo PASS-line gate,
+  skip-when-absent per D50) - the D85 drift hid two days because demos
+  were in no gate; red/green proof observed (sabotaged PASS line ->
+  exit 1 with FAIL row; restored -> all green).
+- PIT-10 CLOSED: unique dirs (done with the debt lane) + the cov env
+  redirect (LLVM_PROFILE_FILE via pixi activation env). Clean-sweep
+  run: zero fresh litter, zero ETXTBSY, three post-fix cov runs exit 0.
+  The writer class is fully accounted for; the historical shared-path
+  site never recurred.
+- both items landed without touching any frozen surface.

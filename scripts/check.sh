@@ -78,6 +78,16 @@ if [ -d contracts ] && [ -f scripts/regen-fdset.sh ]; then
   rm -rf "$fd_tmp"
 else note "skip regen-diff (no contracts/ ledger or regen script)"; fi
 
+# leg: demo gates (D85-drift lesson 2026-10-18 - the drift hid for two
+# days because demos were not in any gate). Skip-when-absent per D50;
+# each demo is a PASS-line gate with its own falsifiability probe.
+if [ -f scripts/demo-stage1.sh ]; then
+  if bash scripts/demo-stage1.sh 2>/dev/null | grep -q "demo-stage1: PASS"; then note "ok demo-stage1"; else note "FAIL demo-stage1 (gate did not print PASS)"; status=1; fi
+else note "skip demo-stage1 (no script)"; fi
+if [ -f scripts/demo-stage2.sh ]; then
+  if bash scripts/demo-stage2.sh 2>/dev/null | grep -q "demo-stage2: PASS"; then note "ok demo-stage2"; else note "FAIL demo-stage2 (gate did not print PASS)"; status=1; fi
+else note "skip demo-stage2 (no script)"; fi
+
 # leg: C3 commit-shape over the pending (unpushed) range (machine gate, PIT-8)
 # scope note: the five pushed C3-era legacy subjects stay RED in any wider window by design
 # - pushed history is immutable (reword covered the pre-push 24 only); the gate owns new work
