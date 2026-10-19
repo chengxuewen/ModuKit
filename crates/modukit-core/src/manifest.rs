@@ -132,6 +132,34 @@ impl Manifest {
             toml::from_str(input).map_err(|e| ManifestError::Toml(e.to_string()))?;
         raw.into_manifest()
     }
+
+    /// Grammar-legal internal/probe manifest (D83 additive door): a `dl`
+    /// placement whose non-entry fields are exactly the defaults a minimal
+    /// `dl` TOML parse yields (team `"default"`, `start_level` 0,
+    /// `stop_timeout` 2s, `RestartPolicy::None`, empty collections). For
+    /// kernel-authored probes and the shadow-runner — never for deploy files
+    /// authored from text (the TOML path stays the grammar authority).
+    #[must_use]
+    pub fn dl_internal(id: PluginId, artifact: impl Into<String>) -> Self {
+        Self {
+            id,
+            version: String::new(),
+            team: "default".to_string(),
+            start_level: 0,
+            start_timeout: None,
+            stop_timeout: Some(Duration::from_secs(2)),
+            min_host: None,
+            capabilities: Vec::new(),
+            entry: Entry {
+                kind: PlacementKind::Dl,
+                artifact: artifact.into(),
+                runner: None,
+            },
+            restart: RestartPolicy::None,
+            requires: Vec::new(),
+            provides: Vec::new(),
+        }
+    }
 }
 
 /// `"<count><unit>"` with unit in s/m/h (05 §2 examples `5s`, `2s`, `5m`).
