@@ -84,3 +84,17 @@
   through the exact pipeline, not the mental model of the regex.
 - **Forbidden**: shipping a commit whose shape was checked only "from memory of the rule";
   wrapping a ` - ` bullet across lines.
+
+## PIT-9: Counting cargo test through a busy tty silently drops suites (2026-10-16/18, x2+)
+- **Symptom**: `pixi run cargo test --workspace | awk ...` totals came back wrong twice (82 vs 134; 94 vs 133) while suites were actually all green; in one case the count read zero.
+- **Root cause**: concurrent cargo interleaves its output on the terminal; awk/grep pipelines over a live tty lose or corrupt lines (the file-lock "Blocking..." chatter interleaves mid-line). The totals were right every time when re-read from a redirected file.
+- **Solution**: ALWAYS redirect to a file first, then parse: `pixi run cargo test --workspace >/tmp/x.txt 2>&1; grep -E "^test result" /tmp/opencode/x.txt | awk '{p+=$4;f+=$2}'`. Never parse cargo output through a pipe attached to the live terminal.
+- **Verification**: the redirected-file awk vs a suite-by-suite table (stage-2 M3 turn, TOTAL=133 exactly matched the per-suite listing).
+- **Forbidden**: quoting a test total that was not parsed from a redirected file; diagnosing "missing suites" from a tty pipe.
+
+## PIT-10: D84-gate full-coverage run re-trips the ETXTBSY family under instrumentation load (2026-10-18)
+- **Symptom**: `cargo llvm-cov --workspace` (full-text mode, not summary-only) aborted at process_executor.rs:251 with `Text file busy` on a standin copy; the same suite is green under plain cargo both parallel and serial.
+- **Root cause**: llvm-cov instrumentation adds build/load on the same standin-build path; the race window (concurrent test binaries building the same standin dir) widens under it. The atomic-rename hardening (2026-10-18) closed the plain-cargo instance; the cov-run instance remains OPEN and untouched by maintainer order.
+- **Solution**: none applied yet (measure-and-file order). Candidate for the debt lane: make standin build dirs unique per test-binary pid AND per invocation (mk-standin-{pid}-{ts}), or serialize the cov run.
+- **Verification**: a clean full-text `pixi run -e cov cargo llvm-cov --workspace` completing green (the D84 per-crate split still needs exactly this).
+- **Forbidden**: treating the cov-run flake as the same closed instance; running the D84 per-crate split without either the unique-dir fix or serialized cov.

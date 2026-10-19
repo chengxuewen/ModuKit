@@ -302,3 +302,8 @@ user interrupted both times asking why the session kept blocking).
 **Verification**: the canonical C1 grep in `.agents/memorys/conventions.md` (runs verbatim before every commit involving artifacts).
 
 **Blocking condition**: committing an artifact batch that a canonical C1 run has not greened in the same exchange.
+
+### 27. Pipeline counting of build/test output through a live tty is a false-number machine (PIT-9)
+**Rule**: totals parsed from `cargo test`/`cargo build` output must come from a REDIRECTED FILE, never a pipe attached to the live terminal (concurrent cargo interleaves and drops lines under the tty). Wrong totals were shipped twice (82 vs 134; 94 vs 133) before the redirect habit landed.
+**Verification**: `pixi run cargo test --workspace >/tmp/x.txt 2>&1 && grep -cE "^test result" /tmp/x.txt` - suite count and totals agree with a per-suite listing.
+**Blocking condition**: quoting any test/build total parsed through a tty pipe; diagnosing "missing suites" without a redirected re-read.
