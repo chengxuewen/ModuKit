@@ -45,7 +45,8 @@ message Error {
   optional Hint hint = 6;
 }
 
-// D51: the frozen kernel dictionary - 14 entries, four domains, contiguous
+// D51 kernel dictionary - 14 frozen + 5 supervision-domain entries appended
+// by the S2-M5b freeze hearing (rulings 4+7); contiguous, append-only tail.
 // values per domain, each domain tail padded with RESERVED_n so a future
 // code lands in a sentinel slot without renumbering. Deprecated entries keep
 // name + value frozen.
@@ -82,4 +83,12 @@ enum KernelCode {
   CAPABILITY_DENIED = 20;
   RESERVED_RESOURCE_21 = 21;
   RESERVED_RESOURCE_22 = 22;
+
+  // supervision domain - S2-M5b hearing rulings 4+7 (append-only tail per
+  // the D51 amendment policy; the reserved slots stay reserved)
+  PROCESS_CRASHED = 23;
+  IDENTITY_MISMATCH = 24;
+  SERVICE_CALL_FAILED = 25;
+  DEFERRAL_DECLINED = 26;
+  CLOCK_DIAL_REFUSED = 27;
 }

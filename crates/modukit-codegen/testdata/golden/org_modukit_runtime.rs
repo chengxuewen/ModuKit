@@ -89,6 +89,16 @@ pub enum KernelCode {
     RESERVED_RESOURCE_21 = 21,
     /// tag 22.
     RESERVED_RESOURCE_22 = 22,
+    /// tag 23.
+    PROCESS_CRASHED = 23,
+    /// tag 24.
+    IDENTITY_MISMATCH = 24,
+    /// tag 25.
+    SERVICE_CALL_FAILED = 25,
+    /// tag 26.
+    DEFERRAL_DECLINED = 26,
+    /// tag 27.
+    CLOCK_DIAL_REFUSED = 27,
 }
 
 impl KernelCode {
@@ -118,6 +128,11 @@ impl KernelCode {
             20 => Self::CAPABILITY_DENIED,
             21 => Self::RESERVED_RESOURCE_21,
             22 => Self::RESERVED_RESOURCE_22,
+            23 => Self::PROCESS_CRASHED,
+            24 => Self::IDENTITY_MISMATCH,
+            25 => Self::SERVICE_CALL_FAILED,
+            26 => Self::DEFERRAL_DECLINED,
+            27 => Self::CLOCK_DIAL_REFUSED,
             _ => Self::KERNEL_CODE_UNSPECIFIED,
         }
     }

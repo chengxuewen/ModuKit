@@ -192,8 +192,13 @@ fn tampered_file_fails_install_before_anything_touches_the_install_root() {
     assert!(matches!(err, BundleError::HashMismatch { .. }), "{err}");
     assert_eq!(
         err.code(),
-        "CONTRACT_VIOLATION",
-        "D51 frozen bucket (see AMBIGUITY: no INTEGRITY_FAILED)"
+        "INTEGRITY_FAILED",
+        "S2-M5b hearing rulings 4+7: the integrity tier carries its own name"
+    );
+    assert_eq!(
+        err.hint(),
+        "the bundle was tampered or corrupted in transit - do not install; rebuild and re-sign the bundle",
+        "ruling 5-A: every BundleError carries its hearing-owed human hint"
     );
     assert!(
         !root.join("bundles/com.example.modukit.demo").exists(),

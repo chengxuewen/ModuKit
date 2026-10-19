@@ -274,10 +274,9 @@ fn full_lifecycle_walk_is_identical_under_both_placements() {
         "dl walk (mirrored from dlopen_kernel.rs)"
     );
     assert_eq!(dl_walk, exe_walk, "dual-placement lifecycle-walk equality");
-    // D51 v0 mapping: ServiceCallFailed codes as CONTRACT_VIOLATION (the 14-name
-    // freeze is the S2-M5 hearing agenda), so mirror the typed variant, not a
-    // code string — same check shape as dlopen_kernel.rs.
-    assert_eq!(dl_notes, vec!["CONTRACT_VIOLATION".to_string()]);
+    // S2-M5b hearing rulings 4+7: SERVICE_CALL_FAILED carries its own name now;
+    // both arms must emit the true code, byte-equal.
+    assert_eq!(dl_notes, vec!["SERVICE_CALL_FAILED".to_string()]);
     assert_eq!(
         dl_notes, exe_notes,
         "unknown-method rejection byte-equal too (typed passthrough, as the dl arm)"

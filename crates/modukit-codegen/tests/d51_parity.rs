@@ -47,7 +47,7 @@ fn ledger_kernel_codes() -> BTreeSet<String> {
 }
 
 /// The D51 frozen list, transcribed from the decision record.
-const D51_FROZEN_14: &[&str] = &[
+const D51_LEDGER: &[&str] = &[
     "MANIFEST_INVALID",
     "DEPENDENCY_MISSING",
     "DEPENDENCY_CYCLE",
@@ -56,6 +56,13 @@ const D51_FROZEN_14: &[&str] = &[
     "STOP_TIMEOUT",
     "ABI_MISMATCH",
     "CONTRACT_VIOLATION",
+    // S2-M5b hearing rulings 4+7: supervision domain appended per the D51
+    // amendment policy (reserved slots untouched, tail-only addition)
+    "PROCESS_CRASHED",
+    "IDENTITY_MISMATCH",
+    "SERVICE_CALL_FAILED",
+    "DEFERRAL_DECLINED",
+    "CLOCK_DIAL_REFUSED",
     "SCHEMA_INVALID",
     "NOT_FOUND",
     "EPOCH_EXPIRED",
@@ -94,6 +101,22 @@ fn every_kernel_error_variant() -> Vec<KernelError> {
         },
         KernelError::PluginStartFailed { status: 3 },
         KernelError::ServiceCallFailed { code: -1 },
+        // S2-M5b supervision-domain variants (rulings 4+7): one sample each
+        // so the produced-set assertion covers the appended codes.
+        KernelError::ProcessCrashed {
+            id: "com.example.p".into(),
+            exit: "signal 9".into(),
+        },
+        KernelError::IdentityMismatch {
+            what: "version",
+            expected: "0.1.0".into(),
+            found: "9.9.9".into(),
+        },
+        KernelError::RoutingDeferred {
+            plugin: "com.example.p".into(),
+            service: "svc".into(),
+        },
+        KernelError::ClockDialRefused { status: -2 },
         KernelError::UnsupportedPlacement { kind: "exe".into() },
         KernelError::UnknownPlugin { id: "p".into() },
         KernelError::Registry(RegistryError::MissingServiceId),
@@ -103,14 +126,14 @@ fn every_kernel_error_variant() -> Vec<KernelError> {
 }
 
 #[test]
-fn ledger_enum_is_exactly_the_frozen_14() {
+fn ledger_enum_is_the_adjudicated_dictionary() {
     let ledger = ledger_kernel_codes();
-    let frozen: BTreeSet<String> = D51_FROZEN_14.iter().map(|s| s.to_string()).collect();
+    let frozen: BTreeSet<String> = D51_LEDGER.iter().map(|s| s.to_string()).collect();
     assert_eq!(
         ledger, frozen,
         "org.modukit.runtime.proto KernelCode drifted from the D51 list"
     );
-    assert_eq!(ledger.len(), 14);
+    assert_eq!(ledger.len(), 19);
 }
 
 #[test]
@@ -134,6 +157,11 @@ fn kernel_code_strings_are_all_ledger_members() {
             "DEPENDENCY_MISSING",
             "MANIFEST_INVALID",
             "NOT_FOUND",
+            "PROCESS_CRASHED",
+            "IDENTITY_MISMATCH",
+            "SERVICE_CALL_FAILED",
+            "DEFERRAL_DECLINED",
+            "CLOCK_DIAL_REFUSED",
         ]
         .into_iter()
         .map(str::to_string)

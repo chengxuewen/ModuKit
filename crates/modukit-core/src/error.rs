@@ -175,19 +175,20 @@ impl KernelError {
             | KernelError::HandshakeNull
             | KernelError::AbiMismatch { .. }
             | KernelError::DescriptorTooSmall { .. }
-            | KernelError::IdentityMismatch { .. }
             | KernelError::WireVersionMismatch { .. }
             | KernelError::HandshakeIncomplete { .. } => "ABI_MISMATCH",
             KernelError::DependencyMissing { .. } => "DEPENDENCY_MISSING",
             // A supervised crash is transient in the D27 sense: the policy
             // engine may restart it inside the D3 budget; the identity lie
             // is input-shaped. Both live in the contract/handshake families.
-            KernelError::ProcessCrashed { .. } => "CONTRACT_VIOLATION",
-            KernelError::PluginStartFailed { .. }
-            | KernelError::ServiceCallFailed { .. }
-            | KernelError::ClockDialRefused { .. }
-            | KernelError::RoutingDeferred { .. }
-            | KernelError::UnsupportedPlacement { .. } => "CONTRACT_VIOLATION",
+            KernelError::ProcessCrashed { .. } => "PROCESS_CRASHED",
+            KernelError::IdentityMismatch { .. } => "IDENTITY_MISMATCH",
+            KernelError::ServiceCallFailed { .. } => "SERVICE_CALL_FAILED",
+            KernelError::RoutingDeferred { .. } => "DEFERRAL_DECLINED",
+            KernelError::ClockDialRefused { .. } => "CLOCK_DIAL_REFUSED",
+            KernelError::PluginStartFailed { .. } | KernelError::UnsupportedPlacement { .. } => {
+                "CONTRACT_VIOLATION"
+            }
         }
     }
 

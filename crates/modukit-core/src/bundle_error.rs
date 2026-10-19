@@ -66,11 +66,50 @@ impl BundleError {
             BundleError::Io { .. } | BundleError::MissingFile { .. } => "NOT_FOUND",
             BundleError::HashMismatch { .. }
             | BundleError::SizeMismatch { .. }
-            | BundleError::ArtifactNotListed { .. }
-            | BundleError::DuplicateId { .. }
-            | BundleError::CrossCheck { .. } => "CONTRACT_VIOLATION",
+            | BundleError::ArtifactNotListed { .. } => "INTEGRITY_FAILED",
+            BundleError::DuplicateId { .. } | BundleError::CrossCheck { .. } => {
+                "CONTRACT_VIOLATION"
+            }
             BundleError::Kernel(err) => err.code(),
             BundleError::NotInstalled { .. } => "NOT_FOUND",
+        }
+    }
+}
+
+impl BundleError {
+    /// The hearing-owed one-line human hint (M8 deferral, S2-M5b ruling 5-A):
+    /// what the installer user should do next, per variant. Stable prose, not
+    /// an API surface - codes stay the machine contract.
+    #[must_use]
+    pub fn hint(&self) -> &'static str {
+        match self {
+            BundleError::Config(_) => "check the installer arguments and the bundle layout root",
+            BundleError::Manifest(_)
+            | BundleError::ManifestField(_)
+            | BundleError::Grammar { .. } => {
+                "fix modukit.toml: id/version/entry fields must match the contract grammar"
+            }
+            BundleError::Io { .. } | BundleError::MissingFile { .. } => {
+                "verify the bundle contents on disk; a listed member is unreadable"
+            }
+            BundleError::HashMismatch { .. } | BundleError::SizeMismatch { .. } => {
+                "the bundle was tampered or corrupted in transit - do not install; rebuild and re-sign the bundle"
+            }
+            BundleError::ArtifactNotListed { .. } => {
+                "list the entry artifact in the [[files]] checklist, then rebuild the bundle"
+            }
+            BundleError::DuplicateId { .. } => {
+                "a bundle with this id is already installed - uninstall it first or bump the version"
+            }
+            BundleError::CrossCheck { .. } => {
+                "the artifact self-report disagrees with modukit.toml - rebuild the bundle from matching sources"
+            }
+            BundleError::Kernel(_) => {
+                "the artifact failed the door probe - see the kernel error for the specific stage"
+            }
+            BundleError::NotInstalled { .. } => {
+                "nothing is installed under this id - install the bundle first"
+            }
         }
     }
 }
