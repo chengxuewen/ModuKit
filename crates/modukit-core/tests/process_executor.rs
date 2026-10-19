@@ -182,10 +182,12 @@ fn sweep_dead_standins() {
 
 fn build_standins(tag: &str) -> Option<PathBuf> {
     sweep_dead_standins();
-    // PIT-10: the dir is unique per invocation (pid + unix-nanos + tag) so
-    // concurrent test binaries - and llvm-cov instrumented runs - can never
-    // race on one shared standin path (ETXTBSY class, 2026-10-18).
-    sweep_dead_standins();
+    // The dir is unique per invocation (pid + unix-nanos + tag) to isolate
+    // concurrent and instrumented runs - but this is NOT a cure for the
+    // ETXTBSY class: the 2026-10-19 hunt caught a sighting INSIDE such a
+    // private dir. The race is the kernel's async-close window after the
+    // landing writes below; the bounded retry at the spawn doorway
+    // (executor_proc SPAWN_ETXTBSY_RETRY_BOUND) is what absorbs it.
     let ts = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos() as u64)
@@ -220,8 +222,9 @@ fn build_standins(tag: &str) -> Option<PathBuf> {
             return None;
         }
     }
-    // atomic landings: writes go to .new/.tmp names and rename into place, so a
-    // concurrent exec NEVER sees a half-written file (ETXTBSY class, 2026-10-18).
+    // atomic landings: writes go to .new/.tmp names and rename into place, so
+    // a concurrent exec never sees a half-written file. (The separate
+    // async-close ETXTBSY window is handled at the spawn doorway, not here.)
     let base = dir.join("standin-bin");
     std::fs::rename(dir.join("standin-bin-rustc-standin.tmp"), &base).expect("rename bin");
     for stem in ["good", "abi-liar", "id-liar", "ver-liar", "crasher", "hung"] {

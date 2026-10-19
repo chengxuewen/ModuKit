@@ -116,10 +116,11 @@ fn sweep_dead_standins() {
 
 fn build_standins() -> Option<PathBuf> {
     sweep_dead_standins();
-    // PIT-10: unique per invocation (pid + unix-nanos); no shared path can
-    // race between concurrent or instrumented (llvm-cov) test binaries
-    // (ETXTBSY class, 2026-10-18).
-    sweep_dead_standins();
+    // Unique per invocation (pid + unix-nanos) isolates concurrent and
+    // instrumented (llvm-cov) runs, but does NOT cure the ETXTBSY class:
+    // a 2026-10-19 sighting fired inside such a private dir (kernel
+    // async-close window); the spawn doorway in executor_proc retries it
+    // bounded (SPAWN_ETXTBSY_RETRY_BOUND).
     let ts = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos() as u64)

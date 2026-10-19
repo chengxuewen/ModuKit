@@ -61,6 +61,20 @@ pub const DIAL_TIMEOUT: Duration = Duration::from_secs(5);
 /// Grace between the STOP message and SIGKILL (modules/01 §3 rule 5: `exe`
 /// teardown is `kill`), and between a clean ack and the reap.
 pub const STOP_KILL_GRACE: Duration = Duration::from_secs(1);
+/// Linux `ETXTBSY` (`Text file busy`): execve refuses an inode while a write
+/// reference it has not yet dropped still exists.
+const LINUX_ETXTBSY: i32 = 26;
+/// Extra attempts at the spawn doorway when execve returns ETXTBSY. The
+/// kernel's close() returns before the delayed __fput drops the last write
+/// reference on the executable's inode (installer copy/chmod/rename a few
+/// milliseconds earlier), and execve inside that window fails ETXTBSY with
+/// NO fd to the inode visible anywhere in /proc - probe-proven 2026-10-19
+/// (holders=0 at failure, same execve succeeds ~20ms later). Go's os/exec
+/// retries the same race at spawn; same bounded posture adopted here.
+const SPAWN_ETXTBSY_RETRY_BOUND: u32 = 3;
+/// Sleep between the bounded ETXTBSY retries - the observed __fput-lag
+/// window is single-digit milliseconds; 50ms per step clears it with margin.
+const SPAWN_ETXTBSY_RETRY_DELAY: Duration = Duration::from_millis(50);
 /// Spin interval of the bounded reap waits — only ever spent on a real OS
 /// child process (zero-sleep discipline exemption, S2-M1 brief).
 const REAP_POLL_INTERVAL: Duration = Duration::from_millis(2);
@@ -233,10 +247,29 @@ impl Executor for ProcessExecutor {
                 .stdin(Stdio::from(OwnedFd::from(child_end)))
                 .stdout(Stdio::null())
                 .stderr(Stdio::null());
-            cmd.spawn().map_err(|e| KernelError::LoadFailed {
-                path: exe.clone(),
-                reason: e.to_string(),
-            })?
+            // The retry loop stays inside this block so the F1 invariant
+            // holds: the builder - with the injected child_end - is dropped
+            // before the handshake read whether the first attempt or the
+            // last one succeeded.
+            let mut attempts = 0u32;
+            loop {
+                match cmd.spawn() {
+                    Ok(child) => break child,
+                    Err(e)
+                        if e.raw_os_error() == Some(LINUX_ETXTBSY)
+                            && attempts < SPAWN_ETXTBSY_RETRY_BOUND =>
+                    {
+                        attempts += 1;
+                        std::thread::sleep(SPAWN_ETXTBSY_RETRY_DELAY);
+                    }
+                    Err(e) => {
+                        return Err(KernelError::LoadFailed {
+                            path: exe.clone(),
+                            reason: e.to_string(),
+                        });
+                    }
+                }
+            }
         };
 
         // ABI v1 recheck over the wire + D7 cross-check, executed BEFORE
@@ -691,5 +724,93 @@ impl Drop for ProcPlugin {
         {
             kill_and_reap(&mut p);
         }
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn scratch_dir(label: &str) -> std::path::PathBuf {
+        let ts = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_nanos())
+            .unwrap_or(0);
+        let dir =
+            std::env::temp_dir().join(format!("mk-etxtbsy-{label}-{}-{ts}", std::process::id()));
+        std::fs::create_dir_all(&dir).expect("scratch dir");
+        dir
+    }
+
+    fn true_copy(dir: &Path) -> std::path::PathBuf {
+        let exe = dir.join("fake-plugin");
+        std::fs::copy("/bin/true", &exe).expect("copy /bin/true");
+        exe
+    }
+
+    fn manifest_for(exe: &Path) -> Manifest {
+        Manifest::from_toml_str(&format!(
+            "id = \"com.example.etxtbsy.probe\"\nversion = \"0.0.1\"\n\
+             [entry]\nkind = \"exe\"\nartifact = \"{}\"\n",
+            exe.display()
+        ))
+        .expect("manifest parses")
+    }
+
+    #[test]
+    fn spawn_door_retries_transient_etxtbsy_then_reaches_handshake() {
+        // A held write fd makes the first spawn attempt deterministically
+        // ETXTBSY. Released inside the retry budget, the load must get
+        // past the spawn doorway and fail later at the handshake EOF of
+        // the instantly-exiting `/bin/true` - never as "Text file busy".
+        let dir = scratch_dir("transient");
+        let exe = true_copy(&dir);
+        let keep = std::fs::OpenOptions::new()
+            .write(true)
+            .open(&exe)
+            .expect("hold write fd");
+        let releaser = std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(30));
+            drop(keep);
+        });
+        let err = ProcessExecutor::new()
+            .load(&manifest_for(&exe))
+            .err()
+            .expect("/bin/true never speaks hello");
+        releaser.join().expect("releaser");
+        let msg = err.to_string();
+        assert!(
+            !msg.contains("Text file busy"),
+            "bounded retry should have absorbed the transient ETXTBSY: {msg}"
+        );
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn spawn_door_reports_etxtbsy_after_retry_bound() {
+        // A write fd held past the whole retry budget: the doorway must
+        // still surface the typed LoadFailed with the ETXTBSY text, having
+        // spent its bound doing so.
+        let dir = scratch_dir("bound");
+        let exe = true_copy(&dir);
+        let keep = std::fs::OpenOptions::new()
+            .write(true)
+            .open(&exe)
+            .expect("hold write fd");
+        let t0 = Instant::now();
+        let err = ProcessExecutor::new()
+            .load(&manifest_for(&exe))
+            .err()
+            .expect("write fd held");
+        let waited = t0.elapsed();
+        drop(keep);
+        let KernelError::LoadFailed { reason, .. } = &err else {
+            panic!("held write fd must stay in the LoadFailed family: {err:?}");
+        };
+        assert!(reason.contains("Text file busy"), "reason was: {reason}");
+        assert!(
+            waited >= SPAWN_ETXTBSY_RETRY_DELAY * 2,
+            "retry budget was not spent: {waited:?}"
+        );
+        std::fs::remove_dir_all(&dir).ok();
     }
 }
