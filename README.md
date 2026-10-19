@@ -92,6 +92,18 @@ As-built: four shipped crates — `crates/modukit-core`, `crates/modukit-runtime
 
 First-time machine setup for dev toolchains (user-level, via mise; idempotent): `./bootstrap.sh` (Linux/macOS) or `bootstrap.bat` (Windows native). Pins live in `mise.toml`.
 
+## Runnable examples
+
+The two stage demos are the gallery - runnable ground truth, no docs-only promises:
+
+| Demo | Proves | Run |
+|---|---|---|
+| [stage1_demo](examples/rs/stage1_demo.rs) | in-process (`dl`) chain end to end: cdylib -> bundle -> D28 install -> lifecycle walk -> service echo -> bus late-join -> uninstall; negatives: tampered refused at the install door, ABI-lie parks FAILED | `bash scripts/demo-stage1.sh` (needs `pixi` on PATH) |
+| [stage2_demo](examples/rs/stage2_demo.rs) | process placement on the frozen v1 surface: `exe` bundle -> HELLO cross-check -> proxy echo kernel-side -> wire dial -> crash/revive budget -> ORPHAN-PROOF (SIGKILL the host, the runner self-dies, zero strays) | `bash scripts/demo-stage2.sh` |
+
+Both are also wired as standing legs of the local gate (`bash scripts/check.sh` runs them), and each is falsifiable by design (stage2 carries a documented sabotage hook). The plugins/ shelf stays grammar-reserved: the first production plugin opens it with its landing.
+
+
 ## Project language policy
 
 All project artifacts (code, comments, docs, memory files) are written in English; AI-session chat follows the user's language. See `.agents/memorys/conventions.md` C1.
