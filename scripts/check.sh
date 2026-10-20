@@ -93,6 +93,12 @@ else note "skip demo-stage2 (no script)"; fi
 # per D50; present, it is always-on like doc-liveness.
 bash scripts/check-embed-parity.sh || { note "FAIL embed-parity"; status=1; }
 
+# leg: capability ledger (Stage-4 M1 lane #7, plan §4 gate adoption note):
+# every EMBED_VERBS verb has a row in docs/capability-ledger.md; unshipped
+# languages ride the planned column, never a red condition. Always-on like
+# embed-parity; row-grammar contract documented in both files.
+bash scripts/check-capability-ledger.sh || { note "FAIL capability-ledger"; status=1; }
+
 # leg: C3 commit-shape over the pending (unpushed) range (machine gate, PIT-8)
 # scope note: the 56 pushed legacy subjects (48 pre-C3 + 8 Oct-16 gap; recounted 2026-10-19) subjects stay RED in any wider window by design
 # - pushed history is immutable (reword covered the pre-push 24 only); the gate owns new work
