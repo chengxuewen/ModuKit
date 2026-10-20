@@ -281,6 +281,67 @@ typedef struct modukit_host_embed_v1 {
                                  uint64_t *out_seq);
 } modukit_host_embed_v1;
 
+/* ------------------------------------------------------------------ */
+/* M2 tail-add - the exe rung (D83 tail-add; v1 major unchanged).
+ *
+ * TWO RUNGS, TWO AMBIENT KERNELS: the 16 verbs above drive the
+ * in-process (dl) kernel; the modukit_sup_* verbs below drive a
+ * SEPARATE process-global Supervisor kernel (proc_supervisor.rs) that
+ * owns child-process plugins. Services registered on one rung are NOT
+ * visible to the other - registry-level unification is a future
+ * ruling, deliberately not faked here. A dl manifest on sup_install
+ * (or an exe manifest on modukit_install) is refused at the INSTALL
+ * door (MANIFEST_INVALID) - the placement gate runs before any spawn
+ * or dlopen. Child teardown machinery
+ * (STOP_KILL_GRACE, spawn-door retries, fd ownership) stays
+ * Rust-side: a C caller never sees a child fd or pid.
+ */
+
+/* Install one exe manifest (kind = "exe") and walk it in ONE call:
+ * install -> resolve (spawn the runner + HELLO handshake) -> start.
+ * Rung 0 is deliberately coarse: a failure returns the FIRST failing
+ * door's code; the record's stage stays readable via modukit_sup_state.
+ * A wrong-kind manifest is refused at this install door (see the rung
+ * block above). out_plugin_id follows
+ * the modukit_install string-table ownership rule (kernel-owned bytes;
+ * copy, never free). */
+int32_t modukit_sup_install(const char *manifest_toml,
+                            const char **out_plugin_id);
+
+/* Cooperative stop of a supervised plugin (grace window, then kill -
+ * all Rust-side). Same 0 / negative-D51 channel as modukit_stop. */
+int32_t modukit_sup_stop(const char *id);
+
+/* State of a supervised plugin id; same int32_t modukit_plugin_state
+ * codes as modukit_state. */
+int32_t modukit_sup_state(const char *id, int32_t *out_state);
+
+/* One supervisor pass: reap dead children, post due timers, apply the
+ * restart policy. *out_actions counts children REAPED plus children
+ * REVIVED this pass; timer postings and park decisions ride the event
+ * ring instead (introspect_events). */
+int32_t modukit_sup_step(int32_t *out_actions);
+
+/* Dial wall time on a child's step clock (tests / replay): fires the
+ * timers due after delta_ns. On success *out_status carries the
+ * wire's DueTurn status code and *out_fired_at_ns the fired stamp;
+ * individual due jobs ride the event ring. A silent child is killed
+ * at DIAL_TIMEOUT with a typed refusal, never left half-answered. */
+int32_t modukit_sup_dial(const char *id, int64_t delta_ns,
+                         int32_t *out_status, uint64_t *out_fired_at_ns);
+
+/* One restart request per manifest policy (D3). *out_revive: 0 =
+ * Revived (respawned, re-started), 1 = Deferred (backoff window open;
+ * step or dial past it), 2 = Parked (budget exhausted, FAILED - never
+ * a silent loop). Unknown ids / wrong rung return the negative code. */
+int32_t modukit_sup_restart(const char *id, int32_t *out_revive);
+
+/* Uninstall a STOPPED supervised record (same door as modukit_uninstall
+ * on the other rung's kernel). An ACTIVE id refuses with the typed
+ * lifecycle code - stop it first; the child teardown belongs to
+ * modukit_sup_stop, never to this door. */
+int32_t modukit_sup_uninstall(const char *id);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

@@ -6,7 +6,7 @@
    --embed_header contracts/modukit_embed.h --output_dir <dir>
 
    C++ EMBED FACE (Stage-4 M1, ruling C++-3 face B): a header-only
-   RAII/status wrapper over the 16 HostEmbedV1 verbs.
+   RAII/status wrapper over the 23 HostEmbedV1 verbs.
    Error model: every verb's raw i32 channel rides `modukit::Status`
    (ok() is `raw >= 0`; code() maps a negative to the typed D51
    entry). A small status type is chosen OVER exceptions on purpose:
@@ -200,6 +200,34 @@ class Kernel {
 
   [[nodiscard]] Status introspect_events(uint64_t since_seq, uint8_t *out_buf, size_t buf_cap, size_t *out_len, uint64_t *out_seq) const {
      return Status{modukit_introspect_events(since_seq, out_buf, buf_cap, out_len, out_seq)};
+   }
+
+  [[nodiscard]] Status sup_install(const char *manifest_toml, const char **out_plugin_id) const {
+     return Status{modukit_sup_install(manifest_toml, out_plugin_id)};
+   }
+
+  [[nodiscard]] Status sup_stop(const char *id) const {
+     return Status{modukit_sup_stop(id)};
+   }
+
+  [[nodiscard]] Status sup_state(const char *id, int32_t *out_state) const {
+     return Status{modukit_sup_state(id, out_state)};
+   }
+
+  [[nodiscard]] Status sup_step(int32_t *out_actions) const {
+     return Status{modukit_sup_step(out_actions)};
+   }
+
+  [[nodiscard]] Status sup_dial(const char *id, int64_t delta_ns, int32_t *out_status, uint64_t *out_fired_at_ns) const {
+     return Status{modukit_sup_dial(id, delta_ns, out_status, out_fired_at_ns)};
+   }
+
+  [[nodiscard]] Status sup_restart(const char *id, int32_t *out_revive) const {
+     return Status{modukit_sup_restart(id, out_revive)};
+   }
+
+  [[nodiscard]] Status sup_uninstall(const char *id) const {
+     return Status{modukit_sup_uninstall(id)};
    }
 
 private:

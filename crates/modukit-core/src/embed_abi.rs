@@ -39,6 +39,14 @@ pub const EMBED_VERBS: &[&str] = &[
     "modukit_clock_advance",
     "modukit_introspect_snapshot",
     "modukit_introspect_events",
+    // M2 tail-add: the exe rung (supervisor). Order = header declaration order.
+    "modukit_sup_install",
+    "modukit_sup_stop",
+    "modukit_sup_state",
+    "modukit_sup_step",
+    "modukit_sup_dial",
+    "modukit_sup_restart",
+    "modukit_sup_uninstall",
 ];
 
 /// `abi::PluginAbiV1` fields in declaration order - the third parity

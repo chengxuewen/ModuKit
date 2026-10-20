@@ -36,6 +36,7 @@ pub mod edge_ledger;
 pub mod embed;
 pub mod embed_abi;
 mod embed_codec;
+pub mod embed_sup;
 pub mod error;
 pub mod events;
 pub mod executor;

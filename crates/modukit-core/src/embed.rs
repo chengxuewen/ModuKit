@@ -102,7 +102,7 @@ fn ambient() -> MutexGuard<'static, Ambient> {
 static PLUGIN_IDS: LazyLock<Mutex<HashMap<String, &'static CStr>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
-fn registered_id(id: &str) -> Option<&'static CStr> {
+pub(crate) fn registered_id(id: &str) -> Option<&'static CStr> {
     let mut table = PLUGIN_IDS.lock().unwrap_or_else(PoisonError::into_inner);
     if let Some(seen) = table.get(id) {
         return Some(seen);
@@ -126,7 +126,7 @@ static NEXT_QUEUE: AtomicI32 = AtomicI32::new(1);
 
 /// Shared plumbing of resolve/start/stop/uninstall: id borrow + big lock +
 /// kernel door + negated-D51 channel.
-fn lifecycle_move(
+pub(crate) fn lifecycle_move(
     id: *const c_char,
     door: impl FnOnce(&Kernel, &PluginId) -> Result<(), KernelError>,
 ) -> i32 {
