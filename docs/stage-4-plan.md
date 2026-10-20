@@ -144,7 +144,17 @@ ALL GREEN (orchestrator-verified per lane): probe byte-equal; embed.h+plugin.h o
 - cmake: C++ compile leg + ctest bridges
 - capability ledger: initial matrix shipped WITH the M1 surfaces; gate leg live after a planted-red observation (C0)
 - wiring: `scripts/demo-stage4-m1.sh` (PASS-string grep) becomes a scripts/check.sh leg, red-planted before trusted (C0)
-### M2 - child-process rung (D83 tail-add to HostEmbedV1)
+### M2 - child-process rung (D83 tail-add to HostEmbedV1) - LANDED 2026-10-20
+(seven sup verbs over a second ambient Supervisor; two-rung wall asserted both
+ faces; host_sup_demo walks sup_install->ACTIVE->step->dial-refusal then gets
+ SIGKILLed and the runner self-reap census proves ORPHAN-PROOF under a C++ host;
+ DEMO_STAGE4_M2_SABOTAGE red observed. M2a built inline after two delegation
+ deaths; three cross-language landmines surfaced and fixed by it: RTLD_NODELETE
+ (probe-drop+reload re-ran C++ statics -> protobuf pool SIGABRT), wire method
+ naming (emitter said Echo, wire said echo - to_snake single-sourced), and the
+ runner self-check guard (byte-equality echo was the rs twin’s law in disguise:
+ empty probe + pass-on-Ok; fidelity proven parent-side by the proxy round-trip).)
+- 
 - Supervisor verb group mirrored into the embed table (step/drive_until_idle/dial/restart/watch census)
 - fd-ownership and signal discipline carried per S2 lessons (friction 7 class); ORPHAN-PROOF-style demo gate from the C++ host
 - small design note for the verb semantics (D83 record, no break hearing)
