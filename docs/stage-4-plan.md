@@ -133,7 +133,9 @@ Analysis adoptions recorded with the rulings (accepted, not separately contested
 
 ## 5. Milestones (lanes open on a separate go order; briefs presented before work)
 
-### M1 - same-process rung (C++ plugin SDK + host embedding)
+### M1 - same-process rung (C++ plugin SDK + host embedding) - LANDED 2026-10-20
+ALL GREEN (orchestrator-verified per lane): probe byte-equal; embed.h+plugin.h originals with three-way parity; emitters both faces; fixtures+shelf+live probe (descriptor arms); HostEmbedV1 Rust impl + host_demo full word list; ledger + gates. ctest 8/8, 219 tests, three demo legs, check.sh green. Honest gaps recorded: acquire-by-id, bus size-probe, global-kernel semantics, staticlib addition.
+
 - PROBE FIRST (gates the rest of M1): compile-and-link one protoc-generated C++ message under the pinned pixi/cmake toolchain against the checked-in fdset contract - proves the C++-1 "protoc output used as-is" assumption before any emitter work builds on it
 - contracts/: `modukit_embed.h` (HostEmbedV1 original) + regen/parity gate leg (fdset precedent, red-planted)
 - codegen: C++ emitter for the PLUGIN side (descriptors/services/messages) AND generated embed-side C++ wrappers for HostEmbedV1 (C++-3's two halves; reuses cabi/emit/wire models; messages ride protoc C++)
