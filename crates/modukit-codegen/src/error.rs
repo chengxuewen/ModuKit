@@ -26,6 +26,10 @@ pub enum CodegenError {
     /// service skeletons mirror its D27 error record and cannot be emitted
     /// without it.
     RuntimeLedgerMissing,
+    /// The embed contract header (`contracts/modukit_embed.h`) could not be
+    /// parsed for its verb declarations or enum blocks (Stage-4 M1 embed
+    /// face) - a header the parser cannot see through is contract drift.
+    EmbedHeader(String),
     /// Usage error for the `protoc-gen-modukit` binary.
     Usage(String),
 }
@@ -66,6 +70,11 @@ impl fmt::Display for CodegenError {
                 f,
                 "org.modukit.runtime ledger missing from the inputs - service \
                  skeletons mirror its D27 error record"
+            ),
+            CodegenError::EmbedHeader(m) => write!(
+                f,
+                "embed contract header (modukit_embed.h): {m} (ruling C++-3: the \
+                 header IS the contract - the parse refuses a drift)"
             ),
             CodegenError::Usage(m) => write!(f, "usage: {m}"),
         }

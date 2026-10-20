@@ -10,22 +10,29 @@
 //!   `modukit::Error`-shaped record mirrored from the runtime ledger);
 //! - a C ABI vtable SHADE + `.h` (Stage 1: shape only, "frozen later" per
 //!   modules/04 §1 - function tables with i32 status returns, no Rust types
-//!   in the header).
+//!   in the header);
+//! - a C++ plugin-face skeleton `.hpp` (Stage-4 M1, ruling C++-3 face A -
+//!   messages ride the stock protoc C++ output, C++-1).
 //!
 //! Module map: `wire` (raw varint/LD reader), `model` (decoded subset
 //! types), `descriptor` (descriptor.proto subset decode), `emit` (Rust
-//! skeleton), `cabi` (vtable shade + header), `error` (typed failures).
+//! skeleton), `cabi` (vtable shade + header), `cpp` (C++ plugin face),
+//! `embed` (C++ embed-face wrapper generator from
+//! `contracts/modukit_embed.h`, C++-3 face B), `error` (typed failures).
 
 use std::path::{Path, PathBuf};
 
 pub mod cabi;
+pub mod cpp;
 pub mod descriptor;
+pub mod embed;
 pub mod emit;
 pub mod error;
 pub mod model;
 pub mod wire;
 
 pub use descriptor::decode_file_descriptor_set;
+pub use embed::emit_embed_hpp;
 pub use error::CodegenError;
 use model::{File, RUNTIME_PACKAGE};
 
@@ -34,8 +41,8 @@ use model::{File, RUNTIME_PACKAGE};
 ///
 /// - `a_b_c.rs` - Rust skeleton (every contract file, the runtime ledger
 ///   included: its vocabulary is generated output too, same door);
-/// - `a_b_c.abi.rs` + `a_b_c.h` - the C ABI shade, only for files that
-///   declare services.
+/// - `a_b_c.abi.rs` + `a_b_c.h` + `a_b_c.hpp` - the C ABI shade and the
+///   C++ plugin face, only for files that declare services.
 ///
 /// # Errors
 ///
@@ -72,6 +79,11 @@ pub fn generate(fdsets: &[PathBuf], out_dir: &Path) -> Result<Vec<PathBuf>, Code
                 out_dir,
                 &format!("{}.h", file.module_name()),
                 &cabi::emit_cabi_header(file)?,
+            )?);
+            written.push(write(
+                out_dir,
+                &format!("{}.hpp", file.module_name()),
+                &cpp::emit_cpp_header(file)?,
             )?);
         }
     }
