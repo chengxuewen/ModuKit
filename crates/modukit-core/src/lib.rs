@@ -33,6 +33,7 @@ pub mod bus;
 pub mod clock;
 pub mod counters;
 pub mod edge_ledger;
+pub mod embed_abi;
 pub mod error;
 pub mod events;
 pub mod executor;

@@ -88,6 +88,11 @@ if [ -f scripts/demo-stage2.sh ]; then
   if bash scripts/demo-stage2.sh 2>/dev/null | grep -q "demo-stage2: PASS"; then note "ok demo-stage2"; else note "FAIL demo-stage2 (gate did not print PASS)"; status=1; fi
 else note "skip demo-stage2 (no script)"; fi
 
+# leg: embed-contract parity (Stage-4 M1 lane #2, C++-3): the header IS the
+# contract; the Rust mirror must list its verbs exactly. Skip-when-absent
+# per D50; present, it is always-on like doc-liveness.
+bash scripts/check-embed-parity.sh || { note "FAIL embed-parity"; status=1; }
+
 # leg: C3 commit-shape over the pending (unpushed) range (machine gate, PIT-8)
 # scope note: the 56 pushed legacy subjects (48 pre-C3 + 8 Oct-16 gap; recounted 2026-10-19) subjects stay RED in any wider window by design
 # - pushed history is immutable (reword covered the pre-push 24 only); the gate owns new work
