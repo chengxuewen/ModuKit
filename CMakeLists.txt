@@ -23,4 +23,7 @@ include(cmake/ModuKitGates.cmake)
 modukit_gates_codemodel_probe()      # W4 evidence: File API codemodel dump for the FOLDER assertion
 include(cmake/ModuKitPolyOrchCrates.cmake)
 modukit_polyorch_crates()          # M8.5 W2-W4 lane wiring: five cargo lanes + stage1_demo button + ctest bridge (D66)
+
+add_subdirectory(bindings/cpp)      # Stage-4 M1 cpp shelf: generated faces + modukit_cpp + ctest probe (auto-skips without the env protoc)
+add_subdirectory(test-plugins/cpp)  # Stage-4 M1 cpp fixture band: the .so pair the probe dlopens
 # add_subdirectory(crates/...) stays off - the lanes ride the helper surface, cargo keeps its workspace authority (D65)
