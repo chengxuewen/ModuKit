@@ -1,36 +1,114 @@
 #!/usr/bin/env bash
-# leg: embed-contract parity (Stage-4 M1 lane #2, ruling C++-3). The C header
-# contracts/modukit_embed.h IS the HostEmbedV1 contract original; this gate
-# pins the Rust-side mirror (crates/modukit-core/src/embed_abi.rs EMBED_VERBS)
-# to it verb-for-verb: the sorted lists must be identical, empty diff or red.
-# Amendment policy is D83 tail-add - a verb added to one side without the
-# other fails here before anything downstream can drift.
+# leg: contract parity for the C contract originals (Stage-4 M1 lane #2,
+# ruling C++-3; extended by gap ruling A 2026-10-20 for the plugin side).
+#
+# (a) Embed face: contracts/modukit_embed.h IS the HostEmbedV1 contract
+#     original; pins the Rust-side mirror (embed_abi.rs EMBED_VERBS) verb-
+#     for-verb against it. SORTED diff - the embed vtable order is not
+#     itself a contract.
+# (b) Plugin face: contracts/modukit_plugin.h mirrors the frozen #[repr(C)]
+#     tables abi::PluginAbiV1 / abi::HostAbiV1 (crates/modukit-core/src/
+#     abi.rs - read-only layout truth, D87 STABLE). Here ORDER IS THE
+#     CONTRACT, so the field-name lists are diffed UNSORTED, three-way:
+#     abi.rs <-> header <-> embed_abi.rs consts (PLUGIN_ABI_FIELDS /
+#     HOST_ABI_FIELDS).
+#     Mapping discipline: Rust field `x` <-> C member `x` - identical
+#     snake_case names, no affix; one field per line in both sources.
+#     Split of duties: the consts' Rust unit test asserts the lists are
+#     non-empty + unique; the ordering truth lives in this script.
+#     The version/entry pins are checked too: ABI_VERSION <->
+#     MODUKIT_ABI_VERSION, ENTRY_SYMBOL <-> MODUKIT_ENTRY_SYMBOL.
+# Amendment policy is D83 tail-add - a verb/field moved or added on one
+# side without the other fails here before anything downstream can drift.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
-HEADER=contracts/modukit_embed.h
+EMBED_HEADER=contracts/modukit_embed.h
+PLUGIN_HEADER=contracts/modukit_plugin.h
 MIRROR=crates/modukit-core/src/embed_abi.rs
+ABI=crates/modukit-core/src/abi.rs
 
-if [ ! -f "$HEADER" ] || [ ! -f "$MIRROR" ]; then
-  echo "check-embed-parity: RED (missing $HEADER or $MIRROR)"
-  exit 1
-fi
+for f in "$EMBED_HEADER" "$PLUGIN_HEADER" "$MIRROR" "$ABI"; do
+  if [ ! -f "$f" ]; then
+    echo "check-embed-parity: RED (missing $f)"
+    exit 1
+  fi
+done
 
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
+fail=0
 
+# ---- (a) embed verbs: header declarations <-> EMBED_VERBS (sorted) ----
 # Header side: every verb function declaration (int32_t modukit_*() in the
 # extern "C" block).
-grep -oE '^int32_t modukit_[a-z_0-9]+\(' "$HEADER" \
+grep -oE '^int32_t modukit_[a-z_0-9]+\(' "$EMBED_HEADER" \
   | sed 's/^int32_t //; s/($//' | sort > "$tmp/header.txt"
 
 # Mirror side: the EMBED_VERBS entries (the parity gate's second source).
 grep -oE '"modukit_[a-z_0-9]+"' "$MIRROR" | tr -d '"' | sort > "$tmp/mirror.txt"
 
-if diff -u "$tmp/header.txt" "$tmp/mirror.txt" > "$tmp/diff.txt"; then
+if diff -u "$tmp/header.txt" "$tmp/mirror.txt" > "$tmp/verbs.diff"; then
   echo "check-embed-parity: ok ($(wc -l < "$tmp/header.txt") verbs match header <-> mirror)"
-  exit 0
+else
+  echo "check-embed-parity: RED (header <-> EMBED_VERBS mismatch)"
+  cat "$tmp/verbs.diff"
+  fail=1
 fi
-echo "check-embed-parity: RED (header <-> EMBED_VERBS mismatch)"
-cat "$tmp/diff.txt"
-exit 1
+
+# ---- (b) plugin tables: ordered field diffs ----
+# Rust side: the `pub <name>: <type>,` field lines inside a struct block.
+rust_fields() { sed -n "/^pub struct $1 {/,/^}/p" "$ABI" \
+  | grep -oE 'pub [a-z_][a-z0-9_]*:' | sed 's/^pub //; s/:$//'; }
+
+# C side: the identifier before each line-ending `;` inside the struct
+# block; comment and closing-`}` lines are excluded, and the header keeps
+# one member per line (documented convention).
+c_fields() { sed -n "/^typedef struct $1 {/,/^} $1;/p" "$PLUGIN_HEADER" \
+  | sed 's|/\*.*\*/||g' \
+  | grep -vE '^[[:space:]]*(/\*|\*|})' \
+  | grep -oE '[a-z_][a-z0-9_]*[[:space:]]*;[[:space:]]*$' \
+  | sed 's/[[:space:]]*;[[:space:]]*$//'; }
+
+# Mirror side: the quoted entries of a *_ABI_FIELDS const block.
+mirror_fields() { sed -n "/^pub const $1:/,/^\];/p" "$MIRROR" \
+  | grep -oE '"[a-z_][a-z0-9_]*"' | tr -d '"'; }
+
+check_table() { # $1 rust struct, $2 C tag, $3 mirror const
+  rust_fields "$1" > "$tmp/$1.rust"
+  c_fields "$2" > "$tmp/$1.c"
+  mirror_fields "$3" > "$tmp/$1.mirror"
+  if [ ! -s "$tmp/$1.rust" ] || [ ! -s "$tmp/$1.c" ] || [ ! -s "$tmp/$1.mirror" ]; then
+    echo "check-embed-parity: RED ($1: empty extraction - anchor drift?)"
+    fail=1
+    return
+  fi
+  if diff -u "$tmp/$1.rust" "$tmp/$1.c" > "$tmp/$1.diff" \
+     && diff -u "$tmp/$1.rust" "$tmp/$1.mirror" >> "$tmp/$1.diff"; then
+    echo "check-embed-parity: ok ($1: $(wc -l < "$tmp/$1.rust") fields match abi.rs <-> header <-> mirror, order preserved)"
+  else
+    echo "check-embed-parity: RED ($1: abi.rs <-> header/mirror field order or names differ)"
+    cat "$tmp/$1.diff"
+    fail=1
+  fi
+}
+check_table PluginAbiV1 modukit_plugin_abi_v1 PLUGIN_ABI_FIELDS
+check_table HostAbiV1 modukit_host_abi_v1 HOST_ABI_FIELDS
+
+# Version pin: both sides must read the same major integer.
+rust_ver=$(sed -n 's/^pub const ABI_VERSION: u32 = \([0-9]\{1,\}\);$/\1/p' "$ABI")
+c_ver=$(sed -n 's/^#define MODUKIT_ABI_VERSION \([0-9]\{1,\}\)[a-z]*$/\1/p' "$PLUGIN_HEADER")
+if [ -z "$rust_ver" ] || [ "$rust_ver" != "$c_ver" ]; then
+  echo "check-embed-parity: RED (ABI_VERSION=$rust_ver vs MODUKIT_ABI_VERSION=$c_ver)"
+  fail=1
+fi
+
+# Entry-symbol pin: same exported name on both sides (NUL stripped).
+rust_sym=$(sed -n 's/^pub const ENTRY_SYMBOL: .*b"\(.*\)".*$/\1/p' "$ABI" | sed 's/\\0$//')
+c_sym=$(sed -n 's/^#define MODUKIT_ENTRY_SYMBOL "\(.*\)".*$/\1/p' "$PLUGIN_HEADER")
+if [ -z "$rust_sym" ] || [ "$rust_sym" != "$c_sym" ]; then
+  echo "check-embed-parity: RED (ENTRY_SYMBOL=$rust_sym vs MODUKIT_ENTRY_SYMBOL=$c_sym)"
+  fail=1
+fi
+
+exit "$fail"

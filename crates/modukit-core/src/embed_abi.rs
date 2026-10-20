@@ -9,8 +9,11 @@
 //!
 //! NOT wired into kernel dispatch — M1 lane #3 (emitter) and the demo lane
 //! consume this mirror; this lane establishes contract + mirror + gate only.
-//! The two frozen v1 plugin tables (`abi::PluginAbiV1` / `abi::HostAbiV1`,
-//! D87 STABLE) are untouched by this surface.
+//! The HostEmbedV1 embed surface itself touches neither of the two frozen
+//! v1 plugin tables (`abi::PluginAbiV1` / `abi::HostAbiV1`, D87 STABLE);
+//! the `PLUGIN_ABI_FIELDS`/`HOST_ABI_FIELDS` constants below are read-only
+//! field-name mirrors of those tables for the plugin-header parity gate -
+//! the layout truth stays in `abi.rs`.
 
 /// Embed table major version (`modukit_embed_abi_version()` returns this).
 pub const EMBED_ABI_VERSION: u32 = 1;
@@ -38,6 +41,31 @@ pub const EMBED_VERBS: &[&str] = &[
     "modukit_introspect_events",
 ];
 
+/// `abi::PluginAbiV1` fields in declaration order - the third parity
+/// source for `contracts/modukit_plugin.h` (gap ruling A). The parity gate
+/// (`scripts/check-embed-parity.sh`) diffs the ORDERED name lists
+/// abi.rs <-> header <-> this const: the `#[repr(C)]` layout is the
+/// contract, so order matters here (unlike the sorted EMBED_VERBS diff
+/// above). C member names are the identical Rust snake names - the
+/// mapping discipline is documented in the C header and in the script.
+///
+/// Split of duties: the unit test below asserts these lists are non-empty
+/// and unique; the truth of ordering against abi.rs and the header lives
+/// in the script's ordered diffs (abi.rs is the frozen truth, D87).
+pub const PLUGIN_ABI_FIELDS: &[&str] = &[
+    "abi_version",
+    "size",
+    "name",
+    "id",
+    "version",
+    "start",
+    "stop",
+];
+
+/// `abi::HostAbiV1` fields in declaration order (same contract as
+/// `PLUGIN_ABI_FIELDS`).
+pub const HOST_ABI_FIELDS: &[&str] = &["size", "user", "register_service"];
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -45,5 +73,17 @@ mod tests {
     #[test]
     fn embed_table_version_is_one() {
         assert_eq!(EMBED_ABI_VERSION, 1);
+    }
+
+    #[test]
+    fn plugin_table_field_lists_are_populated_and_unique() {
+        // Ordering truth against abi.rs and the header lives in the parity
+        // script's ordered diffs; this test guards the mirror list shape.
+        for fields in [PLUGIN_ABI_FIELDS, HOST_ABI_FIELDS] {
+            assert!(!fields.is_empty(), "field list must not be empty");
+            for (i, name) in fields.iter().enumerate() {
+                assert!(!fields[..i].contains(name), "duplicate field name");
+            }
+        }
     }
 }
