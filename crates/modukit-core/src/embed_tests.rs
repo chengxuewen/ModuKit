@@ -15,6 +15,18 @@ use crate::events::ObsEvent;
 use crate::lifecycle::PluginState;
 use std::sync::atomic::AtomicU32;
 
+/// The ambient kernel is process-global by contract - tests that touch it
+/// serialize on this lock (the verbs themselves take the kernel mutex per
+/// call, so probe-then-copy across two calls is only stable when no other
+/// test interleaves; poison must never poison the whole serial group).
+static AMBIENT_SERIAL: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
+fn ambient_lock() -> std::sync::MutexGuard<'static, ()> {
+    AMBIENT_SERIAL
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+}
+
 static NEXT_TEST_ID: AtomicU32 = AtomicU32::new(1);
 
 fn test_id() -> String {
@@ -36,11 +48,13 @@ fn manifest_toml(id: &str, artifact: &str) -> CString {
 
 #[test]
 fn abi_probe_reports_one() {
+    let _serial = ambient_lock();
     assert_eq!(modukit_embed_abi_version(), 1);
 }
 
 #[test]
 fn doors_answer_schema_and_not_found_on_bad_shape() {
+    let _serial = ambient_lock();
     let mut out: *const c_char = std::ptr::null();
     let mut state = 0i32;
     let mut len = 0usize;
@@ -85,6 +99,7 @@ fn doors_answer_schema_and_not_found_on_bad_shape() {
 
 #[test]
 fn install_out_id_is_kernel_owned_and_states_walk() {
+    let _serial = ambient_lock();
     let id = test_id();
     let artifact = concat!(env!("CARGO_MANIFEST_DIR"), "/Cargo.toml");
     let m = manifest_toml(&id, artifact);
@@ -119,6 +134,7 @@ fn install_out_id_is_kernel_owned_and_states_walk() {
 
 #[test]
 fn service_call_answers_not_found_without_a_matching_provider() {
+    let _serial = ambient_lock();
     let sid = c("com.embed.test.no-service");
     let method = c("echo");
     let input = *b"hi";
@@ -172,6 +188,7 @@ fn service_call_answers_not_found_without_a_matching_provider() {
 
 #[test]
 fn bus_round_trip_probe_cap_discipline_and_release() {
+    let _serial = ambient_lock();
     let topic = c(&format!("com.embed.test.{}", test_id().replace('.', "-")));
     let value = *b"0123456789";
     let mut qid = 0i32;
@@ -254,6 +271,7 @@ fn bus_round_trip_probe_cap_discipline_and_release() {
 
 #[test]
 fn bus_subscribe_deferred_qos_refuses_with_deferral_declined() {
+    let _serial = ambient_lock();
     let topic = c(&format!("com.embed.test.d{}", test_id().replace('.', "-")));
     assert_eq!(
         modukit_bus_publish(topic.as_ptr(), 1 /* KEEP_ALL */, std::ptr::null(), 0),
@@ -268,6 +286,7 @@ fn bus_subscribe_deferred_qos_refuses_with_deferral_declined() {
 
 #[test]
 fn clock_now_works_and_the_real_domain_refuses_the_dial() {
+    let _serial = ambient_lock();
     let mut now: i64 = -1;
     assert_eq!(modukit_clock_now(&raw mut now), 0);
     assert!(now >= 0, "monotonic-since-boot stamp");
@@ -284,6 +303,7 @@ fn clock_now_works_and_the_real_domain_refuses_the_dial() {
 
 #[test]
 fn snapshot_probe_then_exact_copy() {
+    let _serial = ambient_lock();
     let mut len = 0usize;
     assert_eq!(
         modukit_introspect_snapshot(std::ptr::null_mut(), 0, std::ptr::null_mut()),
@@ -316,6 +336,7 @@ fn snapshot_probe_then_exact_copy() {
 
 #[test]
 fn events_encode_walk_resume_and_refuse_a_future_cursor() {
+    let _serial = ambient_lock();
     let marker = format!(
         "embed-unit-marker-{}",
         NEXT_TEST_ID.fetch_add(1, Ordering::Relaxed)
@@ -377,6 +398,7 @@ fn events_encode_walk_resume_and_refuse_a_future_cursor() {
 
 #[test]
 fn guard_catches_panics_so_nothing_unwinds_into_c() {
+    let _serial = ambient_lock();
     let answer = std::panic::catch_unwind(|| codec::guard(|| panic!("boundary probe panic")));
     assert!(answer.is_ok(), "guard itself must not unwind");
     assert_eq!(answer.unwrap(), codec::NEG_KERNEL_BUG);
