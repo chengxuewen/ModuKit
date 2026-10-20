@@ -26,4 +26,5 @@ modukit_polyorch_crates()          # M8.5 W2-W4 lane wiring: five cargo lanes + 
 
 add_subdirectory(bindings/cpp)      # Stage-4 M1 cpp shelf: generated faces + modukit_cpp + ctest probe (auto-skips without the env protoc)
 add_subdirectory(test-plugins/cpp)  # Stage-4 M1 cpp fixture band: the .so pair the probe dlopens
+add_subdirectory(examples/cpp)     # Stage-4 M1 embed demo: HostEmbedV1 face end-to-end (auto-skips without the cpp shelf/lanes)
 # add_subdirectory(crates/...) stays off - the lanes ride the helper surface, cargo keeps its workspace authority (D65)

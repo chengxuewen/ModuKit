@@ -21,13 +21,14 @@ string. The gate greps that shape; keep it when editing rows.
 
 Cell vocabulary — **contract existence vs implementation existence** is the
 distinction the tokens encode (the embed face ships contract + wrapper +
-mirror; the Rust table EXPORT itself is future work, see `†`):
+mirror; the Rust `extern "C"` EXPORT landed with the M1 demo lane —
+`crates/modukit-core/src/embed.rs`, consumed by `examples/cpp/host_demo.cc`):
 
 | Token | Meaning |
 |---|---|
 | `header` | declared in the C contract original — the CONTRACT exists, no impl claim |
 | `generated` | shipped generated wrapper (artifact cited in the row's note) |
-| `native†` | native Rust op exists in modukit-core, but the HostEmbedV1 `extern "C"` table export is NOT implemented (the M1 demo lane builds it) |
+| `native†` | RETIRED token (pre-M1): op existed in modukit-core without the `extern "C"` export; the M1 demo lane shipped the export, Section A rows now read `native` |
 | `native` | Rust implementation shipped and consumed as-is (v1 frozen surface, D87) |
 | `planned` | language skin not shipped; never a red condition |
 | `n-a` | the row does not apply to that surface |
@@ -38,11 +39,13 @@ Citations (legend to keep rows short):
   (one `Kernel` forwarding method per verb, lane #3 face B).
 - `generated` plugin dispatch = `crates/modukit-codegen/testdata/golden/com_modukit_demo.hpp`
   (C++ service skeleton + `Dispatch` byte door, lane #3 face A).
-- `native†` ops per verb-group: lifecycle `kernel.rs`; service call
-  `kernel.rs`/`registry.rs`; bus `bus.rs` (`recv` = `Receiver::recv_timeout`,
-  `unsubscribe` = `Receiver` drop); clock `clock.rs`; introspection
-  `introspect.rs`/`events.rs`; `modukit_embed_abi_version` returns the
-  bookkeeping const `EMBED_ABI_VERSION` (`embed_abi.rs`).
+- `embed.rs` ops per verb-group: lifecycle `kernel.rs`; service call
+  `kernel.rs`/`registry.rs`; bus `bus.rs` (`recv` = `Receiver::try_recv` + the
+  embed queue table, `unsubscribe` = table removal + `Receiver` drop); clock
+  `clock.rs`; introspection `introspect.rs`/`events.rs` (opaque codecs
+  documented in `embed.rs`/`embed_codec.rs`); `modukit_embed_abi_version`
+  returns the bookkeeping const `EMBED_ABI_VERSION` (`embed_abi.rs`); the C++
+  proof chain: `examples/cpp/host_demo.cc` + `scripts/demo-stage4-m1.sh`.
 - `planned` Python: wave-2 binding candidate (`docs/stage-4-plan.md` §6).
 
 Last verified: 2026-10-20 by `scripts/check-capability-ledger.sh`
@@ -52,22 +55,22 @@ Last verified: 2026-10-20 by `scripts/check-capability-ledger.sh`
 
 | Capability | C | C++ | Rust | Python |
 |---|---|---|---|---|
-| `modukit_embed_abi_version` | header | generated | native† | planned |
-| `modukit_install` | header | generated | native† | planned |
-| `modukit_uninstall` | header | generated | native† | planned |
-| `modukit_resolve` | header | generated | native† | planned |
-| `modukit_start` | header | generated | native† | planned |
-| `modukit_stop` | header | generated | native† | planned |
-| `modukit_state` | header | generated | native† | planned |
-| `modukit_service_call` | header | generated | native† | planned |
-| `modukit_bus_publish` | header | generated | native† | planned |
-| `modukit_bus_subscribe` | header | generated | native† | planned |
-| `modukit_bus_recv` | header | generated | native† | planned |
-| `modukit_bus_unsubscribe` | header | generated | native† | planned |
-| `modukit_clock_now` | header | generated | native† | planned |
-| `modukit_clock_advance` | header | generated | native† | planned |
-| `modukit_introspect_snapshot` | header | generated | native† | planned |
-| `modukit_introspect_events` | header | generated | native† | planned |
+| `modukit_embed_abi_version` | header | generated | native | planned |
+| `modukit_install` | header | generated | native | planned |
+| `modukit_uninstall` | header | generated | native | planned |
+| `modukit_resolve` | header | generated | native | planned |
+| `modukit_start` | header | generated | native | planned |
+| `modukit_stop` | header | generated | native | planned |
+| `modukit_state` | header | generated | native | planned |
+| `modukit_service_call` | header | generated | native | planned |
+| `modukit_bus_publish` | header | generated | native | planned |
+| `modukit_bus_subscribe` | header | generated | native | planned |
+| `modukit_bus_recv` | header | generated | native | planned |
+| `modukit_bus_unsubscribe` | header | generated | native | planned |
+| `modukit_clock_now` | header | generated | native | planned |
+| `modukit_clock_advance` | header | generated | native | planned |
+| `modukit_introspect_snapshot` | header | generated | native | planned |
+| `modukit_introspect_events` | header | generated | native | planned |
 
 ## B. Plugin-side surface (contracts/modukit_plugin.h <-> abi::PluginAbiV1/HostAbiV1)
 

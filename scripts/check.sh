@@ -87,6 +87,14 @@ else note "skip demo-stage1 (no script)"; fi
 if [ -f scripts/demo-stage2.sh ]; then
   if bash scripts/demo-stage2.sh 2>/dev/null | grep -q "demo-stage2: PASS"; then note "ok demo-stage2"; else note "FAIL demo-stage2 (gate did not print PASS)"; status=1; fi
 else note "skip demo-stage2 (no script)"; fi
+# Stage-4 M1 embed demo leg: SKIP (cpp band auto-skipped) counts as green
+# like the D50 skip-when-absent legs; RED (build/sabotage) fails the gate.
+if [ -f scripts/demo-stage4-m1.sh ]; then
+  s4=$(bash scripts/demo-stage4-m1.sh 2>/dev/null)
+  if echo "$s4" | grep -q "demo-stage4-m1: PASS"; then note "ok demo-stage4-m1";
+  elif echo "$s4" | grep -q "demo-stage4-m1: SKIP"; then note "skip demo-stage4-m1 (cpp band auto-skipped)";
+  else note "FAIL demo-stage4-m1 (gate did not print PASS)"; status=1; fi
+else note "skip demo-stage4-m1 (no script)"; fi
 
 # leg: embed-contract parity (Stage-4 M1 lane #2, C++-3): the header IS the
 # contract; the Rust mirror must list its verbs exactly. Skip-when-absent

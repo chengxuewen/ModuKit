@@ -94,14 +94,15 @@ First-time machine setup for dev toolchains (user-level, via mise; idempotent): 
 
 ## Runnable examples
 
-The two stage demos are the gallery - runnable ground truth, no docs-only promises:
+The stage demos are the gallery - runnable ground truth, no docs-only promises:
 
 | Demo | Proves | Run |
 |---|---|---|
 | [stage1_demo](examples/rs/stage1_demo.rs) | in-process (`dl`) chain end to end: cdylib -> bundle -> D28 install -> lifecycle walk -> service echo -> bus late-join -> uninstall; negatives: tampered refused at the install door, ABI-lie parks FAILED | `bash scripts/demo-stage1.sh` (needs `pixi` on PATH) |
 | [stage2_demo](examples/rs/stage2_demo.rs) | process placement on the frozen v1 surface: `exe` bundle -> HELLO cross-check -> proxy echo kernel-side -> wire dial -> crash/revive budget -> ORPHAN-PROOF (SIGKILL the host, the runner self-dies, zero strays) | `bash scripts/demo-stage2.sh` |
+| [cpp-host-demo](examples/cpp/host_demo.cc) | Stage-4 M1 embed face from C++: one host embedding the kernel via the generated `HostEmbedV1` wrapper + the real built `cpp-example-plugin` .so -> install/resolve/start/service_call/bus/clock/introspect (both opaque codecs parsed)/stop/uninstall, the full 16-verb v1 word list | `bash scripts/demo-stage4-m1.sh` (needs `pixi` + the pinned-env protoc; SKIPs cleanly when the cpp band auto-skips) |
 
-Both are also wired as standing legs of the local gate (`bash scripts/check.sh` runs them), and each is falsifiable by design (stage2 carries a documented sabotage hook). The plugins/ shelf stays grammar-reserved: the first production plugin opens it with its landing.
+All three are also wired as standing legs of the local gate (`bash scripts/check.sh` runs them), and each is falsifiable by design (stage2 and stage4-m1 each carry a documented sabotage hook). The plugins/ shelf stays grammar-reserved: the first production plugin opens it with its landing.
 
 
 ## Project language policy

@@ -108,6 +108,20 @@ function(modukit_polyorch_crates)
       FOLDER   "crates/modukit-codegen")
   list(APPEND _mediators modukit-codegen-bin-build)
 
+  # Stage-4 M1 embed demo lane: the HostEmbedV1 staticlib exit
+  # (libmodukit_core.a) that examples/cpp links. Same crate + lane folder as
+  # the LIB handle in the table above, STATIC kind (the codegen-bin
+  # precedent: one crate, a second kind-specific handle).
+  polyorch_rust_build(
+      TARGET   modukit-core-static
+      PACKAGE  modukit-core
+      CRATE    modukit_core
+      STATIC
+      MANIFEST "${CMAKE_SOURCE_DIR}/crates/modukit-core/Cargo.toml"
+      BASE_DIR "${_base}"
+      FOLDER   "crates/modukit-core")
+  list(APPEND _mediators modukit-core-static-build)
+
   # W3: stage1_demo as a lane (cargo example of modukit-core; EXAMPLE kind).
   # Run button = polyorch_rust_run (direct staged-binary exec + the mediator
   # auto-build edge - deliberately not `cargo run`). The demo is argv-free:
