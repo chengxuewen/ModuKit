@@ -83,6 +83,7 @@
   Lesson: any awk regex quantifier must get its own planted-red/green proof
   through the exact pipeline, not the mental model of the regex.
 - **Forbidden**: shipping a commit whose shape was checked only "from memory of the rule";
+- **Fatigue signature (2026-10-20, 4 more catches in one session)**: violations cluster in late-session commits; adopted remedy - run the C3 pair INSIDE the commit command chain, never as a separate later step; escalation proposed (pending maintainer word): a git pre-commit hook, since the check.sh leg only reports after the fact.
   wrapping a ` - ` bullet across lines.
 
 ## PIT-9: Counting cargo test through a busy tty silently drops suites (2026-10-16/18, x2+)
@@ -125,3 +126,30 @@
 
 ## PIT-15 (trivial): adjudication items drift back to jargon after 4+ in a row (2026-10-19)
 - Plain-language rule reasserted mid-walkthrough by the maintainer twice; the drift shape is sources/impact sections reverting to insider shorthand as item count grows - run every section through the "read-aloud to a non-CMake colleague" check before sending.
+
+## PIT-16: replace-without-anchor-rejoin silently ate two history headers (2026-10-19, caught next day)
+- **Symptom**: history-archive.md carried three entries fused into one line - two entry headers (D92, M8.6) had vanished; discovered only when a LATER insert assert fired on the missing anchor.
+- **Root cause**: insertion pattern `s.replace(anchor, NEW_TEXT)` replaced the anchor instead of prepending before it - the anchor text itself was consumed; asserts only verified the anchor EXISTED pre-replace, never that it SURVIVED post-replace.
+- **Solution**: the pattern is `s.replace(anchor, NEW + anchor)` (or use split/insert on line indices); after any insertion-style replace, re-grep the anchor and run an entry-continuity scan.
+- **Verification**: `grep -c '^:' <file>` must be 0 (no headerless continuations) and the anchor count unchanged after the edit.
+- **Forbidden**: trusting a pre-state assert as proof of post-state integrity for mutating replacements.
+
+## PIT-17: stale build trees manufacture green gate claims - counts are only real from a rebuilt tree (2026-10-20, cost one CRITICAL)
+- **Symptom**: commit + history asserted "ctest 9/9"; a fresh out-of-tree configure+build returned 8/9 (probe still called the pre-fix wire name "Echo" - the sweep's second family passed only because both probe and fixture in the warm tree were old artifacts).
+- **Root cause**: ctest ran against a warm generator tree whose binaries predated the source fix; no repo gate rebuilds-then-counts from clean, so neither the implementer's rerun nor check.sh could see the lie. check.sh also has no ctest leg at all.
+- **Solution**: any count written into a commit message, ledger row or history entry must be measured on a freshly configured+built tree (dedicated dir, wipe allowed - the build tree, never the IDE's out/build); string/naming sweeps grep ALL consumer classes (probes, demos, docs, tests) before declaring single-source.
+- **Verification**: before quoting N/M, `rm -rf <scratch-build> && configure && build && ctest`; grep both spellings (`"Echo"` and `"echo"`) across bindings/ examples/ crates/ and the result table appears in the report.
+- **Forbidden**: warm-tree counts in any permanent record; claiming "single-sourced" from a first-pass grep that only covered emitters.
+
+## PIT-18: the first consumer's dialect becomes the universal law in disguise (2026-10-20, protobuf landmine)
+- **Symptom**: runner self-check demanded byte-equality echo of a non-empty literal probe - fine for the raw-bytes rs twin, SIGABRT-impossible for typed protobuf templates (empty request -> non-empty typed reply); cpp x exe placement could not start at all.
+- **Root cause**: the guard was written when exactly ONE plugin family existed and codified that family's convention ("shadow-runner-selfcheck" round-trip) as if universal; the probe-drop+reload double-init (protobuf global pool) is the same substitution class: single-family assumptions hiding in shared machinery.
+- **Solution**: shared-door rules must test the mechanism (door opens, junk refused), not the exemplar's bytes; fidelity assertions live where the contract actually matters (parent-side proxy round-trip). When a second family falsifies a guard, fix the guard at its source and record what it now does NOT catch.
+- **Verification**: for each guard touching plugin-supplied data: "would this pass/fail the same way for a typed (protobuf) template AND a raw-bytes template?" - name both in the guard's comment.
+- **Forbidden**: re-relaxing a guard without stating which corruption class moved where; treating "family-1 always passed" as evidence the rule is universal.
+
+## PIT-19 (trivial): probe printed its success line unconditionally over four FAILs (2026-10-20)
+- Summary printfs in tests/probes must be result-dependent; green prose beside red counters is a lie with better formatting - and it actively hides the class the probe exists to catch.
+
+## PIT-20 (trivial) - out/build is the IDE's tree; orchestrator scratch builds go to dedicated dirs (2026-10-20)
+- Wiping/reconfiguring out/build to "fix" a generator-mismatch destroys the .vscode-pinned tree (PIT-7 lineage); use /tmp or the demo scripts' dedicated out/build-stageN instead.
