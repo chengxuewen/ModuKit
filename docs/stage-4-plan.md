@@ -2,11 +2,10 @@
 
 > STATUS: ADJUDICATED 2026-10-19 - seven rulings taken one by one (user-adjudicated),
 > scope narrowed to the C/C++ line. Milestones M1/M2 below are READY, lanes open on a
-> separate go order. Original directive of record: infrastructure first - the whitepaper
-> §1 CORE promises (polyglot bindings, script hosts) and the unfinished communication/
-> debug floors are the stage; extension tracks (remote WebRTC §12-4, UI §12-3, static
-> placement §12-6) stay exactly where their trigger gates put them. §12 amendment
-> (draft below) goes live at acceptance per the stage-3 precedent.
+> separate go order. Directive of record: infrastructure first (whitepaper §1 CORE
+> promises); extension tracks stay exactly where their trigger gates put them. The §12
+> amendment (draft in §7) goes live at acceptance per the stage-3 precedent;
+> transcript in §8.
 >
 > CREDITOR OF RECORD (ruled I7=A): whitepaper §1 core definition ("polyglot bindings,
 > script hosts" were always core, not extensions - this volume repays an opening debt)
@@ -114,10 +113,11 @@ mechanics (§12-4) · MediaServo wiring (K7 armed) · anything needing a v1 brea
 Walk I1..I7 one by one (adjudication-walkthrough protocol). Closure = summary table +
 write-back here + D-entry minting (gate widening first) exactly as the Stage-3 kickoff did.
 
-## 2. Rulings (adjudicated one by one, 2026-10-19)
+## 4. Rulings (adjudicated one by one, 2026-10-19)
 
 | # | Ruling | Verdict | One-line key |
 |---|---|---|---|
+| I2 | first binding language | resolved by I1 | C/C++ is the first consumer (the I1 narrowing answered it); Python bindings/script host = wave-2 per §6 |
 | I1 | scope & sequence | A + narrowed | serial order; THIS volume = the C/C++ line; communication (v2 hearing I3/I4) and debugging (I6) move to wave-2 candidates |
 | C++-1 | scope boundary | B | plugin SDK AND host embedding; message layer NOT self-built (protoc C++ output used as-is) |
 | C++-2 | embed API home | A | NEW table `HostEmbedV1` with its own version discipline; the two frozen v1 tables untouched (D87) |
@@ -128,35 +128,40 @@ write-back here + D-entry minting (gate widening first) exactly as the Stage-3 k
 
 Analysis adoptions recorded with the rulings (accepted, not separately contested):
 - **trunk-first doctrine**: every new public API lands in C-header-expressible shape first; rich Rust forms stay syntactic sugar outside the header table.
-- **capability ledger gate**: a matrix (capability x language x placement) as a checked-in artifact + a check.sh leg - a header verb without a ledger row goes RED (planted red once before trusted, C0).
+- **capability ledger gate**: a checked-in matrix artifact + a check.sh leg. PRECISE: one row = one header verb (artifact path fixed at the M1 brief; M1 scope = modukit_embed.h verbs); RED iff a header verb lacks a row; unshipped languages ride a `planned` column, never a red condition (green from day one, tightens as skins ship); the row updates in the SAME change that adds the verb (planted red once before trusted, C0).
 - **Python footnote**: Python SCRIPT plugins are a script-host project (modukit-script-*), separate ruling later; Python BINDINGS are ordinary generated skins of the C tables.
 
-## 3. Milestones (lanes open on a separate go order; briefs presented before work)
+## 5. Milestones (lanes open on a separate go order; briefs presented before work)
 
 ### M1 - same-process rung (C++ plugin SDK + host embedding)
+- PROBE FIRST (gates the rest of M1): compile-and-link one protoc-generated C++ message under the pinned pixi/cmake toolchain against the checked-in fdset contract - proves the C++-1 "protoc output used as-is" assumption before any emitter work builds on it
 - contracts/: `modukit_embed.h` (HostEmbedV1 original) + regen/parity gate leg (fdset precedent, red-planted)
-- codegen: C++ emitter for plugin descriptors/services/messages (reuses cabi/emit/wire models; messages ride protoc C++)
-- examples/cpp: one host embedding the kernel + one C++ plugin, walking the full v1 word list (demo gate, falsifiable)
+- codegen: C++ emitter for the PLUGIN side (descriptors/services/messages) AND generated embed-side C++ wrappers for HostEmbedV1 (C++-3's two halves; reuses cabi/emit/wire models; messages ride protoc C++)
+- examples/cpp: one host embedding the kernel + one C++ plugin, walking the full v1 word list - the demo gate asserts BOTH legs (embedding face + plugin face, per C++-4's two-proof wording); falsifiable, sabotage hook documented
 - test-plugins: one C++ dl fixture (+ one bad-ABI C++ fixture for the parity tests)
 - cmake: C++ compile leg + ctest bridges
-- capability ledger: initial matrix shipped WITH the M1 surfaces (gate leg live)
+- capability ledger: initial matrix shipped WITH the M1 surfaces; gate leg live after a planted-red observation (C0)
+- wiring: `scripts/demo-stage4-m1.sh` (PASS-string grep) becomes a scripts/check.sh leg, red-planted before trusted (C0)
 ### M2 - child-process rung (D83 tail-add to HostEmbedV1)
 - Supervisor verb group mirrored into the embed table (step/drive_until_idle/dial/restart/watch census)
 - fd-ownership and signal discipline carried per S2 lessons (friction 7 class); ORPHAN-PROOF-style demo gate from the C++ host
 - small design note for the verb semantics (D83 record, no break hearing)
+- wiring: `scripts/demo-stage4-m2.sh` (ORPHAN-PROOF-style from the C++ host) becomes a scripts/check.sh leg, red-planted before trusted (C0)
 
-## 4. Wave-2 candidates (in this volume's shadow, NOT open; trigger = maintainer word or named consumer)
+## 6. Wave-2 candidates (in this volume's shadow, NOT open; trigger = maintainer word or named consumer)
 - Python bindings (skins of the C tables) and the Python script host (separate rulings)
 - Communication: v2 plugin-facing bus/clock verbs (I3/I4 hearing material preserved in §1)
 - Debugging: reader CLI / tooling floor (I6 material preserved in §1)
 
-## 5. §12 amendment DRAFT (effective at acceptance, not before)
-Stage-4 becomes the INFRA volume (this document). Remote WebRTC renumbers to a later
-stage, content unchanged, engine-tiering question stays queued inside it. Static placement
-stays §12-6 candidate (D92). Polyglot expansion (the old Stage-5) becomes wave-2 of the
-infra track. UI stays demoted (K2).
+## 7. §12 amendment DRAFT (effective at acceptance, not before)
+Stage-4 becomes the INFRA volume (this document). Post-amendment §12 reads EXACTLY:
+items 1-3 unchanged; 4 = INFRA (this volume); 5 = remote WebRTC (renumbered, content
+unchanged, engine-tiering question stays queued inside it); item 6 = static placement
+candidate (D92) untouched. The old Stage-5 (polyglot ecosystem) dissolves into wave-2 of
+the infra track (§6). At acceptance the same amendment syncs README's Roadmap table and
+rewrites stale §12-N citations in this document's header.
 
-## 6. Walkthrough transcript (one at a time, plain language)
+## 8. Walkthrough transcript (one at a time, plain language)
 I1 (A+narrow, cpp chosen over the Python pre-stance) -> C++-1 (B; orchestrator's
 "violates the doctrine" stance corrected on the record: embedding mirrors existing core
 verbs, does not fatten the core - the honest cost is maintenance surface) -> C++-2 (A;
