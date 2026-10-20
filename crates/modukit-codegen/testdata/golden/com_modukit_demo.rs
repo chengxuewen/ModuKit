@@ -96,8 +96,8 @@ impl DemoServiceDispatch {
     #[must_use]
     pub fn method_name(&self) -> &'static str {
         match self {
-            DemoServiceDispatch::Echo(_) => "Echo",
-            DemoServiceDispatch::Describe(_) => "Describe",
+            DemoServiceDispatch::Echo(_) => "echo",
+            DemoServiceDispatch::Describe(_) => "describe",
         }
     }
 }

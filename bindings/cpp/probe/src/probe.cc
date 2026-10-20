@@ -114,15 +114,17 @@ void good_arm(const char *path) {
   req.set_payload("cpp-probe-payload");
   const std::string bytes = req.SerializeAsString();
   std::vector<uint8_t> out(bytes.size() + 128);
-  const int32_t n = cap.call("Echo",
+  const int32_t n = cap.call("echo",
                              reinterpret_cast<const uint8_t *>(bytes.data()),
                              bytes.size(), out.data(), out.size());
-  check(n >= 0, "Echo call returns byte count >= 0");
   com::modukit::demo::EchoReply reply;
-  check(n >= 0 && reply.ParseFromArray(out.data(), n), "reply parses");
-  check(reply.payload() == req.payload(), "payload round-trips");
-  check(reply.status() == com::modukit::demo::DEMO_STATUS_OK, "status OK");
-  std::printf("[good] echo round-trip: %d bytes, payload verified, status=OK\n", n);
+  const bool parsed = n >= 0 && reply.ParseFromArray(out.data(), n);
+  check(n >= 0, "echo call returns byte count >= 0");
+  check(parsed, "reply parses");
+  check(parsed && reply.payload() == req.payload(), "payload round-trips");
+  check(parsed && reply.status() == com::modukit::demo::DEMO_STATUS_OK, "status OK");
+  std::printf(parsed ? "[good] echo round-trip: %d bytes, payload verified, status=OK\n"
+                     : "[good] echo round-trip FAILED (%d bytes)\n", n);
 
   const int32_t bad = cap.call("Nope", nullptr, 0, out.data(), out.size());
   check(bad == com::modukit::demo::DemoServiceSkeleton::kUnknownMethod,

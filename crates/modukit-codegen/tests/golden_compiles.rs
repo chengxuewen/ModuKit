@@ -72,7 +72,7 @@ fn demo_dispatch_and_trait_are_usable() {
     let call = DemoServiceDispatch::Echo(EchoRequest {
         payload: b"ping".to_vec(),
     });
-    assert_eq!(call.method_name(), "Echo");
+    assert_eq!(call.method_name(), "echo");
     let reply = Hand
         .echo(EchoRequest {
             payload: b"ping".to_vec(),

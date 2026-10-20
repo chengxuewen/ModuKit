@@ -163,6 +163,9 @@ ALL GREEN (orchestrator-verified per lane): probe byte-equal; embed.h+plugin.h o
 ## 6. Wave-2 candidates (in this volume's shadow, NOT open; trigger = maintainer word or named consumer)
 - Python bindings (skins of the C tables) and the Python script host (separate rulings)
 - Communication: v2 plugin-facing bus/clock verbs (I3/I4 hearing material preserved in §1)
+- Service-call door on the sup face (cpp x exe byte-fidelity home; gate-review
+  finding 2026-10-20: until it lands the exe rung’s cpp payload fidelity is
+  gated nowhere; rs family stays gated by dual_placement)
 - Debugging: reader CLI / tooling floor (I6 material preserved in §1)
 
 ## 7. §12 amendment DRAFT (effective at acceptance, not before)

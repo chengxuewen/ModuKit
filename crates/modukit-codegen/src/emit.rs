@@ -228,8 +228,9 @@ fn emit_service(out: &mut String, file: &File, s: &Service) -> Result<(), Codege
     for m in &s.methods {
         let _ = writeln!(
             out,
-            "            {dispatch}::{name}(_) => \"{name}\",",
-            name = m.name
+            "            {dispatch}::{name}(_) => \"{wire}\",",
+            name = m.name,
+            wire = to_snake(&m.name)
         );
     }
     let _ = write!(

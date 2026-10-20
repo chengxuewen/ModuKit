@@ -195,7 +195,9 @@ impl DlopenExecutor {
     }
 }
 
-/// A loaded `plugin.so`. The descriptor pointer is only dereferenced while
+/// A loaded `plugin.so`. Unloading is best-effort per the platform
+/// (the linux door opens RTLD_NODELETE - see the residency law at the
+/// dlopen site below); the descriptor pointer is only dereferenced while
 /// `_lib` is alive inside this same struct (drop order: `desc` is a raw
 /// pointer and has no destructor; methods stop before drop).
 struct DlopenPlugin {
