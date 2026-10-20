@@ -61,7 +61,16 @@ const HELLO_STR_MAX: usize = u8::MAX as usize;
 /// closed; friction log item 5 dissolved — the CALL frame carries the
 /// caller's method name).
 const PROBE_METHOD: &str = "echo";
-const PROBE_BYTES: &[u8] = b"shadow-runner-selfcheck";
+/// The guard input is the EMPTY request - the one message every protobuf
+/// contract parses (all-defaults) and every raw-bytes template echoes
+/// verbatim. The previous literal ("shadow-runner-selfcheck") silently
+/// codified the rs twin's raw-byte echo as universal and rejected the
+/// protobuf-typed C++ skeleton at START (M2 finding: second-language
+/// family falsifies first-family shortcuts). Byte fidelity where it MATTERS
+/// is proven parent-side by the CALL/RESULT round-trip through the proxy
+/// (dual_placement + both stage demos); this door only proves the native
+/// plumbing opens and closes.
+const PROBE_BYTES: &[u8] = b"";
 
 fn die(code: i32, msg: &str) -> ! {
     eprintln!("modukit-run: {msg}");
@@ -188,8 +197,13 @@ fn handle_start(kernel: &Kernel, id: &PluginId, control: &mut UnixStream) -> i32
     if kernel.registry().release(&svc).is_err() {
         eprintln!("modukit-run: release pair failed");
     }
+    // Pass = the door opened (Ok) AND junk methods are rejected. A
+    // byte-equality demand here would re-codify the raw-echo template
+    // again: a typed contract's all-defaults reply is legitimately
+    // non-empty (the C++ twin sets status=OK). Wire fidelity is proven
+    // parent-side by the proxy CALL/RESULT round-trip, not by this door.
     match echo {
-        Ok(bytes) if bytes == PROBE_BYTES && unknown_rejected => {
+        Ok(_bytes) if unknown_rejected => {
             let reg = ServiceRegistration {
                 service_id: announced,
                 // shortcut: ABI v1 has no method introspection — advertise

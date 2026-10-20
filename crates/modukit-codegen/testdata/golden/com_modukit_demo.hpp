@@ -52,7 +52,7 @@ class DemoServiceSkeleton {
      const std::string input(
          request ? reinterpret_cast<const char *>(request) : "", request_len);
      try {
-      if (name == "Echo") {
+      if (name == "echo") {
          ::com::modukit::demo::EchoRequest typed_in;
          if (!typed_in.ParseFromString(input)) {
            return kBadRequest;
@@ -60,7 +60,7 @@ class DemoServiceSkeleton {
          const ::com::modukit::demo::EchoReply typed_out = Echo(typed_in);
          return WriteMessage(typed_out, response, response_cap);
        }
-      if (name == "Describe") {
+      if (name == "describe") {
          ::com::modukit::demo::MetaRequest typed_in;
          if (!typed_in.ParseFromString(input)) {
            return kBadRequest;

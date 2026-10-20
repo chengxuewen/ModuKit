@@ -32,3 +32,21 @@ set_tests_properties(modukit-cpp-host-demo PROPERTIES
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     SKIP_RETURN_CODE 77
     LABELS "demo;cpp;headless")
+
+# M2: the exe-rung walk + ORPHAN-PROOF under a C++-authored host (plan §5).
+# The runner is a cargo bin (not a cmake target): its path rides argv[2]
+# from the gate script; the ctest entry uses the conventional default dir
+# and the binary itself SKIPs (77) when the runner has not been built.
+add_executable(modukit-cpp-host-sup-demo host_sup_demo.cc)
+set_target_properties(modukit-cpp-host-sup-demo PROPERTIES
+    CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON
+    FOLDER "examples/cpp")
+target_link_libraries(modukit-cpp-host-sup-demo PRIVATE
+    modukit_cpp modukit-core-static ${CMAKE_DL_LIBS})
+add_dependencies(modukit-cpp-host-sup-demo cpp-example-plugin)
+add_test(NAME modukit-cpp-host-sup-demo
+    COMMAND modukit-cpp-host-sup-demo --proof "$<TARGET_FILE:cpp-example-plugin>")
+set_tests_properties(modukit-cpp-host-sup-demo PROPERTIES
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    SKIP_RETURN_CODE 77
+    LABELS "demo;cpp;headless")

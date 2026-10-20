@@ -114,6 +114,38 @@ impl DlopenExecutor {
         // SAFETY: loading native code runs initializers from a file path
         // supplied by the caller (trusted internal code at the dl tier, 01 §5);
         // the descriptor guards below run before any plugin call.
+        //
+        // RTLD_NODELETE (M2 finding, linux): the probe-then-load doors (the
+        // runner's self-report probe, the bundle cross-check) DROP the handle
+        // before the real load. Without NODELETE the unmap tears the image
+        // down and a later re-load re-runs C++ static initializers - the
+        // protobuf global descriptor pool then SIGABRTs on double
+        // registration (observed: the cpp fixture under the runner). The flag
+        // pins ruling 4's words - unload is capability removal, code
+        // residency is the documented fact - at the dlopen level, matching
+        // POSIX's own "successful dlclose does not guarantee unload" contract.
+        // macOS keeps plain dlopen: dyld has no RTLD_NODELETE; the double-load
+        // hazard for C++ gencode there is recorded, unfixed, by ruling.
+        #[cfg(target_os = "linux")]
+        let lib = {
+            // libloading re-exports RTLD_NOW(2)|RTLD_LOCAL(4) only; glibc and
+            // musl both define RTLD_NODELETE as 0x1000 (dlfcn.h).
+            const RTLD_NODELETE: i32 = 0x1000;
+            let unix = unsafe {
+                libloading::os::unix::Library::open(
+                    Some(path),
+                    libloading::os::unix::RTLD_NOW
+                        | libloading::os::unix::RTLD_LOCAL
+                        | RTLD_NODELETE,
+                )
+            }
+            .map_err(|e| KernelError::LoadFailed {
+                path: path.to_string(),
+                reason: e.to_string(),
+            })?;
+            Library::from(unix)
+        };
+        #[cfg(not(target_os = "linux"))]
         let lib = unsafe { Library::new(path) }.map_err(|e| KernelError::LoadFailed {
             path: path.to_string(),
             reason: e.to_string(),

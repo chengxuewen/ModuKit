@@ -105,7 +105,7 @@ fn emit_service(out: &mut String, file: &File, s: &Service) -> Result<(), Codege
         let resp = qualified_cpp(&m.output_type)?;
         let _ = write!(
             out,
-            "      if (name == \"{meth}\") {{\n\
+            "      if (name == \"{wire}\") {{\n\
              \x20        {req} typed_in;\n\
              \x20        if (!typed_in.ParseFromString(input)) {{\n\
              \x20          return kBadRequest;\n\
@@ -114,6 +114,7 @@ fn emit_service(out: &mut String, file: &File, s: &Service) -> Result<(), Codege
              \x20        return WriteMessage(typed_out, response, response_cap);\n\
              \x20      }}\n",
             meth = m.name,
+            wire = crate::emit::to_snake(&m.name),
             req = req,
             resp = resp,
         );

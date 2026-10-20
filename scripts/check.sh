@@ -95,6 +95,12 @@ if [ -f scripts/demo-stage4-m1.sh ]; then
   elif echo "$s4" | grep -q "demo-stage4-m1: SKIP"; then note "skip demo-stage4-m1 (cpp band auto-skipped)";
   else note "FAIL demo-stage4-m1 (gate did not print PASS)"; status=1; fi
 else note "skip demo-stage4-m1 (no script)"; fi
+if [ -f scripts/demo-stage4-m2.sh ]; then
+  s4b=$(bash scripts/demo-stage4-m2.sh 2>/dev/null)
+  if echo "$s4b" | grep -q "demo-stage4-m2: PASS"; then note "ok demo-stage4-m2";
+  elif echo "$s4b" | grep -q "demo-stage4-m2: SKIP"; then note "skip demo-stage4-m2 (cpp band auto-skipped)";
+  else note "FAIL demo-stage4-m2 (gate did not print PASS)"; status=1; fi
+else note "skip demo-stage4-m2 (no script)"; fi
 
 # leg: embed-contract parity (Stage-4 M1 lane #2, C++-3): the header IS the
 # contract; the Rust mirror must list its verbs exactly. Skip-when-absent

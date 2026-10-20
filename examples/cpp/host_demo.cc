@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
   const std::string req_bytes = req.SerializeAsString();
   std::vector<uint8_t> resp(sizeof(com::modukit::demo::EchoRequest) + 256, 0);
   const modukit::Status call =
-      kernel.service_call(kServiceId, "Echo",
+      kernel.service_call(kServiceId, "echo",
                           reinterpret_cast<const uint8_t *>(req_bytes.data()),
                           req_bytes.size(), resp.data(), resp.size());
   bool echo_ok = false;
@@ -129,7 +129,7 @@ int main(int argc, char **argv) {
               reply.status() == com::modukit::demo::DEMO_STATUS_OK;
   }
   check(echo_ok, "[6] service_call Echo round-trips the payload (status OK)");
-  check(kernel.service_call("com.example.nope", "Echo",
+  check(kernel.service_call("com.example.nope", "echo",
                             reinterpret_cast<const uint8_t *>(req_bytes.data()),
                             req_bytes.size(), resp.data(), resp.size()).code() ==
             modukit::KernelCode::NOT_FOUND,
