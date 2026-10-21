@@ -147,7 +147,7 @@ ALL GREEN (orchestrator-verified per lane): probe byte-equal; embed.h+plugin.h o
 - wiring: `scripts/demo-stage4-m1.sh` (PASS-string grep) becomes a scripts/check.sh leg, red-planted before trusted (C0)
 ### M2 - child-process rung (D83 tail-add to HostEmbedV1) - LANDED 2026-10-20
 (seven sup verbs over a second ambient Supervisor; two-rung wall asserted both
- faces; host_sup_demo walks sup_install->ACTIVE->step->dial-refusal then gets
+ faces; host_sup_demo walks sup_install->ACTIVE->step->typed dial turn then gets (CORRECTED 2026-10-21 by M3: the dial-refusal premise was a never-observed dead branch - the old parent killed at READY before post-READY words ran; runner boots Step, not clock)
  SIGKILLed and the runner self-reap census proves ORPHAN-PROOF under a C++ host;
  DEMO_STAGE4_M2_SABOTAGE red observed. M2a built inline after two delegation
  deaths; three cross-language landmines surfaced and fixed by it: RTLD_NODELETE
@@ -160,7 +160,8 @@ ALL GREEN (orchestrator-verified per lane): probe byte-equal; embed.h+plugin.h o
 - small design note for the verb semantics (D83 record, no break hearing)
 - wiring: `scripts/demo-stage4-m2.sh` (ORPHAN-PROOF-style from the C++ host) becomes a scripts/check.sh leg, red-planted before trusted (C0)
 
-### M3 - the service-call door on the sup face (OPENED 2026-10-21 by maintainer word; D94)
+### M3 - the service-call door on the sup face (LANDED 2026-10-21; opened and shipped same day; D94)
+LANDED evidence: verb 24 in header<->mirror<->emitter (parity ok), capability ledger 24/40 rows, unit+integration coverage (NOT_FOUND, byte-exact round-trip, cap-too-small -19, post-stop -14), demo FIDELITY stanza with parent WAITING the marker before the kill (makes post-READY words observable at all - which exposed and corrected a never-observed dead-branch assertion in the M2 dial word), DEMO_STAGE4_M3_SABOTAGE red observed once (evidence /tmp/m3-sabotage-red.log), fresh-tree ctest 9/9, 226 tests / 47 suites, orchestrator re-measured all of it independently (PIT-14/17).
 - One verb `modukit_sup_service_call`, contract mirroring the dl face (bytes in -> bytes out);
   D83 tail-add: embed.h 23->24, abi.rs mirror + parity + goldens + capability ledger move together.
 - Fidelity stage lands INSIDE host_sup_demo.cc (m2 leg, no new script): a non-empty typed
@@ -177,6 +178,9 @@ ALL GREEN (orchestrator-verified per lane): probe byte-equal; embed.h+plugin.h o
   gated nowhere; rs family stays gated by dual_placement) - MOVED to §5 M3,
   OPENED 2026-10-21 (D94)
 - Debugging: reader CLI / tooling floor (I6 material preserved in §1)
+- Tooling nit (found by M3, open): `scripts/regen-golden.sh` does not pass `--embed_header`,
+  so the embed wrapper golden updates only via the banner recipe run by hand - worth
+  folding into the script at the next tooling touch
 
 ## 7. §12 amendment DRAFT (effective at acceptance, not before)
 Stage-4 becomes the INFRA volume (this document). Post-amendment §12 reads EXACTLY:

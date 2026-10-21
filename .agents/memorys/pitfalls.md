@@ -83,7 +83,7 @@
   Lesson: any awk regex quantifier must get its own planted-red/green proof
   through the exact pipeline, not the mental model of the regex.
 - **Forbidden**: shipping a commit whose shape was checked only "from memory of the rule";
-- **Fatigue signature (2026-10-20, 4 more catches in one session)**: violations cluster in late-session commits; adopted remedy - run the C3 pair INSIDE the commit command chain, never as a separate later step; escalation proposed (pending maintainer word): a git pre-commit hook, since the check.sh leg only reports after the fact.
+- **Fatigue signature (2026-10-20, 4 more catches in one session)**: violations cluster in late-session commits; adopted remedy - run the C3 pair (and C1 on artifact batches) INSIDE the commit command chain, never as post-commit discovery, never as a separate later step; escalation proposed (pending maintainer word): a git pre-commit hook, since the check.sh leg only reports after the fact.
   wrapping a ` - ` bullet across lines.
 
 ## PIT-9: Counting cargo test through a busy tty silently drops suites (2026-10-16/18, x2+)
@@ -157,3 +157,5 @@
 
 ## PIT-21 (trivial): adjudication walkthrough body in ledger-dense register got a plain-speech demand (2026-10-21)
 - The skill's own plain-language rule was violated by file:line citation chains + jargon in the BODY; the seven-part template survives being written in everyday terms - fix: body speaks what changes for a human, ledger anchors go to the Sources section only.
+## PIT-22 (trivial): an assertion whose output the harness never reads is an assertion that never ran (2026-10-21)
+- The M2 demo's dial-refusal word sat on a dead branch (parent killed the child at READY, before the post-READY lines could be read); no red was ever observable, so C0 was silently unmet. Fix pattern: make the observer WAIT the marker before ending the observed, and demand one planted red per new stage.

@@ -88,7 +88,7 @@ Five stages per the whitepaper implementation path:
 
 ## Development status
 
-As-built: four shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen` (v1 API surface frozen STABLE per `docs/architecture.md` §11, D87; test totals are volatile and live in the plans of record) — plus the Stage-4 bindings line: `contracts/modukit_embed.h` (HostEmbedV1, 23 verbs over two rungs), `contracts/modukit_plugin.h`, the generated C++ faces and the `bindings/cpp` shelf (M1/M2 closed, D93; volume acceptance open). Stages 1-3 are closed (D88, D91). Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
+As-built: four shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen` (v1 API surface frozen STABLE per `docs/architecture.md` §11, D87; test totals are volatile and live in the plans of record) — plus the Stage-4 bindings line: `contracts/modukit_embed.h` (HostEmbedV1, 24 verbs over two rungs incl. the sup service-call door), `contracts/modukit_plugin.h`, the generated C++ faces and the `bindings/cpp` shelf (M1/M2/M3 closed, D93/D94; volume acceptance open). Stages 1-3 are closed (D88, D91). Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
 
 First-time machine setup for dev toolchains (user-level, via mise; idempotent): `./bootstrap.sh` (Linux/macOS) or `bootstrap.bat` (Windows native). Pins live in `mise.toml`.
 
