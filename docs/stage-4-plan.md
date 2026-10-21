@@ -193,9 +193,8 @@ docs closed via the applied §7 amendment + roadmap sync. Wave-2 (§6) armed, no
 - Debugging: reader CLI / tooling floor (I6 material preserved in §1)
 - JS dual-face product surface (former §12-5 scheduling seat; content decisions
   D33/D51/D54 already closed - product work arrives here per the D95 amendment fold-in)
-- Tooling nit (found by M3, open): `scripts/regen-golden.sh` does not pass `--embed_header`,
-  so the embed wrapper golden updates only via the banner recipe run by hand - worth
-  folding into the script at the next tooling touch
+- Tooling nit (found by M3): CLOSED 2026-10-21 - regen-golden.sh now passes
+  --embed_header AND --plugin_header (poison-observed restore, idempotent zero-diff)
 
 ## 7. §12 amendment - APPLIED 2026-10-21 at volume acceptance (D95; kept as the record)
 Stage-4 becomes the INFRA volume (this document). Post-amendment §12 reads EXACTLY:

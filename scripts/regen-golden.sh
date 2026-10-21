@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Rewrite the M4 golden corpus under crates/modukit-codegen/testdata/golden/
-# from the checked-in contract fdsets. Review the diff: a golden change means
+# Rewrite the golden corpus under crates/modukit-codegen/testdata/golden/ from
+# the checked-in contract fdsets AND both C contract headers (embed+plugin faces). Review the diff: a golden change means
 # either the .proto changed (intended) or the generator drifted (a bug).
 # The gate itself is `cargo test -p modukit-codegen --test golden`.
 set -euo pipefail
@@ -24,9 +24,11 @@ fi
 GOLDEN=crates/modukit-codegen/testdata/golden
 mkdir -p "$GOLDEN"
 # Keep only the generator's own outputs (no stale files from a renamed contract).
-rm -f "$GOLDEN"/*.rs "$GOLDEN"/*.h
+rm -f "$GOLDEN"/*.rs "$GOLDEN"/*.h "$GOLDEN"/*.hpp
 cargo run -q -p modukit-codegen --bin protoc-gen-modukit -- \
   "@contracts/org.modukit.runtime.proto.fdset" \
   "@contracts/com.modukit.demo.proto.fdset" \
+  --embed_header contracts/modukit_embed.h \
+  --plugin_header contracts/modukit_plugin.h \
   --output_dir "$GOLDEN"
 echo "ok regen-golden -> $GOLDEN"
