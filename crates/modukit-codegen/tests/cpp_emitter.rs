@@ -96,7 +96,7 @@ fn embed_wrapper_tracks_the_real_header_verbs() {
         .filter_map(|l| l.strip_prefix("int32_t modukit_"))
         .map(|l| l.split('(').next().expect("verb name before ("))
         .collect();
-    assert_eq!(header_verbs.len(), 23, "HostEmbedV1 verb count moved");
+    assert_eq!(header_verbs.len(), 24, "HostEmbedV1 verb count moved");
     for verb in header_verbs {
         assert!(
             produced.contains(&format!("modukit_{verb}(")),

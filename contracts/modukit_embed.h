@@ -342,6 +342,21 @@ int32_t modukit_sup_restart(const char *id, int32_t *out_revive);
  * modukit_sup_stop, never to this door. */
 int32_t modukit_sup_uninstall(const char *id);
 
+/* The service-call door on the exe rung (D94 W2, M3 tail-add): the same
+ * contract as modukit_service_call (id/method/bytes in, bytes out), but
+ * it reads ONLY this rung's registry. The call routes through the SAME
+ * parent-side proxy machinery the kernel already uses for cross-process
+ * dispatch (proc_proxy.rs: every child REGISTER frame installs a
+ * kernel-side ProxyService under its canonical id), so the payload rides
+ * the ABI -> TL wire -> child service -> back unchanged. Type-keyed
+ * lookup, same honest limit as the dl face (embed.rs decision 7): an id
+ * with no top-ranked proxy answers NOT_FOUND(14). The child's author
+ * code surfaces as SERVICE_CALL_FAILED(25) on this channel (D27); the
+ * cap is fail-rather-than-truncate like every byte-out verb. */
+int32_t modukit_sup_service_call(const char *service_id, const char *method,
+                                  const uint8_t *input, size_t input_len,
+                                  uint8_t *response, size_t response_cap);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

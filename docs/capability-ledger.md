@@ -51,7 +51,7 @@ Citations (legend to keep rows short):
 Last verified: 2026-10-20 by `scripts/check-capability-ledger.sh`
 (check.sh leg "capability-ledger").
 
-## A. HostEmbedV1 embed verbs (23 rows = EMBED_VERBS)
+## A. HostEmbedV1 embed verbs (24 rows = EMBED_VERBS)
 
 | Capability | C | C++ | Rust | Python |
 |---|---|---|---|---|
@@ -78,6 +78,7 @@ Last verified: 2026-10-20 by `scripts/check-capability-ledger.sh`
 | `modukit_sup_dial` | header | generated | native | planned |
 | `modukit_sup_restart` | header | generated | native | planned |
 | `modukit_sup_uninstall` | header | generated | native | planned |
+| `modukit_sup_service_call` | header | generated | native | planned |
 
 ## B. Plugin-side surface (contracts/modukit_plugin.h <-> abi::PluginAbiV1/HostAbiV1)
 

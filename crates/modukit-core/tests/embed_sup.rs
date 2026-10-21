@@ -8,8 +8,8 @@ use std::process::Command;
 use std::sync::{Mutex, MutexGuard, PoisonError};
 
 use modukit_core::embed_sup::{
-    modukit_sup_install, modukit_sup_state, modukit_sup_step, modukit_sup_stop,
-    modukit_sup_uninstall,
+    modukit_sup_install, modukit_sup_service_call, modukit_sup_state, modukit_sup_step,
+    modukit_sup_stop, modukit_sup_uninstall,
 };
 
 const ID: &str = "com.example.modukit.demo";
@@ -122,6 +122,58 @@ fn exe_rung_walks_the_full_lifecycle_over_the_c_face() {
     assert_eq!(modukit_sup_step(&raw mut actions), 0);
     assert_eq!(actions, 0, "nothing died or revived mid-walk");
 
+    // M3 door (D94): the rs twin's echo is a raw passthrough, so the
+    // response bytes must equal the request bytes EXACTLY across
+    // ABI -> TL wire -> child service -> back. Non-empty payload first.
+    let svc = c(ID);
+    let method = c("echo");
+    let probe = b"sup-fidelity-bytes";
+    let mut resp = [0u8; 64];
+    let n = modukit_sup_service_call(
+        svc.as_c_str().as_ptr(),
+        method.as_c_str().as_ptr(),
+        probe.as_ptr(),
+        probe.len(),
+        resp.as_mut_ptr(),
+        resp.len(),
+    );
+    assert_eq!(
+        usize::try_from(n).expect("response byte count >= 0"),
+        probe.len(),
+        "the door answers the response byte count"
+    );
+    assert_eq!(
+        &resp[..probe.len()],
+        probe.as_slice(),
+        "bytes back == bytes in, byte-exact over the real wire"
+    );
+    // empty payload: legal input, answers 0 bytes out.
+    assert_eq!(
+        modukit_sup_service_call(
+            svc.as_c_str().as_ptr(),
+            method.as_c_str().as_ptr(),
+            std::ptr::null(),
+            0,
+            resp.as_mut_ptr(),
+            resp.len(),
+        ),
+        0,
+        "empty payload round-trips empty"
+    );
+    // cap discipline: fail rather than truncate (embed.rs decision 4).
+    assert_eq!(
+        modukit_sup_service_call(
+            svc.as_c_str().as_ptr(),
+            method.as_c_str().as_ptr(),
+            probe.as_ptr(),
+            probe.len(),
+            resp.as_mut_ptr(),
+            4,
+        ),
+        -19,
+        "too-small cap -> QUOTA_EXCEEDED(-19), never a truncated answer"
+    );
+
     assert_eq!(modukit_sup_stop(idc.as_c_str().as_ptr()), 0);
     assert_eq!(
         modukit_sup_state(idc.as_c_str().as_ptr(), &raw mut state),
@@ -141,5 +193,19 @@ fn exe_rung_walks_the_full_lifecycle_over_the_c_face() {
         modukit_sup_state(ghost.as_c_str().as_ptr(), &raw mut state),
         0,
         "unknown ids answer typed NOT_FOUND"
+    );
+    // the stop dropped the proxy: the door answers NOT_FOUND(-14) for a
+    // service id that no longer lives on this rung (the dl face's twin rule).
+    assert_eq!(
+        modukit_sup_service_call(
+            svc.as_c_str().as_ptr(),
+            method.as_c_str().as_ptr(),
+            probe.as_ptr(),
+            probe.len(),
+            resp.as_mut_ptr(),
+            resp.len(),
+        ),
+        -14,
+        "gone proxy answers NOT_FOUND after stop"
     );
 }

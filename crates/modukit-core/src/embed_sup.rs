@@ -1,7 +1,7 @@
-//! The exe rung of the embed face (Stage-4 M2, D83 tail-add): the seven
-//! `modukit_sup_*` verbs declared in `contracts/modukit_embed.h`, served by
-//! a process-global [`Supervisor`] - a second ambient kernel, separate from
-//! M1's in-process one.
+//! The exe rung of the embed face (Stage-4 M2, D83 tail-add; M3 appended
+//! the service-call door): the eight `modukit_sup_*` verbs declared in
+//! `contracts/modukit_embed.h`, served by a process-global [`Supervisor`]
+//! - a second ambient kernel, separate from M1's in-process one.
 //!
 //! Two-rung contract (ruled; do not fake unity):
 //! - `embed.rs` serves the dl rung (in-process plugins, `DlopenExecutor`).
@@ -23,9 +23,10 @@ use std::sync::{LazyLock, Mutex, MutexGuard, PoisonError};
 use std::time::Duration;
 
 use crate::embed::registered_id;
-use crate::embed_codec::{self as codec, cstr_arg};
+use crate::embed_codec::{self as codec, bytes_arg, copy_out, cstr_arg};
 use crate::identity::PluginId;
 use crate::manifest::Manifest;
+use crate::proc_proxy::ProxyService;
 use crate::proc_supervisor::{Revive, Supervisor};
 
 struct AmbientSup(Supervisor);
@@ -220,6 +221,60 @@ pub extern "C" fn modukit_sup_uninstall(id: *const c_char) -> i32 {
     })
 }
 
+#[unsafe(no_mangle)]
+/// The service-call door on the exe rung (D94 W2, M3 tail-add): same codec
+/// rules as the dl face (`embed.rs` `modukit_service_call`) - opaque bytes
+/// both ways, fail-rather-than-truncate cap, negated-D51 channel. It
+/// reuses the parent-side machinery that already serves cross-process
+/// calls for the exe rung today: a child's REGISTER frame installed a
+/// `ProxyService` in THIS rung's kernel registry (`proc_proxy.rs`), so
+/// the call rides the same acquire + canonical-id match + `invoke` door
+/// the dual-placement proof exercises - no second dispatch path.
+#[allow(clippy::not_unsafe_ptr_arg_deref)] // FFI: contract-pinned signature; derefs null-checked
+pub extern "C" fn modukit_sup_service_call(
+    service_id: *const c_char,
+    method: *const c_char,
+    input: *const u8,
+    input_len: usize,
+    response: *mut u8,
+    response_cap: usize,
+) -> i32 {
+    codec::guard(|| {
+        let (Some(sid), Some(method), Some(bytes)) = (
+            cstr_arg(service_id),
+            cstr_arg(method),
+            bytes_arg(input, input_len),
+        ) else {
+            return codec::NEG_SCHEMA_INVALID;
+        };
+        if response.is_null() {
+            return codec::NEG_SCHEMA_INVALID;
+        }
+        let sup = supervisor();
+        let registry = sup.0.kernel().registry();
+        // Type-keyed acquire + canonical-id match (the dl face's decision
+        // 7 mirrored: a non-top-ranked proxy id answers NOT_FOUND).
+        let Some(svc) = registry.acquire::<ProxyService>() else {
+            return codec::NEG_NOT_FOUND;
+        };
+        if svc.service_id().as_str() != sid {
+            let _ = registry.release(&svc);
+            return codec::NEG_NOT_FOUND;
+        }
+        let answer = match svc.invoke(method, bytes) {
+            // No out_len channel on this door: copy_out with a NULL size
+            // slot answers the byte count / QUOTA_EXCEEDED (embed.rs
+            // decision 4, same shape as the dl face).
+            Ok(reply) => copy_out(&reply, response, response_cap, std::ptr::null_mut()),
+            Err(err) => codec::neg_kernel(&err),
+        };
+        if registry.release(&svc).is_err() {
+            return codec::NEG_KERNEL_BUG;
+        }
+        answer
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -307,6 +362,92 @@ mod tests {
         assert_eq!(
             modukit_sup_uninstall(std::ptr::null()),
             codec::NEG_SCHEMA_INVALID
+        );
+        // service-call door: the shape refusals answer before any registry touch.
+        let mut sb = [0u8; 8];
+        assert_eq!(
+            modukit_sup_service_call(
+                std::ptr::null(),
+                c("echo").as_c_str().as_ptr(),
+                sb.as_ptr(),
+                0,
+                sb.as_mut_ptr(),
+                8
+            ),
+            codec::NEG_SCHEMA_INVALID,
+            "null service id is a shape refusal"
+        );
+        assert_eq!(
+            modukit_sup_service_call(
+                c("com.t.nope").as_c_str().as_ptr(),
+                std::ptr::null(),
+                sb.as_ptr(),
+                0,
+                sb.as_mut_ptr(),
+                8
+            ),
+            codec::NEG_SCHEMA_INVALID,
+            "null method is a shape refusal"
+        );
+        assert_eq!(
+            modukit_sup_service_call(
+                c("com.t.nope").as_c_str().as_ptr(),
+                c("echo").as_c_str().as_ptr(),
+                std::ptr::null(),
+                4,
+                sb.as_mut_ptr(),
+                8
+            ),
+            codec::NEG_SCHEMA_INVALID,
+            "len > 0 with a null input is a shape lie"
+        );
+        assert_eq!(
+            modukit_sup_service_call(
+                c("com.t.nope").as_c_str().as_ptr(),
+                c("echo").as_c_str().as_ptr(),
+                sb.as_ptr(),
+                2,
+                std::ptr::null_mut(),
+                8
+            ),
+            codec::NEG_SCHEMA_INVALID,
+            "null response buffer is refused (no size-query on this door)"
+        );
+    }
+
+    #[test]
+    fn sup_service_call_answers_not_found_without_a_matching_provider() {
+        let _serial = sup_lock();
+        // No supervised child lives on this ambient in unit context, so the
+        // proxy door answers the typed NOT_FOUND(-14) for both an empty and
+        // a non-empty payload - same channel as the dl face's own door.
+        let ghost = c("com.t.sup.ghost.service");
+        let method = c("echo");
+        let input = *b"hi";
+        let mut out = [0u8; 16];
+        assert_eq!(
+            modukit_sup_service_call(
+                ghost.as_c_str().as_ptr(),
+                method.as_c_str().as_ptr(),
+                input.as_ptr(),
+                2,
+                out.as_mut_ptr(),
+                16
+            ),
+            codec::NEG_NOT_FOUND,
+            "non-empty payload, unknown id -> NOT_FOUND"
+        );
+        assert_eq!(
+            modukit_sup_service_call(
+                ghost.as_c_str().as_ptr(),
+                method.as_c_str().as_ptr(),
+                std::ptr::null(),
+                0,
+                out.as_mut_ptr(),
+                16
+            ),
+            codec::NEG_NOT_FOUND,
+            "empty payload is legal input; the door still answers NOT_FOUND"
         );
     }
 

@@ -1,16 +1,24 @@
 #!/usr/bin/env bash
 # Stage-4 M2 exe-rung gate: the C++ host walks sup_install/ACTIVE/step/
-# dial-refusal over a REAL runner child, then gets SIGKILLed and the
-# runner must self-reap (ORPHAN-PROOF transplanted from S2-M5a, now under
-# a C++-authored host). NO skip-when-absent on the gate itself; cargo and
-# cmake legs route through pixi per D65. Reuses the dedicated
-# out/build-stage4 tree from demo-stage4-m1 (warm).
+# dial-refusal over a REAL runner child and the M3 fidelity stanza
+# (sup_service_call byte-exact typed-payload round trip, D94 W3), then gets
+# SIGKILLed and the runner must self-reap (ORPHAN-PROOF transplanted from
+# S2-M5a, now under a C++-authored host). NO skip-when-absent on the gate
+# itself; cargo and cmake legs route through pixi per D65. Reuses the
+# dedicated out/build-stage4 tree from demo-stage4-m1 (warm).
 #
-# C0 observed-RED lever: DEMO_STAGE4_M2_SABOTAGE=1 at exactly ONE named
-# point in examples/cpp/host_sup_demo.cc (parent stops instead of kills):
-# the census MUST then find the live runner and the gate goes RED without
-# printing any PASS line:
-#   DEMO_STAGE4_M2_SABOTAGE=1 bash scripts/demo-stage4-m2.sh   # expect RED
+# C0 observed-RED levers (two named points, still ONE leg):
+#   DEMO_STAGE4_M2_SABOTAGE=1 - parent stops instead of kills: the census
+#     MUST then find the live runner and the gate goes RED without
+#     printing any PASS line:
+#       DEMO_STAGE4_M2_SABOTAGE=1 bash scripts/demo-stage4-m2.sh  # expect RED
+#   DEMO_STAGE4_M3_SABOTAGE=1 - corrupts the fidelity stanza's expected-
+#     bytes comparison: the walk child never prints the FIDELITY PASS
+#     marker, the parent goes RED with no SUP-DEMO PASS line:
+#       DEMO_STAGE4_M3_SABOTAGE=1 bash scripts/demo-stage4-m2.sh  # expect RED
+# M3 additions stay ONE leg (W3 ruling: no new script, no new check.sh
+# leg): the gate now REQUIRES a 'FIDELITY PASS' marker line in the
+# transcript in addition to 'SUP-DEMO PASS'.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -48,6 +56,10 @@ fi
 status=${PIPESTATUS[0]}
 if [ "$status" -ne 0 ]; then
   echo "demo-stage4-m2: RED (demo exited $status)"
+  exit 1
+fi
+if ! grep -q '^FIDELITY PASS' "$log"; then
+  echo "demo-stage4-m2: RED (no FIDELITY PASS line - M3 door did not prove byte-exactness)"
   exit 1
 fi
 if ! grep -qx 'SUP-DEMO PASS' "$log"; then

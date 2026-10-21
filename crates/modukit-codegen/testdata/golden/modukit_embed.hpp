@@ -6,7 +6,7 @@
    --embed_header contracts/modukit_embed.h --output_dir <dir>
 
    C++ EMBED FACE (Stage-4 M1, ruling C++-3 face B): a header-only
-   RAII/status wrapper over the 23 HostEmbedV1 verbs.
+   RAII/status wrapper over the 24 HostEmbedV1 verbs.
    Error model: every verb's raw i32 channel rides `modukit::Status`
    (ok() is `raw >= 0`; code() maps a negative to the typed D51
    entry). A small status type is chosen OVER exceptions on purpose:
@@ -228,6 +228,10 @@ class Kernel {
 
   [[nodiscard]] Status sup_uninstall(const char *id) const {
      return Status{modukit_sup_uninstall(id)};
+   }
+
+  [[nodiscard]] Status sup_service_call(const char *service_id, const char *method, const uint8_t *input, size_t input_len, uint8_t *response, size_t response_cap) const {
+     return Status{modukit_sup_service_call(service_id, method, input, input_len, response, response_cap)};
    }
 
 private:
