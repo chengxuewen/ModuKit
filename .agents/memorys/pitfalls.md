@@ -154,3 +154,6 @@
 
 ## PIT-20 (trivial) - out/build is the IDE's tree; orchestrator scratch builds go to dedicated dirs (2026-10-20)
 - Wiping/reconfiguring out/build to "fix" a generator-mismatch destroys the .vscode-pinned tree (PIT-7 lineage); use /tmp or the demo scripts' dedicated out/build-stageN instead.
+
+## PIT-21 (trivial): adjudication walkthrough body in ledger-dense register got a plain-speech demand (2026-10-21)
+- The skill's own plain-language rule was violated by file:line citation chains + jargon in the BODY; the seven-part template survives being written in everyday terms - fix: body speaks what changes for a human, ledger anchors go to the Sources section only.
