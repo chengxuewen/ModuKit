@@ -102,6 +102,19 @@ if [ -f scripts/demo-stage4-m2.sh ]; then
   else note "FAIL demo-stage4-m2 (gate did not print PASS)"; status=1; fi
 else note "skip demo-stage4-m2 (no script)"; fi
 
+# leg: ctest bridge over the dedicated Stage-4 tree (gate escalation 2026-10-21;
+# PIT-17 class - a warm stale tree once fabricated a false 9/9). Incremental rebuild
+# THEN full ctest every run, so changed sources cannot hide behind old binaries.
+# Skip-when-absent like the D50 legs: no tree (fresh clone) = green, no cost.
+if [ -d out/build-stage4 ] && command -v pixi >/dev/null 2>&1; then
+  if pixi run cmake --build out/build-stage4 > /tmp/ctest-build.log 2>&1 \
+     && pixi run ctest --test-dir out/build-stage4 > /tmp/ctest-run.log 2>&1; then
+    note "ok ctest-stage4 ($(grep -E 'tests passed' /tmp/ctest-run.log | tail -1))"
+  else
+    note "FAIL ctest-stage4 (build or tests red; see /tmp/ctest-build.log + /tmp/ctest-run.log)"; status=1
+  fi
+else note "skip ctest-stage4 (no out/build-stage4 tree or no pixi)"; fi
+
 # leg: embed-contract parity (Stage-4 M1 lane #2, C++-3): the header IS the
 # contract; the Rust mirror must list its verbs exactly. Skip-when-absent
 # per D50; present, it is always-on like doc-liveness.

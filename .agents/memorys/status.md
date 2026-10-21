@@ -22,7 +22,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | Module | What |
 |---|---|
 | modukit-core / -runtime / -transport / -codegen | SHIPPED (workspace since 2026-10-15; test totals live in the plans of record — volatile counts unlisted per the 2026-10-10 audit; v1 frozen D87) |
-| bindings/cpp + contracts C originals | SHIPPED (Stage-4 M1/M2, D93+M3: HostEmbedV1 24 verbs two rungs (sup service-call door landed 2026-10-21), C++ emitters + fixtures, ORPHAN-PROOF + byte-fidelity demos; volume acceptance open) |
+| bindings/cpp + contracts C originals | SHIPPED (Stage-4 M1/M2, D93+M3: HostEmbedV1 24 verbs two rungs (sup service-call door landed 2026-10-21), C++ emitters + fixtures, ORPHAN-PROOF + byte-fidelity demos; acceptance open) |
 | modukit-compositor | planned — §12-3 demoted track; UI demand trigger stands (D89-K2) |
 
 ## Verification
@@ -39,11 +39,12 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | M1-M8.6 milestone gates | check.sh + demo-stage1.sh PASS + 108 tests + clippy all-targets + coverage 78.6% + cmake 7 edges + ctest 6/6 + codemodel FOLDER exact; first-reds & falsifiability probes per plan row; orchestrator re-ran independently | pass (2026-10-16) |
 | C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN) | pass (2026-10-15) |
 | doc-audit dated-gate re-run | cheap verification rows re-run 2026-10-21 (config/whitelink/C1/skill-lint/numbering/size) | all pass (2026-10-21, full team-mode audit) |
+| gate escalations live | check.sh ctest-stage4 leg (incremental rebuild THEN ctest; planted red observed); scripts/hooks/commit-msg via core.hooksPath (2 bad msgs blocked, good passed) | live (2026-10-21) |
 
 ## Open Items
 
 - [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger D1-D93 in `.agents/memorys/decisions.md`); Stage-1 plan of record `docs/stage-1-plan.md` complete; C2 branch discipline governs the PolyOrch submodule upstream only
-- [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: P2 PAT (user) + R restart verification (now also carries 2026-10-14 plugin bumps) + S2 user-side apiKey rotation; P3/P4/P5 done; ecosystem-scan FULL rerun 2026-10-14 — fix batches 1-3 adjudicated and landed (see history-archive.md later entry); residual Stage-1-gated items listed there
+- [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: P2 PAT (user) + R restart verification (+2026-10-14 bumps) + S2 user-side apiKey rotation; P3/P4/P5 done; ecosystem-scan FULL rerun 2026-10-14 — fix batches 1-3 adjudicated and landed (see history-archive.md later entry); residual Stage-1-gated items listed there
 
 - [x] PolyOrch submodule live since M1; pin chain 3cbc155..5945f2a (five standalone bumps), policy = follow dev-modukit tip; first full C2 bless cycle closed 2026-10-16 (see Phase + history)
 - [x] Stage-2 COMPLETE 2026-10-18: M1-M5 + freeze hearing (D82-D88); v1 STABLE per D87, v2 PLANNED, dictionary 19 names, hint() paid, coverage debt calendared (D84); Stage-3 scoping opens on maintainer word; push decision open

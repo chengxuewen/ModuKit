@@ -58,6 +58,13 @@ if [ -z "$PIXI" ]; then
 fi
 echo "[bootstrap] pixi: $("$PIXI" --version)"
 
+# 5. repo-local git hooks: C3 commit-shape pre-flight (commit-msg reads the
+#    prepared message; conventions.md C3). Idempotent; --no-verify stays the escape hatch.
+if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  git config core.hooksPath scripts/hooks
+  echo "[bootstrap] core.hooksPath -> scripts/hooks (C3 gate live)"
+fi
+
 echo ""
 echo "[bootstrap] done. Open a NEW terminal, then verify:"
 echo "    node -v        # expect the mise.toml pin (v22.x), not the system node"

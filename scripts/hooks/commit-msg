@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# C3 commit-shape gate, machine version (commit-msg: git hands it the message file as $1).
+# Live via `git config core.hooksPath scripts/hooks` (bootstrap.sh installs it).
+# Checks the prepared message only; --no-verify stays the documented escape hatch.
+msg="$1"
+git rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1 && exit 0
+[ -s "$msg" ] || exit 0
+subj=$(head -n1 "$msg")
+if [ "$(printf '%s' "$subj" | wc -m)" -gt 60 ]; then
+  printf 'pre-commit C3: subject is %s chars (>60): %s\n' "$(printf '%s' "$subj" | wc -m)" "$subj" >&2
+  exit 1
+fi
+lineno=0
+while IFS= read -r line; do
+  lineno=$((lineno+1))
+  [ "$lineno" -eq 1 ] && continue
+  if [ "$lineno" -eq 2 ] && [ -n "$line" ]; then
+    printf 'pre-commit C3: missing blank line after subject\n' >&2; exit 1
+  fi
+  [ -z "$line" ] && continue
+  case "$line" in
+    " - "*)
+      [ "${#line}" -le 100 ] || { printf 'pre-commit C3: body bullet over 100 chars: %s\n' "$line" >&2; exit 1; } ;;
+    *)
+      printf 'pre-commit C3: body line not " - " bullet: %s\n' "$line" >&2; exit 1 ;;
+  esac
+done < "$msg"
+exit 0

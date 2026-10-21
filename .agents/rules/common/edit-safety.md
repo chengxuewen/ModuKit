@@ -133,6 +133,7 @@ After claiming tests are written or features are working:
 ## Git Recovery Operations
 
 - **Batch `git restore <paths>` to recover staged deletions may not fully write back all directories** — `git ls-files` (index) has files but disk (worktree) is empty, grep returns nothing for that directory. Root cause: `restore` is incomplete for staged deletion paths. **Prefer `git checkout HEAD -- <paths>`** (forces write-back from HEAD to worktree).
+- **`git reset --hard` to clean up a probe/test commit destroys UNRELATED uncommitted worktree changes** (observed 2026-10-21: `reset --hard HEAD~1` after a hook probe wiped an uncommitted scripts/ edit; redo cost one round). Probe commits get cleaned with MIXED `git reset <sha>`; check `git status --short` BEFORE any --hard.
 - **Verification must be exhaustive, not sampled**: After recovering/deleting N directories, check each one with `for d in ...; do echo "[$d] index=$(git ls-files $d/ | wc -l) worktree=$(ls $d/ 2>/dev/null | wc -l)"; done` — index and worktree counts must all match. Only checking some directories = missed (PIT-68: recovered 10 directories but only 7 actually written back, 3 empty on disk went undetected).
 
 **Source**: PIT-68 (2026-08-06 .agents trim recovery round)
