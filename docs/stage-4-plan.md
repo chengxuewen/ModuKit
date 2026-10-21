@@ -175,7 +175,10 @@ LANDED evidence: verb 24 in header<->mirror<->emitter (parity ok), capability le
 Four-point DoD all green: goals evidenced (M1/M2 external gate review dispositioned +
 M3 re-measured: 226 tests / 47 suites, fresh ctest 9/9, FIDELITY + both sabotage hooks
 red-proved); frozen surface zero-touch (whole-volume diff audit); coverage at the
-boundary, line metric per D84a: core 82.39 / transport 80.78 / codegen 85.14 (>= 80);
+boundary, line metric per D84a: core 82.39 / transport 80.78 / codegen 85.14 (>= 80)
+[TAIL-CORRECTION 2026-10-21: PIT-23 - that run silently executed 25/47 suites; the honest
+post-N1/N2 census-complete rerun reads core 66.95 / transport 80.78 / codegen 84.25;
+the core exe-placement family is named debt for the next boundary gate];
 docs closed via the applied §7 amendment + roadmap sync. Wave-2 (§6) armed, not open.
 
 ## 6. Wave-2 candidates (in this volume's shadow, NOT open; trigger = maintainer word or named consumer)

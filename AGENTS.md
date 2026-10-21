@@ -60,7 +60,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 - **C1**: all artifacts English; chat follows user. (CJK scan is the canonical block below — keep it synced with conventions.md verbatim.)
 - **C0**: every constraint carries a runnable check, observed red once before trusted.
-- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D96/C3/PIT-22; numbering gate in status.md guards bounds.
+- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D96/C3/PIT-23; numbering gate in status.md guards bounds.
 - **C2**: ModuKit lands on master; PolyOrch edits on dev-modukit, tests blessed on main; pin = fresh dev-modukit tip via standalone bumps.
 - **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
 - `Cargo.lock` commits with `Cargo.toml`.

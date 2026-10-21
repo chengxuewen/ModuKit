@@ -638,6 +638,7 @@
 - **Rationale**: the stage did what the rulings said, in the K1 order, without a single waiver; acceptance is bookkeeping, not celebration.
 - **Reference**: docs/stage-3-plan.md (M3S rows + DoD); D88 precedent; final coverage run + check.sh tails in history.
 - **Re-review triggers**: any regression of the 80-line at the next stage boundary (same hook, rearmed); first beachhead UI demand (D89-K2 demotion lift); any stable-surface breakage report (D77 freeze audit).
+- **Amendment (2026-10-21, PIT-23)**: DoD-item-1's recorded coverage figures were measured with a defective denominator (instrumented run executed 25 of 47 suites; cargo-llvm-cov silently skipped the prebuilt integration binaries). The honest rerun after wave-2 N1/N2 is core 66.95 / transport 80.78 / codegen 84.25. The acceptance STANDS on its other limbs (evidence, freeze audit, docs closure); the coverage limb now shows a named debt: core's exe-placement family (proc_wire 54.7%, executor_proc 42.2%, supervisor 49.0%) - to be paid at the next boundary gate, hook rearmed at the true baseline.
 
 ## D92: Static-placement blueprint adjudicated one by one - armed as roadmap candidate, trigger-gated (2026-10-19)
 
