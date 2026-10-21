@@ -9,7 +9,7 @@ paths:
 ## Formatting
 
 - **rustfmt** for enforcement — format ONLY touched files: `rustfmt --edition 2024 <file>` (workspace-wide `cargo fmt` is forbidden here — edit-safety #12, PIT-88 drift history)
-- **clippy** for lints — `cargo clippy -- -D warnings` (treat warnings as errors)
+- **clippy** for lints — `pixi run cargo clippy -- -- -D warnings` (treat warnings as errors; ALL cargo/rustfmt via `pixi run` on this box, mise shims broken)
 - 4-space indent (rustfmt default)
 - Max line width: 100 characters (rustfmt default)
 
@@ -156,5 +156,5 @@ See skill: `rust-patterns` for comprehensive Rust idioms and patterns.
 # Verify: no unwrap() misuse
 grep -rn "unwrap()" --include="*.rs" crates/ | grep -v "test" | grep -v "// OK" | head -5
 # Verify: clippy passes
-cargo clippy --workspace -- -D warnings
+pixi run cargo clippy --workspace --all-targets -- -D warnings
 ```

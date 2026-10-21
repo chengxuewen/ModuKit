@@ -157,7 +157,7 @@ impl CircuitBreaker {
 - **Application errors**: use `anyhow::Context` — `.with_context(|| format!("SFU transport connect failed for peer {peer_id}"))`
 - **Do NOT retry on**: authentication failures (4xx), validation errors, resource-not-found (404)
 - **DO retry on**: connection refused, timeout, 503 Service Unavailable, DNS resolution failures
-- **PolyOrch PIT-11 lesson** (provenance pointer, not this repo's PIT-1..6 ledger): build tool failures (`cargo check`, meson) are not transient — do not wrap in retry logic; fix the root cause
+- **PolyOrch PIT-11 lesson** (provenance pointer, not this repo's local PIT ledger): build tool failures (`cargo check`, meson) are not transient — do not wrap in retry logic; fix the root cause
 
 ## Input Validation
 

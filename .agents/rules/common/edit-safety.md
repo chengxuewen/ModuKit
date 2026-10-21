@@ -5,7 +5,7 @@
 > **Port provenance**: rule bodies and the PIT citations (PIT-28/31/33/41/54/56/68/78a/81/
 > 84/85/88/98/120/121) were carried from the PolyOrch governance tree; those numbered
 > originals live in `PolyOrch/.agents/memorys/pitfalls.md` (reference checkout), NOT in this
-> repo's PIT-1..6 ledger - treat the numbers as provenance pointers, not local references.
+> repo's local PIT ledger - treat the numbers as provenance pointers, not local references.
 > Verified 2026-10-19 (dangling-refs sweep): the reference checkout exists and
 > PIT-28/31/33/41/54/56 resolve in it (its ledger ends at PIT-65); 68/78a/81/84/85/88/
 > 98/120/121 have no entry in the pinned checkout. Every rule below is self-contained,
@@ -102,7 +102,7 @@ After claiming tests are written or features are working:
 
 ## Self-Verification Requirement (NON-NEGOTIABLE)
 
-- **ALWAYS verify browser-based features yourself using Playwright MCP tools** (`local-playwright_browser_navigate`, `local-playwright_browser_evaluate`, etc.)
+- **WHEN a browser-automation mechanism is registered on the host (Playwright MCP or the `browser` skill), ALWAYS verify browser-based features yourself with it** (`local-playwright_browser_navigate`, `local-playwright_browser_evaluate`, etc.); on hosts without one (this box today), say so explicitly and hand browser-layer QA to the user - never imply browser evidence that was not produced
 - **NEVER ask the user to test what you can test yourself.** If Playwright is available, use it.
 - **After fixing a browser bug, ALWAYS re-test in the browser** before reporting the fix.
 - **Report the actual browser console output** as evidence of verification.

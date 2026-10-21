@@ -1,10 +1,11 @@
 # Testing Requirements
 
-## Test Coverage: staged gate (D50)
+## Test Coverage: current gate (D79/D84/D90; D50 ladder retired at the Stage-2 boundary)
 
-No hard gate while Stage-1 is parked; 60% soft gate after the first real crate lands;
-80% hard gate once interfaces stabilize (prevents metric-chasing tests).
-Tool: cargo-llvm-cov (tarpaulin successor - faster, maintained).
+80% hard is ACTIVE, measured at stage/acceptance boundaries; runtime bins + fixture
+crates are boundary-excluded from the denominator (D84 - naive whole-workspace totals
+false-FAIL; the metric definition is part of the claim).
+Tool: `pixi run -e cov cargo llvm-cov` (tarpaulin successor - faster, maintained).
 
 Test Types (ALL required):
 1. **Unit Tests** - Individual functions, utilities, components
@@ -70,8 +71,8 @@ payment. The metric definition is part of the claim.
 ## Runnable Check
 
 ```bash
-# Verify: tests pass
-cargo test --workspace
-# Verify: coverage
-cargo llvm-cov --workspace 2>/dev/null || echo "llvm-cov not installed (staged gate per D50)"
+# Verify: tests pass (pixi-routed on this box - mise cargo shim broken, D65)
+pixi run cargo test --workspace
+# Verify: coverage (boundary exclusions per D84)
+pixi run -e cov cargo llvm-cov --workspace 2>/dev/null || echo "llvm-cov not installed (gate per D79/D90)"
 ```
