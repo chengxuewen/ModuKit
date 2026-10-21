@@ -83,6 +83,7 @@
   Lesson: any awk regex quantifier must get its own planted-red/green proof
   through the exact pipeline, not the mental model of the regex.
 - **Forbidden**: shipping a commit whose shape was checked only "from memory of the rule";
+- **Verify with exact literals, not substrings (2026-10-21)**: a typo'd marker (double-T) was self-stamped green because the verify grep searched the correct form as a SUBSTRING of the wrong one; two further anchor misses came from anchoring on the text I MEANT to have written rather than disk bytes - this batch's own first attempt demonstrated it live. Anchor = read; verify = full literal with boundary.
 - **Fatigue signature (2026-10-20, 4 more catches in one session)**: violations cluster in late-session commits; adopted remedy - run the C3 pair (and C1 on artifact batches) INSIDE the commit command chain, never as post-commit discovery, never as a separate later step; escalation proposed (pending maintainer word): a git pre-commit hook, since the check.sh leg only reports after the fact.
   wrapping a ` - ` bullet across lines.
 
@@ -110,6 +111,7 @@
 ## PIT-12: Multi-language command blocks leave bare code after a heredoc terminator (2026-10-19, x3)
 - **Symptom**: bash "unexpected syntax near open('...')" errors and "warning: here-document delimited by end-of-file (wanted MSG)" - commands half-executed, chains short-circuited.
 - **Root cause**: pasting python lines after a closed PY/MARKER heredoc (they become bash), or ending a heredoc with the WRONG terminator (EOF vs MSG) which swallows every following line into the message body - twice shipping commit messages that inhaled script tails.
+- **Strike 3 (2026-10-21, twice in one session)**: multi-heredoc CHAINS desynchronize when an earlier component fails, and the pattern itself recurred mid-lesson-batch (missing terminator swallowed the git tail). Adopted rule: generators via the write tool as files (rule 20), commit messages via a written /tmp/msg file; never stack three quoted documents in one command.
 - **Solution**: one language per invocation; verify each heredoc's opener/terminator pair match before running; after any such error, ALWAYS re-check which steps actually ran (git status / file greps) before re-running the rest.
 - **Verification**: grep -c "EOF" inside a MSG-terminated block must be 0; post-error, `git status --short` + `grep -c "<marker string>" target` before retry.
 - **Forbidden**: assuming a chained block ran to the end after a syntax error mid-block.
@@ -166,4 +168,12 @@
 - **Root cause**: cargo-llvm-cov's instrumented test phase silently skipped already-built integration binaries; the number looked plausible, and plausible numbers do not get recounted. Same family as PIT-17 (stale trees fabricate green) and D84 (metric definition is part of the claim) - the mirror direction: a missing denominator inflates rather than deflates.
 - **Solution**: coverage claims must be accompanied by a suite-execution census (count the "Running unittests/tests" lines in the redirected log; compare against the workspace's binary inventory: test-targets minus lib-bins must equal executed). On mismatch, rerun `clean`-style and re-cite. Current canon after correction: core 66.95 / transport 80.78 / codegen 84.25, line metric D84a; core's real debt is named at the stage-4 §5 acceptance row.
 - **Verification**: `grep -c "Running" <covlog>` vs suite inventory from `cargo test --workspace` redirected log; the census line goes next to any quoted percentage.
+- **Same-day label correction**: the quoted column ($4 of the summary TOTAL) is the REGION metric, not line% - the series (85.52/85.24/80.78/82.39/66.95) is internally consistent on that column; canon name forward: 'region metric per D84a'. The misnomer stays in same-day D95/plan prose; corrected here and forward.
 - **Forbidden**: quoting a coverage % without its suite census; trusting an instrumented run because "the tests are green elsewhere".
+
+## PIT-24: an outbound artifact can be falsified by your own same-day work (2026-10-21)
+- **Symptom**: the K7 stable-note draft (armed for days) said "v2 bus/clock verbs are PLANNED, not drawn (D82/K4)" - then the very same session held the hearing (D96), drew the signatures, and shipped N1+N2, making the outbound sentence false before it was ever sent.
+- **Root cause**: the as-of-then discipline protects INTERNAL dated rows; an outbound note is never "as of then" - it speaks the moment it is sent. Nothing in the workflow re-checked the outbox when a landing reversed a claim the draft carried.
+- **Solution**: when a landing contradicts any claim in an armed outbound artifact, the artifact's register row (status Open Items / register) must gain a "REFRESH REQUIRED" mark in the same commit as the landing; re-verify the whole outbox before send.
+- **Verification**: `grep -L "REFRESH" docs/reference/k7*.md` style sweep against the day's D-records before any send; the K7 refresh today (commit 9d5c200) is the precedent execution.
+- **Forbidden**: sending an armed draft whose text predates a same-day ruling that moved the facts.
