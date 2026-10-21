@@ -109,6 +109,14 @@ if [ -f scripts/demo-stage5-n2.sh ]; then
   elif echo "$s5" | grep -q "demo-stage5-n2: SKIP"; then note "skip demo-stage5-n2 (no build toolchain)";
   else note "FAIL demo-stage5-n2 (gate did not print PASS)"; status=1; fi
 else note "skip demo-stage5-n2 (no script)"; fi
+# Wave-2 reader leg (closes the D97 re-review trigger): same PASS/SKIP grammar
+# as the other demo legs - SKIP (no build toolchain) is green, RED fails.
+if [ -f scripts/demo-wave2-reader.sh ]; then
+  w2=$(bash scripts/demo-wave2-reader.sh 2>/dev/null)
+  if echo "$w2" | grep -q "demo-wave2-reader: PASS"; then note "ok demo-wave2-reader";
+  elif echo "$w2" | grep -q "demo-wave2-reader: SKIP"; then note "skip demo-wave2-reader (no build toolchain)";
+  else note "FAIL demo-wave2-reader (gate did not print PASS)"; status=1; fi
+else note "skip demo-wave2-reader (no script)"; fi
 
 # leg: ctest bridge over the dedicated Stage-4 tree (gate escalation 2026-10-21;
 # PIT-17 class - a warm stale tree once fabricated a false 9/9). Incremental rebuild
