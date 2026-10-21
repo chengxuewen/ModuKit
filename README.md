@@ -75,8 +75,8 @@ Five stages per the whitepaper implementation path:
 - [x] **Stage 1** — in-process plugin kernel: OSGi-style lifecycle & service registry — closed 2026-10-16 ([plan of record](docs/stage-1-plan.md))
 - [x] **Stage 2** — multi-process plugins & zero-copy IPC: iceoryx2/Zenoh, I420 SHM transport — closed 2026-10-18 ([plan of record](docs/stage-2-plan.md))
 - [x] **Stage 3** — re-scoped to stability & docs hardening (UI composition demoted to research tier per D89-K2) — accepted and closed 2026-10-19 ([plan of record](docs/stage-3-plan.md))
-- [ ] **Stage 4** — INFRA volume: bindings / communication / debugging — C/C++ line shipped M1+M2 2026-10-20, volume acceptance open ([plan of record](docs/stage-4-plan.md)); remote WebRTC renumbers into the ecosystem line by the §7 amendment, applied at acceptance
-- [ ] **Stage 5** — polyglot & script ecosystem: C ABI export, generated bindings, Lua/QuickJS/WASM hosts
+- [x] **Stage 4** — INFRA volume: bindings / communication / debugging — C/C++ line shipped M1+M2+M3 (embed face, sup rung, service-call door); accepted and closed 2026-10-21 ([plan of record](docs/stage-4-plan.md))
+- [ ] **Stage 5** — remote WebRTC: encode, stream, route input back (renumbered by the §12 amendment; the polyglot & script ecosystem line dissolved into stage-4 wave-2 candidates)
 
 ## Platform support
 
@@ -88,7 +88,7 @@ Five stages per the whitepaper implementation path:
 
 ## Development status
 
-As-built: four shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen` (v1 API surface frozen STABLE per `docs/architecture.md` §11, D87; test totals are volatile and live in the plans of record) — plus the Stage-4 bindings line: `contracts/modukit_embed.h` (HostEmbedV1, 24 verbs over two rungs incl. the sup service-call door), `contracts/modukit_plugin.h`, the generated C++ faces and the `bindings/cpp` shelf (M1/M2/M3 closed, D93/D94; volume acceptance open). Stages 1-3 are closed (D88, D91). Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
+As-built: four shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen` (v1 API surface frozen STABLE per `docs/architecture.md` §11, D87; test totals are volatile and live in the plans of record) — plus the Stage-4 bindings line: `contracts/modukit_embed.h` (HostEmbedV1, 24 verbs over two rungs incl. the sup service-call door), `contracts/modukit_plugin.h`, the generated C++ faces and the `bindings/cpp` shelf (M1/M2/M3 closed; the volume was accepted and closed 2026-10-21, D95). Stages 1-4 are closed (D88, D91, D95). Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
 
 First-time machine setup for dev toolchains (user-level, via mise; idempotent): `./bootstrap.sh` (Linux/macOS) or `bootstrap.bat` (Windows native). Pins live in `mise.toml`.
 

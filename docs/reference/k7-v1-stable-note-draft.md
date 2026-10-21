@@ -22,7 +22,7 @@
 - What is explicitly NOT promised: v2 bus/clock verbs are PLANNED, not drawn (D82/K4);
   the UI-composition tier stays demoted until a real beachhead demand (K2); process
   placement currently covers in-host supervisor + runner pairs (Stage-2), remote
-  transport is a later stage (§12-4, trigger-gated).
+  transport is a later stage (§12-5, trigger-gated).
 
 ## What this note is not
 

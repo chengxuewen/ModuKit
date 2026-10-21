@@ -1,8 +1,9 @@
 # Stage-4 — INFRA volume: bindings, communication, debugging (plan of record)
 
-> STATUS: ADJUDICATED 2026-10-19 - seven rulings taken one by one (user-adjudicated),
-> scope narrowed to the C/C++ line. Milestones M1/M2 LANDED (both CLOSED 2026-10-20,
-> in-ledger as D93); further lanes open on a separate go order. Directive of record: infrastructure first (whitepaper §1 CORE
+> STATUS: ACCEPTED AND CLOSED 2026-10-21 (D95). Adjudicated 2026-10-19 (seven rulings
+> one by one, scope narrowed to the C/C++ line); milestones M1/M2/M3 all LANDED
+> (2026-10-20 / 2026-10-21, ledger D93/D94). Wave-2 candidates live in §6, armed -
+> each opens on its own maintainer word. Directive of record: infrastructure first (whitepaper §1 CORE
 > promises); extension tracks stay exactly where their trigger gates put them. The §12
 > amendment (draft in §7) goes live at acceptance per the stage-3 precedent;
 > transcript in §8.
@@ -17,7 +18,7 @@
 >      every public API must expose equal capability in C/C++/Rust/Py alike.
 > record: infrastructure first - the whitepaper §1 CORE promises (polyglot bindings,
 > script hosts) and the unfinished communication/debug floors are the stage; extension
-> tracks (remote WebRTC §12-4, UI §12-3, static placement §12-6) stay exactly where
+> tracks (remote WebRTC §12-5 post-D95, UI §12-3, static placement §12-6) stay exactly where
 > their trigger gates put them. Walkthrough transcript: see §8; acceptance writes the §12
 > amendment per stage-3 precedent.
 
@@ -107,7 +108,7 @@ Whatever the letter, naming runs against whitepaper §2.3 authority before regis
 ## 2. Out of scope for this volume (restated, trigger-gated as ruled)
 
 UI composition tier (K2) · Zenoh (K3) · static placement (D92 armed) · remote WebRTC
-mechanics (§12-4) · MediaServo wiring (K7 armed) · anything needing a v1 break (D83 hearing, none scheduled).
+mechanics (§12-5 post-D95) · MediaServo wiring (K7 armed) · anything needing a v1 break (D83 hearing, none scheduled).
 
 ## 3. Procedure
 
@@ -170,6 +171,13 @@ LANDED evidence: verb 24 in header<->mirror<->emitter (parity ok), capability le
 - Done when: parity 24 green; ledger row; demo fidelity line prints PASS; sabotage red logged;
   tests/clippy/fmt/check.sh green measured on a freshly rebuilt tree (PIT-17).
 
+### Volume acceptance - CLOSED 2026-10-21 (D95)
+Four-point DoD all green: goals evidenced (M1/M2 external gate review dispositioned +
+M3 re-measured: 226 tests / 47 suites, fresh ctest 9/9, FIDELITY + both sabotage hooks
+red-proved); frozen surface zero-touch (whole-volume diff audit); coverage at the
+boundary, line metric per D84a: core 82.39 / transport 80.78 / codegen 85.14 (>= 80);
+docs closed via the applied §7 amendment + roadmap sync. Wave-2 (§6) armed, not open.
+
 ## 6. Wave-2 candidates (in this volume's shadow, NOT open; trigger = maintainer word or named consumer)
 - Python bindings (skins of the C tables) and the Python script host (separate rulings)
 - Communication: v2 plugin-facing bus/clock verbs (I3/I4 hearing material preserved in §1)
@@ -178,11 +186,13 @@ LANDED evidence: verb 24 in header<->mirror<->emitter (parity ok), capability le
   gated nowhere; rs family stays gated by dual_placement) - MOVED to §5 M3,
   OPENED 2026-10-21 (D94)
 - Debugging: reader CLI / tooling floor (I6 material preserved in §1)
+- JS dual-face product surface (former §12-5 scheduling seat; content decisions
+  D33/D51/D54 already closed - product work arrives here per the D95 amendment fold-in)
 - Tooling nit (found by M3, open): `scripts/regen-golden.sh` does not pass `--embed_header`,
   so the embed wrapper golden updates only via the banner recipe run by hand - worth
   folding into the script at the next tooling touch
 
-## 7. §12 amendment DRAFT (effective at acceptance, not before)
+## 7. §12 amendment - APPLIED 2026-10-21 at volume acceptance (D95; kept as the record)
 Stage-4 becomes the INFRA volume (this document). Post-amendment §12 reads EXACTLY:
 items 1-3 unchanged; 4 = INFRA (this volume); 5 = remote WebRTC (renumbered, content
 unchanged, engine-tiering question stays queued inside it); item 6 = static placement

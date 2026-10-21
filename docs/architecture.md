@@ -299,6 +299,8 @@ them. Re-review trigger recorded in D5.
 | D91 | Stage-3 accepted | DoD four-for-four; UI stays demoted (K2 trigger named); gates at 194 tests with the 80-line held post-lanes |
 | D92 | static blueprint armed | six rulings (generated list / single-version gate / text manifest / capability-removal unload / third standalone executor / candidate seat); no lane without a creditor; recheck freeze before opening |
 | D93 | stage-4 volume in-ledger | seven rulings (I1 A+narrow / C++-1..5 / I7 A) shipped additively as M1 embed face + M2 sup rung (23 verbs, two rungs, ORPHAN-PROOF); v1 freeze held; ledger-after-shipping corrected; §12 sync owed at acceptance |
+| D94 | wave-2 open, door ruled | three A rulings: door-only scope; one verb mirroring the dl face; fidelity stage inside the m2 demo with its own sabotage hook - landed same day, fidelity gap closed |
+| D95 | stage-4 accepted | DoD four-for-four (evidence / freeze audit / coverage 82.39-80.78-85.14 vs 80 / §12 amendment applied); wave-2 armed not open; push+K7 stay maintainer tail |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
@@ -312,9 +314,6 @@ round (Stage-2 onward; `docs/reference/00-overview.md` §4).
 
 ## 12. Roadmap (amended §8)
 
-> **Banner (2026-10-21)**: this table is pre-amendment-current. The Stage-4 re-scoping
-> drafted in `docs/stage-4-plan.md` §7 takes effect at volume acceptance (stage-3
-> precedent); item 3/4 live-phase wording is superseded in flight, not in force.
 
 1. **Stage 1** — in-process kernel per §10 (unchanged in spirit; C+ semantics from day 1).
 2. **Stage 2** — process placement: supervisor, shadow-runner, wire transport; executor
@@ -323,9 +322,12 @@ round (Stage-2 onward; `docs/reference/00-overview.md` §4).
 per D11, only backend/vendor selection remains open).
 3. **Stage 3** — multi-process UI composition: extension/research track (demoted; revisit with
    the beachhead's real UI demands).
-4. **Stage 4** — remote WebRTC: unchanged; engine-tiering canon question still queued.
-5. **Stage 5** — polyglot ecosystem on the language axis; the JS dual-face product decision
-   is scheduled here.
+4. **Stage 4 (amended 2026-10-21, D95)** — INFRA volume (bindings / communication /
+   debugging): the C/C++ line shipped M1 embed face + M2 sup rung + M3 service-call door;
+   volume accepted and closed 2026-10-21 (`docs/stage-4-plan.md`, D93/D94/D95). The former
+   item 5 (polyglot ecosystem) dissolves into this track's wave-2 candidates (plan §6).
+5. **Stage 5** — remote WebRTC: unchanged in content (renumbered from item 4 by the same
+   amendment); the engine-tiering canon question stays queued inside it.
 6. **Candidate (not a stage)** — static placement per the D92 blueprint (six rulings armed:
    generated registration list, single-version gate, text manifest through the one parser,
    capability-removal unload, standalone third executor, registry-level mixed-placement

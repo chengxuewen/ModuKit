@@ -141,13 +141,14 @@ does not need to be resolved before Stage 1 lands.
    UnFreeze before Stage 5 binding work; decision record either way.
    **RATIFIED 2026-10-13 as D63** — metadata-first: `.proto` is the contract, the C ABI
    is its generated projection and the only binary exit (D13's direction made explicit).
-6. Whitepaper Stage-4 wording carries a naming+category error
+6. Whitepaper Stage-4 wording (the WebRTC line = architecture §12-5 since the D95
+   amendment; whitepaper numbering unchanged) carries a naming+category error
    (`getstream-rtc` → `getstream` vendor SDK); Stage-1 wording carries a
    misfire (`rustbridge`) and unresolvable names (`event-engine`,
    `Parallax`, `Scarlet`). Corrections proposed in
    whitepaper-cited-unvendored.md — maintainer call, whitepaper stays
    verbatim until then.
-7. Stage-4 engine axis: keep BOTH sans-I/O candidates (webrtc `rtc` primary,
+7. Stage-4 engine axis (meaning §12-5 WebRTC post-D95): keep BOTH sans-I/O candidates (webrtc `rtc` primary,
    str0m LAN/embedded tier) as the profile recommends, or re-evaluate when
    the SFU scope question (webrtc-rust-state OQ list) is answered.
 8. Tribunal PORT_NOW bundle - RE-SCOPED 2026-10-19 doc-audit: check.sh seed
