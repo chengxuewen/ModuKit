@@ -302,6 +302,7 @@ them. Re-review trigger recorded in D5.
 | D94 | wave-2 open, door ruled | three A rulings: door-only scope; one verb mirroring the dl face; fidelity stage inside the m2 demo with its own sabotage hook - landed same day, fidelity gap closed |
 | D95 | stage-4 accepted | DoD four-for-four (evidence / freeze audit / coverage 82.39-80.78-85.14 vs 80 / §12 amendment applied); wave-2 armed not open; push+K7 stay maintainer tail |
 | D96 | v2 bus hearing | six-by-A: HostAbiV2 door (v1 byte-identical) / mailbox verbs mirror host face / two talkers on the existing wire + HELLO capability field / transparent wall; timer deferred; N1/N2 spec'd not open |
+| D97 | wave-2 debug-reader door | five rulings (A,A,A,A,B): smallest-door priority criterion -\> debug reader -\> reader-only no live attach -\> one runtime bin; minimal self-check face LANDED same day, plan docs/wave-2-debug-reader-plan.md; live-attach/dump-file remain armed |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 

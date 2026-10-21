@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-21: D1-D96 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, all walked one by one; queue EMPTY, remainder trigger-gated. **STAGE-1 COMPLETE 2026-10-16**: M1-M8 + M8.5 lanes + M8.6 shelves all landed (then: 108 tests; demo PASS falsifiable; coverage 78.6% vs 60 soft; ctest 6/6; shelves: crates/ engine, test-plugins/ fixtures, examples/ demos, plugins/ reserved - rulings F+B) - per-milestone evidence in `docs/stage-1-plan.md`, narrative in history-archive. C2 + PIN POLICY live in conventions.md (pin `5945f2a`; IDE pixi-cmake via .vscode, PIT-7). **STAGE-2 ACCEPTED AND CLOSED 2026-10-18**; **STAGE-3 (stability/docs re-scope) ACCEPTED 2026-10-19 (D91)**: plan `docs/stage-2-plan.md` (Momus OKAY; kickoff A1-A7 -> D74-D81; M1-M5 landed incl. wire dial, vendor-shm, modukit-host, dual demo + ORPHAN-PROOF); freeze hearing 8 rulings -> D82-D88: **v1 surfaces STABLE (D87)**, v2 bus/clock verbs PLANNED (D82), dictionary 14->19 + hint() paid (D85/D86), coverage debt calendared to the Stage-3 kickoff gate (D84), ABI amendment policy live (D83). **STAGE-3 CLOSED 2026-10-19 (D91)**; **STAGE-4 INFRA volume: C/C++ bindings M1+M2 CLOSED 2026-10-20, ruled in as D93; volume ACCEPTED AND CLOSED 2026-10-21 (D95)** — plan `docs/stage-4-plan.md`; wave-2 OPENED 2026-10-21 (D94, rulings A/A/A): **M3 sup service-call door LANDED same day** - cpp x exe fidelity now gated (FIDELITY stanza + sabotage hook); §12 amendment APPLIED at D95. Kernel v0 parked.
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-21: D1-D97 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, all walked one by one; queue EMPTY, remainder trigger-gated. **STAGE-1 COMPLETE 2026-10-16**: M1-M8 + M8.5 lanes + M8.6 shelves all landed (then: 108 tests; demo PASS falsifiable; coverage 78.6% vs 60 soft; ctest 6/6; shelves: crates/ engine, test-plugins/ fixtures, examples/ demos, plugins/ reserved - rulings F+B) - per-milestone evidence in `docs/stage-1-plan.md`, narrative in history-archive. C2 + PIN POLICY live in conventions.md (pin `5945f2a`; IDE pixi-cmake via .vscode, PIT-7). **STAGE-2 ACCEPTED AND CLOSED 2026-10-18**; **STAGE-3 (stability/docs re-scope) ACCEPTED 2026-10-19 (D91)**: plan `docs/stage-2-plan.md` (Momus OKAY; kickoff A1-A7 -> D74-D81; M1-M5 landed incl. wire dial, vendor-shm, modukit-host, dual demo + ORPHAN-PROOF); freeze hearing 8 rulings -> D82-D88: **v1 surfaces STABLE (D87)**, v2 bus/clock verbs PLANNED (D82), dictionary 14->19 + hint() paid (D85/D86), coverage debt calendared to the Stage-3 kickoff gate (D84), ABI amendment policy live (D83). **STAGE-3 CLOSED 2026-10-19 (D91)**; **STAGE-4 INFRA volume: C/C++ bindings M1+M2 CLOSED 2026-10-20, ruled in as D93; volume ACCEPTED AND CLOSED 2026-10-21 (D95)** — plan `docs/stage-4-plan.md`; wave-2 OPENED 2026-10-21 (D94, rulings A/A/A): **M3 sup service-call door LANDED same day** - cpp x exe fidelity now gated (FIDELITY stanza + sabotage hook); §12 amendment APPLIED at D95. Wave-2 since: v2 bus LANDED (D96 N1+N2) + debug-reader MINIMAL FACE LANDED (D97). Kernel v0 parked.
 
 ## Modules
 
@@ -33,7 +33,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | docs exist & README link resolves | `test -f docs/whitepaper.md && grep -q 'docs/whitepaper.md' README.md` | pass (2026-10-09) |
 | C1 English-artifacts check | command block in conventions.md C1 (scope grown with artifact classes: +M1 build files, +contracts/, +examples/ - each extension red/green proved) | pass (2026-10-16) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
-| numbering discipline | `grep -rnE '^## (C[4-9][0-9]?|D(97|98|99|[0-9]{3,}))' .agents/memorys/` must be empty — allows D1-D96 / C0-C3 (widened 2026-10-21 for D96/D95/D94/D93, red observed on each mint, earlier for D92/D91; negative proof observed below) | pass (2026-10-16) |
+| numbering discipline | `grep -rnE '^## (C[4-9][0-9]?|D(98|99|[0-9]{3,}))' .agents/memorys/` must be empty — allows D1-D97 / C0-C3 (widened same-day for each mint D93-D97, red observed each time) | pass (2026-10-21) |
 | local check gate (D50) | `bash scripts/check.sh` - fast checks, cargo legs pixi-routed per D65, skip-when-absent | pass (2026-10-15) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
 | M1-M8.6 milestone gates | per `docs/stage-1-plan.md` evidence rows; orchestrator re-ran independently | pass (2026-10-16) |
@@ -43,7 +43,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 ## Open Items
 
-- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger D1-D96 in `.agents/memorys/decisions.md`)
+- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger D1-D97 in `.agents/memorys/decisions.md`)
 - [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: P2 PAT (user) + R restart verification (+2026-10-14 bumps) + S2 user-side apiKey rotation; P3/P4/P5 done; ecosystem-scan FULL rerun 2026-10-14 — fix batches 1-3 adjudicated and landed (see history-archive.md later entry); residual Stage-1-gated items listed there
 
 - [x] PolyOrch submodule live since M1; pin chain 3cbc155..5945f2a (five standalone bumps), policy = follow dev-modukit tip; first full C2 bless cycle closed 2026-10-16 (see Phase + history)
@@ -54,7 +54,6 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 - [x] Wave-2 v2 bus: HEARING (D96 six-by-A) + **N1 door + N2 crossing both LANDED 2026-10-21** (five demo legs, wall transparent in the start window): docs/stage-5-plan.md
 - [ ] Still armed: timer / Python / live-attach depth / JS; debug-reader self-check
   LANDED 2026-10-21 (plan docs/wave-2-debug-reader-plan.md; coverage debt stands)
-  LANDED 2026-10-21: plan docs/wave-2-debug-reader-plan.md; coverage debt stands)
 - [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — K7=C (D89): v1-STABLE factual note pending maintainer send; wiring-hearing proposal ARMED, not opened
 - [x] rules/common dangling-refs family CLOSED 2026-10-19 (M3S-1 sweep; doc-liveness leg in check.sh; unmounted pool kept per G10)
 - [x] Cargo workspace landed 2026-10-15 (M2; kernel filled from M3 on)

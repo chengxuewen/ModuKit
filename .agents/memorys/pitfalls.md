@@ -177,3 +177,12 @@
 - **Solution**: when a landing contradicts any claim in an armed outbound artifact, the artifact's register row (status Open Items / register) must gain a "REFRESH REQUIRED" mark in the same commit as the landing; re-verify the whole outbox before send.
 - **Verification**: `grep -L "REFRESH" docs/reference/k7*.md` style sweep against the day's D-records before any send; the K7 refresh today (commit 9d5c200) is the precedent execution.
 - **Forbidden**: sending an armed draft whose text predates a same-day ruling that moved the facts.
+
+
+## PIT-25: a malformed replace op "succeeds" and inserts while the consumed region survives (2026-10-21)
+- **Symptom**: batch edit ops issued with an `end` anchor but NO `pos` anchor returned plain "Updated" success while behaving as inserts: the Rust bin got a duplicate arg-parse block that unclosed the `fn main` brace (compile error caught it), the plan doc got a duplicate Status paragraph and a dangling sentence (caught by re-read), and status.md grew a leftover continuation line that only a full re-read exposed (third occurrence).
+- **Root cause**: the payload builder dropped the required `pos` for range replaces; the tool applied the lines at the wrong anchor instead of rejecting the op, and "Updated" reports insertion, not consumption - a success line proves nothing about the removed side.
+- **Solution**: every range replace carries BOTH `pos` and `end`; after every edit that REMOVES or replaces content, verify BOTH directions: `grep -c "<new phrase>" file` (landed) AND `grep -c "<distinctive phrase of the consumed line>" file` (gone, expect 0); if a remnant shows, stop, re-read the whole region, then patch once - never layer more edits over the damage.
+- **Verification**: `for p in "new-phrase" "old-line-phrase"; do echo "$p $(grep -c "$p" <file>)"; done` - the old-side count must be 0; diff `git diff --stat` against the intended file count.
+- **Forbidden**: trusting "Updated" as evidence a range was consumed; issuing a second blind edit after discovering damage instead of a fresh full read; same family as edit-safety #17 (partial apply) and #8/#9 (duplicates), but this variant ships a SUCCESS verdict.
+- **Same-session recurrence note (rule 19 family)**: the register line that triggered this hunt was itself a self-inflicted copy - the session transcribed stage-5's armed list verbatim while stage-4 §6 had already CLOSED its regen item; when propagating a list between ledger files, re-derive each row from its own truth source first (rule 19 generalized from gate commands to registers).

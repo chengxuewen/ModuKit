@@ -67,6 +67,18 @@ Delegate to a `deep` category subagent when:
 
 The subagent gets a clean context, reads the files fresh, and applies all changes atomically.
 
+### 28. Range replaces need BOTH `pos` and `end`; after any removal, verify the old side is gone (PIT-25, 2026-10-21)
+
+**Rule**: an edit op carrying `end` but no `pos` is malformed - the tool applies it anyway and reports "Updated" while leaving the consumed region alive (observed three times in one session: unclosed brace in a .rs file, duplicated Status paragraph in a doc, leftover continuation line in status.md). After every edit that removes or replaces lines, grep BOTH directions: the new distinctive phrase must be present, the old consumed phrase must return 0 hits. A success message is evidence of insertion only, never of consumption.
+
+```bash
+for p in "<new-phrase>" "<old-line-phrase>"; do echo "$p $(grep -c "$p" <file>)"; done  # new side >= 1, old side == 0
+```
+
+**Verification**: both counts correct after the call; `git diff --stat` shows exactly the intended files; a full re-read of the touched region when any doubt remains (the status.md remnant only showed up on the full re-read).
+
+**Blocking condition**: proceeding on an "Updated" verdict without the old-side grep; layering a repair edit over damaged content instead of re-reading the region first.
+
 ## Architectural Decision Gate (NON-NEGOTIABLE)
 
 Before implementing ANY architectural change (protocol, data flow, transport mode, API contract):
