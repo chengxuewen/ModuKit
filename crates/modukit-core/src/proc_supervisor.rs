@@ -111,6 +111,14 @@ impl Supervisor {
         // child's REGISTER announcements through the kernel's own registry
         // door — one shared storage, wired once here.
         live.lock().registry = Some(kernel.registry().shared());
+        // Stage-5 N2 (D96 ruling 3+6): the parent half of the bus
+        // crossing. It rides the kernel's real Bus - the one fan-out
+        // code path the in-process v2 door already uses - and the per-
+        // child interest the FORWARD talker maintains. The child's
+        // HELLO capability decides whether the talkers are ever spoken.
+        live.lock().fanout = Some(std::sync::Arc::new(crate::bus_wire::ParentFanout::new(
+            std::sync::Arc::clone(&kernel.bus),
+        )));
         Self {
             kernel,
             live,

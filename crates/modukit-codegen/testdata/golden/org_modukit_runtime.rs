@@ -165,3 +165,19 @@ pub struct Error {
     /// field `hint` = tag 6 (hand-written in org.modukit.runtime.Error).
     pub hint: Hint,
 }
+
+/// proto message `Hello`: owned values across the boundary
+/// (04 §2 - buffers are Vec<u8>, never borrowed pointers).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct Hello {
+    /// field `abi` = tag 1 (hand-written in org.modukit.runtime.Hello).
+    pub abi: u32,
+    /// field `id` = tag 2 (hand-written in org.modukit.runtime.Hello).
+    pub id: String,
+    /// field `version` = tag 3 (hand-written in org.modukit.runtime.Hello).
+    pub version: String,
+    /// field `name` = tag 4 (hand-written in org.modukit.runtime.Hello).
+    pub name: String,
+    /// field `capability` = tag 5 (hand-written in org.modukit.runtime.Hello).
+    pub capability: u32,
+}

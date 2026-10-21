@@ -92,3 +92,22 @@ enum KernelCode {
   DEFERRAL_DECLINED = 26;
   CLOCK_DIAL_REFUSED = 27;
 }
+
+// Stage-5 N2 (D96 ruling 4): the `exe` HELLO handshake record. The byte
+// layout authority stays `proc_wire.rs` (hand-framed, WIRE_VERSION 1 forever
+// on this pipe); this entry is the ledger's vocabulary mirror of that frame.
+// `capability` is the tail-added field - a peer without it (legacy runners
+// never wrote the four tail bytes) is never spoken to on the bus talkers
+// MSG_FORWARD / MSG_DELIVER; the bit HELLO_CAP_BUS_V2 opens the door.
+message Hello {
+  // ABI major self-report (D7 tier).
+  optional uint32 abi = 1;
+  // Bundle id, length-prefixed string on the wire.
+  optional string id = 2;
+  // Plugin semver string.
+  optional string version = 3;
+  // Human name.
+  optional string name = 4;
+  // Capability bits, next free tag (ruling 4: tail-add, never reinterpret).
+  optional uint32 capability = 5;
+}

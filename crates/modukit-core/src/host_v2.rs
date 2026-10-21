@@ -46,6 +46,9 @@ struct V2Context<'a> {
     /// Queue id -> mailbox. Ids are positive, issued from 1 (embed-face
     /// rule `id <= 0` answers QUOTA_EXCEEDED).
     queues: HashMap<i32, Mailbox>,
+    /// Queue id -> subscribed topic (Stage-5 N2): the shadow pump and the
+    /// upstream-interest bookkeeping need the topic behind each box.
+    queue_topics: HashMap<i32, TopicId>,
     next_queue: i32,
 }
 
@@ -106,6 +109,21 @@ unsafe extern "C" fn trampoline_bus_publish(
     ) else {
         return codec::NEG_SCHEMA_INVALID;
     };
+
+    // Stage-5 N2 (D96 ruling 6): a bridged start FORWARDS instead of
+    // delivering locally - the parent's fan-out is the single delivery
+    // authority and the self-echo comes back as a DELIVER frame. The
+    // declaration AND the latest-value register are recorded locally so a
+    // later subscribe late-joins exactly like the in-process column (the
+    // snapshot must not wait on the echo) and a deferred QoS answers the
+    // same pinned -26 before anything is spoken upstream.
+    if let Some(b) = crate::bus_wire::bridge() {
+        ctx.bus.record(&tid, q, bytes);
+        if b.publish(tid.as_str(), qos, bytes).is_err() {
+            return crate::bus_wire::NEG_CARRIER_UNREACHABLE;
+        }
+        return 0;
+    }
     ctx.bus.publish(&tid, q, bytes.to_vec());
     0
 }
@@ -135,6 +153,19 @@ unsafe extern "C" fn trampoline_bus_subscribe(
         return codec::NEG_QUOTA_EXCEEDED;
     }
     ctx.queues.insert(id, Mailbox { rx, pending: None });
+    // Stage-5 N2: the box keeps its topic (shadow pump + interest
+    // bookkeeping) and registers upstream. A refused wire answer un-does
+    // the box - the queue id was never handed out, so the mailbox
+    // grammar stays honest (ruling 5). Same-topic re-subscribes are
+    // deduped parent-side; the local late-join is what snapshots them.
+    if let Some(b) = crate::bus_wire::bridge() {
+        ctx.queue_topics.insert(id, tid.clone());
+        if b.subscribe(tid.as_str()).is_err() {
+            ctx.queues.remove(&id);
+            ctx.queue_topics.remove(&id);
+            return crate::bus_wire::NEG_CARRIER_UNREACHABLE;
+        }
+    }
     // SAFETY: `out_queue_id` checked non-null above.
     unsafe { *out_queue_id = id };
     id
@@ -155,6 +186,24 @@ unsafe extern "C" fn trampoline_bus_recv(
     let ctx = unsafe { &mut *(user.cast::<V2Context<'_>>()) };
     if out_len.is_null() {
         return codec::NEG_SCHEMA_INVALID;
+    }
+    // Stage-5 N2 shadow pump: an empty box on a bridged start may still
+    // be owed its self-echo or a snapshot DELIVER in flight - pump the
+    // control socket under a bounded window, then the unchanged grammar
+    // below answers: an empty answer stays 0, the need-report and the
+    // pending-restore never move (ruling 5). A dead carrier says so.
+    if let Some(b) = crate::bus_wire::bridge() {
+        let want = ctx.queue_topics.get(&queue_id).cloned();
+        let empty = ctx
+            .queues
+            .get(&queue_id)
+            .is_some_and(|m| m.pending.is_none() && m.rx.is_empty());
+        if let Some(topic) = want
+            && empty
+            && b.pump(ctx.bus, &topic).is_err()
+        {
+            return crate::bus_wire::NEG_CARRIER_UNREACHABLE;
+        }
     }
     let Some(queue) = ctx.queues.get_mut(&queue_id) else {
         return codec::NEG_NOT_FOUND;
@@ -195,6 +244,16 @@ unsafe extern "C" fn trampoline_bus_recv(
 unsafe extern "C" fn trampoline_bus_unsubscribe(user: *mut c_void, queue_id: i32) -> i32 {
     // SAFETY: `user` is the live `&mut V2Context` (slot contract).
     let ctx = unsafe { &mut *(user.cast::<V2Context<'_>>()) };
+    // Stage-5 N2: the box's topic leaves the upstream interest when it is
+    // the LAST one for that topic; a wire error here is best-effort
+    // ignored - the id is gone regardless and the parent retires the
+    // whole pair at the START ack (01 §3 rule 2 across the wall).
+    if let Some(topic) = ctx.queue_topics.remove(&queue_id)
+        && !ctx.queue_topics.values().any(|t| *t == topic)
+        && let Some(b) = crate::bus_wire::bridge()
+    {
+        let _ = b.unsubscribe(topic.as_str());
+    }
     if ctx.queues.remove(&queue_id).is_some() {
         0
     } else {
@@ -216,6 +275,7 @@ pub(crate) fn start_v2(
         bus,
         registered: Vec::new(),
         queues: HashMap::new(),
+        queue_topics: HashMap::new(),
         next_queue: 1,
     };
     let table = HostAbiV2 {

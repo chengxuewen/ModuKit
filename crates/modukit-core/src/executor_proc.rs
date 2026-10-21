@@ -108,6 +108,11 @@ pub(crate) struct Shared {
     /// `ProcessExecutor::new()` has no door — a child that REGISTERs there
     /// is refused at start with a typed crash (no silent half-run).
     pub(crate) registry: Option<Registry>,
+    /// The kernel's bus fan-out door (Stage-5 N2): set once at Supervisor
+    /// boot; the child's FORWARD frames deliver through it. A standalone
+    /// `ProcessExecutor::new()` has no door - a child that forwards there
+    /// is refused at start with a typed crash (the REGISTER-door law).
+    pub(crate) fanout: Option<std::sync::Arc<crate::bus_wire::ParentFanout>>,
 }
 
 /// The live-children table shared by `ProcessExecutor`, its handles and the
@@ -335,6 +340,10 @@ impl Executor for ProcessExecutor {
             run_gen,
             live: self.live.clone(),
             proxy_rids: Vec::new(),
+            // Stage-5 N2: the HELLO capability bit gates the bus talkers
+            // (ruling 4), and the fan-out door rides the Supervisor boot.
+            bus_caps: hello.caps & proc_wire::HELLO_CAP_BUS_V2 != 0,
+            fanout: shared.fanout.clone(),
         };
         Ok(Box::new(handle))
     }
@@ -370,6 +379,14 @@ fn read_hello(parent: &mut UnixStream, id: &str) -> Result<proc_wire::Hello, Ker
             what: "hello (wrong frame type)",
         });
     }
+    // Stage-5 N2 (D96 ruling 4): the capability tail of HELLO. The
+    // tail-tolerant decoder reads the legacy grammar too (no tail bytes =
+    // caps 0), so old runners handshake byte-for-byte unchanged;
+    // `WIRE_VERSION` stays 1. The strict `parse_hello` line below keeps
+    // answering the typed error for payloads this decoder refuses.
+    if let Some(hello) = proc_wire::parse_hello_caps(&payload) {
+        return Ok(hello);
+    }
     proc_wire::parse_hello(&payload).ok_or(KernelError::HandshakeIncomplete {
         what: "hello (malformed payload)",
     })
@@ -385,6 +402,11 @@ struct ProcPlugin {
     self_version: String,
     run_gen: u64,
     live: Control,
+    /// Whether this child's HELLO declared the bus capability (D96
+    /// ruling 4): speaking FORWARD without it is a lie, refused.
+    bus_caps: bool,
+    /// The kernel's bus fan-out door (`None` for a standalone executor).
+    fanout: Option<std::sync::Arc<crate::bus_wire::ParentFanout>>,
     /// Registration ids of the kernel-side proxies installed from the
     /// child's REGISTER frames (S2-M3a) — torn down with the run.
     proxy_rids: Vec<RegistrationId>,
@@ -444,6 +466,14 @@ impl LoadedPlugin for ProcPlugin {
             ) {
                 Ok((proc_wire::WIRE_VERSION, MSG_ACK, payload)) => {
                     status = proc_wire::parse_ack(&payload).unwrap_or(i32::MIN);
+                    // Stage-5 N2: the mailbox authority ends with the
+                    // START ack (01 §3 rule 2 across the wall) - the
+                    // child's queues die with its `start`, so its wall
+                    // interest retires with them; a revived run re-opens
+                    // both through its own FORWARDs.
+                    if let Some(fan) = &self.fanout {
+                        fan.retire(&self.id);
+                    }
                     break;
                 }
                 Ok((proc_wire::WIRE_VERSION, MSG_REGISTER, payload)) => {
@@ -452,6 +482,40 @@ impl LoadedPlugin for ProcPlugin {
                         return Err(crashed(&self.id, "register: malformed payload"));
                     };
                     registrations.push(reg);
+                }
+                // Stage-5 N2 (D96 ruling 3+6): the bus FORWARD talker.
+                // The child's mailbox walk runs inside its own `start`,
+                // so the crossing rides THIS exchange: every forward
+                // hits the parent bus (the single fan-out code path, the
+                // self-echo included) and the DELIVER answers land on the
+                // child's pump. A non-capable child speaking FORWARD is a
+                // lie (ruling 4); a malformed payload is a disagreement;
+                // both die typed, never a silent reinterpret.
+                Ok((proc_wire::WIRE_VERSION, proc_wire::MSG_FORWARD, payload)) => {
+                    let Some(fan) = &self.fanout else {
+                        kill_and_reap(p);
+                        return Err(crashed(
+                            &self.id,
+                            "bus FORWARD with no kernel bus door (boot via Supervisor)",
+                        ));
+                    };
+                    if !self.bus_caps {
+                        kill_and_reap(p);
+                        return Err(crashed(&self.id, "bus FORWARD from a non-capable child"));
+                    }
+                    let Some(ctl) = p.control.as_ref().and_then(|c| c.try_clone().ok()) else {
+                        kill_and_reap(p);
+                        return Err(crashed(&self.id, "forward: control closed"));
+                    };
+                    fan.register_child(self.id.clone(), ctl);
+                    let Some(fwd) = proc_wire::parse_forward(&payload) else {
+                        kill_and_reap(p);
+                        return Err(crashed(&self.id, "forward: malformed payload"));
+                    };
+                    if let Err(why) = fan.handle_forward(&self.id, &fwd) {
+                        kill_and_reap(p);
+                        return Err(crashed(&self.id, why));
+                    }
                 }
                 Ok((proc_wire::WIRE_VERSION, _, _)) => {
                     kill_and_reap(p);

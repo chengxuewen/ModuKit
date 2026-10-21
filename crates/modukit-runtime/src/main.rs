@@ -77,7 +77,7 @@ fn die(code: i32, msg: &str) -> ! {
     std::process::exit(code)
 }
 
-fn parse_args() -> (String, i32, ClockDomain) {
+fn parse_args() -> (String, i32, ClockDomain, bool) {
     let mut artifact: Option<String> = None;
     let mut fd_num: i32 = 0;
     // D74 (S2-M3b): the runner boots the test/replay track — the embedded
@@ -86,6 +86,11 @@ fn parse_args() -> (String, i32, ClockDomain) {
     // placements opt out with `--clock=real`; there the dial is refused,
     // never silently swallowed.
     let mut domain = ClockDomain::Step;
+    // Stage-5 N2 (D96 ruling 4): the bus capability. On by default; a
+    // runner started with `--bus=off` or `MODUKIT_BUS=off` never declares
+    // the HELLO capability bit and never speaks the bus talkers - the
+    // wall is then as quiet as an old runner's (the negative case).
+    let mut bus_on = env::var("MODUKIT_BUS").map(|v| v != "off").unwrap_or(true);
     for arg in env::args().skip(1) {
         if let Some(rest) = arg.strip_prefix("--fd=") {
             fd_num = match rest.parse::<i32>() {
@@ -99,6 +104,8 @@ fn parse_args() -> (String, i32, ClockDomain) {
                 "real" => ClockDomain::Real,
                 other => die(2, &format!("bad --clock value: {other}")),
             };
+        } else if arg == "--bus=off" {
+            bus_on = false;
         } else if arg.starts_with("--") {
             die(2, &format!("unknown option {arg}"));
         } else if artifact.is_none() {
@@ -111,10 +118,10 @@ fn parse_args() -> (String, i32, ClockDomain) {
         }
     }
     match artifact {
-        Some(path) => (path, fd_num, domain),
+        Some(path) => (path, fd_num, domain, bus_on),
         None => die(
             2,
-            "usage: modukit-run <plugin.so> --fd=N [--clock=step|sim|real]",
+            "usage: modukit-run <plugin.so> --fd=N [--clock=step|sim|real] [--bus=off]",
         ),
     }
 }
@@ -244,7 +251,7 @@ fn ack(control: &mut UnixStream, status: i32) -> io::Result<()> {
     write_frame(control, MSG_ACK, &status.to_le_bytes())
 }
 
-fn run(artifact: &str, fd_num: i32, domain: ClockDomain) {
+fn run(artifact: &str, fd_num: i32, domain: ClockDomain, bus_on: bool) {
     if !Path::new(artifact).is_file() {
         die(3, &format!("artifact not found: {artifact}"));
     }
@@ -258,9 +265,33 @@ fn run(artifact: &str, fd_num: i32, domain: ClockDomain) {
         id: id.clone(),
         version: version.clone(),
         name,
+        // Stage-5 N2 (D96 ruling 4): the tail-added capability field.
+        caps: if bus_on {
+            proc_wire::HELLO_CAP_BUS_V2
+        } else {
+            0
+        },
     };
-    if write_frame(&mut control, MSG_HELLO, &hello_payload(&hello)).is_err() {
+    // Capable runners speak the extended grammar; incapable ones keep
+    // the byte-exact legacy handshake (old parents stay compatible).
+    let hello_bytes = if hello.caps != 0 {
+        proc_wire::hello_payload_caps(&hello)
+    } else {
+        hello_payload(&hello)
+    };
+    if write_frame(&mut control, MSG_HELLO, &hello_bytes).is_err() {
         die(6, "control closed before the hello was read");
+    }
+    // The crossing needs a second handle on the control socket: the
+    // mailbox verbs run deep inside `kernel.start` (this thread) and
+    // forward/pump there, while the main loop stays parked in the very
+    // call - one reader, one writer at a time, no interleaving by
+    // construction (01 §3 rule 2's window is the protocol's lock).
+    if hello.caps != 0 {
+        match control.try_clone() {
+            Ok(ctl) => modukit_core::bus_wire::install_bridge(ctl),
+            Err(err) => die(9, &format!("control clone for the bus bridge: {err}")),
+        }
     }
 
     // The embedded host: the same kernel face the dl placement drives, in
@@ -392,6 +423,6 @@ fn run(artifact: &str, fd_num: i32, domain: ClockDomain) {
 }
 
 fn main() {
-    let (artifact, fd_num, domain) = parse_args();
-    run(&artifact, fd_num, domain);
+    let (artifact, fd_num, domain, bus_on) = parse_args();
+    run(&artifact, fd_num, domain, bus_on);
 }

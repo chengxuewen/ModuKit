@@ -66,6 +66,35 @@ pub const MSG_DUE: u8 = 9;
 /// zero-turn success.
 pub const DIAL_STATUS_REFUSED_REAL: i32 = -2;
 
+/// child -> host (Stage-5 N2, D96 ruling 3): the bus FORWARD talker - one
+/// of exactly two new frame types on this pipe, no second socket and no
+/// data plane. The subscription op rides inside its payload grammar
+/// (`FWD_PUB` / `FWD_SUB` / `FWD_UNSUB` - ruling 3: two talkers, not
+/// three). See `parse_forward`.
+pub const MSG_FORWARD: u8 = 10;
+/// host -> child (Stage-5 N2): the bus DELIVER talker - the parent fan-out
+/// returning across the wall (parent-local subscribers, OTHER capable
+/// children, and the publisher's own self-echo - ruling 6). A negative
+/// `qos` is the refusal channel (DEFERRAL_DECLINED, -26). See
+/// `parse_deliver`.
+pub const MSG_DELIVER: u8 = 11;
+
+/// FORWARD op: publish `topic` with the embed `qos` int and value bytes.
+pub const FWD_PUB: u8 = 0;
+/// FORWARD op: register interest in `topic`; retained-latest snapshots
+/// come back as DELIVER frames (ruling 6, late-join across the wall).
+pub const FWD_SUB: u8 = 1;
+/// FORWARD op: drop interest in `topic` (the child speaks this only when
+/// its LAST queue for the topic goes away).
+pub const FWD_UNSUB: u8 = 2;
+
+/// HELLO capability bit (D96 ruling 4): the field tail-added to the
+/// handshake. A child declaring it is spoken to on the bus talkers; a
+/// peer that never declared it (an old runner - no tail bytes at all) is
+/// never spoken to by them. `WIRE_VERSION` stays 1: vocabulary growth
+/// never bumped a transport promise (the K7 public claim holds).
+pub const HELLO_CAP_BUS_V2: u32 = 1;
+
 /// The handshake self-report (D7 tier for the `exe` placement): the ABI
 /// major plus the artifact's own `(id, version)` strings and human name,
 /// each length-prefixed with a one-byte count.
@@ -75,6 +104,9 @@ pub struct Hello {
     pub id: String,
     pub version: String,
     pub name: String,
+    /// Capability bits from the tail-added HELLO field (D96 ruling 4).
+    /// The legacy `parse_hello` grammar has no tail and reads 0.
+    pub caps: u32,
 }
 
 /// Write one frame (header + payload, flushed as one write). The envelope
@@ -137,6 +169,7 @@ pub fn parse_hello(payload: &[u8]) -> Option<Hello> {
         id,
         version,
         name,
+        caps: 0,
     })
 }
 
@@ -159,6 +192,47 @@ pub fn hello_payload(hello: &Hello) -> Vec<u8> {
     pstr(&mut p, &hello.id);
     pstr(&mut p, &hello.version);
     pstr(&mut p, &hello.name);
+    p
+}
+
+/// Decode a HELLO payload with the optional capability tail (D96 ruling 4):
+/// `u32 LE abi | (pstr x3) | u32 LE caps?`. The tail is tail-ADDED: an old
+/// runner's tail-less payload parses to `caps = 0` and keeps the full v1
+/// handshake byte-for-byte; a new runner declares its bits in the four
+/// tail bytes. A 1-3 byte tail or anything past the four capability bytes
+/// refuses the frame - the strict `parse_hello` discipline (silence and
+/// lies are both disagreement). `WIRE_VERSION` stays 1 either way.
+#[must_use]
+pub fn parse_hello_caps(payload: &[u8]) -> Option<Hello> {
+    if payload.len() < 4 {
+        return None;
+    }
+    let abi = u32::from_le_bytes(payload[..4].try_into().ok()?);
+    let mut rest = &payload[4..];
+    let id = read_pstr(&mut rest)?;
+    let version = read_pstr(&mut rest)?;
+    let name = read_pstr(&mut rest)?;
+    let caps = match rest.len() {
+        0 => 0,
+        4 => u32::from_le_bytes(rest.try_into().ok()?),
+        _ => return None,
+    };
+    Some(Hello {
+        abi,
+        id,
+        version,
+        name,
+        caps,
+    })
+}
+
+/// Encode a HELLO payload WITH the capability tail - the mirror of
+/// `parse_hello_caps` for a capable runner. An incapable runner keeps
+/// calling `hello_payload` unchanged: no tail bytes, old grammar.
+#[must_use]
+pub fn hello_payload_caps(hello: &Hello) -> Vec<u8> {
+    let mut p = hello_payload(hello);
+    p.extend_from_slice(&hello.caps.to_le_bytes());
     p
 }
 
@@ -397,4 +471,96 @@ fn push_pstr(out: &mut Vec<u8>, s: &str) {
     debug_assert!(s.len() <= u8::MAX as usize, "wire string over the cap");
     out.push(s.len() as u8);
     out.extend_from_slice(s.as_bytes());
+}
+
+/// One FORWARD payload's decoded shape (the N2 bus talker). The op
+/// selects how the rest reads: `FWD_PUB` carries the embed qos int and
+/// the value bytes; `FWD_SUB`/`FWD_UNSUB` leave them zero/empty.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Forward {
+    pub op: u8,
+    pub topic: String,
+    pub qos: i32,
+    pub value: Vec<u8>,
+}
+
+/// Decode a FORWARD payload: `u8 op | pstr topic | i32 LE qos | u32 LE
+/// len | bytes`. Unknown ops and length lies refuse the frame (the
+/// strict `parse_hello` discipline - the parent kills on refusal).
+#[must_use]
+pub fn parse_forward(payload: &[u8]) -> Option<Forward> {
+    let (&op, mut rest) = payload.split_first()?;
+    if !matches!(op, FWD_PUB | FWD_SUB | FWD_UNSUB) {
+        return None;
+    }
+    let topic = read_pstr(&mut rest)?;
+    if rest.len() < 8 {
+        return None;
+    }
+    let qos = i32::from_le_bytes(rest[..4].try_into().ok()?);
+    let len = usize::try_from(u32::from_le_bytes(rest[4..8].try_into().ok()?)).ok()?;
+    let bytes = &rest[8..];
+    if bytes.len() != len {
+        return None;
+    }
+    Some(Forward {
+        op,
+        topic,
+        qos,
+        value: bytes.to_vec(),
+    })
+}
+
+/// Encode a FORWARD payload - the mirror of `parse_forward`. Topic
+/// strings are TopicId-grammar bound (max 255), inside the one-byte cap.
+#[must_use]
+pub fn forward_payload(fwd: &Forward) -> Vec<u8> {
+    let mut p = vec![fwd.op];
+    push_pstr(&mut p, &fwd.topic);
+    p.extend_from_slice(&fwd.qos.to_le_bytes());
+    p.extend_from_slice(&(fwd.value.len() as u32).to_le_bytes());
+    p.extend_from_slice(&fwd.value);
+    p
+}
+
+/// One DELIVER payload's decoded shape. A negative `qos` is the refusal
+/// channel (DEFERRAL_DECLINED -26); no value rides it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Delivery {
+    pub topic: String,
+    pub qos: i32,
+    pub value: Vec<u8>,
+}
+
+/// Decode a DELIVER payload: `pstr topic | i32 LE qos | u32 LE len |
+/// bytes`. Length discipline mirrors `parse_forward`.
+#[must_use]
+pub fn parse_deliver(payload: &[u8]) -> Option<Delivery> {
+    let mut rest = payload;
+    let topic = read_pstr(&mut rest)?;
+    if rest.len() < 8 {
+        return None;
+    }
+    let qos = i32::from_le_bytes(rest[..4].try_into().ok()?);
+    let len = usize::try_from(u32::from_le_bytes(rest[4..8].try_into().ok()?)).ok()?;
+    let bytes = &rest[8..];
+    if bytes.len() != len {
+        return None;
+    }
+    Some(Delivery {
+        topic,
+        qos,
+        value: bytes.to_vec(),
+    })
+}
+
+/// Encode a DELIVER payload - the mirror of `parse_deliver`.
+#[must_use]
+pub fn deliver_payload(delivery: &Delivery) -> Vec<u8> {
+    let mut p = Vec::new();
+    push_pstr(&mut p, &delivery.topic);
+    p.extend_from_slice(&delivery.qos.to_le_bytes());
+    p.extend_from_slice(&(delivery.value.len() as u32).to_le_bytes());
+    p.extend_from_slice(&delivery.value);
+    p
 }

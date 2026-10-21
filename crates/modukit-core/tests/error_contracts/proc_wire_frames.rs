@@ -41,6 +41,7 @@ fn hello_roundtrip_preserves_all_fields() {
         id: "com.example.plugin".into(),
         version: "1.2.3".into(),
         name: "Example".into(),
+        caps: 0,
     };
     let parsed = parse_hello(&hello_payload(&hello)).expect("roundtrip must parse");
     assert_eq!(parsed, hello);
@@ -53,6 +54,7 @@ fn hello_parse_refuses_truncated_and_lying_frames() {
         id: "com.example.plugin".into(),
         version: "1.2.3".into(),
         name: "Example".into(),
+        caps: 0,
     };
     let full = hello_payload(&hello);
 

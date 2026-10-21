@@ -128,6 +128,14 @@ impl Receiver {
     pub fn drops(&self) -> u64 {
         self.shared.drops.load(Ordering::Relaxed)
     }
+
+    /// Non-consuming emptiness peek (Stage-5 N2): the shadow pump asks
+    /// whether a box already holds a value before touching the wire -
+    /// `try_recv` would consume what it probes.
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        lock_queue(&self.shared).is_empty()
+    }
 }
 
 /// Per-topic state: the declared QoS, the latest-value register, the lossy
@@ -284,6 +292,46 @@ impl Bus {
         }
         state.subscribers.push(Arc::downgrade(&shared));
         Ok(Receiver { shared })
+    }
+
+    /// Record a topic's QoS declaration WITHOUT delivering a value
+    /// (Stage-5 N2, D96 ruling 6): the bridged child publishes across the
+    /// wall - the parent's fan-out is the single delivery authority - yet
+    /// the local subscribe door still owes every deferred QoS the same
+    /// typed refusal the in-process door answers. Declaration is what
+    /// `subscribe` consults; nothing else moves.
+    pub fn declare(&self, topic: &TopicId, qos: QoS) {
+        lock_topics(self).entry(topic.clone()).or_default().qos = qos;
+    }
+
+    /// The declared QoS of a known topic (`None` when the topic has never
+    /// been published or declared on this bus). The N2 parent side answers
+    /// DELIVER frames with the embed qos int of the topic's declaration.
+    #[must_use]
+    pub fn topic_qos(&self, topic: &TopicId) -> Option<QoS> {
+        lock_topics(self).get(topic).map(|state| state.qos)
+    }
+
+    /// Record a publish's retention state on this bus WITHOUT fanning
+    /// out to subscribers (Stage-5 N2 shadow law): the bridged child
+    /// records its own publishes synchronously so a later subscribe
+    /// late-joins exactly like the in-process column - the snapshot must
+    /// not wait on the parent's echo. Mailboxes still fill from the
+    /// DELIVER pump only (one wire copy per value, no local pre-feed).
+    /// `Lossy` rings and the delivery counters stay the pumped publish's:
+    /// recording the ring twice would double-seed late joins.
+    pub fn record(&self, topic: &TopicId, qos: QoS, value: &[u8]) {
+        if qos.is_deferred() {
+            self.declare(topic, qos);
+            return;
+        }
+        let mut topics = lock_topics(self);
+        let state = topics.entry(topic.clone()).or_default();
+        state.qos = qos;
+        if qos == QoS::LatestValue {
+            state.current = Some(value.to_vec());
+            state.retention.clear();
+        }
     }
 
     /// Values evicted from the topic's own retention ring (the `Lossy(n)`

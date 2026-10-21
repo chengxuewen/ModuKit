@@ -101,6 +101,14 @@ if [ -f scripts/demo-stage4-m2.sh ]; then
   elif echo "$s4b" | grep -q "demo-stage4-m2: SKIP"; then note "skip demo-stage4-m2 (cpp band auto-skipped)";
   else note "FAIL demo-stage4-m2 (gate did not print PASS)"; status=1; fi
 else note "skip demo-stage4-m2 (no script)"; fi
+# Stage-5 N2 cross-wall demo leg (D96 ruling 6): same PASS/SKIP grammar as
+# the stage4 legs - SKIP (no build toolchain at all) is green, RED fails.
+if [ -f scripts/demo-stage5-n2.sh ]; then
+  s5=$(bash scripts/demo-stage5-n2.sh 2>/dev/null)
+  if echo "$s5" | grep -q "demo-stage5-n2: PASS"; then note "ok demo-stage5-n2";
+  elif echo "$s5" | grep -q "demo-stage5-n2: SKIP"; then note "skip demo-stage5-n2 (no build toolchain)";
+  else note "FAIL demo-stage5-n2 (gate did not print PASS)"; status=1; fi
+else note "skip demo-stage5-n2 (no script)"; fi
 
 # leg: ctest bridge over the dedicated Stage-4 tree (gate escalation 2026-10-21;
 # PIT-17 class - a warm stale tree once fabricated a false 9/9). Incremental rebuild
