@@ -32,7 +32,7 @@
   maintainer send, proposal ARMED unopened.
 - **C0 discipline**: every ruling gets a runnable check; every new gate leg is planted red
   once before trusted.
-- **Numbering**: ledger at D93 / C3 / PIT-20 (D93 minted 2026-10-21 by this volume's doc-audit; the status.md gate widened to D1-D93 with red observed on the mint first).
+- **Numbering**: ledger at D96 / C3 / PIT-22 (D93-D96 minted 2026-10-21, the status.md gate widened per mint with red observed each time).
 
 ## 1. Call sheet - seven items, each adjudicated one by one
 
