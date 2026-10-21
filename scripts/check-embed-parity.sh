@@ -12,6 +12,8 @@
 #     CONTRACT, so the field-name lists are diffed UNSORTED, three-way:
 #     abi.rs <-> header <-> embed_abi.rs consts (PLUGIN_ABI_FIELDS /
 #     HOST_ABI_FIELDS).
+#     Stage-5 N1 (D96 ruling 2) adds the v2 trio: abi::HostAbiV2 <->
+#     modukit_host_abi_v2 <-> HOST2_ABI_FIELDS, same ordered diff.
 #     Mapping discipline: Rust field `x` <-> C member `x` - identical
 #     snake_case names, no affix; one field per line in both sources.
 #     Split of duties: the consts' Rust unit test asserts the lists are
@@ -70,9 +72,14 @@ c_fields() { sed -n "/^typedef struct $1 {/,/^} $1;/p" "$PLUGIN_HEADER" \
   | grep -oE '[a-z_][a-z0-9_]*[[:space:]]*;[[:space:]]*$' \
   | sed 's/[[:space:]]*;[[:space:]]*$//'; }
 
-# Mirror side: the quoted entries of a *_ABI_FIELDS const block.
-mirror_fields() { sed -n "/^pub const $1:/,/^\];/p" "$MIRROR" \
-  | grep -oE '"[a-z_][a-z0-9_]*"' | tr -d '"'; }
+# Mirror side: the quoted entries of a *_ABI_FIELDS const block. awk, not
+# a sed range: a single-line const closes on its START line and sed only
+# checks the range end from the FOLLOWING line - with a second
+# *_ABI_FIELDS const after the first, a sed range would swallow the sibling.
+mirror_fields() { awk -v c="pub const $1" '
+  index($0, c ":") == 1 { inside = 1 }
+  inside { print; if (index($0, "];") > 0) inside = 0 }
+' "$MIRROR" | grep -oE '"[a-z_][a-z0-9_]*"' | tr -d '"'; }
 
 check_table() { # $1 rust struct, $2 C tag, $3 mirror const
   rust_fields "$1" > "$tmp/$1.rust"
@@ -94,12 +101,22 @@ check_table() { # $1 rust struct, $2 C tag, $3 mirror const
 }
 check_table PluginAbiV1 modukit_plugin_abi_v1 PLUGIN_ABI_FIELDS
 check_table HostAbiV1 modukit_host_abi_v1 HOST_ABI_FIELDS
+# Stage-5 N1 v2 door (D96 ruling 2): the second host table joins the trio.
+check_table HostAbiV2 modukit_host_abi_v2 HOST2_ABI_FIELDS
 
 # Version pin: both sides must read the same major integer.
 rust_ver=$(sed -n 's/^pub const ABI_VERSION: u32 = \([0-9]\{1,\}\);$/\1/p' "$ABI")
 c_ver=$(sed -n 's/^#define MODUKIT_ABI_VERSION \([0-9]\{1,\}\)[a-z]*$/\1/p' "$PLUGIN_HEADER")
 if [ -z "$rust_ver" ] || [ "$rust_ver" != "$c_ver" ]; then
   echo "check-embed-parity: RED (ABI_VERSION=$rust_ver vs MODUKIT_ABI_VERSION=$c_ver)"
+  fail=1
+fi
+
+# v2 version pin (N1): the declared-major-2 constant mirrors the same way.
+rust_ver2=$(sed -n 's/^pub const ABI_VERSION_V2: u32 = \([0-9]\{1,\}\);$/\1/p' "$ABI")
+c_ver2=$(sed -n 's/^#define MODUKIT_ABI_VERSION_V2 \([0-9]\{1,\}\)[a-z]*$/\1/p' "$PLUGIN_HEADER")
+if [ -z "$rust_ver2" ] || [ "$rust_ver2" != "$c_ver2" ]; then
+  echo "check-embed-parity: RED (ABI_VERSION_V2=$rust_ver2 vs MODUKIT_ABI_VERSION_V2=$c_ver2)"
   fail=1
 fi
 

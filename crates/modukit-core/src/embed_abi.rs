@@ -76,6 +76,21 @@ pub const PLUGIN_ABI_FIELDS: &[&str] = &[
 /// `PLUGIN_ABI_FIELDS`).
 pub const HOST_ABI_FIELDS: &[&str] = &["size", "user", "register_service"];
 
+/// `abi::HostAbiV2` fields in declaration order - the v2 sibling of
+/// `HOST_ABI_FIELDS` (Stage-5 N1, D96 ruling 2). Same three-way parity
+/// contract: abi.rs <-> `modukit_host_abi_v2` in the plugin header <->
+/// this const, diffed UNSORTED by the parity script; the v1 lists above
+/// are untouched (D87).
+pub const HOST2_ABI_FIELDS: &[&str] = &[
+    "size",
+    "user",
+    "register_service",
+    "bus_publish",
+    "bus_subscribe",
+    "bus_recv",
+    "bus_unsubscribe",
+];
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -89,7 +104,7 @@ mod tests {
     fn plugin_table_field_lists_are_populated_and_unique() {
         // Ordering truth against abi.rs and the header lives in the parity
         // script's ordered diffs; this test guards the mirror list shape.
-        for fields in [PLUGIN_ABI_FIELDS, HOST_ABI_FIELDS] {
+        for fields in [PLUGIN_ABI_FIELDS, HOST_ABI_FIELDS, HOST2_ABI_FIELDS] {
             assert!(!fields.is_empty(), "field list must not be empty");
             for (i, name) in fields.iter().enumerate() {
                 assert!(!fields[..i].contains(name), "duplicate field name");

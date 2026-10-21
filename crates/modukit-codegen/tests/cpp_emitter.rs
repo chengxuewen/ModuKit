@@ -13,7 +13,7 @@
 
 use std::path::{Path, PathBuf};
 
-use modukit_codegen::{emit_embed_hpp, generate};
+use modukit_codegen::{emit_embed_hpp, emit_plugin_hpp, generate};
 
 fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -85,6 +85,90 @@ fn embed_wrapper_matches_golden() {
 }
 
 #[test]
+fn plugin_wrapper_matches_golden() {
+    // Stage-5 N1: the host-table wrapper rides the same byte-compare
+    // discipline; regen is the --plugin_header banner recipe (main door).
+    let root = repo_root();
+    let text =
+        std::fs::read_to_string(root.join("contracts/modukit_plugin.h")).expect("plugin header");
+    let produced = emit_plugin_hpp(&text).expect("plugin wrapper emits");
+    let golden = root
+        .join("crates/modukit-codegen/testdata/golden")
+        .join("modukit_plugin.hpp");
+    let golden_text = std::fs::read_to_string(&golden).unwrap_or_else(|e| {
+        panic!(
+            "golden {} missing (see the --plugin_header regen banner): {e}",
+            golden.display()
+        )
+    });
+    assert_eq!(
+        produced, golden_text,
+        "plugin wrapper golden drifted (rerun the --plugin_header regen and review)"
+    );
+}
+
+#[test]
+fn plugin_wrapper_tracks_the_v2_slots() {
+    // Structural pin (tripwire): HostAbiV2 is the 3-field v1 prefix plus
+    // exactly the four mailbox slots (D96 ruling 2/5); the wrapper carries
+    // one forwarder per slot. Counts move only through a D83-class hearing.
+    let root = repo_root();
+    let header = std::fs::read_to_string(root.join("contracts/modukit_plugin.h")).unwrap();
+    let mut in_v2 = false;
+    let fields: Vec<&str> = header
+        .lines()
+        .filter_map(|l| {
+            let t = l.trim();
+            if t.starts_with("typedef struct modukit_host_abi_v2 {") {
+                in_v2 = true;
+                return None;
+            }
+            if in_v2 && t.starts_with('}') {
+                in_v2 = false;
+                return None;
+            }
+            if in_v2 && t.ends_with(';') && !t.starts_with('/') && !t.starts_with('*') {
+                t.trim_end_matches(';')
+                    .rsplit(' ')
+                    .next()
+                    .map(|n| n.trim_start_matches('*'))
+            } else {
+                None
+            }
+        })
+        .collect();
+    assert_eq!(
+        fields,
+        [
+            "size",
+            "user",
+            "register_service",
+            "bus_publish",
+            "bus_subscribe",
+            "bus_recv",
+            "bus_unsubscribe"
+        ],
+        "HostAbiV2 field set/order moved"
+    );
+    let produced = emit_plugin_hpp(&header).unwrap();
+    for verb in [
+        "bus_publish",
+        "bus_subscribe",
+        "bus_recv",
+        "bus_unsubscribe",
+    ] {
+        assert!(
+            produced.contains(&format!("int32_t {verb}(")),
+            "host wrapper lacks the {verb} forwarder"
+        );
+    }
+    assert!(
+        produced.contains("int64_t register_service("),
+        "v1 prefix verb missing"
+    );
+}
+
+#[test]
 fn embed_wrapper_tracks_the_real_header_verbs() {
     // Structural pin: the wrapper must carry one method per header verb, in
     // declaration order (16 verbs at HostEmbedV1; D83 tail-add keeps order).
@@ -148,6 +232,16 @@ fn emitted_cpp_passes_fsyntax_only() {
     .expect("copy embed header into smoke dir");
     let embed_hpp = out_dir.join("modukit_embed.hpp");
     std::fs::write(&embed_hpp, emit_embed_hpp(&embed_text).unwrap()).unwrap();
+    // Stage-5 N1: the plugin-face host wrapper rides the same smoke leg.
+    std::fs::copy(
+        contracts.join("modukit_plugin.h"),
+        out_dir.join("modukit_plugin.h"),
+    )
+    .expect("copy plugin header into smoke dir");
+    let plugin_text =
+        std::fs::read_to_string(contracts.join("modukit_plugin.h")).expect("plugin header");
+    let plugin_hpp = out_dir.join("modukit_plugin.hpp");
+    std::fs::write(&plugin_hpp, emit_plugin_hpp(&plugin_text).unwrap()).unwrap();
 
     let cxx = find_cxx();
     let Some(cxx) = cxx else {
@@ -156,7 +250,7 @@ fn emitted_cpp_passes_fsyntax_only() {
         return;
     };
     let proto_include = root.join(".pixi/envs/default/include");
-    for src in [face.as_path(), embed_hpp.as_path()] {
+    for src in [face.as_path(), embed_hpp.as_path(), plugin_hpp.as_path()] {
         let status = std::process::Command::new(&cxx)
             .arg("-std=c++17")
             .arg("-fsyntax-only")

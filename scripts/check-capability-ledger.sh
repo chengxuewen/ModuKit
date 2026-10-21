@@ -8,6 +8,8 @@
 # as a row in docs/capability-ledger.md. RED iff a header verb lacks a
 # row. Unshipped languages ride the `planned` column, never a red
 # condition - this leg checks ROW EXISTENCE only, never cell values.
+# Section C (Stage-5 N1, D96 ruling 2): one row per HostAbiV2 field -
+# the HOST2_ABI_FIELDS mirror list, same existence-only rule.
 #
 # Extraction is deliberately dumb (documented in the ledger header): a
 # Section-A row is a markdown table line starting `| \`verb\` |`. If the
@@ -49,5 +51,19 @@ done < "$tmp/verbs.txt"
 
 if [ "$missing" -eq 0 ]; then
   echo "check-capability-ledger: ok ($(wc -l < "$tmp/verbs.txt") rows cover EMBED_VERBS; $(grep -cE '^\| `' "$LEDGER") ledger rows total)"
+fi
+# Section C (N1): every HOST2_ABI_FIELDS entry needs a ledger row too.
+sed -n '/^pub const HOST2_ABI_FIELDS:/,/^\];/p' "$MIRROR" \
+  | grep -oE '"[a-z_][a-z0-9_]+"' | tr -d '"' | sort > "$tmp/host2.txt"
+if [ ! -s "$tmp/host2.txt" ]; then
+  echo "check-capability-ledger: RED (HOST2_ABI_FIELDS extraction empty - anchor drift?)"
+  exit 1
+fi
+while IFS= read -r field; do
+  grep -qxF "$field" "$tmp/rows.txt" || { echo "check-capability-ledger: RED (HostAbiV2 row missing: $field)"; missing=1; }
+done < "$tmp/host2.txt"
+
+if [ "$missing" -eq 0 ]; then
+  echo "check-capability-ledger: ok ($(wc -l < "$tmp/host2.txt") rows cover HOST2_ABI_FIELDS)"
 fi
 exit "$missing"

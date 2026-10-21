@@ -59,6 +59,13 @@ pub trait LoadedPlugin {
     /// status (stop path reuses the same typed channel).
     fn stop(&mut self) -> Result<(), KernelError>;
 
+    /// The ABI major the artifact's descriptor declared (D96 N1 v2 door).
+    /// The v1 default keeps every non-`dl` executor on the v1 host table.
+    #[must_use]
+    fn abi_major(&self) -> u32 {
+        crate::abi::ABI_VERSION
+    }
+
     /// Stable address hint inside the loaded image for the `ModuleLoaded`
     /// event (10 §2). `dl` reports the descriptor address; executors with
     /// no image answer 0.
@@ -169,6 +176,7 @@ impl DlopenExecutor {
             _lib: lib,
             desc,
             name,
+            abi_major: validated.abi_version,
         })
     }
 
@@ -204,6 +212,8 @@ struct DlopenPlugin {
     _lib: Library,
     desc: *const PluginAbiV1,
     name: String,
+    /// The ABI major the descriptor declared at the handshake (1 or 2).
+    abi_major: u32,
 }
 
 // SAFETY: a loaded library handle is process-global; this wrapper is kept
@@ -215,12 +225,37 @@ unsafe impl Send for DlopenPlugin {}
 impl DlopenPlugin {
     /// 04 §3 guards, run before any call: version integer + struct size.
     fn validate(desc: &PluginAbiV1) -> Result<(), KernelError> {
+        // N1 v2 door (D96 ruling 2): a declared major 2 asks for the
+        // HostAbiV2 table. Purely additive - the v1 guard below is
+        // byte-identical, so any other liar major still lands AbiMismatch.
+        if desc.abi_version == crate::abi::ABI_VERSION_V2 {
+            return Self::validate_v2(desc);
+        }
         if desc.abi_version != ABI_VERSION {
             return Err(KernelError::AbiMismatch {
                 expected: ABI_VERSION,
                 found: desc.abi_version,
             });
         }
+        if desc.size < PluginAbiV1::expected_size() {
+            return Err(KernelError::DescriptorTooSmall {
+                expected: PluginAbiV1::expected_size(),
+                found: desc.size,
+            });
+        }
+        if desc.start.is_none() {
+            return Err(KernelError::HandshakeIncomplete { what: "start" });
+        }
+        if desc.stop.is_none() {
+            return Err(KernelError::HandshakeIncomplete { what: "stop" });
+        }
+        Ok(())
+    }
+
+    /// v2 door guards: the descriptor shape is unchanged (the SECOND table
+    /// is host-side only, D96 ruling 2), so the size/pointer guards are the
+    /// v1 ones; only the version-equality guard becomes declared-major 2.
+    fn validate_v2(desc: &PluginAbiV1) -> Result<(), KernelError> {
         if desc.size < PluginAbiV1::expected_size() {
             return Err(KernelError::DescriptorTooSmall {
                 expected: PluginAbiV1::expected_size(),
@@ -281,6 +316,10 @@ impl Executor for DlopenExecutor {
 impl LoadedPlugin for DlopenPlugin {
     fn plugin_name(&self) -> &str {
         &self.name
+    }
+
+    fn abi_major(&self) -> u32 {
+        self.abi_major
     }
 
     fn load_base(&self) -> u64 {

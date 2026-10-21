@@ -19,6 +19,11 @@ use crate::identity::ServiceId;
 /// Host-side ABI major (04 §3: one integer compare is the whole negotiation).
 pub const ABI_VERSION: u32 = 1;
 
+/// Host-side ABI major v2 (D96 ruling 2): a plugin declaring this major is
+/// handed the `HostAbiV2` table (the v1 prefix plus the four mailbox slots).
+/// `ABI_VERSION` and every v1 line above stay byte-identical (D87 STABLE).
+pub const ABI_VERSION_V2: u32 = 2;
+
 /// The single exported entry symbol (04 §3 symbol discipline).
 pub const ENTRY_SYMBOL: &[u8] = b"modukit_plugin_init\0";
 
@@ -168,4 +173,110 @@ pub(crate) fn cstr_to_string(ptr: *const c_char) -> Option<String> {
     // SAFETY: caller guarantees a readable NUL-terminated byte string.
     let bytes = unsafe { std::ffi::CStr::from_ptr(ptr) };
     bytes.to_str().ok().map(str::to_string)
+}
+
+// --- Stage-5 N1 v2 door (D96 ruling 2): append-only surface below. --------
+
+/// Mailbox verb (D96 ruling 5, mirroring the embed face `modukit_bus_publish`
+/// exactly): broadcast, never blocks; returns 0 or a negated D51 code.
+pub type BusPublishFn = unsafe extern "C" fn(
+    user: *mut c_void,
+    topic: *const c_char,
+    qos: i32,
+    value: *const u8,
+    value_len: usize,
+) -> i32;
+
+/// Mailbox verb (mirrors `modukit_bus_subscribe`): answers the kernel-owned
+/// queue id (positive) or a negated D51 code.
+pub type BusSubscribeFn =
+    unsafe extern "C" fn(user: *mut c_void, topic: *const c_char, out_queue_id: *mut i32) -> i32;
+
+/// Mailbox verb (mirrors `modukit_bus_recv`): oldest buffered value into
+/// caller memory; a too-small cap reports the need through `out_len` and
+/// answers negated QUOTA_EXCEEDED, never a truncation.
+pub type BusRecvFn = unsafe extern "C" fn(
+    user: *mut c_void,
+    queue_id: i32,
+    out_value: *mut u8,
+    value_cap: usize,
+    out_len: *mut usize,
+) -> i32;
+
+/// Mailbox verb (mirrors `modukit_bus_unsubscribe`): releases the queue id;
+/// a later recv on it answers negated NOT_FOUND.
+pub type BusUnsubscribeFn = unsafe extern "C" fn(user: *mut c_void, queue_id: i32) -> i32;
+
+/// The host table handed to a plugin that declared `ABI_VERSION_V2`
+/// (D96 ruling 2: a SECOND table, negotiated by declared major; `HostAbiV1`
+/// stays frozen). The three v1 fields keep their exact order and types so
+/// the table doubles as a valid `HostAbiV1` prefix (offsets pinned by the
+/// `abi_v2_door` layout test); a v2 plugin reads the four bus slots after
+/// checking `size >= HostAbiV2::expected_size()`. Same borrowed-for-the-
+/// `start`-call authority law as v1 (01 §3 rule 2).
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct HostAbiV2 {
+    pub size: u32,
+    /// Opaque kernel-side context, returned to the callbacks verbatim.
+    pub user: *mut c_void,
+    pub register_service: RegisterServiceFn,
+    pub bus_publish: BusPublishFn,
+    pub bus_subscribe: BusSubscribeFn,
+    pub bus_recv: BusRecvFn,
+    pub bus_unsubscribe: BusUnsubscribeFn,
+}
+
+impl HostAbiV2 {
+    /// The exact compiled size a conforming v2 host must publish in `size`.
+    #[must_use]
+    pub const fn expected_size() -> u32 {
+        size_of::<HostAbiV2>() as u32
+    }
+
+    // Sugar for Rust plugins only (D63: sugar lives plugin-side, never a
+    // contract direction) - thin safe views over the table slots.
+
+    /// Publish bytes on a topic (`qos` = the embed `modukit_qos` int).
+    pub fn bus_publish(&self, topic: &std::ffi::CStr, qos: i32, value: &[u8]) -> i32 {
+        // SAFETY: slots are kernel-published non-null on a v2 table; topic is
+        // NUL-terminated; a zero-len slice is never dereferenced (callee rule).
+        unsafe { (self.bus_publish)(self.user, topic.as_ptr(), qos, value.as_ptr(), value.len()) }
+    }
+
+    /// Subscribe to a topic; answers the queue id or a negated D51 code.
+    pub fn bus_subscribe(&self, topic: &std::ffi::CStr) -> Result<i32, i32> {
+        let mut queue_id = 0i32;
+        // SAFETY: as above; `queue_id` is a live local for the out-param.
+        let status = unsafe { (self.bus_subscribe)(self.user, topic.as_ptr(), &raw mut queue_id) };
+        if status >= 0 { Ok(status) } else { Err(status) }
+    }
+
+    /// Receive the oldest buffered value into `buf`; `Err((code, need))`
+    /// when the cap is too small (negated QUOTA_EXCEEDED, value NOT
+    /// consumed) - the embed-face need-report through `out_len`.
+    pub fn bus_recv(&self, queue_id: i32, buf: &mut [u8]) -> Result<usize, (i32, usize)> {
+        let mut len = 0usize;
+        // SAFETY: as above; `buf`/`len` are live locals for the out-params.
+        let status = unsafe {
+            (self.bus_recv)(
+                self.user,
+                queue_id,
+                buf.as_mut_ptr(),
+                buf.len(),
+                &raw mut len,
+            )
+        };
+        if status < 0 {
+            Err((status, len))
+        } else {
+            Ok(len)
+        }
+    }
+
+    /// Release a queue id.
+    pub fn bus_unsubscribe(&self, queue_id: i32) -> i32 {
+        // SAFETY: slot is kernel-published non-null on a v2 table.
+        unsafe { (self.bus_unsubscribe)(self.user, queue_id) }
+    }
 }

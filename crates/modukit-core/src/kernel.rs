@@ -291,6 +291,20 @@ impl Kernel {
                 to: "STARTING (no loaded artifact)".to_string(),
             })?;
 
+        // Stage-5 N1 v2 door (D96 ruling 2): a plugin that declared major 2
+        // is handed the HostAbiV2 table (wiring in host_v2.rs). Purely
+        // additive - the v1 table build below stays byte-identical (D87).
+        if handle.abi_major() == crate::abi::ABI_VERSION_V2 {
+            let (started, registered) =
+                crate::host_v2::start_v2(&mut **handle, &self.registry, &self.bus);
+            record.registrations.extend(registered);
+            if let Err(err) = started {
+                self.mv(record, id, PluginState::Failed)?;
+                return Err(err);
+            }
+            return self.mv(record, id, PluginState::Active);
+        }
+
         let mut sink = ActivationSink {
             registry: &self.registry,
             registered: Vec::new(),

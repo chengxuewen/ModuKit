@@ -41,6 +41,7 @@ pub mod error;
 pub mod events;
 pub mod executor;
 mod executor_proc;
+mod host_v2;
 pub mod identity;
 pub mod introspect;
 pub mod kernel;

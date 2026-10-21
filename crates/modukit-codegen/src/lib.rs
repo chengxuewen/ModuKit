@@ -29,12 +29,14 @@ pub mod embed;
 pub mod emit;
 pub mod error;
 pub mod model;
+pub mod pluginface;
 pub mod wire;
 
 pub use descriptor::decode_file_descriptor_set;
 pub use embed::emit_embed_hpp;
 pub use error::CodegenError;
 use model::{File, RUNTIME_PACKAGE};
+pub use pluginface::emit_plugin_hpp;
 
 /// Decode every fdset in `fdsets` and write the generated corpus into
 /// `out_dir`. File set per contract package `a.b.c`:

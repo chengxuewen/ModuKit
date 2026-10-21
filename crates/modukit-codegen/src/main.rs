@@ -15,7 +15,7 @@
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use modukit_codegen::{CodegenError, emit_embed_hpp, generate};
+use modukit_codegen::{CodegenError, emit_embed_hpp, emit_plugin_hpp, generate};
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -37,6 +37,7 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
     let mut fdsets: Vec<PathBuf> = Vec::new();
     let mut output_dir: Option<PathBuf> = None;
     let mut embed_header: Option<PathBuf> = None;
+    let mut plugin_header: Option<PathBuf> = None;
     let mut it = args.iter();
     while let Some(arg) = it.next() {
         if arg == "--output_dir" {
@@ -53,6 +54,13 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
             embed_header = Some(PathBuf::from(value));
         } else if let Some(value) = arg.strip_prefix("--embed_header=") {
             embed_header = Some(PathBuf::from(value));
+        } else if arg == "--plugin_header" {
+            let value = it
+                .next()
+                .ok_or_else(|| usage("--plugin_header needs a path"))?;
+            plugin_header = Some(PathBuf::from(value));
+        } else if let Some(value) = arg.strip_prefix("--plugin_header=") {
+            plugin_header = Some(PathBuf::from(value));
         } else if let Some(path) = arg.strip_prefix('@') {
             // protoc-style request file: a FileDescriptorSet binary on disk.
             fdsets.push(PathBuf::from(path));
@@ -80,6 +88,19 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
         std::fs::write(&path, emit_embed_hpp(&text)?)?;
         files.push(path);
     }
+    if let Some(header_path) = plugin_header {
+        // Same trust discipline as the embed wrapper: the parity gate pins
+        // modukit_plugin.h to abi::HostAbiV2, so the emitted host view
+        // forwards exactly the slot typedefs it parsed (Stage-5 N1).
+        let text = std::fs::read_to_string(&header_path)?;
+        let stem = header_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .ok_or_else(|| usage("--plugin_header needs a file path"))?;
+        let path = output_dir.join(format!("{stem}.hpp"));
+        std::fs::write(&path, emit_plugin_hpp(&text)?)?;
+        files.push(path);
+    }
     Ok(files)
 }
 
@@ -88,7 +109,8 @@ fn usage(msg: impl Into<String>) -> CodegenError {
     CodegenError::Usage(format!(
         "{msg}\n\
          usage: protoc-gen-modukit @<descriptor_set.fdset> [more @fdsets...] \
-         --output_dir <dir> [--embed_header <modukit_embed.h>]\n\
+         --output_dir <dir> [--embed_header <modukit_embed.h>] \
+         [--plugin_header <modukit_plugin.h>]\n\
          (v0 seam: reads FileDescriptorSet binaries directly, not a \
          CodeGeneratorRequest on stdin - see src/main.rs)"
     ))

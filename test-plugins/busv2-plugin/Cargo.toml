@@ -1,0 +1,14 @@
+[package]
+name = "busv2-plugin"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Stage-5 N1 v2 fixture - declares ABI major 2 and drives the four mailbox verbs through the HostAbiV2 door (D96 ruling 2/5)"
+
+[lib]
+name = "busv2_plugin"
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+modukit-core = { version = "0.1.0", path = "../../crates/modukit-core" }

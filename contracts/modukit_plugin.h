@@ -156,6 +156,58 @@ typedef struct modukit_plugin_abi_v1 {
  * (MODUKIT_ENTRY_SYMBOL) and calls it at most during the handshake. */
 const modukit_plugin_abi_v1 *modukit_plugin_init(void);
 
+/* ------------------------------------------------------------------ */
+/* Stage-5 N1 v2 door (D96 ruling 2) - append-only below. A plugin that
+ * declares abi_version = MODUKIT_ABI_VERSION_V2 in its PluginAbiV1
+ * descriptor is handed a `modukit_host_abi_v2` table at start (the v1
+ * prefix plus the four mailbox slots, mirroring the embed face grammar
+ * exactly - zero reverse-direction function pointers). HostAbiV1 and the
+ * guards above are untouched; a v1 host never publishes this table. */
+
+/* Host-side ABI major v2; mirrors `abi::ABI_VERSION_V2`. The door accepts
+ * declared majors 1 and 2; anything else stays ABI_MISMATCH at RESOLVING
+ * (the liar guard is unchanged, D87/D96). */
+#define MODUKIT_ABI_VERSION_V2 2u
+
+/* Mailbox slots (mirrors `abi::BusPublishFn` etc., embed-face grammar):
+ * `user` is the HostAbiV2 user context returned verbatim; `qos` rides the
+ * `modukit_qos` int vocabulary of contracts/modukit_embed.h; status is
+ * the negated-D51 int channel (D27/D51). The queue ids a subscribe answers
+ * live only while the host table does (the start-call authority law above). */
+typedef int32_t (*modukit_bus_publish_fn_t)(void *user, const char *topic,
+                                            int32_t qos, const uint8_t *value,
+                                            size_t value_len);
+typedef int32_t (*modukit_bus_subscribe_fn_t)(void *user, const char *topic,
+                                              int32_t *out_queue_id);
+/* recv: oldest buffered value out; NULL `out_value` is the size query and
+ * does NOT consume; too-small `value_cap` reports the need through
+ * `*out_len` and returns negated QUOTA_EXCEEDED (never a truncation). */
+typedef int32_t (*modukit_bus_recv_fn_t)(void *user, int32_t queue_id,
+                                         uint8_t *out_value, size_t value_cap,
+                                         size_t *out_len);
+typedef int32_t (*modukit_bus_unsubscribe_fn_t)(void *user, int32_t queue_id);
+
+/* HostAbiV2 - the v2 host table (mirrors `abi::HostAbiV2`). The three v1
+ * fields keep their exact order and types, so the table doubles as a valid
+ * `modukit_host_abi_v1` prefix; a plugin reads the bus slots only after
+ * checking `size >= sizeof(modukit_host_abi_v2)`. */
+typedef struct modukit_host_abi_v2 {
+    /* abi::HostAbiV2.size - table size (>= the v1 size for a real v2). */
+    uint32_t size;
+    /* abi::HostAbiV2.user - opaque kernel-side context, verbatim to slots. */
+    void *user;
+    /* abi::HostAbiV2.register_service - the v1 slot, unchanged semantics. */
+    modukit_register_service_fn_t register_service;
+    /* abi::HostAbiV2.bus_publish */
+    modukit_bus_publish_fn_t bus_publish;
+    /* abi::HostAbiV2.bus_subscribe */
+    modukit_bus_subscribe_fn_t bus_subscribe;
+    /* abi::HostAbiV2.bus_recv */
+    modukit_bus_recv_fn_t bus_recv;
+    /* abi::HostAbiV2.bus_unsubscribe */
+    modukit_bus_unsubscribe_fn_t bus_unsubscribe;
+} modukit_host_abi_v2;
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

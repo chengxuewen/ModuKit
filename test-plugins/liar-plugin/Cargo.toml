@@ -1,0 +1,14 @@
+[package]
+name = "liar-plugin"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Negative v2-era fixture - declares ABI major 99; the door must still refuse it (ABI_MISMATCH, parked FAILED)"
+
+[lib]
+name = "liar_plugin"
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+modukit-core = { version = "0.1.0", path = "../../crates/modukit-core" }

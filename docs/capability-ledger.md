@@ -100,3 +100,28 @@ The Rust column here is the frozen v1 truth: `abi.rs` layout, consumed by
 | `stop` (PluginAbiV1) | header | planned | native | planned |
 | `register_service` (HostAbiV1 slot) | header | planned | native | planned |
 | `modukit_service_call_fn_t` (service-call slot) | header | generated | native | planned |
+
+
+## C. Plugin-side v2 door - HostAbiV2 slots (Stage-5 N1, D96 ruling 2/5)
+
+The SECOND host table, negotiated by declared ABI major; the v1 tables in
+section B stay frozen above (D87). Row keys mirror the `abi::HostAbiV2`
+field names (`HOST2_ABI_FIELDS` in `embed_abi.rs`);
+`scripts/check-capability-ledger.sh` requires one row per HOST2 field
+(same existence-only rule as section A - the ordered layout truth lives in
+the parity gate). Rust column: `abi.rs` table + `host_v2.rs` wiring over
+the SAME in-process `Bus` (`bus.rs`). C++ `generated` =
+`crates/modukit-codegen/testdata/golden/modukit_plugin.hpp` (one
+forwarding method per mailbox slot, behind the declared major; `size`/`user`
+are the guard's data, not verbs, so they read `header`). Proof chain:
+`test-plugins/busv2-plugin` + `crates/modukit-core/tests/abi_v2_door.rs`.
+
+| Capability | C | C++ | Rust | Python |
+|---|---|---|---|---|
+| `size` (HostAbiV2 slot) | header | header | native | planned |
+| `user` (HostAbiV2 context) | header | header | native | planned |
+| `register_service` (HostAbiV2 slot) | header | generated | native | planned |
+| `bus_publish` (HostAbiV2 verb) | header | generated | native | planned |
+| `bus_subscribe` (HostAbiV2 verb) | header | generated | native | planned |
+| `bus_recv` (HostAbiV2 verb) | header | generated | native | planned |
+| `bus_unsubscribe` (HostAbiV2 verb) | header | generated | native | planned |
