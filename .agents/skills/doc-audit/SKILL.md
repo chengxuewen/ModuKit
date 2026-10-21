@@ -12,7 +12,10 @@ description: "Audit this repository's documentation and agent system for self-co
 > `.opencode/opencode.json`, `mise.toml` / `bootstrap.sh` / `bootstrap.bat`.
 > `docs/architecture.md` + `docs/modules/00-11` are primary targets (adjudicated baseline
 > since 2026-10-10; module range and self-claims refreshed at the 2026-10-15 full audit).
-> since 2026-10-10). PolyOrch-era remnants NOT targets here: C2-C6 conventions, vendored xmake set.
+> since 2026-10-10). **Targets grown 2026-10-21 (D93 era)**: plans of record now
+> `docs/stage-{1,2,3,4}-plan.md`; plus `docs/capability-ledger.md`, the contract originals
+> `contracts/modukit_embed.h` / `contracts/modukit_plugin.h`, and `bindings/`.
+> PolyOrch-era remnants NOT targets here: C2-C6 conventions, vendored xmake set.
 
 A full audit of this repository's document system: cross-document consistency, decision
 validation, agent infrastructure, gap coverage, and phase accuracy.

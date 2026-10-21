@@ -298,6 +298,7 @@ them. Re-review trigger recorded in D5.
 | D90 | hook LIFTED | both debt crates cleared (85.52/85.24) at re-measurement; steady 80 hard resumes; lift never rode the rejected 81.33 figure |
 | D91 | Stage-3 accepted | DoD four-for-four; UI stays demoted (K2 trigger named); gates at 194 tests with the 80-line held post-lanes |
 | D92 | static blueprint armed | six rulings (generated list / single-version gate / text manifest / capability-removal unload / third standalone executor / candidate seat); no lane without a creditor; recheck freeze before opening |
+| D93 | stage-4 volume in-ledger | seven rulings (I1 A+narrow / C++-1..5 / I7 A) shipped additively as M1 embed face + M2 sup rung (23 verbs, two rungs, ORPHAN-PROOF); v1 freeze held; ledger-after-shipping corrected; §12 sync owed at acceptance |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
@@ -310,6 +311,10 @@ freeze timing (before first external binding consumer), external-consumer valida
 round (Stage-2 onward; `docs/reference/00-overview.md` §4).
 
 ## 12. Roadmap (amended §8)
+
+> **Banner (2026-10-21)**: this table is pre-amendment-current. The Stage-4 re-scoping
+> drafted in `docs/stage-4-plan.md` §7 takes effect at volume acceptance (stage-3
+> precedent); item 3/4 live-phase wording is superseded in flight, not in force.
 
 1. **Stage 1** — in-process kernel per §10 (unchanged in spirit; C+ semantics from day 1).
 2. **Stage 2** — process placement: supervisor, shadow-runner, wire transport; executor

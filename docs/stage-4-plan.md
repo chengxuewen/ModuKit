@@ -1,8 +1,8 @@
 # Stage-4 — INFRA volume: bindings, communication, debugging (plan of record)
 
 > STATUS: ADJUDICATED 2026-10-19 - seven rulings taken one by one (user-adjudicated),
-> scope narrowed to the C/C++ line. Milestones M1/M2 below are READY, lanes open on a
-> separate go order. Directive of record: infrastructure first (whitepaper §1 CORE
+> scope narrowed to the C/C++ line. Milestones M1/M2 LANDED (both CLOSED 2026-10-20,
+> in-ledger as D93); further lanes open on a separate go order. Directive of record: infrastructure first (whitepaper §1 CORE
 > promises); extension tracks stay exactly where their trigger gates put them. The §12
 > amendment (draft in §7) goes live at acceptance per the stage-3 precedent;
 > transcript in §8.
@@ -18,7 +18,8 @@
 > record: infrastructure first - the whitepaper §1 CORE promises (polyglot bindings,
 > script hosts) and the unfinished communication/debug floors are the stage; extension
 > tracks (remote WebRTC §12-4, UI §12-3, static placement §12-6) stay exactly where
-> their trigger gates put them. > Walkthrough transcript: see §4; acceptance writes the §12 amendment per stage-3 precedent.
+> their trigger gates put them. Walkthrough transcript: see §8; acceptance writes the §12
+> amendment per stage-3 precedent.
 
 ## 0. Constraints carried into this volume (non-negotiable unless a ruling here says otherwise)
 
@@ -30,7 +31,7 @@
   maintainer send, proposal ARMED unopened.
 - **C0 discipline**: every ruling gets a runnable check; every new gate leg is planted red
   once before trusted.
-- **Numbering**: ledger at D92 / C3 / PIT-15 - minting D93+ widens the status.md gate first.
+- **Numbering**: ledger at D93 / C3 / PIT-20 (D93 minted 2026-10-21 by this volume's doc-audit; the status.md gate widened to D1-D93 with red observed on the mint first).
 
 ## 1. Call sheet - seven items, each adjudicated one by one
 
@@ -154,7 +155,6 @@ ALL GREEN (orchestrator-verified per lane): probe byte-equal; embed.h+plugin.h o
  naming (emitter said Echo, wire said echo - to_snake single-sourced), and the
  runner self-check guard (byte-equality echo was the rs twin’s law in disguise:
  empty probe + pass-on-Ok; fidelity proven parent-side by the proxy round-trip).)
-- 
 - Supervisor verb group mirrored into the embed table (step/drive_until_idle/dial/restart/watch census)
 - fd-ownership and signal discipline carried per S2 lessons (friction 7 class); ORPHAN-PROOF-style demo gate from the C++ host
 - small design note for the verb semantics (D83 record, no break hearing)
@@ -173,8 +173,9 @@ Stage-4 becomes the INFRA volume (this document). Post-amendment §12 reads EXAC
 items 1-3 unchanged; 4 = INFRA (this volume); 5 = remote WebRTC (renumbered, content
 unchanged, engine-tiering question stays queued inside it); item 6 = static placement
 candidate (D92) untouched. The old Stage-5 (polyglot ecosystem) dissolves into wave-2 of
-the infra track (§6). At acceptance the same amendment syncs README's Roadmap table and
-rewrites stale §12-N citations in this document's header.
+the infra track (§6). At acceptance the same amendment rewrites stale §12-N citations in this document's
+header and sweeps `docs/reference/00-overview.md` §4 items 6-7 (whitepaper-era
+numbering). README's Roadmap rows were re-synced early by the 2026-10-21 doc-audit.
 
 ## 8. Walkthrough transcript (one at a time, plain language)
 I1 (A+narrow, cpp chosen over the Python pre-stance) -> C++-1 (B; orchestrator's

@@ -9,7 +9,7 @@
 - ModuKit declared its **v1 surface STABLE** on 2026-10-18 (decision record D87), closing
   the Stage-2 freeze hearing. Concretely, what is now frozen:
   - four shipped crates: `modukit-core`, `modukit-runtime`, `modukit-transport`,
-    `modukit-codegen` (194 tests, two demo acceptance gates run in the repo's check script);
+    `modukit-codegen` (test totals: take the current figure from the plans of record at send-time; the repo's check script runs the standing demo acceptance gates);
   - the C ABI as the only cross-language plugin exit; kernel v1 verbs
     (lifecycle / registry / manifest / bundle / bus v1 / clock v1 / logger);
   - the process wire: TL frames `{len, ver, type, payload}` at `WIRE_VERSION = 1`,

@@ -64,5 +64,5 @@ bound reopens the hunt.'s verdict: if a 4th appears OUTSIDE cargo-test parallel 
 - [x] P-REHANG rule-pack runnable -> LANDED 2026-10-19 (real run; receipt: 2 over-cap files caught -> new row below).
 - [x] dangling-refs family CLOSED 2026-10-19 (M3S-1 sweep; unmounted language pool deliberately left - G10 doctrine).
 - [x] P-NEW CLOSED 2026-10-19: both suites -> directory modules (same targets, verbatim bodies; 194/194, max file 359; cargo now prefixes module:: in test paths - cosmetic).
-- P-ADD S2 row: user-side apiKey rotation (was history-prose only; status cites it ownerless).
+- [x] P-ADD S2 row: LANDED 2026-10-21 - S2 = user-side apiKey rotation (opencode provider key, owner USER, open until user acts); the status.md Open Items citation is its live register row, this disposition its birth record.
 - [x] P-DEFER (F-quad) CLOSED 2026-10-19: C1 scope +test-plugins/ (C0 red/green observed); book-to-skill claim corrected at its TRUE shape (package = book_to_skill/, 15 files, skill tree 22 - the "is 2" disposition figure was scripts/-only and would have mis-attributed); "145-char" -> 156; check.sh "five" -> 56.

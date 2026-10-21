@@ -133,6 +133,7 @@
 - **Solution**: the pattern is `s.replace(anchor, NEW + anchor)` (or use split/insert on line indices); after any insertion-style replace, re-grep the anchor and run an entry-continuity scan.
 - **Verification**: `grep -c '^:' <file>` must be 0 (no headerless continuations) and the anchor count unchanged after the edit.
 - **Forbidden**: trusting a pre-state assert as proof of post-state integrity for mutating replacements.
+- **Recurrence 2026-10-21**: history-archive's M1 header swallowed the same way (the habit landed decisions-side only); extended check now covers merged-header shape: entry-header count (`grep -cE '^- 20[0-9]{2}-' <file>`) before/after any entry edit, and the fused signature `\., [a-z-]+\)?: ` mid-line must not match.
 
 ## PIT-17: stale build trees manufacture green gate claims - counts are only real from a rebuilt tree (2026-10-20, cost one CRITICAL)
 - **Symptom**: commit + history asserted "ctest 9/9"; a fresh out-of-tree configure+build returned 8/9 (probe still called the pre-fix wire name "Echo" - the sweep's second family passed only because both probe and fixture in the warm tree were old artifacts).
