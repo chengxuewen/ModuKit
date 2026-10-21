@@ -14,5 +14,9 @@ path = "src/main.rs"
 name = "modukit-host"
 path = "src/host.rs"
 
+[[bin]]
+name = "modukit-debug-reader"
+path = "src/debug_reader.rs"
+
 [dependencies]
 modukit-core = { path = "../modukit-core" }
