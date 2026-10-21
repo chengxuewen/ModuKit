@@ -179,3 +179,9 @@ optional fixes: cite `env!("CARGO_BIN_EXE_modukit-debug-reader")`, note the new
 projection on the object-table cut. The first landing shipped the `TestHost`
 self-check face, `--help`, and the sabotage red path. Live attach and dump-file
 readers remain separate doors.
+
+
+Gate promotion (D98, 2026-10-21 closeout): the `debug-reader: PASS` line now
+rides check.sh as the sixth demo leg via scripts/demo-wave2-reader.sh - same
+lever, sabotage red observed in the leg itself; evidence in
+docs/wave-2-closeout-plan.md.

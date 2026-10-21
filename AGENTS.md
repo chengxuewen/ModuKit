@@ -4,14 +4,14 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stages 1-3 are CLOSED** (D88/D91; the UI-composition tier stays demoted until a real beachhead demand, D89-K2); **STAGE-4 INFRA volume: C/C++ bindings line shipped M1+M2** 2026-10-20, ruled in as D93/D94 (M3 service-call door landed 2026-10-21), volume ACCEPTED AND CLOSED 2026-10-21 (D95); wave-2: v2 bus LANDED (D96) + debug-reader minimal face LANDED (D97); remainder armed in plan §6. Working code: `crates/modukit-core / -runtime / -transport / -codegen` + `bindings/cpp` + contracts C originals (test totals volatile — live in the plans of record; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D97 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stages 1-3 are CLOSED** (D88/D91; the UI-composition tier stays demoted until a real beachhead demand, D89-K2); **STAGE-4 INFRA volume: C/C++ bindings line shipped M1+M2** 2026-10-20, ruled in as D93/D94 (M3 service-call door landed 2026-10-21), volume ACCEPTED AND CLOSED 2026-10-21 (D95); wave-2: v2 bus LANDED (D96) + debug-reader minimal face LANDED (D97) + closeout LANDED (D98: reader gate leg, cold-census coverage - core debt cleared); remainder armed in plan §6. Working code: `crates/modukit-core / -runtime / -transport / -codegen` + `bindings/cpp` + contracts C originals (test totals volatile — live in the plans of record; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D98 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
 
 ## STRUCTURE
 
 ```
 ├── README.md / SKILL.md      # front door / skills registry
 ├── docs/whitepaper.md        # v1.0 canon - crate names §2.3, roadmap §8 (superseded by §9/§10/§12)
-├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D97, §12 roadmap (amended at D95 2026-10-21))
+├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D98, §12 roadmap (amended at D95 2026-10-21))
 ├── docs/modules/             # 00-11 deep dives (placement, service model, lifecycle, codegen,
 │                             #   manifest, bus, transport, walkthrough, record, observability, media base)
 ├── docs/stage-{1,2,3,4}-plan.md # PLANS OF RECORD: S1-S3 closed, S4 = INFRA volume (D93/D95: M1-M3 landed, ACCEPTED)
@@ -32,8 +32,8 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── bindings/cpp/             # C++ wrapper shelf: generated faces + live probe (Visia-grammar)
 ├── CMakeLists.txt + cmake/   # PolyOrch-driven graph: pixi translation, cargo lanes, ctest bridges, demo lanes
 ├── pixi.toml / mise.toml     # build envs (tools/rust/cov; vendor-test task) / host tooling pins
-├── scripts/                  # check.sh (D50 local gate incl ALL FIVE demo legs + commit-shape),
-│                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh, regen-fdset/golden.sh,
+├── scripts/                  # check.sh (D50 local gate incl ALL SIX demo legs + commit-shape),
+│                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh + demo-stage5-n2.sh + demo-wave2-reader.sh, regen-fdset/golden.sh,
 │                             #   check-embed-parity/capability-ledger.sh, skill-lint.py
 ├── .agents/                  # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
 └── .vscode/ .opencode/ .omo/ # IDE cmake pin (PIT-7) / agent config / OMO state
@@ -44,7 +44,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Task | Location | Notes |
 |---|---|---|
 | What ModuKit is / naming authority | `docs/whitepaper.md` | §2.3 canonical; §8 roadmap superseded by architecture §12 |
-| Current architecture + deltas | `docs/architecture.md` + `docs/modules/` | §11 = decision index D1-D97; §9 = whitepaper deltas; §12 = roadmap |
+| Current architecture + deltas | `docs/architecture.md` + `docs/modules/` | §11 = decision index D1-D98; §9 = whitepaper deltas; §12 = roadmap |
 | What stage are we in, what's next | `.agents/memorys/status.md` | loaded every turn; plans of record in docs/stage-*.md |
 | Which embed/plugin verbs exist (capability map) | `docs/capability-ledger.md` + `contracts/modukit_embed.h` | 24 verbs = EMBED_VERBS; parity + ledger legs in check.sh (D93/D94) |
 | Which skills exist / when they fire | `SKILL.md` | registry incl. inoperative flags |
@@ -60,7 +60,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 - **C1**: all artifacts English; chat follows user. (CJK scan is the canonical block below — keep it synced with conventions.md verbatim.)
 - **C0**: every constraint carries a runnable check, observed red once before trusted.
-- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D97/C3/PIT-25; numbering gate in status.md guards bounds.
+- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D98/C3/PIT-26; numbering gate in status.md guards bounds.
 - **C2**: ModuKit lands on master; PolyOrch edits on dev-modukit, tests blessed on main; pin = fresh dev-modukit tip via standalone bumps.
 - **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
 - `Cargo.lock` commits with `Cargo.toml`.
@@ -81,7 +81,7 @@ grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
   AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
-# full local gate - fast checks incl ALL FIVE demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2)
+# full local gate - fast checks incl ALL SIX demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader)
 bash scripts/check.sh
 
 # stage acceptance gates
@@ -90,6 +90,7 @@ bash scripts/demo-stage2.sh      # STAGE2-DEMO PASS (sabotage hook documented)
 bash scripts/demo-stage4-m1.sh    # demo-stage4-m1: PASS (embed face; clean SKIP when cpp band absent)
 bash scripts/demo-stage4-m2.sh    # demo-stage4-m2: PASS (sup rung + ORPHAN-PROOF; sabotage hook)
 bash scripts/demo-stage5-n2.sh     # demo-stage5-n2: PASS (v2 bus across the wall; sabotage hook)
+bash scripts/demo-wave2-reader.sh  # demo-wave2-reader: PASS (reader self-check; sabotage lever)
 
 # build/test via pixi ONLY (mise cargo/rustfmt shims are broken on this box)
 export PATH="$HOME/.pixi/bin:$PATH"

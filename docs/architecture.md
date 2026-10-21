@@ -303,6 +303,7 @@ them. Re-review trigger recorded in D5.
 | D95 | stage-4 accepted | DoD four-for-four (evidence / freeze audit / coverage 82.39-80.78-85.14 vs 80 / §12 amendment applied); wave-2 armed not open; push+K7 stay maintainer tail |
 | D96 | v2 bus hearing | six-by-A: HostAbiV2 door (v1 byte-identical) / mailbox verbs mirror host face / two talkers on the existing wire + HELLO capability field / transparent wall; timer deferred; N1/N2 spec'd not open |
 | D97 | wave-2 debug-reader door | five rulings (A,A,A,A,B): smallest-door priority criterion -\> debug reader -\> reader-only no live attach -\> one runtime bin; minimal self-check face LANDED same day, plan docs/wave-2-debug-reader-plan.md; live-attach/dump-file remain armed |
+| D98 | wave-2 closeout | rulings A,A,C,A,A: reader face promoted to the sixth check.sh demo leg (sabotage red observed in the leg, D97 trigger closed); cold-census coverage rerun 50/50 suites - core 84.15 / transport 80.78 / codegen 84.25 region metric D84a, the named core debt CLEARED; plan docs/wave-2-closeout-plan.md |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
