@@ -181,6 +181,8 @@ docs closed via the applied §7 amendment + roadmap sync. Wave-2 (§6) armed, no
 ## 6. Wave-2 candidates (in this volume's shadow, NOT open; trigger = maintainer word or named consumer)
 - Python bindings (skins of the C tables) and the Python script host (separate rulings)
 - Communication: v2 plugin-facing bus/clock verbs (I3/I4 hearing material preserved in §1)
+  - BUS HALF: hearing HELD 2026-10-21 (D96) - signatures in docs/stage-5-plan.md §1,
+    lanes N1/N2 spec'd NOT open; CLOCK timer half: deferred by ruling 1, own agenda
 - Service-call door on the sup face (cpp x exe byte-fidelity home; gate-review
   finding 2026-10-20: until it lands the exe rung’s cpp payload fidelity is
   gated nowhere; rs family stays gated by dual_placement) - MOVED to §5 M3,

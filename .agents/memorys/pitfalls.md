@@ -157,5 +157,6 @@
 
 ## PIT-21 (trivial): adjudication walkthrough body in ledger-dense register got a plain-speech demand (2026-10-21)
 - The skill's own plain-language rule was violated by file:line citation chains + jargon in the BODY; the seven-part template survives being written in everyday terms - fix: body speaks what changes for a human, ledger anchors go to the Sources section only.
+- **Second occurrence same session (v2 hearing item 2)**: the correction did not stick item-side - plain speech must be the DEFAULT from item one, not a per-patch style; hearings walk in human terms or get re-walked.
 ## PIT-22 (trivial): an assertion whose output the harness never reads is an assertion that never ran (2026-10-21)
 - The M2 demo's dial-refusal word sat on a dead branch (parent killed the child at READY, before the post-READY lines could be read); no red was ever observable, so C0 was silently unmet. Fix pattern: make the observer WAIT the marker before ending the observed, and demand one planted red per new stage.
