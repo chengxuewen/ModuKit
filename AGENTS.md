@@ -4,14 +4,14 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stages 1-3 are CLOSED** (D88/D91; the UI-composition tier stays demoted until a real beachhead demand, D89-K2); **Stage-4 INFRA volume: C/C++ bindings line shipped M1+M2** 2026-10-20, ruled in as D93, volume acceptance open. Working code: `crates/modukit-core / -runtime / -transport / -codegen` + `bindings/cpp` + contracts C originals (test totals volatile — live in the plans of record; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D93 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stages 1-3 are CLOSED** (D88/D91; the UI-composition tier stays demoted until a real beachhead demand, D89-K2); **Stage-4 INFRA volume: C/C++ bindings line shipped M1+M2** 2026-10-20, ruled in as D93/D94 (M3 service-call door OPENED), volume acceptance open. Working code: `crates/modukit-core / -runtime / -transport / -codegen` + `bindings/cpp` + contracts C originals (test totals volatile — live in the plans of record; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D93 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
 
 ## STRUCTURE
 
 ```
 ├── README.md / SKILL.md      # front door / skills registry
 ├── docs/whitepaper.md        # v1.0 canon - crate names §2.3, roadmap §8 (superseded by §9/§10/§12)
-├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D93, §12 roadmap (banner: §7 amendment pending acceptance))
+├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D94, §12 roadmap (banner: §7 amendment pending acceptance))
 ├── docs/modules/             # 00-11 deep dives (placement, service model, lifecycle, codegen,
 │                             #   manifest, bus, transport, walkthrough, record, observability, media base)
 ├── docs/stage-{1,2,3,4}-plan.md # PLANS OF RECORD: S1-S3 closed, S4 = INFRA volume (D93: M1+M2 landed, acceptance open)
@@ -59,7 +59,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 - **C1**: all artifacts English; chat follows user. (CJK scan is the canonical block below — keep it synced with conventions.md verbatim.)
 - **C0**: every constraint carries a runnable check, observed red once before trusted.
-- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D93/C3/PIT-20; numbering gate in status.md guards bounds.
+- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D94/C3/PIT-20; numbering gate in status.md guards bounds.
 - **C2**: ModuKit lands on master; PolyOrch edits on dev-modukit, tests blessed on main; pin = fresh dev-modukit tip via standalone bumps.
 - **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
 - `Cargo.lock` commits with `Cargo.toml`.

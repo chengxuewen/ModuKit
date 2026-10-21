@@ -160,12 +160,22 @@ ALL GREEN (orchestrator-verified per lane): probe byte-equal; embed.h+plugin.h o
 - small design note for the verb semantics (D83 record, no break hearing)
 - wiring: `scripts/demo-stage4-m2.sh` (ORPHAN-PROOF-style from the C++ host) becomes a scripts/check.sh leg, red-planted before trusted (C0)
 
+### M3 - the service-call door on the sup face (OPENED 2026-10-21 by maintainer word; D94)
+- One verb `modukit_sup_service_call`, contract mirroring the dl face (bytes in -> bytes out);
+  D83 tail-add: embed.h 23->24, abi.rs mirror + parity + goldens + capability ledger move together.
+- Fidelity stage lands INSIDE host_sup_demo.cc (m2 leg, no new script): a non-empty typed
+  payload round-trips byte-exact ABI -> wire -> child service -> back; its own named sabotage
+  hook, planted red once before trusted (C0).
+- Done when: parity 24 green; ledger row; demo fidelity line prints PASS; sabotage red logged;
+  tests/clippy/fmt/check.sh green measured on a freshly rebuilt tree (PIT-17).
+
 ## 6. Wave-2 candidates (in this volume's shadow, NOT open; trigger = maintainer word or named consumer)
 - Python bindings (skins of the C tables) and the Python script host (separate rulings)
 - Communication: v2 plugin-facing bus/clock verbs (I3/I4 hearing material preserved in §1)
 - Service-call door on the sup face (cpp x exe byte-fidelity home; gate-review
   finding 2026-10-20: until it lands the exe rung’s cpp payload fidelity is
-  gated nowhere; rs family stays gated by dual_placement)
+  gated nowhere; rs family stays gated by dual_placement) - MOVED to §5 M3,
+  OPENED 2026-10-21 (D94)
 - Debugging: reader CLI / tooling floor (I6 material preserved in §1)
 
 ## 7. §12 amendment DRAFT (effective at acceptance, not before)
