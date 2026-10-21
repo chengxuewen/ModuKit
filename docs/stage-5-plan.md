@@ -60,5 +60,11 @@
   so post-start bus APIs and live child-to-child overlap are a FUTURE agenda the moment
   a real consumer needs them - named here, not a silent drop (fan-out already serves
   all interested children; parent-side behavior is unit-pinned);
-- Python bindings, debug reader CLI, JS dual-face product surface, regen-tool nit -
-  all remain armed in `docs/stage-4-plan.md` §6, each needing its own word and round.
+- Python bindings, live-attach debug tooling depth, JS dual-face product surface -
+  all remain armed in `docs/stage-4-plan.md` §6, each needing its own word and round
+  (the regen-tool nit on that list CLOSED 2026-10-21, commit 00a5290).
+
+- Debug-reader first landing 2026-10-21: the adjudicated door shipped as a minimal
+  reader-only `modukit-debug-reader` self-check bin in `modukit-runtime`. It uses the
+  existing `TestHost` data plane, adds no ABI verb or live attach, and is not a
+  standalone `check.sh` demo leg. Plan: `docs/wave-2-debug-reader-plan.md`.
