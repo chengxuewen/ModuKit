@@ -41,16 +41,24 @@
   Numbers orchestrator re-measured: 231 tests / 50 suites, check.sh all green,
   four v1 demo legs PASS, planted reds 4x logged. Scope correction recorded here:
   the HELLO capability field is WIRE-side - N2 owns it (in-process needs no proto).
-- **N2 - the crossing**: NOT OPEN (go order owed). The two wire talkers in
-  proc_wire/proc_supervisor + HELLO capability proto tail-add + the child-side shadow
-  queue, subscribe-snapshot + self-echo frames, the wall-transparency dual-suite
-  (same assertions in-process vs across), demo legs (planted-red sabotage hooks, C0),
-  fresh-tree ctest counts (PIT-17).
+- **N2 - the crossing**: LANDED 2026-10-21. Exactly two talkers (MSG_FORWARD 10 /
+  MSG_DELIVER 11, sub/unsub ride FORWARD's op grammar), capability = optional u32 LE
+  tail on the HELLO wire + the proto ledger records Hello{abi..capability@5},
+  WIRE_VERSION stays 1. Parent fan-out is the SAME code path as in-process (one bus,
+  one fan-out law); child-side shadow queues reuse host_v2 grammar verbatim.
+  Orchestrator re-measured: 239/51, five demo legs green incl the new
+  demo-stage5-n2 (sabotage RED in own eyes), zero deletions across all frozen files
+  (proc_wire 166/0, executor_proc 64/0, host_v2 60/0, bus 48/0, supervisor 8/0);
+  runner main.rs +38/-7 (not frozen, pre-declared).
 - Done-when per lane mirrors the M-lane grammar exactly: red-planted hooks, ledgers
   and parity move with the table, orchestrator re-measures independently (PIT-14).
 
 ## 3. What this file deliberately does NOT decide
 
 - Timer signatures (deferred by ruling 1 - named future agenda, not a silent drop);
+- STEADY-STATE crossing: mailbox authority rides the start window (01 section 3 rule 2),
+  so post-start bus APIs and live child-to-child overlap are a FUTURE agenda the moment
+  a real consumer needs them - named here, not a silent drop (fan-out already serves
+  all interested children; parent-side behavior is unit-pinned);
 - Python bindings, debug reader CLI, JS dual-face product surface, regen-tool nit -
   all remain armed in `docs/stage-4-plan.md` §6, each needing its own word and round.

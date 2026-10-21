@@ -14,8 +14,8 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D96, §12 roadmap (amended at D95 2026-10-21))
 ├── docs/modules/             # 00-11 deep dives (placement, service model, lifecycle, codegen,
 │                             #   manifest, bus, transport, walkthrough, record, observability, media base)
-├── docs/stage-{1,2,3,4}-plan.md # PLANS OF RECORD: S1-S3 closed, S4 = INFRA volume (D93: M1+M2 landed, acceptance open)
-├── docs/stage-5-plan.md        # wave-2 ledger target: D96 hearing + N1 LANDED / N2 not open
+├── docs/stage-{1,2,3,4}-plan.md # PLANS OF RECORD: S1-S3 closed, S4 = INFRA volume (D93/D95: M1-M3 landed, ACCEPTED)
+├── docs/stage-5-plan.md        # wave-2 target: D96 hearing + N1 door + N2 crossing LANDED
 ├── docs/capability-ledger.md # embed/plugin verb capability map (check-capability-ledger leg)
 ├── docs/codegraph-bootstrap.md # codegraph MCP index bootstrap note
 ├── docs/reference/           # external profiles + audits (roster: its README.md; 00 §4 maintainer register)
@@ -32,7 +32,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── bindings/cpp/             # C++ wrapper shelf: generated faces + live probe (Visia-grammar)
 ├── CMakeLists.txt + cmake/   # PolyOrch-driven graph: pixi translation, cargo lanes, ctest bridges, demo lanes
 ├── pixi.toml / mise.toml     # build envs (tools/rust/cov; vendor-test task) / host tooling pins
-├── scripts/                  # check.sh (D50 local gate incl ALL FOUR demo legs + commit-shape),
+├── scripts/                  # check.sh (D50 local gate incl ALL FIVE demo legs + commit-shape),
 │                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh, regen-fdset/golden.sh,
 │                             #   check-embed-parity/capability-ledger.sh, skill-lint.py
 ├── .agents/                  # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
@@ -81,7 +81,7 @@ grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
   AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
-# full local gate - fast checks incl ALL FOUR demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3)
+# full local gate - fast checks incl ALL FIVE demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2)
 bash scripts/check.sh
 
 # stage acceptance gates
@@ -89,6 +89,7 @@ bash scripts/demo-stage1.sh      # STAGE1-DEMO PASS
 bash scripts/demo-stage2.sh      # STAGE2-DEMO PASS (sabotage hook documented)
 bash scripts/demo-stage4-m1.sh    # demo-stage4-m1: PASS (embed face; clean SKIP when cpp band absent)
 bash scripts/demo-stage4-m2.sh    # demo-stage4-m2: PASS (sup rung + ORPHAN-PROOF; sabotage hook)
+bash scripts/demo-stage5-n2.sh     # demo-stage5-n2: PASS (v2 bus across the wall; sabotage hook)
 
 # build/test via pixi ONLY (mise cargo/rustfmt shims are broken on this box)
 export PATH="$HOME/.pixi/bin:$PATH"
