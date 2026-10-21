@@ -51,7 +51,8 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 - [ ] K7 follow-through (OWNER: MAINTAINER): send the v1-STABLE note (draft: docs/reference/k7-v1-stable-note-draft.md); proposal stays ARMED (D89-K7)
 - [x] Stage-3 COMPLETE 2026-10-19: K1-K7 (D89), freeze hearing (D82-D88), debt paid + hook lifted (D90), lanes closed, acceptance D91; UI tier stays demoted per K2; push decision remains maintainer-owned
 - [x] Stage-4 volume ACCEPTED 2026-10-21 (D95): M1-M3 + coverage boundary run + §12 applied + wave-2 door landed; push tail + K7 remain maintainer calls
-- [x] Wave-2 v2 bus HEARING HELD 2026-10-21 (D96 six-by-A): signatures docs/stage-5-plan.md §1, lanes N1/N2 spec'd NOT open
+- [x] Wave-2 v2 bus HEARING HELD (D96 six-by-A) + **N1 door LANDED 2026-10-21** (HostAbiV2, v1 prefix byte-identical, 231/50 re-measured): docs/stage-5-plan.md
+- [ ] N2 the crossing (wire talkers + HELLO proto + dual-suite): spec'd, NOT open - go order owed
 - [ ] Still armed (each own word): timer agenda / Python / debug CLI / JS fold / regen nit
 - [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — K7=C (D89): v1-STABLE factual note pending maintainer send; wiring-hearing proposal ARMED, not opened
 - [x] rules/common dangling-refs family CLOSED 2026-10-19 (M3S-1 sweep; doc-liveness leg live in check.sh; unmounted pool kept per G10)

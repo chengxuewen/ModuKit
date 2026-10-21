@@ -15,6 +15,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── docs/modules/             # 00-11 deep dives (placement, service model, lifecycle, codegen,
 │                             #   manifest, bus, transport, walkthrough, record, observability, media base)
 ├── docs/stage-{1,2,3,4}-plan.md # PLANS OF RECORD: S1-S3 closed, S4 = INFRA volume (D93: M1+M2 landed, acceptance open)
+├── docs/stage-5-plan.md        # wave-2 ledger target: D96 hearing + N1 LANDED / N2 not open
 ├── docs/capability-ledger.md # embed/plugin verb capability map (check-capability-ledger leg)
 ├── docs/codegraph-bootstrap.md # codegraph MCP index bootstrap note
 ├── docs/reference/           # external profiles + audits (roster: its README.md; 00 §4 maintainer register)

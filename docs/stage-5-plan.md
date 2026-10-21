@@ -33,14 +33,19 @@
 
 ## 2. Landing split (lane shape per the C++-4 risk-split precedent; NOT open)
 
-- **N1 - the door**: `HostAbiV2` (append-only in abi.rs; existing lines zero-touched),
-  HELLO capability field (proto tail-add + fdset regen-diff), the four mailbox verbs
-  for in-process (dl) plugins, codegen v2 face + goldens, fixtures + unit gates
-  (parity mirror grows a v2 trio, tripwire, capability-ledger rows).
-- **N2 - the crossing**: the two wire talkers in proc_wire/proc_supervisor + the
-  child-side shadow queue, subscribe-snapshot + self-echo frames, the wall-
-  transparency dual-suite (same assertions in-process vs across), demo legs
-  (planted-red sabotage hooks, C0), fresh-tree ctest counts (PIT-17).
+- **N1 - the door**: LANDED 2026-10-21. `HostAbiV2` (v1 prefix byte-identical + four
+  mailbox slots; abi.rs 111/0, kernel.rs 14/0, executor.rs 39/0 - pure insertions,
+  frozen audit by the orchestrator), plugin.h mirror (52/0), v2 trio parity leg,
+  HOST2 ledger rows (47), fixtures busv2/liar + door suite, codegen pluginface emitter
+  (C++ Host view, bus forwarders behind a size-guard; golden via banner recipe).
+  Numbers orchestrator re-measured: 231 tests / 50 suites, check.sh all green,
+  four v1 demo legs PASS, planted reds 4x logged. Scope correction recorded here:
+  the HELLO capability field is WIRE-side - N2 owns it (in-process needs no proto).
+- **N2 - the crossing**: NOT OPEN (go order owed). The two wire talkers in
+  proc_wire/proc_supervisor + HELLO capability proto tail-add + the child-side shadow
+  queue, subscribe-snapshot + self-echo frames, the wall-transparency dual-suite
+  (same assertions in-process vs across), demo legs (planted-red sabotage hooks, C0),
+  fresh-tree ctest counts (PIT-17).
 - Done-when per lane mirrors the M-lane grammar exactly: red-planted hooks, ledgers
   and parity move with the table, orchestrator re-measures independently (PIT-14).
 
