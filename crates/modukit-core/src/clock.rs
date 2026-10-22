@@ -202,6 +202,27 @@ impl Clock {
         lock_timers(&self.inner).due.values().map(Vec::len).sum()
     }
 
+    /// Wave-2 T1 (D99 R4-A): the ONLY cancel path - drop pending jobs whose
+    /// token is in `tokens` (the kernel's stop/uninstall release feeds this
+    /// from the per-plugin register; the authority-law grammar lives in
+    /// `kernel.rs`, this is the mechanism). Scans the due buckets; a job
+    /// already collected by `advance`/`due_jobs` is gone regardless. Returns
+    /// the number removed - introspection for the census, never enforcement.
+    pub(crate) fn remove_by_tokens(&self, tokens: &[u64]) -> usize {
+        if tokens.is_empty() {
+            return 0;
+        }
+        let mut timers = lock_timers(&self.inner);
+        let mut removed = 0usize;
+        timers.due.retain(|_deadline, bucket| {
+            let before = bucket.len();
+            bucket.retain(|job| !tokens.contains(&job.token.value()));
+            removed += before - bucket.len();
+            !bucket.is_empty()
+        });
+        removed
+    }
+
     fn collect_due(&self, now_ns: u64) -> Vec<DueJob> {
         let mut timers = lock_timers(&self.inner);
         let crossed: Vec<u64> = timers.due.range(..=now_ns).map(|(k, _)| *k).collect();

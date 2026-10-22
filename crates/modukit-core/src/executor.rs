@@ -231,6 +231,12 @@ impl DlopenPlugin {
         if desc.abi_version == crate::abi::ABI_VERSION_V2 {
             return Self::validate_v2(desc);
         }
+        // Wave-2 T1 v3 door (D99 R2): a declared major 3 asks for the
+        // HostAbiV3 table. Purely additive - mirrors the v2 arm above, so
+        // any other liar major still lands AbiMismatch unchanged.
+        if desc.abi_version == crate::abi::ABI_VERSION_V3 {
+            return Self::validate_v3(desc);
+        }
         if desc.abi_version != ABI_VERSION {
             return Err(KernelError::AbiMismatch {
                 expected: ABI_VERSION,
@@ -256,6 +262,26 @@ impl DlopenPlugin {
     /// is host-side only, D96 ruling 2), so the size/pointer guards are the
     /// v1 ones; only the version-equality guard becomes declared-major 2.
     fn validate_v2(desc: &PluginAbiV1) -> Result<(), KernelError> {
+        if desc.size < PluginAbiV1::expected_size() {
+            return Err(KernelError::DescriptorTooSmall {
+                expected: PluginAbiV1::expected_size(),
+                found: desc.size,
+            });
+        }
+        if desc.start.is_none() {
+            return Err(KernelError::HandshakeIncomplete { what: "start" });
+        }
+        if desc.stop.is_none() {
+            return Err(KernelError::HandshakeIncomplete { what: "stop" });
+        }
+        Ok(())
+    }
+
+    /// v3 door guards (D99 R2): the descriptor shape is unchanged (the
+    /// THIRD table is host-side only, recursing the D96 ruling-2 shape),
+    /// so the size/pointer guards are the v1/v2 ones; only the version-
+    /// equality guard becomes declared-major 3.
+    fn validate_v3(desc: &PluginAbiV1) -> Result<(), KernelError> {
         if desc.size < PluginAbiV1::expected_size() {
             return Err(KernelError::DescriptorTooSmall {
                 expected: PluginAbiV1::expected_size(),
@@ -365,5 +391,126 @@ impl LoadedPlugin for DlopenPlugin {
             return Err(KernelError::PluginStartFailed { status });
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod v3_door_guard_tests {
+    //! The liar cells of the wave-2 T1 plan §1, plus the exe interim pin,
+    //! over the ONE shared guard sequence (`validate` via
+    //! `open_validated` - the same door the child runner walks through
+    //! `probe_self_report`, modukit-runtime/src/main.rs). Unit-level here
+    //! because the shapes are pure descriptor arithmetic: no artifact is
+    //! needed to prove what a false major 3 means at either door.
+
+    use super::*;
+
+    unsafe extern "C" fn stub_start(_host: *const HostAbiV1) -> i32 {
+        0
+    }
+
+    unsafe extern "C" fn stub_stop() -> i32 {
+        0
+    }
+
+    fn desc(abi_version: u32, size: u32, start: bool, stop: bool) -> PluginAbiV1 {
+        PluginAbiV1 {
+            abi_version,
+            size,
+            name: std::ptr::null(),
+            id: std::ptr::null(),
+            version: std::ptr::null(),
+            start: if start { Some(stub_start) } else { None },
+            stop: if stop { Some(stub_stop) } else { None },
+        }
+    }
+
+    #[test]
+    fn declared_major_3_valid_descriptor_passes_the_shared_door() {
+        assert!(
+            DlopenPlugin::validate(&desc(
+                crate::abi::ABI_VERSION_V3,
+                PluginAbiV1::expected_size(),
+                true,
+                true,
+            ))
+            .is_ok()
+        );
+    }
+
+    #[test]
+    fn false_major_3_keeps_the_descriptor_too_small_shape() {
+        let err = DlopenPlugin::validate(&desc(
+            crate::abi::ABI_VERSION_V3,
+            PluginAbiV1::expected_size() - 1,
+            true,
+            true,
+        ))
+        .expect_err("a short v3 descriptor must be refused");
+        assert!(
+            matches!(err, KernelError::DescriptorTooSmall { .. }),
+            "{err}"
+        );
+    }
+
+    #[test]
+    fn false_major_3_keeps_the_handshake_incomplete_shapes() {
+        for (start, stop, what) in [(false, true, "start"), (true, false, "stop")] {
+            let err = DlopenPlugin::validate(&desc(
+                crate::abi::ABI_VERSION_V3,
+                PluginAbiV1::expected_size(),
+                start,
+                stop,
+            ))
+            .expect_err("a null lifecycle slot must be refused");
+            assert!(
+                matches!(&err, KernelError::HandshakeIncomplete { what: w } if *w == what),
+                "{err}",
+            );
+        }
+    }
+
+    #[test]
+    fn unknown_major_4_stays_abi_mismatch_at_the_same_door() {
+        // The v3 arm does not swallow the liar guard: an unknown major 4
+        // falls through to the equality check exactly as majors 3-pre-T1
+        // and 99 did before it (plan §1: the guard already returns it).
+        let err = DlopenPlugin::validate(&desc(4, PluginAbiV1::expected_size(), true, true))
+            .expect_err("major 4 is not a door this host publishes");
+        assert!(
+            matches!(
+                err,
+                KernelError::AbiMismatch {
+                    expected: ABI_VERSION,
+                    found: 4
+                }
+            ),
+            "{err}"
+        );
+    }
+
+    /// PINNED behavior, plan §1 exe item (review recast): the child runner
+    /// loads through this SAME shared `validate` that T1 opens, so a v3
+    /// plugin in an exe child passes the child's door and schedules on the
+    /// child's own D74 clock BY CONSTRUCTION (R5-A local semantics). The
+    /// honest T1 interim: child-local bells reach child-local subscribers
+    /// only - the due-site bridge routing (parent->child and child->parent
+    /// crossing) is lane T2, which also flips this pin. There is no
+    /// refusal anywhere on the exe arm and the HELLO abi field is the
+    /// runner's own self-report (=1), never the plugin's declared major.
+    #[test]
+    fn exe_interim_pin_shared_door_accepts_v3_and_no_refusal_exists() {
+        // The same acceptance asserted above IS the pin: the shared door
+        // opens v3 for the child runner too, and nothing on the exe arm
+        // refuses or truncates a declared major 3.
+        assert!(
+            DlopenPlugin::validate(&desc(
+                crate::abi::ABI_VERSION_V3,
+                PluginAbiV1::expected_size(),
+                true,
+                true,
+            ))
+            .is_ok()
+        );
     }
 }

@@ -208,6 +208,63 @@ typedef struct modukit_host_abi_v2 {
     modukit_bus_unsubscribe_fn_t bus_unsubscribe;
 } modukit_host_abi_v2;
 
+/* ------------------------------------------------------------------ */
+/* Wave-2 T1 v3 clock door (D99 R2) - append-only below. A plugin that
+ * declares abi_version = MODUKIT_ABI_VERSION_V3 in its PluginAbiV1
+ * descriptor is handed a `modukit_host_abi_v3` table at start: the
+ * byte-identical v2 prefix (which is itself the v1 prefix) plus the two
+ * timer slots at the tail (D99 R1-B/R3-A). HostAbiV1/HostAbiV2 and every
+ * guard above are untouched; a v1/v2 host never publishes this table. */
+
+/* Host-side ABI major v3; mirrors `abi::ABI_VERSION_V3`. The door accepts
+ * declared majors 1, 2 and 3; anything else stays ABI_MISMATCH at RESOLVING
+ * (the liar guard is unchanged, D87/D96/D99). */
+#define MODUKIT_ABI_VERSION_V3 3u
+
+/* Timer slots (mirrors `abi::TimerScheduleFn` / `abi::ClockNowFn`, D99
+ * R3-A): `user` is the HostAbiV3 user context returned verbatim; status
+ * is the negated-D51 int channel (D27/D51). `timer_schedule` takes an
+ * ABSOLUTE deadline in the same monotonic-nanos domain `clock_now`
+ * answers (D20 one water source), a NUL-terminated message-shaped job
+ * label (D6), and writes the correlation token (u64, clock.rs JobToken
+ * mirror) through `out_token`; `clock_now` writes the kernel clock stamp
+ * (i64, saturating) through `out_now_ns`. A NULL out-param or NULL label
+ * answers negated SCHEMA_INVALID and schedules nothing; there is NO
+ * cancel verb (D99 §3) - the kernel releases a plugin's tokens at
+ * stop/uninstall by its own authority law, and a fired job rings on the
+ * per-plugin bus topic `org.modukit.timer.<plugin-id>` (payload token
+ * u64 LE ++ label UTF-8, Lossy(16) - read it with the mailbox verbs). */
+typedef int32_t (*modukit_timer_schedule_fn_t)(void *user, uint64_t deadline_ns,
+                                               const char *job_label,
+                                               uint64_t *out_token);
+typedef int32_t (*modukit_clock_now_fn_t)(void *user, int64_t *out_now_ns);
+
+/* HostAbiV3 - the v3 host table (mirrors `abi::HostAbiV3`). The seven v2
+ * fields keep their exact order and types, so the table doubles as a valid
+ * `modukit_host_abi_v2` (and through it `modukit_host_abi_v1`) prefix;
+ * a plugin reads the timer slots only after checking
+ * `size >= sizeof(modukit_host_abi_v3)`. */
+typedef struct modukit_host_abi_v3 {
+    /* abi::HostAbiV3.size - table size (>= the v2 size for a real v3). */
+    uint32_t size;
+    /* abi::HostAbiV3.user - opaque kernel-side context, verbatim to slots. */
+    void *user;
+    /* abi::HostAbiV3.register_service - the v1 slot, unchanged semantics. */
+    modukit_register_service_fn_t register_service;
+    /* abi::HostAbiV3.bus_publish - the v2 slot, unchanged semantics. */
+    modukit_bus_publish_fn_t bus_publish;
+    /* abi::HostAbiV3.bus_subscribe - the v2 slot, unchanged semantics. */
+    modukit_bus_subscribe_fn_t bus_subscribe;
+    /* abi::HostAbiV3.bus_recv - the v2 slot, unchanged semantics. */
+    modukit_bus_recv_fn_t bus_recv;
+    /* abi::HostAbiV3.bus_unsubscribe - the v2 slot, unchanged semantics. */
+    modukit_bus_unsubscribe_fn_t bus_unsubscribe;
+    /* abi::HostAbiV3.timer_schedule - schedule one absolute-deadline job. */
+    modukit_timer_schedule_fn_t timer_schedule;
+    /* abi::HostAbiV3.clock_now - the plugin's read of the kernel clock. */
+    modukit_clock_now_fn_t clock_now;
+} modukit_host_abi_v3;
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

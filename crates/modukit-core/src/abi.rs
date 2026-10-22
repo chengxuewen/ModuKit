@@ -24,6 +24,12 @@ pub const ABI_VERSION: u32 = 1;
 /// `ABI_VERSION` and every v1 line above stay byte-identical (D87 STABLE).
 pub const ABI_VERSION_V2: u32 = 2;
 
+/// Host-side ABI major v3 (D99 R2): a plugin declaring this major is
+/// handed the `HostAbiV3` table (the v2 prefix byte-identical in front plus
+/// the two timer slots at the tail). `ABI_VERSION`, `ABI_VERSION_V2` and
+/// every v1/v2 line above stay byte-identical (D87/D96 STABLE precedent).
+pub const ABI_VERSION_V3: u32 = 3;
+
 /// The single exported entry symbol (04 §3 symbol discipline).
 pub const ENTRY_SYMBOL: &[u8] = b"modukit_plugin_init\0";
 
@@ -278,5 +284,83 @@ impl HostAbiV2 {
     pub fn bus_unsubscribe(&self, queue_id: i32) -> i32 {
         // SAFETY: slot is kernel-published non-null on a v2 table.
         unsafe { (self.bus_unsubscribe)(self.user, queue_id) }
+    }
+}
+
+// --- Wave-2 T1 v3 clock door (D99 R2): append-only surface below. -------
+
+/// Timer verb (D99 R3-A, mirroring `Clock::timer` exactly): schedule one
+/// absolute-deadline job; answers 0 or a negated D51 code and writes the
+/// correlation token (`JobToken` mirror, clock.rs) through `out_token`.
+/// The token never re-fires once the plugin stops: the kernel's register
+/// release (D99 R4-A) is authority-law grammar kernel-side, not a verb.
+pub type TimerScheduleFn = unsafe extern "C" fn(
+    user: *mut c_void,
+    deadline_ns: u64,
+    job_label: *const c_char,
+    out_token: *mut u64,
+) -> i32;
+
+/// Clock-read verb (D99 R1-B): the plugin's view of the kernel's one clock
+/// (D20); mirrors the embed face `modukit_clock_now` shape (out-param i64,
+/// status int channel). `Step`/`Sim` domains: the dial so far; `Real`:
+/// monotonic nanos since host start.
+pub type ClockNowFn = unsafe extern "C" fn(user: *mut c_void, out_now_ns: *mut i64) -> i32;
+
+/// The host table handed to a plugin that declared `ABI_VERSION_V3`
+/// (D99 R2: a THIRD table, negotiated by declared major; `HostAbiV1` and
+/// `HostAbiV2` stay frozen). The seven v2 fields keep their exact order and
+/// types so the table doubles as a valid `HostAbiV2` (and through it
+/// `HostAbiV1`) prefix (offsets pinned by the `abi_v3_door` layout test);
+/// a v3 plugin reads the two timer slots after checking
+/// `size >= HostAbiV3::expected_size()`. Same borrowed-for-the-`start`-call
+/// authority law as v1/v2 (01 §3 rule 2).
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+pub struct HostAbiV3 {
+    pub size: u32,
+    /// Opaque kernel-side context, returned to the callbacks verbatim.
+    pub user: *mut c_void,
+    pub register_service: RegisterServiceFn,
+    pub bus_publish: BusPublishFn,
+    pub bus_subscribe: BusSubscribeFn,
+    pub bus_recv: BusRecvFn,
+    pub bus_unsubscribe: BusUnsubscribeFn,
+    pub timer_schedule: TimerScheduleFn,
+    pub clock_now: ClockNowFn,
+}
+
+impl HostAbiV3 {
+    /// The exact compiled size a conforming v3 host must publish in `size`.
+    #[must_use]
+    pub const fn expected_size() -> u32 {
+        size_of::<HostAbiV3>() as u32
+    }
+
+    // Sugar for Rust plugins only (D63: sugar lives plugin-side, never a
+    // contract direction) - thin safe views over the two new table slots;
+    // the v2-prefix views stay on `HostAbiV2` (the prefix read is legal on
+    // a v3 table by the repr(C) layout pinned in the door layout test).
+
+    /// Schedule one absolute-deadline job (`deadline_ns` rides the same
+    /// monotonic nanos as `clock_now`); answers the correlation token or a
+    /// negated D51 code.
+    pub fn timer_schedule(&self, deadline_ns: u64, label: &std::ffi::CStr) -> Result<u64, i32> {
+        let mut token = 0u64;
+        // SAFETY: slots are kernel-published non-null on a v3 table; label
+        // is NUL-terminated; `token` is a live local for the out-param.
+        let status = unsafe {
+            (self.timer_schedule)(self.user, deadline_ns, label.as_ptr(), &raw mut token)
+        };
+        if status >= 0 { Ok(token) } else { Err(status) }
+    }
+
+    /// The kernel clock's current stamp (nanos, same domain as the
+    /// deadlines accepted by `timer_schedule`).
+    pub fn clock_now(&self) -> Result<i64, i32> {
+        let mut now = 0i64;
+        // SAFETY: as above; `now` is a live local for the out-param.
+        let status = unsafe { (self.clock_now)(self.user, &raw mut now) };
+        if status >= 0 { Ok(now) } else { Err(status) }
     }
 }

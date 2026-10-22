@@ -125,3 +125,36 @@ are the guard's data, not verbs, so they read `header`). Proof chain:
 | `bus_subscribe` (HostAbiV2 verb) | header | generated | native | planned |
 | `bus_recv` (HostAbiV2 verb) | header | generated | native | planned |
 | `bus_unsubscribe` (HostAbiV2 verb) | header | generated | native | planned |
+## D. Plugin-side v3 clock door - HostAbiV3 slots (Wave-2 T1, D99 R2/R3/R4)
+
+The THIRD host table, negotiated by declared ABI major: the byte-identical
+v2 prefix (section C) plus the two timer slots at the tail; the v1/v2 tables
+stay frozen above (D87/D96). Row keys mirror the `abi::HostAbiV3` field
+names (`HOST3_ABI_FIELDS` in `embed_abi.rs`);
+`scripts/check-capability-ledger.sh` requires one row per HOST3 field
+(same existence-only rule as sections A/C - the ordered layout truth lives
+in the parity gate). Rust column: `abi.rs` table + `host_v3.rs` door
+trampolines over the kernel's `Clock` (`clock.rs`), with the due bell
+posted at the ONE due-funnel `wiring.rs::post_jobs` onto the per-plugin
+topic `org.modukit.timer.<plugin-id>` (token LE ++ label, `Lossy(16)`,
+late-join replay pinned) and the authority-law token release at
+stop/uninstall (`kernel.rs`). The seven prefix rows repeat here because
+they are HostAbiV3's fields too - the C++ `generated` column rides the
+same v2 trampolines. C++ `generated` =
+`crates/modukit-codegen/testdata/golden/modukit_plugin.hpp` (one forwarding
+method per parsed slot, the timer pair behind the v3 size guard; `size`/
+`user` are the guard's data, not verbs, so they read `header`). Proof
+chain: `test-plugins/timerv3-plugin` +
+`crates/modukit-core/tests/abi_v3_door.rs`.
+
+| Capability | C | C++ | Rust | Python |
+|---|---|---|---|---|
+| `size` (HostAbiV3 slot) | header | header | native | planned |
+| `user` (HostAbiV3 context) | header | header | native | planned |
+| `register_service` (HostAbiV3 slot) | header | generated | native | planned |
+| `bus_publish` (HostAbiV3 slot) | header | generated | native | planned |
+| `bus_subscribe` (HostAbiV3 slot) | header | generated | native | planned |
+| `bus_recv` (HostAbiV3 slot) | header | generated | native | planned |
+| `bus_unsubscribe` (HostAbiV3 slot) | header | generated | native | planned |
+| `timer_schedule` (HostAbiV3 verb) | header | generated | native | planned |
+| `clock_now` (HostAbiV3 verb) | header | generated | native | planned |

@@ -17,6 +17,7 @@
 
 use std::collections::HashMap;
 use std::ffi::{c_char, c_void};
+use std::sync::Mutex;
 
 use crate::abi::{
     BusPublishFn, BusRecvFn, BusSubscribeFn, BusUnsubscribeFn, HostAbiV1, HostAbiV2, NativeService,
@@ -24,10 +25,11 @@ use crate::abi::{
 };
 use crate::bus::Bus;
 use crate::bus::Receiver as BusReceiver;
+use crate::clock::Clock;
 use crate::embed_codec as codec;
 use crate::error::KernelError;
 use crate::executor::LoadedPlugin;
-use crate::identity::TopicId;
+use crate::identity::{PluginId, TopicId};
 use crate::registry::{Properties, PropertyValue, RegistrationId, Registry};
 
 /// One mailbox: the bus receiver plus the embed-face `pending` slot (a probe
@@ -39,10 +41,10 @@ struct Mailbox {
 
 /// The `user` context behind every v2 slot. Lives on `start_v2`'s stack for
 /// the duration of the plugin's `start` call (the v1 `ActivationSink` law).
-struct V2Context<'a> {
+pub(crate) struct V2Context<'a> {
     registry: &'a Registry,
     bus: &'a Bus,
-    registered: Vec<RegistrationId>,
+    pub(crate) registered: Vec<RegistrationId>,
     /// Queue id -> mailbox. Ids are positive, issued from 1 (embed-face
     /// rule `id <= 0` answers QUOTA_EXCEEDED).
     queues: HashMap<i32, Mailbox>,
@@ -50,6 +52,12 @@ struct V2Context<'a> {
     /// upstream-interest bookkeeping need the topic behind each box.
     queue_topics: HashMap<i32, TopicId>,
     next_queue: i32,
+    /// Wave-2 T1 v3 door additions (D99): filled only on a `start_v3`
+    /// hand (`v3_context`); a v2 start keeps them `None` and the v2 path
+    /// never reads them.
+    pub(crate) clock: Option<Clock>,
+    pub(crate) plugin_id: Option<PluginId>,
+    pub(crate) plugin_timers: Option<&'a Mutex<HashMap<u64, PluginId>>>,
 }
 
 /// Borrow a caller NUL-string and parse it as a canonical topic id
@@ -67,7 +75,7 @@ fn topic_arg(ptr: *const c_char) -> Option<TopicId> {
 /// # Safety
 /// `user` must be a live `&mut V2Context` from `start_v2` (kernel-owned,
 /// valid for the whole `start` call); `service_id` a readable NUL string.
-unsafe extern "C" fn trampoline_register_service(
+pub(crate) unsafe extern "C" fn trampoline_register_service(
     user: *mut c_void,
     service_id: *const c_char,
     call: ServiceCallFn,
@@ -93,7 +101,7 @@ unsafe extern "C" fn trampoline_register_service(
 
 /// The v2 `bus_publish` slot (mirrors `modukit_bus_publish`): broadcast,
 /// never blocks; 0 or negated SCHEMA_INVALID on bad input shape.
-unsafe extern "C" fn trampoline_bus_publish(
+pub(crate) unsafe extern "C" fn trampoline_bus_publish(
     user: *mut c_void,
     topic: *const c_char,
     qos: i32,
@@ -130,7 +138,7 @@ unsafe extern "C" fn trampoline_bus_publish(
 
 /// The v2 `bus_subscribe` slot (mirrors `modukit_bus_subscribe`): answers
 /// the queue id; a deferred QoS refuses DEFERRAL_DECLINED(26).
-unsafe extern "C" fn trampoline_bus_subscribe(
+pub(crate) unsafe extern "C" fn trampoline_bus_subscribe(
     user: *mut c_void,
     topic: *const c_char,
     out_queue_id: *mut i32,
@@ -175,7 +183,7 @@ unsafe extern "C" fn trampoline_bus_subscribe(
 /// 0 with `*out_len = 0`; NULL `out_value` is a size query that does NOT
 /// consume; too-small cap reports the need through `*out_len` and answers
 /// negated QUOTA_EXCEEDED; an unknown queue id is negated NOT_FOUND.
-unsafe extern "C" fn trampoline_bus_recv(
+pub(crate) unsafe extern "C" fn trampoline_bus_recv(
     user: *mut c_void,
     queue_id: i32,
     out_value: *mut u8,
@@ -241,7 +249,10 @@ unsafe extern "C" fn trampoline_bus_recv(
 
 /// The v2 `bus_unsubscribe` slot (mirrors `modukit_bus_unsubscribe`):
 /// releases the queue id (a later recv answers negated NOT_FOUND).
-unsafe extern "C" fn trampoline_bus_unsubscribe(user: *mut c_void, queue_id: i32) -> i32 {
+pub(crate) unsafe extern "C" fn trampoline_bus_unsubscribe(
+    user: *mut c_void,
+    queue_id: i32,
+) -> i32 {
     // SAFETY: `user` is the live `&mut V2Context` (slot contract).
     let ctx = unsafe { &mut *(user.cast::<V2Context<'_>>()) };
     // Stage-5 N2: the box's topic leaves the upstream interest when it is
@@ -277,6 +288,9 @@ pub(crate) fn start_v2(
         queues: HashMap::new(),
         queue_topics: HashMap::new(),
         next_queue: 1,
+        clock: None,
+        plugin_id: None,
+        plugin_timers: None,
     };
     let table = HostAbiV2 {
         size: HostAbiV2::expected_size(),
@@ -293,4 +307,30 @@ pub(crate) fn start_v2(
     // widening — a v1-shaped reader sees a valid HostAbiV1.
     let started = handle.start(std::ptr::from_ref(&table).cast::<HostAbiV1>());
     (started, ctx.registered)
+}
+
+/// The `user` context behind a v3 hand (wave-2 T1): a full v2 mailbox
+/// context with the door additions set - the v3 table REUSES the v2
+/// register/bus trampolines verbatim (D99 plan §1: same `user` type,
+/// one authority law), so the v3 door and the v2 door share one
+/// context shape. Lives on `start_v3`'s stack for the duration of the
+/// plugin's `start` call (01 §3 rule 2, unchanged).
+pub(crate) fn v3_context<'a>(
+    registry: &'a Registry,
+    bus: &'a Bus,
+    clock: Clock,
+    plugin_id: PluginId,
+    plugin_timers: &'a Mutex<HashMap<u64, PluginId>>,
+) -> V2Context<'a> {
+    V2Context {
+        registry,
+        bus,
+        registered: Vec::new(),
+        queues: HashMap::new(),
+        queue_topics: HashMap::new(),
+        next_queue: 1,
+        clock: Some(clock),
+        plugin_id: Some(plugin_id),
+        plugin_timers: Some(plugin_timers),
+    }
 }

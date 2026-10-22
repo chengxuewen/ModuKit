@@ -66,4 +66,18 @@ done < "$tmp/host2.txt"
 if [ "$missing" -eq 0 ]; then
   echo "check-capability-ledger: ok ($(wc -l < "$tmp/host2.txt") rows cover HOST2_ABI_FIELDS)"
 fi
+# Section D (T1): every HOST3_ABI_FIELDS entry needs a ledger row too.
+sed -n '/^pub const HOST3_ABI_FIELDS:/,/^\];/p' "$MIRROR" \
+  | grep -oE '"[a-z_][a-z0-9_]+"' | tr -d '"' | sort > "$tmp/host3.txt"
+if [ ! -s "$tmp/host3.txt" ]; then
+  echo "check-capability-ledger: RED (HOST3_ABI_FIELDS extraction empty - anchor drift?)"
+  exit 1
+fi
+while IFS= read -r field; do
+  grep -qxF "$field" "$tmp/rows.txt" || { echo "check-capability-ledger: RED (HostAbiV3 row missing: $field)"; missing=1; }
+done < "$tmp/host3.txt"
+
+if [ "$missing" -eq 0 ]; then
+  echo "check-capability-ledger: ok ($(wc -l < "$tmp/host3.txt") rows cover HOST3_ABI_FIELDS)"
+fi
 exit "$missing"

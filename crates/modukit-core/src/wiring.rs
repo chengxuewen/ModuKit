@@ -8,7 +8,7 @@
 
 use std::any::Any;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, PoisonError};
 
 use crate::bus::Bus;
 use crate::clock::Clock;
@@ -94,6 +94,7 @@ impl Kernel {
             edges,
             executor,
             plugins,
+            plugin_timers: Mutex::new(HashMap::new()),
             contract_ledger,
         }
     }
@@ -158,12 +159,46 @@ impl Kernel {
     fn post_jobs(&self, due: Vec<crate::clock::DueJob>) -> Vec<u64> {
         due.into_iter()
             .map(|j| {
-                self.obs.emit(crate::events::ObsEvent::TimerDone {
+                let seq = self.obs.emit(crate::events::ObsEvent::TimerDone {
                     token: j.token.value(),
-                    job: j.job,
-                })
+                    job: j.job.clone(),
+                });
+                self.post_timer_bell(&j);
+                seq
             })
             .collect()
+    }
+
+    /// Wave-2 T1 (D99 R4-A/R5-A): the per-plugin bell at the ONE due-funnel.
+    /// Every dial/poll doorway (`post_due_jobs`/`advance_clock`/
+    /// `dial_clock`) passes through `post_jobs`, so this is the only place a
+    /// plugin token can be answered on the bus. Host-owned timers keep the
+    /// `TimerDone` ring posting above EXACTLY as today; the bus publish is
+    /// additive and scoped to registered plugin tokens. `bus.publish` touches
+    /// only bus internals and never re-enters the registry/kernel locks (the
+    /// deadlock class plan §5 names), and it never blocks (bus commandment 3).
+    fn post_timer_bell(&self, job: &crate::clock::DueJob) {
+        let Some(plugin_id) = self
+            .plugin_timers
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .get(&job.token.value())
+            .cloned()
+        else {
+            return; // host-owned timer: ring posting only, never a bell.
+        };
+        // The T1 test lever (plan §4.2): read at EXACTLY this one site; it
+        // skips the bus post and nothing else, so the door suite's recv
+        // assertion goes red while the TimerDone ring stays honest.
+        if std::env::var_os("MODUKIT_TIMER_BELL_SABOTAGE").is_some() {
+            return;
+        }
+        let topic =
+            crate::identity::TopicId::new(format!("org.modukit.timer.{}", plugin_id.as_str()));
+        let mut payload = job.token.value().to_le_bytes().to_vec();
+        payload.extend_from_slice(job.job.as_bytes());
+        self.bus
+            .publish(&topic, crate::topic::QoS::Lossy(16), payload);
     }
 
     /// Post timer jobs that became due (the `Real` domain's poll doorway):

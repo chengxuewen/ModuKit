@@ -61,6 +61,12 @@ pub struct Kernel {
     /// Contract-ledger (fdset, D12) bytes this host booted with — the M7
     /// seam closing the M6 deferral; read back by `LedgerDump` byte-equal.
     pub(crate) contract_ledger: Arc<Mutex<Vec<u8>>>,
+    /// Wave-2 T1 (D99 R4-A): the per-plugin timer register - token -> the
+    /// plugin that scheduled it. Filled by the v3 `timer_schedule` door;
+    /// read by `post_jobs` to scope the bus bell to registered plugin
+    /// tokens; drained at stop/uninstall by `release_plugin_timers` (the
+    /// "token never re-fires" census). Host-owned timers are NOT in it.
+    pub(crate) plugin_timers: Mutex<HashMap<u64, PluginId>>,
 }
 
 fn lock(
@@ -305,6 +311,27 @@ impl Kernel {
             return self.mv(record, id, PluginState::Active);
         }
 
+        // Wave-2 T1 v3 clock door (D99 R2): a plugin that declared major 3
+        // is handed the HostAbiV3 table (wiring in host_v3.rs; its
+        // timer_schedule slot fills the plugin-timer register below).
+        // Purely additive - the v2 branch above stays byte-identical.
+        if handle.abi_major() == crate::abi::ABI_VERSION_V3 {
+            let (started, registered) = crate::host_v3::start_v3(
+                &mut **handle,
+                &self.registry,
+                &self.bus,
+                self.clock.clone(),
+                id.clone(),
+                &self.plugin_timers,
+            );
+            record.registrations.extend(registered);
+            if let Err(err) = started {
+                self.mv(record, id, PluginState::Failed)?;
+                return Err(err);
+            }
+            return self.mv(record, id, PluginState::Active);
+        }
+
         let mut sink = ActivationSink {
             registry: &self.registry,
             registered: Vec::new(),
@@ -356,6 +383,10 @@ impl Kernel {
                 last_err = Some(e);
             }
         }
+        // Wave-2 T1 (D99 R4-A): the authority-law release - this plugin's
+        // registered tokens leave the clock and the register at stop, so a
+        // stopped plugin's timer can never re-fire (the door-suite census).
+        self.release_plugin_timers(id);
         match (stopped, last_err) {
             (Ok(()), None) => self.mv(record, id, PluginState::Resolved),
             (Err(err), _) => {
@@ -383,6 +414,9 @@ impl Kernel {
                 return Err(e.into());
             }
         }
+        // Wave-2 T1 (D99 R4-A): same release at the uninstall door (a stop
+        // already drained it for a stopped plugin; the pairs are idempotent).
+        self.release_plugin_timers(id);
         // Drop the handle before the state move so the artifact is released
         // exactly once.
         record.handle = None;
@@ -398,6 +432,31 @@ impl Kernel {
         let table = lock(&self.plugins);
         let record = table.get(id).ok_or_else(|| unknown(id))?;
         Ok(record.machine.state())
+    }
+
+    /// Wave-2 T1 (D99 R4-A): the authority-law release at stop/uninstall -
+    /// drop the plugin's tokens from the register AND from the clock, so a
+    /// stopped or uninstalled plugin's timer can never re-fire. Kernel-side
+    /// grammar, not an ABI verb: there is no cancel slot (D99 §3 non-
+    /// decision). Returns nothing by design - the census is observable on
+    /// `clock.pending_timers()` and the bus, not through this door.
+    fn release_plugin_timers(&self, id: &PluginId) {
+        let mut owned: Vec<u64> = Vec::new();
+        {
+            let mut register = self
+                .plugin_timers
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner);
+            register.retain(|token, pid| {
+                if pid == id {
+                    owned.push(*token);
+                    false
+                } else {
+                    true
+                }
+            });
+        }
+        self.clock.remove_by_tokens(&owned);
     }
 }
 

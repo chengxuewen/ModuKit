@@ -1,0 +1,14 @@
+[package]
+name = "timerv3-plugin"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Wave-2 T1 v3 fixture - declares ABI major 3 and drives the timer_schedule/clock_now door plus the v2-prefix mailbox through the HostAbiV3 table (D99)"
+
+[lib]
+name = "timerv3_plugin"
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+modukit-core = { version = "0.1.0", path = "../../crates/modukit-core" }

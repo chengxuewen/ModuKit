@@ -103,6 +103,8 @@ check_table PluginAbiV1 modukit_plugin_abi_v1 PLUGIN_ABI_FIELDS
 check_table HostAbiV1 modukit_host_abi_v1 HOST_ABI_FIELDS
 # Stage-5 N1 v2 door (D96 ruling 2): the second host table joins the trio.
 check_table HostAbiV2 modukit_host_abi_v2 HOST2_ABI_FIELDS
+# Wave-2 T1 v3 clock door (D99 R2): the third host table joins the trio.
+check_table HostAbiV3 modukit_host_abi_v3 HOST3_ABI_FIELDS
 
 # Version pin: both sides must read the same major integer.
 rust_ver=$(sed -n 's/^pub const ABI_VERSION: u32 = \([0-9]\{1,\}\);$/\1/p' "$ABI")
@@ -117,6 +119,14 @@ rust_ver2=$(sed -n 's/^pub const ABI_VERSION_V2: u32 = \([0-9]\{1,\}\);$/\1/p' "
 c_ver2=$(sed -n 's/^#define MODUKIT_ABI_VERSION_V2 \([0-9]\{1,\}\)[a-z]*$/\1/p' "$PLUGIN_HEADER")
 if [ -z "$rust_ver2" ] || [ "$rust_ver2" != "$c_ver2" ]; then
   echo "check-embed-parity: RED (ABI_VERSION_V2=$rust_ver2 vs MODUKIT_ABI_VERSION_V2=$c_ver2)"
+  fail=1
+fi
+
+# v3 version pin (T1): the declared-major-3 constant mirrors the same way.
+rust_ver3=$(sed -n 's/^pub const ABI_VERSION_V3: u32 = \([0-9]\{1,\}\);$/\1/p' "$ABI")
+c_ver3=$(sed -n 's/^#define MODUKIT_ABI_VERSION_V3 \([0-9]\{1,\}\)[a-z]*$/\1/p' "$PLUGIN_HEADER")
+if [ -z "$rust_ver3" ] || [ "$rust_ver3" != "$c_ver3" ]; then
+  echo "check-embed-parity: RED (ABI_VERSION_V3=$rust_ver3 vs MODUKIT_ABI_VERSION_V3=$c_ver3)"
   fail=1
 fi
 
