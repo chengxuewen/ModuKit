@@ -3,7 +3,9 @@
 > STATUS: HEARING HELD 2026-10-21 - the v2 plugin-facing bus door was ruled six-by-A
 > on maintainer word ("open the hearing", agenda letter 4); ledger record D96.
 > Implementation lanes below are SPEC'd, not open - each needs its own go order.
-> The schedule-timer agenda stays armed in `docs/stage-4-plan.md` §6.
+> The schedule-timer agenda was HEARD and DRAWN 2026-10-21 (D99,
+> docs/wave-2-clock-hearing.md); its lane T1 (the door) LANDED the same
+> day - row below. T2 (crossing) awaits its own go order.
 
 ## 1. v2 bus hearing - the six rulings (all A, walked one by one, plain speech)
 
@@ -52,6 +54,33 @@
   runner main.rs +38/-7 (not frozen, pre-declared).
 - Done-when per lane mirrors the M-lane grammar exactly: red-planted hooks, ledgers
   and parity move with the table, orchestrator re-measures independently (PIT-14).
+
+### CLOCK lane (D99)
+
+- **T1 - the clock door**: LANDED 2026-10-21. `HostAbiV3` = the byte-identical
+  V2 prefix + `timer_schedule`/`clock_now` tail slots (frozen audit by the
+  orchestrator: abi.rs 84/0, kernel.rs 59/0, executor.rs 147/0 - pure
+  insertions; proc_wire/executor_proc/embed.h zero touch). The five prefix
+  slots reuse the v2 trampolines VERBATIM through the shared v3 context (one
+  mailbox implementation, mirror law); the per-plugin token register is
+  kernel-side new state (authority-law grammar; the REGISTER outlives the
+  start call, the table does not), released at stop AND uninstall with
+  never-re-fire censuses. The due bell posts at the ONE due-funnel
+  (`wiring.rs::post_jobs`) on `org.modukit.timer.<plugin-id>`, payload
+  token u64 LE ++ label UTF-8, QoS `Lossy(16)`; host-owned timers keep the
+  ring posting untouched; the sabotage lever is read at exactly the bell
+  site. Late-join ring replay PINNED as behavior; topic grammar asserted
+  before wiring; liar-shape guard cells (false major 3 keeps the landed
+  shapes, major 4 stays AbiMismatch) in executor.rs `#[cfg(test)]`. plugin.h
+  / parity trio / capability-ledger section D / codegen v3 face all move
+  with the table (golden idempotent x2). EXE INTERIM, PINNED NOTE: the
+  child runner loads through the SAME shared door - a v3 plugin in an exe
+  child schedules on its own D74 clock LOCALLY; its bell reaches child-local
+  subscribers only and crosses NOTHING (no capability bit, no bridge
+  routing - T2 scope by D99 R6). Orchestrator re-measured: 254 tests /
+  55 suites (was 239/51), planted red observed in the orchestrator's own
+  eyes (both bell legs FAILED under sabotage, restored 6/6), check.sh all
+  green incl the six demo legs. Plan: docs/wave-2-t1-clock-door-plan.md.
 
 ## 3. What this file deliberately does NOT decide
 

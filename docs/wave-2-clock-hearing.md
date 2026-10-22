@@ -3,7 +3,8 @@
 > STATUS: HEARING HELD 2026-10-21 - the six rulings were walked one by one and
 > drawn B,A,A,A,A,A (results: §8; ledger row: D99). R1 landed as B, deviating
 > from the doc's A-recommendation for a reason surfaced during the walk.
-> Lanes T1/T2 are SPEC'd per R6 - NOT open; each needs its own go order.
+> Lanes per R6: T1 (door) LANDED 2026-10-21 - see §9 pointer; T2 (crossing)
+> awaits its own go order.
 > D96 ruling 1 named this agenda ("the third keeps its §6 slot with a named agenda");
 > I3-A drew the line ("the two bus verbs are one mechanism, the timer is another").
 
@@ -272,3 +273,14 @@ No ruling was skipped or deferred. The §3 non-decisions stand as written; the
 two items that grew legs of their own during the walk are named where they
 live: the cross-revive token-generation dedup rule (R4-A) and the general
 parent->child pump (now a stage-5-plan §3 row).
+
+## 9. Lane pointers
+
+- **T1 - the clock door**: LANDED 2026-10-21. Evidence row lives in
+  docs/stage-5-plan.md (CLOCK lane) per the D99 §6 ruling - rows go to the
+  plan-of-record file, this file stays the drawn contract. Plan of record
+  for the lane: docs/wave-2-t1-clock-door-plan.md.
+- **T2 - the crossing**: armed, not open. Scope by D99: HELLO_CAP_TIMER_V2=2,
+  bridge/FWD_PUB due routing child->parent, the ParentFanout deliver call
+  site parent->child (the named landed absence), wall-out suite legs, demo
+  leg + its sabotage lever, cross-revive generation-field dedup candidate.
