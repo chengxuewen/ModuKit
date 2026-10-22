@@ -113,6 +113,12 @@ struct Inner {
     /// `Step`/`Sim`: nanoseconds advanced by the dial so far.
     dialed_ns: AtomicU64,
     timers: Mutex<Timers>,
+    /// Wave-2 T2 (D99 §9 pin at landing): the boot generation tag -
+    /// UNIX_EPOCH nanoseconds sampled once at `Clock::new`. A boot
+    /// identity only, NEVER dial semantics (the dial law of D20/D74 is
+    /// untouched): bell payloads carry it so a revived run's fresh fires
+    /// can never alias a dead kernel's retained ring entries.
+    boot_gen: u64,
 }
 
 /// The kernel's one clock. Cheap to clone (one shared source).
@@ -125,6 +131,17 @@ fn lock_timers(inner: &Inner) -> MutexGuard<'_, Timers> {
     inner.timers.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
+/// Sample the boot tag. No panic path: a pre-epoch SystemTime (the
+/// documented `duration_since` failure) answers 0, and an unrepresentable
+/// u128 ns count saturates to `u64::MAX` - the repo's error style, and the
+/// value is never asserted literally anywhere (opaque dedup tag, D99 §9).
+fn sample_boot_gen() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| u64::try_from(d.as_nanos()).unwrap_or(u64::MAX))
+        .unwrap_or(0)
+}
+
 impl Clock {
     /// A clock fed by `domain`.
     #[must_use]
@@ -135,6 +152,7 @@ impl Clock {
                 real_base: Instant::now(),
                 dialed_ns: AtomicU64::new(0),
                 timers: Mutex::new(Timers::default()),
+                boot_gen: sample_boot_gen(),
             }),
         }
     }
@@ -142,6 +160,14 @@ impl Clock {
     #[must_use]
     pub fn domain(&self) -> ClockDomain {
         self.inner.domain
+    }
+
+    /// Wave-2 T2: this clock's boot generation (the bell payload's
+    /// leading u64). Same-kernel entries share it; never compare it
+    /// literally, never across kernels (per-kernel tag, D99 §9).
+    #[must_use]
+    pub(crate) fn boot_gen(&self) -> u64 {
+        self.inner.boot_gen
     }
 
     /// The single stamp source (modules/03 §6: plugin time comes from the

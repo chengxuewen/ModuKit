@@ -343,6 +343,7 @@ impl Executor for ProcessExecutor {
             // Stage-5 N2: the HELLO capability bit gates the bus talkers
             // (ruling 4), and the fan-out door rides the Supervisor boot.
             bus_caps: hello.caps & proc_wire::HELLO_CAP_BUS_V2 != 0,
+            timer_caps: hello.caps & proc_wire::HELLO_CAP_TIMER_V2 != 0,
             fanout: shared.fanout.clone(),
         };
         Ok(Box::new(handle))
@@ -405,6 +406,11 @@ struct ProcPlugin {
     /// Whether this child's HELLO declared the bus capability (D96
     /// ruling 4): speaking FORWARD without it is a lie, refused.
     bus_caps: bool,
+    /// Whether this child declared `HELLO_CAP_TIMER_V2` (D99 R5-A T2):
+    /// the fan-out notes it as a bell target at the register site, and its
+    /// own bells may ride the crossing dial. The bus gate above stands:
+    /// no-bus-cap is never spoken to at all.
+    timer_caps: bool,
     /// The kernel's bus fan-out door (`None` for a standalone executor).
     fanout: Option<std::sync::Arc<crate::bus_wire::ParentFanout>>,
     /// Registration ids of the kernel-side proxies installed from the
@@ -508,6 +514,9 @@ impl LoadedPlugin for ProcPlugin {
                         return Err(crashed(&self.id, "forward: control closed"));
                     };
                     fan.register_child(self.id.clone(), ctl);
+                    if self.timer_caps {
+                        fan.note_timer_child(self.id.clone());
+                    }
                     let Some(fwd) = proc_wire::parse_forward(&payload) else {
                         kill_and_reap(p);
                         return Err(crashed(&self.id, "forward: malformed payload"));
@@ -682,6 +691,11 @@ impl ProcPlugin {
     }
 }
 
+// Kept as the single-frame primitive (no FORWARD absorption at the read).
+// The crossing dial that absorbs mid-dial bells lands next door; this one
+// stays referenced grammar for the D74 answer shape (and the supersession
+// note is the audit trail of the insertion-only rule).
+#[allow(dead_code)]
 /// Turn one child's dial (D74, S2-M3b): write `DIAL`, await the `DUE`
 /// answer under `DIAL_TIMEOUT`. The lane serializes under the table mutex
 /// (v0: one in-flight verb per child). A refusal (non-zero status) keeps
@@ -740,6 +754,101 @@ pub(crate) fn dial_child(
     };
     if turn.status != 0 {
         // Typed refusal on a live, cooperative child — no kill, no reap.
+        return Err(KernelError::ClockDialRefused {
+            status: turn.status,
+        });
+    }
+    Ok(turn)
+}
+
+/// Wave-2 T2 (D99 R5-A): the crossing dial - the same DIAL/DUE exchange
+/// as `dial_child` plus the absorption the wall demands. A timer-capable
+/// child bells MID-DIAL: the runner's `post_timer_bell` writes the FORWARD
+/// (the bridge outlet) while still inside `kernel.dial_clock`, BEFORE it
+/// answers DUE, so FORWARD frames legally precede the answer. They are
+/// routed through the fan-out door with the start-window grammar verbatim
+/// (the same `handle_forward`, the same malformed/lying-frame refusals);
+/// the one-thread host law keeps this the only reader of the child socket
+/// during the turn, so pump and FORWARD cannot interleave mid-frame (plan
+/// §4). A bus-uncapable runner installs no bridge and can speak none of
+/// this; everything else keeps `dial_child`'s posture exactly.
+pub(crate) fn dial_child_crossing(
+    live: &Control,
+    id: &str,
+    delta: Duration,
+) -> Result<proc_wire::DueTurn, KernelError> {
+    let mut shared = live.lock();
+    let fanout = shared.fanout.clone();
+    let p = shared
+        .live
+        .get_mut(id)
+        .ok_or_else(|| crashed(id, "already gone"))?;
+    if let Some(status) = &p.status {
+        return Err(crashed(id, status.to_string()));
+    }
+    let sock = p
+        .control
+        .as_mut()
+        .ok_or_else(|| crashed(id, "control closed"))?;
+    sock.set_read_timeout(Some(DIAL_TIMEOUT))
+        .map_err(|e| crashed(id, format!("set timeout: {e}")))?;
+    if proc_wire::write_frame(sock, proc_wire::MSG_DIAL, &proc_wire::dial_payload(delta)).is_err() {
+        kill_and_reap(p);
+        return Err(crashed(id, "dial write: control closed"));
+    }
+    let turn = loop {
+        let Some(sock) = p.control.as_mut() else {
+            kill_and_reap(p);
+            return Err(crashed(id, "dial read: control closed"));
+        };
+        match proc_wire::read_frame(sock) {
+            Ok((proc_wire::WIRE_VERSION, proc_wire::MSG_DUE, payload)) => {
+                let Some(turn) = proc_wire::parse_due(&payload) else {
+                    kill_and_reap(p);
+                    return Err(crashed(id, "dial reply: malformed DUE payload"));
+                };
+                break turn;
+            }
+            Ok((proc_wire::WIRE_VERSION, proc_wire::MSG_FORWARD, payload)) => {
+                let Some(fan) = &fanout else {
+                    kill_and_reap(p);
+                    return Err(crashed(
+                        id,
+                        "bus FORWARD with no kernel bus door (boot via Supervisor)",
+                    ));
+                };
+                let Some(fwd) = proc_wire::parse_forward(&payload) else {
+                    kill_and_reap(p);
+                    return Err(crashed(id, "forward: malformed payload"));
+                };
+                if let Err(why) = fan.handle_forward(id, &fwd) {
+                    kill_and_reap(p);
+                    return Err(crashed(id, why));
+                }
+            }
+            Ok((proc_wire::WIRE_VERSION, _, _)) => {
+                kill_and_reap(p);
+                return Err(crashed(id, "dial reply: wrong frame type"));
+            }
+            Ok((found, _, _)) => {
+                kill_and_reap(p);
+                return Err(KernelError::WireVersionMismatch {
+                    expected: proc_wire::WIRE_VERSION,
+                    found,
+                });
+            }
+            Err(err) if is_timeout(&err) => {
+                kill_and_reap(p);
+                return Err(crashed(id, "dial timeout, killed"));
+            }
+            Err(err) => {
+                kill_and_reap(p);
+                return Err(crashed(id, format!("dial read: {err}")));
+            }
+        }
+    };
+    if turn.status != 0 {
+        // Typed refusal on a live, cooperative child - no kill, no reap.
         return Err(KernelError::ClockDialRefused {
             status: turn.status,
         });

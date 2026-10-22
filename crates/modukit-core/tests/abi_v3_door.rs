@@ -3,7 +3,9 @@
 //! through the REAL install door, the two new verbs (`clock_now` ->
 //! `timer_schedule` at stamp+1s) walked on the TestHost step clock, the
 //! per-plugin due bell on the kernel bus (`org.modukit.timer.<plugin-id>`,
-//! token LE ++ label UTF-8, `Lossy(16)` with late-join replay PINNED), the
+//! gen u64 LE ++ token u64 LE ++ label UTF-8 (the T2 boot-generation
+//! prefix), `LOSSY_RING` (64) capacity unified with the wire vocabulary,
+//! late-join replay PINNED), the
 //! authority-law token release at stop/uninstall ("token never re-fires"
 //! census), and the v1/v2 handoff staying byte-identical (the prefix law
 //! the layout test pins; the existing abi_v2_door / dlopen suites prove the
@@ -99,11 +101,19 @@ fn start_v3_fixture(kernel: &Kernel, so: &Path) -> PluginId {
     id
 }
 
-/// Decode the pinned bell payload grammar (D99 R4-A): token u64 LE
-/// prefixed to the job label's UTF-8 bytes.
-fn decode_bell(payload: &[u8]) -> (u64, &[u8]) {
-    let (token, label) = payload.split_at(8);
+/// Decode the pinned bell payload grammar (D99 R4-A + the T2 generation
+/// field, D99 §9): gen u64 LE ++ token u64 LE ++ label UTF-8. The gen is
+/// this kernel's boot tag - opaque here, never asserted literally; the
+/// self-equality law (same-kernel entries share it) lives in
+/// `wiring.rs::bell_crossing_tests::same_kernel_entries_share_the_generation`.
+fn decode_bell(payload: &[u8]) -> (u64, u64, &[u8]) {
+    let (head, label) = payload.split_at(16);
+    let (boot, token) = head.split_at(8);
     (
+        u64::from_le_bytes(
+            boot.try_into()
+                .expect("payload carries the u64 LE boot gen"),
+        ),
         u64::from_le_bytes(token.try_into().expect("payload carries the u64 LE token")),
         label,
     )
@@ -253,7 +263,7 @@ fn declared_major_3_walks_the_clock_door_and_the_bell_rings_live() {
     let payload = rx
         .try_recv()
         .expect("live bell on the plugin's own topic (the door-suite recv assertion)");
-    let (token, label) = decode_bell(&payload);
+    let (_boot_gen, token, label) = decode_bell(&payload);
     assert_eq!(token, 1, "fresh step-clock token (D74 replay precedent)");
     assert_eq!(
         label, JOB_LABEL,
@@ -292,7 +302,9 @@ fn declared_major_3_walks_the_clock_door_and_the_bell_rings_live() {
 }
 
 /// D99 R4-A PINNED behavior (not accidental): a subscriber that joins AFTER
-/// a firing on the plugin's topic receives the `Lossy(16)` retention ring -
+/// a firing on the plugin's topic receives the Lossy retention ring (the
+/// T2 unified `LOSSY_RING` capacity; the replay DEPTH is deliberately not
+/// asserted by a literal number) -
 /// the same late-join replay every year-1 bus word already does (bus.rs
 /// `Lossy` arms); the hearing ACCEPTED and NAMED it for timers.
 #[test]
@@ -316,8 +328,8 @@ fn late_join_after_a_firing_replays_the_bell_ring() {
         .expect("late-join subscribe to the bell topic");
     let payload = rx
         .try_recv()
-        .expect("Lossy(16) ring replays at late join (pinned, D99 R4-A)");
-    let (token, label) = decode_bell(&payload);
+        .expect("the Lossy ring replays at late join (pinned, D99 R4-A)");
+    let (_boot_gen, token, label) = decode_bell(&payload);
     assert_eq!(token, 1);
     assert_eq!(label, JOB_LABEL);
     assert!(

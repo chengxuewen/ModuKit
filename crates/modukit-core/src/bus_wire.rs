@@ -20,6 +20,7 @@
 //! (ruling 5); the refusal channel rides a DELIVER with a negative qos.
 
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::io;
 use std::os::unix::net::UnixStream;
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock, PoisonError};
@@ -74,6 +75,11 @@ pub(crate) struct ParentFanout {
     /// live pair is a no-op, so the snapshot never double-delivers - the
     /// child's own local late-join covers same-child re-subscribes.
     subs: Mutex<HashMap<TopicId, HashMap<String, Receiver>>>,
+    /// Child ids that declared `HELLO_CAP_TIMER_V2` (D99 R5-A T2): the
+    /// ONLY children `pump_local_bell` targets. Fed at the child's first
+    /// FORWARD through the executor's register site when its HELLO carried
+    /// the bit; `retire` sweeps it with the rest of the mailbox window.
+    timer: Mutex<HashSet<String>>,
 }
 
 impl ParentFanout {
@@ -82,12 +88,20 @@ impl ParentFanout {
             bus,
             children: Mutex::new(HashMap::new()),
             subs: Mutex::new(HashMap::new()),
+            timer: Mutex::new(HashSet::new()),
         }
     }
 
     /// Idempotent: the start pump registers on the child's first FORWARD.
     pub(crate) fn register_child(&self, id: String, ctl: UnixStream) {
         self.lock_children().insert(id, ctl);
+    }
+
+    /// Idempotent: the executor's register site notes the timer bit once
+    /// per child per start window (D99 R5-A: bells pump to declared
+    /// children only - a BUS-only child never hears this method's frames).
+    pub(crate) fn note_timer_child(&self, id: String) {
+        self.lock_timer().insert(id);
     }
 
     /// The mailbox authority law across the wall (01 §3 rule 2): a START
@@ -97,6 +111,7 @@ impl ParentFanout {
     /// late-join at that moment.
     pub(crate) fn retire(&self, id: &str) {
         self.lock_children().remove(id);
+        self.lock_timer().remove(id); // T2: the bell-target set leaves too
         let mut subs = self.lock_subs();
         for per_child in subs.values_mut() {
             per_child.remove(id);
@@ -188,6 +203,43 @@ impl ParentFanout {
         Ok(())
     }
 
+    /// Wave-2 T2 (D99 R5-A): the parent-side bell outlet - the named landed
+    /// absence from the hearing review, fixed at the due-funnel only. The
+    /// EXACT drain-and-deliver grammar `on_publish` runs (proxy `Receiver`
+    /// pull + one DELIVER frame per value), restricted to timer-capable
+    /// interested children: the value has already landed on the parent bus
+    /// (the bell site publishes first), so a live proxy box holds it; the
+    /// passed `value` is delivered as the belt when a target box drained
+    /// empty (rings drop the OLDEST, never evict everything - this keeps
+    /// the pump byte-honest under a racing drain). NEVER call this from
+    /// `Bus::publish`: the ordinary-publish pump stays deferred
+    /// (stage-5-plan §3). No new frame type: DELIVER is the existing one.
+    pub(crate) fn pump_local_bell(&self, topic: &TopicId, qos: i32, value: &[u8]) {
+        let targets: Vec<(String, Receiver)> = {
+            let subs = self.lock_subs();
+            let timer = self.lock_timer();
+            subs.get(topic)
+                .map(|per_child| {
+                    per_child
+                        .iter()
+                        .filter(|(child, _rx)| timer.contains(*child))
+                        .map(|(child, rx)| (child.clone(), rx.clone()))
+                        .collect()
+                })
+                .unwrap_or_default()
+        };
+        for (child, mut rx) in targets {
+            let mut delivered = false;
+            while let Some(v) = rx.try_recv() {
+                self.deliver(&child, topic, qos, &v);
+                delivered = true;
+            }
+            if !delivered {
+                self.deliver(&child, topic, qos, value);
+            }
+        }
+    }
+
     /// Write one DELIVER. A dead socket removes that child's registration
     /// and is otherwise swallowed: a gone peer is the crash-watch's to
     /// report at its own doorway, never a reason to kill the publishing
@@ -214,6 +266,10 @@ impl ParentFanout {
     fn lock_subs(&self) -> MutexGuard<'_, HashMap<TopicId, HashMap<String, Receiver>>> {
         self.subs.lock().unwrap_or_else(PoisonError::into_inner)
     }
+
+    fn lock_timer(&self) -> MutexGuard<'_, HashSet<String>> {
+        self.timer.lock().unwrap_or_else(PoisonError::into_inner)
+    }
 }
 
 impl std::fmt::Debug for ParentFanout {
@@ -223,9 +279,11 @@ impl std::fmt::Debug for ParentFanout {
         // shared `Bus` stays Debug-free by design, 06 §2).
         let children = self.children.lock().map(|m| m.len()).unwrap_or(0);
         let topics = self.subs.lock().map(|m| m.len()).unwrap_or(0);
+        let timer = self.timer.lock().map(|s| s.len()).unwrap_or(0);
         f.debug_struct("ParentFanout")
             .field("children", &children)
             .field("topics", &topics)
+            .field("timer_children", &timer)
             .finish()
     }
 }
@@ -243,11 +301,14 @@ pub(crate) fn bridge() -> Option<&'static Bridge> {
 
 /// Install the bridge over a control-socket clone - called by `modukit-run`
 /// exactly once, right after a HELLO that declared `HELLO_CAP_BUS_V2`.
-/// Idempotent (the first set wins, the ambient-law pattern of the embed
-/// faces).
-pub fn install_bridge(ctl: UnixStream) {
+/// `timer_bells` carries the `HELLO_CAP_TIMER_V2` bit (D99 R5-A T2): the
+/// runner's own bell outlet stays silent when it is off, so the demo
+/// lever drops the crossing and nothing else. Idempotent (the first set
+/// wins, the ambient-law pattern of the embed faces).
+pub fn install_bridge(ctl: UnixStream, timer_bells: bool) {
     let _ = BRIDGE.set(Bridge {
         ctl: Mutex::new(ctl),
+        timer_bells,
     });
 }
 
@@ -260,6 +321,9 @@ pub fn install_bridge(ctl: UnixStream) {
 /// queue; the one-thread law is what keeps this a mutex of one socket.
 pub struct Bridge {
     ctl: Mutex<UnixStream>,
+    /// D99 R5-A T2: this runner's declared timer capability (the bell
+    /// outlet's gate - ordinary mailbox traffic ignores it).
+    timer_bells: bool,
 }
 
 impl Bridge {
@@ -284,6 +348,13 @@ impl Bridge {
             qos,
             value: value.to_vec(),
         })
+    }
+
+    /// Whether plugin bells may ride this bridge across the wall
+    /// (`HELLO_CAP_TIMER_V2` was declared; the demo lever drops it).
+    #[must_use]
+    pub(crate) const fn timer_bells(&self) -> bool {
+        self.timer_bells
     }
 
     pub(crate) fn subscribe(&self, topic: &str) -> io::Result<()> {
@@ -539,5 +610,79 @@ mod tests {
             .is_err(),
             "a qos off the embed vocabulary is a disagreement"
         );
+    }
+
+    /// T2 leg DOWN at the fan-out level: `pump_local_bell` reaches a
+    /// timer-capable interested child with the on_publish DELIVER grammar
+    /// and leaves a BUS-only child in silence (the legacy pin, asserted).
+    #[test]
+    fn pump_local_bell_targets_timer_children_only() {
+        let fan = ParentFanout::new(Arc::new(Bus::new()));
+        let (wired_t, mut reader_t) = UnixStream::pair().expect("pair t");
+        let (wired_p, mut reader_p) = UnixStream::pair().expect("pair p");
+        for r in [&mut reader_t, &mut reader_p] {
+            r.set_read_timeout(Some(Duration::from_millis(300)))
+                .expect("read timeout");
+        }
+        fan.register_child("t".into(), wired_t);
+        fan.register_child("p".into(), wired_p);
+        fan.note_timer_child("t".into()); // only "t" declared HELLO_CAP_TIMER_V2
+        let t = topic("org.modukit.timer.com.example.bellcap");
+        for child in ["t", "p"] {
+            fan.handle_forward(child, &fwd(FWD_SUB, t.as_str(), 0, &[]))
+                .unwrap();
+        }
+        // The bell site publishes locally first (the T2 wiring law), then pumps.
+        fan.bus.publish(
+            &t,
+            QoS::Lossy(crate::embed_codec::LOSSY_RING),
+            b"gen-tick".to_vec(),
+        );
+        fan.pump_local_bell(&t, 2, b"gen-tick");
+        let delivery = next_deliver(&mut reader_t);
+        assert_eq!(
+            (
+                delivery.topic.as_str(),
+                delivery.qos,
+                delivery.value.as_slice()
+            ),
+            (t.as_str(), 2, b"gen-tick".as_slice())
+        );
+        assert_silent(&mut reader_p);
+    }
+
+    /// The retire sweep takes the timer set with the rest of the window:
+    /// a retired child is never a pump target again, revived or not.
+    #[test]
+    fn retire_purges_the_timer_children_set() {
+        let (fan, mut reader) = wired_fan(); // registers "c" with the pair
+        fan.note_timer_child("c".into());
+        let t = topic("org.modukit.timer.com.example.retire");
+        fan.handle_forward("c", &fwd(FWD_SUB, t.as_str(), 0, &[]))
+            .unwrap();
+        fan.retire("c");
+        // Re-interest WITHOUT re-noting (the executor notes only on a
+        // timer-carrying HELLO): the pump must find no target.
+        fan.handle_forward("c", &fwd(FWD_SUB, t.as_str(), 0, &[]))
+            .unwrap();
+        fan.bus.publish(
+            &t,
+            QoS::Lossy(crate::embed_codec::LOSSY_RING),
+            b"x".to_vec(),
+        );
+        fan.pump_local_bell(&t, 2, b"x");
+        assert_silent(&mut reader);
+    }
+
+    /// No interest, no delivery: the pump rides the subs map, never a
+    /// blind write to every registered socket.
+    #[test]
+    fn pump_without_interest_stays_silent() {
+        let (fan, mut reader) = wired_fan();
+        fan.note_timer_child("c".into());
+        let t = topic("org.modukit.timer.com.example.nosub");
+        fan.bus.publish(&t, QoS::LatestValue, b"x".to_vec());
+        fan.pump_local_bell(&t, 2, b"x");
+        assert_silent(&mut reader);
     }
 }

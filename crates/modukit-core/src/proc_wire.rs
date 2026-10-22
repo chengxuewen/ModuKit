@@ -94,6 +94,12 @@ pub const FWD_UNSUB: u8 = 2;
 /// never spoken to by them. `WIRE_VERSION` stays 1: vocabulary growth
 /// never bumped a transport promise (the K7 public claim holds).
 pub const HELLO_CAP_BUS_V2: u32 = 1;
+/// HELLO capability bit (D99 R5-A, wave-2 T2): the timer crossing. A child
+/// declaring it rides the SAME landed frames for plugin bells both ways -
+/// its own bells FORWARD (FWD_PUB) to the parent, parent-kernel bells pump
+/// back as DELIVER; a peer without the bit is never pumped to (the legacy
+/// pin). Vocabulary growth again: `WIRE_VERSION` stays 1 (ruling 4 verbatim).
+pub const HELLO_CAP_TIMER_V2: u32 = 2;
 
 /// The handshake self-report (D7 tier for the `exe` placement): the ABI
 /// major plus the artifact's own `(id, version)` strings and human name,

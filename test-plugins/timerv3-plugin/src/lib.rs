@@ -14,6 +14,8 @@
 //! after `start` returns - the kernel posts it on
 //! `org.modukit.timer.<plugin-id>` (D99 R4-A); `tests/abi_v3_door.rs`
 //! reads it there.
+//! T2 (D99 §9): the bell payload leads with the boot generation -
+//! gen u64 LE ++ token u64 LE ++ label UTF-8, `LOSSY_RING` capacity.
 
 use std::ffi::{CStr, c_char};
 

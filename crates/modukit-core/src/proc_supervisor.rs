@@ -116,9 +116,14 @@ impl Supervisor {
         // code path the in-process v2 door already uses - and the per-
         // child interest the FORWARD talker maintains. The child's
         // HELLO capability decides whether the talkers are ever spoken.
-        live.lock().fanout = Some(std::sync::Arc::new(crate::bus_wire::ParentFanout::new(
+        let fanout = std::sync::Arc::new(crate::bus_wire::ParentFanout::new(
             std::sync::Arc::clone(&kernel.bus),
-        )));
+        ));
+        live.lock().fanout = Some(std::sync::Arc::clone(&fanout));
+        // Wave-2 T2 (D99 R5-A): the SAME Arc rides the kernel - the parent-
+        // side bell outlet (`wiring.rs::post_timer_bell`) pumps through it.
+        // Bells only; the ordinary-publish pump row stays in stage-5-plan §3.
+        kernel.attach_parent_bells(fanout);
         Self {
             kernel,
             live,
@@ -259,6 +264,10 @@ impl Supervisor {
     /// `DIAL_TIMEOUT`. The production Real placement stays untouched —
     /// there is simply no dial there to turn.
     ///
+    /// Wave-2 T2: the crossing dial (`dial_child_crossing`) absorbs the
+    /// child's mid-dial FORWARD bells at the read site, routing them
+    /// through the fan-out door before the DUE answer lands.
+    ///
     /// # Errors
     ///
     /// The crash family for a dead/hung/mismatched child;
@@ -268,7 +277,7 @@ impl Supervisor {
         id: &PluginId,
         delta: std::time::Duration,
     ) -> Result<crate::proc_wire::DueTurn, KernelError> {
-        crate::executor_proc::dial_child(&self.live, id.as_str(), delta)
+        crate::executor_proc::dial_child_crossing(&self.live, id.as_str(), delta)
     }
 
     /// Restart one FAILED `exe` plugin per its manifest policy (D3 table:

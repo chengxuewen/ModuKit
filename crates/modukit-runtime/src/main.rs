@@ -260,6 +260,14 @@ fn run(artifact: &str, fd_num: i32, domain: ClockDomain, bus_on: bool) {
     let mut control = unsafe { UnixStream::from_raw_fd(fd_num) };
 
     let (id, version, name) = self_report(artifact);
+    // Wave-2 T2 (D99 R5-A): the timer capability. ONE named demo lever,
+    // read exactly like `bus_on` in `parse_args` above:
+    // DEMO_WAVE2_CLOCK_SABOTAGE=1 drops ONLY the TIMER bit (semantics:
+    // "timer capability off") - the bus bridge stays live, plugin bells
+    // stop crossing the wall.
+    let timer_on = env::var("DEMO_WAVE2_CLOCK_SABOTAGE")
+        .map(|v| v != "1")
+        .unwrap_or(true);
     let hello = proc_wire::Hello {
         abi: ABI_VERSION,
         id: id.clone(),
@@ -267,7 +275,11 @@ fn run(artifact: &str, fd_num: i32, domain: ClockDomain, bus_on: bool) {
         name,
         // Stage-5 N2 (D96 ruling 4): the tail-added capability field.
         caps: if bus_on {
-            proc_wire::HELLO_CAP_BUS_V2
+            if timer_on {
+                proc_wire::HELLO_CAP_BUS_V2 | proc_wire::HELLO_CAP_TIMER_V2
+            } else {
+                proc_wire::HELLO_CAP_BUS_V2
+            }
         } else {
             0
         },
@@ -289,7 +301,7 @@ fn run(artifact: &str, fd_num: i32, domain: ClockDomain, bus_on: bool) {
     // construction (01 §3 rule 2's window is the protocol's lock).
     if hello.caps != 0 {
         match control.try_clone() {
-            Ok(ctl) => modukit_core::bus_wire::install_bridge(ctl),
+            Ok(ctl) => modukit_core::bus_wire::install_bridge(ctl, timer_on),
             Err(err) => die(9, &format!("control clone for the bus bridge: {err}")),
         }
     }

@@ -20,3 +20,7 @@ path = "rs/stage2_demo.rs"
 [[example]]
 name = "stage5_n2_demo"
 path = "rs/stage5_n2_demo.rs"
+
+[[example]]
+name = "wave2_clock_demo"
+path = "rs/wave2_clock_demo.rs"
