@@ -55,6 +55,13 @@
 
 ## 3. What this file deliberately does NOT decide
 
+- Parent->child live-push for ORDINARY publishes (named by the D99 CLOCK
+  hearing review, 2026-10-21): a parent-originated bus publish never pumps
+  down today - `ParentFanout.deliver` fires only on inbound-child FWD_PUB
+  (:142) and subscribe-snapshot (:167). The D99 timer due-site wiring (T2)
+  carries the clock case with its own planted red; the general pump waits
+  for a second ordinary-publish consumer - named here, not a silent drop.
+
 - Timer signatures (deferred by ruling 1 - named future agenda, not a silent drop);
 - STEADY-STATE crossing: mailbox authority rides the start window (01 section 3 rule 2),
   so post-start bus APIs and live child-to-child overlap are a FUTURE agenda the moment
