@@ -18,7 +18,8 @@
 //! types), `descriptor` (descriptor.proto subset decode), `emit` (Rust
 //! skeleton), `cabi` (vtable shade + header), `cpp` (C++ plugin face),
 //! `embed` (C++ embed-face wrapper generator from
-//! `contracts/modukit_embed.h`, C++-3 face B), `error` (typed failures).
+//! `contracts/modukit_embed.h`, C++-3 face B), `py` (Python ctypes embed
+//! floor from the same header text, D100 R2-A), `error` (typed failures).
 
 use std::path::{Path, PathBuf};
 
@@ -30,6 +31,7 @@ pub mod emit;
 pub mod error;
 pub mod model;
 pub mod pluginface;
+pub mod py;
 pub mod wire;
 
 pub use descriptor::decode_file_descriptor_set;
@@ -37,6 +39,7 @@ pub use embed::emit_embed_hpp;
 pub use error::CodegenError;
 use model::{File, RUNTIME_PACKAGE};
 pub use pluginface::emit_plugin_hpp;
+pub use py::emit_embed_py;
 
 /// Decode every fdset in `fdsets` and write the generated corpus into
 /// `out_dir`. File set per contract package `a.b.c`:

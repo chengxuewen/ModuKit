@@ -26,18 +26,18 @@ use std::fmt::Write as _;
 use crate::error::CodegenError;
 
 /// One parsed C enum from the header (`typedef enum <tag> { NAME = n, ... }`).
-struct CEnum {
-    tag: String,
-    values: Vec<(String, i64)>,
+pub(crate) struct CEnum {
+    pub(crate) tag: String,
+    pub(crate) values: Vec<(String, i64)>,
 }
 
 /// One parsed verb declaration (`int32_t modukit_x(...)`): the bare verb
 /// name and its parameter list verbatim from the header text.
-struct CVerb {
-    name: String,
+pub(crate) struct CVerb {
+    pub(crate) name: String,
     /// Parameter declarations, top-level comma-split, trimmed. Empty for
     /// a `(void)` verb.
-    params: Vec<String>,
+    pub(crate) params: Vec<String>,
 }
 
 /// Emit the C++ wrapper header text from the embed contract header text.
@@ -174,7 +174,7 @@ pub fn emit_embed_hpp(header_text: &str) -> Result<String, CodegenError> {
 }
 
 /// Parse every `typedef enum modukit_*` block: tag + `NAME = number` lines.
-fn parse_enums(text: &str) -> Vec<CEnum> {
+pub(crate) fn parse_enums(text: &str) -> Vec<CEnum> {
     let mut enums = Vec::new();
     let mut current: Option<CEnum> = None;
     for line in text.lines() {
@@ -219,7 +219,7 @@ fn parse_enums(text: &str) -> Vec<CEnum> {
 /// up to the terminating `;`. Function-pointer struct members use the
 /// `int32_t (*name)(...)` shape and never match the `int32_t modukit_`
 /// line prefix, so the vtable block is skipped by construction.
-fn parse_verbs(text: &str) -> Vec<CVerb> {
+pub(crate) fn parse_verbs(text: &str) -> Vec<CVerb> {
     let mut verbs = Vec::new();
     let mut pending: Option<String> = None;
     for line in text.lines() {
@@ -298,7 +298,7 @@ fn argument_names(params: &[String]) -> String {
 }
 
 /// `modukit_kernel_code` -> `KernelCode`.
-fn enum_class_name(tag: &str) -> String {
+pub(crate) fn enum_class_name(tag: &str) -> String {
     let bare = tag.strip_prefix("modukit_").unwrap_or(tag);
     let mut out = String::new();
     let mut upper_next = true;

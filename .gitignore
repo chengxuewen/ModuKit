@@ -120,3 +120,9 @@ target/
 
 # llvm-cov default profraw litter (spawned children + uninstrumented exit paths)
 *.profraw
+
+
+# regenerated live skin for the wave-2 python band (scripts/demo-wave2-py.sh
+# re-emits it through the codegen door; the byte-pinned face lives in
+# crates/modukit-codegen/testdata/golden/modukit_embed.py - never hand-commit)
+bindings/py/

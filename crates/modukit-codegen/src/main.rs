@@ -15,7 +15,7 @@
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use modukit_codegen::{CodegenError, emit_embed_hpp, emit_plugin_hpp, generate};
+use modukit_codegen::{CodegenError, emit_embed_hpp, emit_embed_py, emit_plugin_hpp, generate};
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -38,6 +38,7 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
     let mut output_dir: Option<PathBuf> = None;
     let mut embed_header: Option<PathBuf> = None;
     let mut plugin_header: Option<PathBuf> = None;
+    let mut py_out: Option<PathBuf> = None;
     let mut it = args.iter();
     while let Some(arg) = it.next() {
         if arg == "--output_dir" {
@@ -61,6 +62,11 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
             plugin_header = Some(PathBuf::from(value));
         } else if let Some(value) = arg.strip_prefix("--plugin_header=") {
             plugin_header = Some(PathBuf::from(value));
+        } else if arg == "--py_out" {
+            let value = it.next().ok_or_else(|| usage("--py_out needs a path"))?;
+            py_out = Some(PathBuf::from(value));
+        } else if let Some(value) = arg.strip_prefix("--py_out=") {
+            py_out = Some(PathBuf::from(value));
         } else if let Some(path) = arg.strip_prefix('@') {
             // protoc-style request file: a FileDescriptorSet binary on disk.
             fdsets.push(PathBuf::from(path));
@@ -76,10 +82,10 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
         return Err(usage("no @<file>.fdset inputs given"));
     }
     let mut files = generate(&fdsets, &output_dir)?;
-    if let Some(header_path) = embed_header {
+    if let Some(header_path) = &embed_header {
         // The header text parse is pinned to the Rust mirror by the parity
         // gate, so the emitted wrapper trusts the declaration shape it sees.
-        let text = std::fs::read_to_string(&header_path)?;
+        let text = std::fs::read_to_string(header_path)?;
         let stem = header_path
             .file_stem()
             .and_then(|s| s.to_str())
@@ -101,6 +107,23 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
         std::fs::write(&path, emit_plugin_hpp(&text)?)?;
         files.push(path);
     }
+    if let Some(py_dir) = py_out {
+        // Wave-2 Python volume M1 (D100 R2-A): the floor rides the same
+        // header text at this door - emission beside --embed_header, never
+        // through generate()'s fdset corpus (golden.rs:34-37 seam note).
+        let header_path = embed_header
+            .as_ref()
+            .ok_or_else(|| usage("--py_out needs --embed_header"))?;
+        let text = std::fs::read_to_string(header_path)?;
+        let stem = header_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .ok_or_else(|| usage("--embed_header needs a file path"))?;
+        std::fs::create_dir_all(&py_dir)?;
+        let path = py_dir.join(format!("{stem}.py"));
+        std::fs::write(&path, emit_embed_py(&text)?)?;
+        files.push(path);
+    }
     Ok(files)
 }
 
@@ -110,7 +133,7 @@ fn usage(msg: impl Into<String>) -> CodegenError {
         "{msg}\n\
          usage: protoc-gen-modukit @<descriptor_set.fdset> [more @fdsets...] \
          --output_dir <dir> [--embed_header <modukit_embed.h>] \
-         [--plugin_header <modukit_plugin.h>]\n\
+         [--plugin_header <modukit_plugin.h>] [--py_out <dir>]\
          (v0 seam: reads FileDescriptorSet binaries directly, not a \
          CodeGeneratorRequest on stdin - see src/main.rs)"
     ))
