@@ -24,11 +24,12 @@ fi
 GOLDEN=crates/modukit-codegen/testdata/golden
 mkdir -p "$GOLDEN"
 # Keep only the generator's own outputs (no stale files from a renamed contract).
-rm -f "$GOLDEN"/*.rs "$GOLDEN"/*.h "$GOLDEN"/*.hpp
+rm -f "$GOLDEN"/*.rs "$GOLDEN"/*.h "$GOLDEN"/*.hpp "$GOLDEN"/*.py
 cargo run -q -p modukit-codegen --bin protoc-gen-modukit -- \
   "@contracts/org.modukit.runtime.proto.fdset" \
   "@contracts/com.modukit.demo.proto.fdset" \
   --embed_header contracts/modukit_embed.h \
+  --py_out "$GOLDEN" \
   --plugin_header contracts/modukit_plugin.h \
   --output_dir "$GOLDEN"
 echo "ok regen-golden -> $GOLDEN"
