@@ -687,3 +687,53 @@
 - **Rationale**: measurement round with the metric definition part of the claim (D84/PIT-23 - the census was the point, not the percentage); the face already shipped, only its gate was missing; no test was invented - the N1/N2/debug-reader integration suites moved the honest number over 80 by themselves.
 - **Reference**: docs/wave-2-closeout-plan.md (rulings, review, outcome rows); scripts/demo-wave2-reader.sh header (observed-red note); docs/stage-4-plan.md §5 TAIL-CORRECTION resolved row; census logs /tmp/cov-closeout.txt + /tmp/check-closeout.txt (50/50); numbering gate widened to D1-D98 same day with the probe red observed; PIT-26 filed the same session (walkthrough voice corrections x2); README/AGENTS/status/architecture §11 swept to the six-leg count.
 - **Re-review triggers**: next stage boundary (the D84 coverage hook re-fires against that tree); any change to the reader face's PASS grammar (both the leg and its cargo test go red together); the six-leg claims live in AGENTS.md/README/status.md - keep them synced on the next leg.
+
+## D99: CLOCK hearing held - six rulings (B,A,A,A,A,A) drawn; v3 door, schedule+now, bell-on-bus, wall asymmetry named (2026-10-21)
+ - **Decision**: the D82 trio's deferred third seat got its named agenda
+   (docs/wave-2-clock-hearing.md; Momus three-pass: REJECT-3 -> REJECT-2 ->
+   OKAY - the passes turned the landed wall asymmetry and the Lossy-replay
+   truth into written fact). Six rulings walked one by one: (R1=B) TWO
+   plugin-facing verbs this round - schedule-timer AND clock-read; the doc
+   recommended schedule-only, the walk surfaced that an absolute-deadline
+   timer is unspeakable by a plugin that cannot read the clock - corrected
+   on the record. (R2=A) HostAbiV3: V2 prefix byte-identical + the two tail
+   slots, declared-major negotiation per D83/D96-r2. (R3=A) verbs mirror
+   landed host-side shapes exactly - timer_schedule(deadline_ns u64, label)
+   -> status + token out (clock.rs:181 shape) and clock_now(out ns) -> status
+   (embed.h:212 shape); relative-delta and recurring die on §3 no-invention.
+   (R4=A) due rides the bus on a PER-PLUGIN topic org.modukit.timer.<plugin-id>,
+   payload token u64 LE + label UTF-8 (origin retired with reason stated),
+   QoS Lossy(16) with late-join replay ACCEPTED and PINNED (every year-1 word
+   replays - bus.rs:205-213, 284-288; no seventh QoS word invented); cleanup
+   by a NEW per-plugin timer register following the v1 authority-law GRAMMAR
+   (register is new state, named); cross-revive token aliasing named with a
+   generation-field candidate to pin at landing; NO cancel verb. (R5=A)
+   local schedule on the kernel hosting the door (dl->parent clock,
+   exe->own D74 child clock); the due posting is routed through the EXISTING
+   frames BOTH ways - child side via the bridge FWD_PUB call the door verb
+   already makes, parent side via a NEW call site of the ParentFanout deliver
+   loop; zero new frame types, zero new talkers, two new call sites each with
+   its own planted red. The hearing DISCOVERS and NAMES: parent-originated
+   publishes never live-push to children today (deliver fires only from
+   bus_wire.rs:142 inbound-child and :167 snapshot) - timers carry their own
+   leg; the general pump for ordinary publishes is a named stage-5-plan §3
+   row, not smuggled. (R6=A) two lanes - T1 door (v3 + verbs + bell + register
+   + mirror/parity/ledger/codegen + wall-in suite), then T2 crossing (two
+   wiring sites + wall-out leg + demo + sabotage), each its own go order per
+   the N1/N2 precedent.
+ - **Rationale**: R1's flip: two readable mirrored verbs beat one unusable
+   absolute one - the mirror already ships clock_now on the embed face, so B
+   invents nothing and makes the door sayable. R4/R5: the due event was ruled
+   ordinary bus traffic, so it borrows the landed fan-out law and crossing
+   grammar; only the absent half gets new call sites, each falsifiable on its
+   own. The three-pass review is the mechanism that turned "claimed free" into
+   "named and priced" - the agenda is stronger for the two rejections.
+ - **Reference**: docs/wave-2-clock-hearing.md (agenda + §7 review trail + §8
+   results); walkthrough this session (replies B,A,A,A,A,A); stage-5-plan §3
+   follow-up row; numbering gate widened D1-D99 with probe red observed;
+   Momus passes REJECT(3)/REJECT(2)/OKAY logged in the doc.
+ - **Re-review triggers**: T1/T2 go orders (each lands on its own round);
+   recurring/cancel demand (fresh hearing on the HOST grammar first - §3);
+   the general parent->child pump row (fires with a second ordinary-publish
+   consumer); capability-ledger + plugin.h/codegen rows arrive WITH the T1
+   landing, never before.

@@ -304,6 +304,7 @@ them. Re-review trigger recorded in D5.
 | D96 | v2 bus hearing | six-by-A: HostAbiV2 door (v1 byte-identical) / mailbox verbs mirror host face / two talkers on the existing wire + HELLO capability field / transparent wall; timer deferred; N1/N2 spec'd not open |
 | D97 | wave-2 debug-reader door | five rulings (A,A,A,A,B): smallest-door priority criterion -\> debug reader -\> reader-only no live attach -\> one runtime bin; minimal self-check face LANDED same day, plan docs/wave-2-debug-reader-plan.md; live-attach/dump-file remain armed |
 | D98 | wave-2 closeout | rulings A,A,C,A,A: reader face promoted to the sixth check.sh demo leg (sabotage red observed in the leg, D97 trigger closed); cold-census coverage rerun 50/50 suites - core 84.15 / transport 80.78 / codegen 84.25 region metric D84a, the named core debt CLEARED; plan docs/wave-2-closeout-plan.md |
+| D99 | CLOCK hearing | six rulings (B,A,A,A,A,A): schedule+now verbs on HostAbiV3 (V2 prefix byte-identical) / mirrored grammars / due = per-plugin bus topic Lossy(16) with replay pinned / local schedule + due routed existing frames (parent->child push absence NAMED, general pump deferred) / T1 door -> T2 crossing lanes spec'd not open |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
