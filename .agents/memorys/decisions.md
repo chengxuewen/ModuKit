@@ -737,3 +737,38 @@
    the general parent->child pump row (fires with a second ordinary-publish
    consumer); capability-ledger + plugin.h/codegen rows arrive WITH the T1
    landing, never before.
+
+## D100: Python bindings hearing held - four rulings (A,A,A,A) drawn; generated-ctypes floor, full 24-verb scope, five-gate parity, core cdylib (2026-10-22)
+- **Decision**: the armed Python door opened on maintainer word 2026-10-22 (the D93
+  re-review trigger answered). Four items walked one by one: (R1=A) FULL embed face -
+  all 24 verbs (16 rung-0 + 8 sup), delivered as two milestones mirroring the C++
+  volume's M1/M2 split; the equal-capability premise (docs/stage-4-plan.md:17-18)
+  outranks a smaller first cut, and an 8-row deferral without a trigger is the
+  silent-debt class this repo bans. (R2=A) the floor is GENERATED ctypes over the
+  frozen C header - the same single door, zero new installs on the offline box; the
+  whitepaper tech-table's PyO3 row (docs/whitepaper.md:144) is SUPERSEDED for the
+  bindings floor, recorded as a named delta against the :64 single-exit principle
+  (whitepaper itself stays verbatim per correction policy); pybind11 raised by the
+  maintainer mid-walk - considered, RECORDED NOT ADOPTED (no offline source; idiomatic
+  use is a hand-written glue layer the generated-floor rule D63 forbids; generating it
+  would add a second compiled lane for zero capability); re-entry needs measured
+  ctypes-overhead data on a hot path. (R3=A) five-gate parity with the cpp volume:
+  goldens byte-compare + structural pins against the ledger consts + eighth check.sh
+  demo leg (full verb walk, PY-DEMO PASS) + documented sabotage lever +
+  capability-ledger planned->generated flips; instruments stdlib-only (no pytest on
+  this box - the env fact picks the executor, not the strength). (R4=A) the
+  dlopen-able libmodukit_core.so comes from ONE crate-type line on modukit-core
+  (exact precedent: the staticlib bump b89f7b9 for the cpp band); no shim crate, no
+  naming round; the five fixture cdylibs export only the plugin-side entry and stay
+  untouched.
+- **Rationale**: full grill + increment recheck (both fresh sessions, PIT-27 discipline)
+  re-verified every §2 anchor tree-true and all four forks real; every doctrine in
+  force (single C exit, generated floor, no-silent-gap ledgering, falsifiable gates)
+  pointed at the same letter A on every item; the B-family options were known debt
+  without an alarm clock, C the unrequested-polish class.
+- **Reference**: docs/wave-2-python-hearing.md (DRAWN; review trail in its §6); volume
+  plan docs/wave-2-python-volume-plan.md follows the standard rail.
+- **Re-review triggers**: python-SCRIPT plugins (Python-authored plugins) remain the
+  separate case (docs/stage-4-plan.md:134) - own hearing only; per-language asyncio
+  sugar stays runner-side per D6; pybind11 re-entry = measured overhead numbers;
+  v1/frozen surfaces untouched - any drift rearms this hearing (D87 class).
