@@ -125,6 +125,15 @@ if [ -f scripts/demo-wave2-clock.sh ]; then
   elif echo "$w2c" | grep -q "demo-wave2-clock: SKIP"; then note "skip demo-wave2-clock (no build toolchain)";
   else note "FAIL demo-wave2-clock (gate did not print PASS)"; status=1; fi
 else note "skip demo-wave2-clock (no script)"; fi
+# Wave-2 python embed leg (D100 M1, the eighth demo leg): same PASS/SKIP
+# grammar as the other seven demo legs - SKIP (no python3 / toolchain /
+# pinned protoc / cpp fixture band) is green, RED fails.
+if [ -f scripts/demo-wave2-py.sh ]; then
+  w2p=$(bash scripts/demo-wave2-py.sh 2>/dev/null)
+  if echo "$w2p" | grep -q "demo-wave2-py: PASS"; then note "ok demo-wave2-py";
+  elif echo "$w2p" | grep -q "demo-wave2-py: SKIP"; then note "skip demo-wave2-py (no python3/toolchain/fixture)";
+  else note "FAIL demo-wave2-py (gate did not print PASS)"; status=1; fi
+else note "skip demo-wave2-py (no script)"; fi
 
 # leg: ctest bridge over the dedicated Stage-4 tree (gate escalation 2026-10-21;
 # PIT-17 class - a warm stale tree once fabricated a false 9/9). Incremental rebuild

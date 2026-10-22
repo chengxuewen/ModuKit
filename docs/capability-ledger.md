@@ -39,6 +39,11 @@ Citations (legend to keep rows short):
   (one `Kernel` forwarding method per verb, lane #3 face B).
 - `generated` plugin dispatch = `crates/modukit-codegen/testdata/golden/com_modukit_demo.hpp`
   (C++ service skeleton + `Dispatch` byte door, lane #3 face A).
+
+- `generated` Python embed floor = `crates/modukit-codegen/testdata/golden/modukit_embed.py`
+  (enum mirrors + one ctypes prototype per rung-0 verb, emitter
+  `crates/modukit-codegen/src/py.rs`, D100 R2-A; proof chain:
+  `examples/py/host_demo.py` + `scripts/demo-wave2-py.sh`).
 - `embed.rs` ops per verb-group: lifecycle `kernel.rs`; service call
   `kernel.rs`/`registry.rs`; bus `bus.rs` (`recv` = `Receiver::try_recv` + the
   embed queue table, `unsubscribe` = table removal + `Receiver` drop); clock
@@ -55,22 +60,22 @@ Last verified: 2026-10-20 by `scripts/check-capability-ledger.sh`
 
 | Capability | C | C++ | Rust | Python |
 |---|---|---|---|---|
-| `modukit_embed_abi_version` | header | generated | native | planned |
-| `modukit_install` | header | generated | native | planned |
-| `modukit_uninstall` | header | generated | native | planned |
-| `modukit_resolve` | header | generated | native | planned |
-| `modukit_start` | header | generated | native | planned |
-| `modukit_stop` | header | generated | native | planned |
-| `modukit_state` | header | generated | native | planned |
-| `modukit_service_call` | header | generated | native | planned |
-| `modukit_bus_publish` | header | generated | native | planned |
-| `modukit_bus_subscribe` | header | generated | native | planned |
-| `modukit_bus_recv` | header | generated | native | planned |
-| `modukit_bus_unsubscribe` | header | generated | native | planned |
-| `modukit_clock_now` | header | generated | native | planned |
-| `modukit_clock_advance` | header | generated | native | planned |
-| `modukit_introspect_snapshot` | header | generated | native | planned |
-| `modukit_introspect_events` | header | generated | native | planned |
+| `modukit_embed_abi_version` | header | generated | native | generated |
+| `modukit_install` | header | generated | native | generated |
+| `modukit_uninstall` | header | generated | native | generated |
+| `modukit_resolve` | header | generated | native | generated |
+| `modukit_start` | header | generated | native | generated |
+| `modukit_stop` | header | generated | native | generated |
+| `modukit_state` | header | generated | native | generated |
+| `modukit_service_call` | header | generated | native | generated |
+| `modukit_bus_publish` | header | generated | native | generated |
+| `modukit_bus_subscribe` | header | generated | native | generated |
+| `modukit_bus_recv` | header | generated | native | generated |
+| `modukit_bus_unsubscribe` | header | generated | native | generated |
+| `modukit_clock_now` | header | generated | native | generated |
+| `modukit_clock_advance` | header | generated | native | generated |
+| `modukit_introspect_snapshot` | header | generated | native | generated |
+| `modukit_introspect_events` | header | generated | native | generated |
 | `modukit_sup_install` | header | generated | native | planned |
 | `modukit_sup_stop` | header | generated | native | planned |
 | `modukit_sup_state` | header | generated | native | planned |
