@@ -34,7 +34,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | C1 English-artifacts check | command block in conventions.md C1 (scope grown with artifact classes: +M1 build files, +contracts/, +examples/ - each extension red/green proved) | pass (2026-10-16) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
 | numbering discipline | `grep -rnE '^## (C[4-9][0-9]?|D[0-9]{3,})' .agents/memorys/` must be empty — allows D1-D99 / C0-C3 (widened same-day for each mint D93-D99, red observed each time) | pass (2026-10-21) |
-| local check gate (D50) | `bash scripts/check.sh` - fast checks incl SIX demo legs (wave2-reader red-proved), pixi-routed per D65 | pass (2026-10-21) |
+| local check gate (D50) | `bash scripts/check.sh` - fast checks incl SEVEN demo legs (wave2-reader + T2 clock red-proved), pixi-routed per D65 | pass (2026-10-22) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
 | M1-M8.6 milestone gates | per `docs/stage-1-plan.md` evidence rows; orchestrator re-ran independently | pass (2026-10-16) |
 | C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN) | pass (2026-10-15) |

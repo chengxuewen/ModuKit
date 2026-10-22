@@ -32,8 +32,8 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── bindings/cpp/             # C++ wrapper shelf: generated faces + live probe (Visia-grammar)
 ├── CMakeLists.txt + cmake/   # PolyOrch-driven graph: pixi translation, cargo lanes, ctest bridges, demo lanes
 ├── pixi.toml / mise.toml     # build envs (tools/rust/cov; vendor-test task) / host tooling pins
-├── scripts/                  # check.sh (D50 local gate incl ALL SIX demo legs + commit-shape),
-│                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh + demo-stage5-n2.sh + demo-wave2-reader.sh, regen-fdset/golden.sh,
+├── scripts/                  # check.sh (D50 local gate incl ALL SEVEN demo legs + commit-shape),
+│                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh + demo-stage5-n2.sh + demo-wave2-reader.sh + demo-wave2-clock.sh, regen-fdset/golden.sh,
 │                             #   check-embed-parity/capability-ledger.sh, skill-lint.py
 ├── .agents/                  # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
 └── .vscode/ .opencode/ .omo/ # IDE cmake pin (PIT-7) / agent config / OMO state
@@ -81,7 +81,7 @@ grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
   AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
-# full local gate - fast checks incl ALL SIX demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader)
+# full local gate - fast checks incl ALL SEVEN demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader + T2 clock)
 bash scripts/check.sh
 
 # stage acceptance gates
@@ -91,6 +91,7 @@ bash scripts/demo-stage4-m1.sh    # demo-stage4-m1: PASS (embed face; clean SKIP
 bash scripts/demo-stage4-m2.sh    # demo-stage4-m2: PASS (sup rung + ORPHAN-PROOF; sabotage hook)
 bash scripts/demo-stage5-n2.sh     # demo-stage5-n2: PASS (v2 bus across the wall; sabotage hook)
 bash scripts/demo-wave2-reader.sh  # demo-wave2-reader: PASS (reader self-check; sabotage lever)
+bash scripts/demo-wave2-clock.sh   # demo-wave2-clock: PASS (plugin bell crosses the wall at the dial; sabotage lever)
 
 # build/test via pixi ONLY (mise cargo/rustfmt shims are broken on this box)
 export PATH="$HOME/.pixi/bin:$PATH"

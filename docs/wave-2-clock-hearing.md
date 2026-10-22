@@ -280,7 +280,16 @@ parent->child pump (now a stage-5-plan §3 row).
   docs/stage-5-plan.md (CLOCK lane) per the D99 §6 ruling - rows go to the
   plan-of-record file, this file stays the drawn contract. Plan of record
   for the lane: docs/wave-2-t1-clock-door-plan.md.
-- **T2 - the crossing**: armed, not open. Scope by D99: HELLO_CAP_TIMER_V2=2,
-  bridge/FWD_PUB due routing child->parent, the ParentFanout deliver call
-  site parent->child (the named landed absence), wall-out suite legs, demo
-  leg + its sabotage lever, cross-revive generation-field dedup candidate.
+- **T2 - the crossing**: LANDED 2026-10-22. Evidence row lives in
+  docs/stage-5-plan.md (CLOCK lane) per the same ruling; plan of record
+  docs/wave-2-t2-clock-crossing-plan.md. Two amendments taken at landing,
+  NAMED by record (D83): bell capacity unified to `embed_codec::LOSSY_RING`
+  (64 - the wire vocabulary's decode of qos code 2; R4-A's drafted 16 is
+  superseded by ruling 6's mirror law), and the bell payload grew the
+  boot generation (R4-A's pin-at-landing, clock.rs `boot_gen`, gen ++ token
+  ++ label; cross-revive alias kill). FINDING at execution: the parent->
+  child LIVE pump leg is not end-to-end observable on today's trees (the
+  supervisor kernel hosts no dl-plugin bell producer, the child's wall
+  interest is start-window-only, Kernel is not Send/Sync); the R5-A pump
+  call site landed with frame-level proof in bus_wire.rs / wiring.rs unit
+  suites, the leg OUT crossing landed end to end with the demo lever.

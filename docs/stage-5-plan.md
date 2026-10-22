@@ -5,7 +5,8 @@
 > Implementation lanes below are SPEC'd, not open - each needs its own go order.
 > The schedule-timer agenda was HEARD and DRAWN 2026-10-21 (D99,
 > docs/wave-2-clock-hearing.md); its lane T1 (the door) LANDED the same
-> day - row below. T2 (crossing) awaits its own go order.
+> day; its lane T2 (the crossing) LANDED 2026-10-22 - row below. The §3
+> ordinary-publish pump row stands (T2 wired bells only, at the due-funnel).
 
 ## 1. v2 bus hearing - the six rulings (all A, walked one by one, plain speech)
 
@@ -81,6 +82,37 @@
   55 suites (was 239/51), planted red observed in the orchestrator's own
   eyes (both bell legs FAILED under sabotage, restored 6/6), check.sh all
   green incl the six demo legs. Plan: docs/wave-2-t1-clock-door-plan.md.
+- **T2 - the crossing**: LANDED 2026-10-22 (maintainer open-T2 order; plan
+  docs/wave-2-t2-clock-crossing-plan.md). `HELLO_CAP_TIMER_V2 = 2` rides the
+  landed caps tail (WIRE_VERSION stays 1; no proto/fdset touch, regen-diff
+  byte-clean); the runner declares BUS|TIMER, with ONE named lever
+  (DEMO_WAVE2_CLOCK_SABOTAGE=1) dropping only the timer bit. The executor
+  parses timer_caps beside bus_caps and notes the fan-out's bell-target set
+  at the child's register site; `retire` sweeps it with the window. The
+  crossing dial (`executor_proc::dial_child_crossing`, the supervisor's dial
+  rewired to it) absorbs the child's MID-DIAL FORWARD bells into the
+  fan-out: existing FWD_PUB/DELIVER frames, TWO new call sites at the
+  due-funnel (`post_timer_bell`'s outlets), zero new frame types, no general
+  Bus::publish pump (§3 row untouched). AMENDMENTS NAMED (D83
+  tail-add-by-record): bell capacity unified to `embed_codec::LOSSY_RING`
+  (64 - the wire vocabulary's decode of qos code 2 beats the hearing draft's
+  round 16; the amendment names itself in the wiring.rs module doc) and the
+  bell payload grew the boot generation (`gen u64 LE ++ token ++ label`,
+  D99 §9 pin, the cross-revive alias kill) with T1's decode_bell / late-join
+  / fixture docs updated atomically (gen asserted by self-equality only,
+  never literally). FINDINGS (the plan's stop clause - reported, not worked
+  around): the parent->child LIVE pump leg is NOT end-to-end observable
+  today (a fanout-owning Supervisor kernel hosts no dl plugin producer;
+  the child's wall interest lives only inside the start window; Kernel is
+  not Send/Sync so no concurrent dial exists), and the leg-OUT child-local
+  subscriber mirror has no post-start observer either; the pump method
+  landed with frame-level proof in `bus_wire.rs::tests` and the REAL bell
+  site in `wiring.rs::bell_crossing_tests`. Evidence: leg OUT green through
+  the real runner + supervisor dial (parent-bus decode, DUE-agreeing token,
+  late-join byte-equal); the timer-cap lever reddens the leg (observed, the
+  suite's own column) and the demo (observed RED + restored green); demo
+  leg SEVEN `scripts/demo-wave2-clock.sh` landed in check.sh; ledger sweep
+  SIX->SEVEN done (AGENTS x2 + scripts line, status.md gate row, README).
 
 ## 3. What this file deliberately does NOT decide
 
