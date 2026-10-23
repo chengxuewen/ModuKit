@@ -275,10 +275,14 @@ run per commit batch as usual. C3 shape per commit.
   presets structurally end that drift class. No .vscode change needed (values
   mirror 1:1; auto-selected preset reproduces the IDE flow). Red observed via
   version 999 rejection.
-- VANISHED-EDIT INCIDENT: the js kernel() typed-error fix (landed, gate-green at
-  16:02) was absent from the worktree at commit time 16:05 with no git op in the
-  window - re-applied, re-verified, and every batch commit now gets post-commit
-  tree-content verification. Filed as PIT-31.
+- EDIT-REVERSION INCIDENT (amended same day, true cause): the js kernel() fix
+  "vanished" TWICE because lib.rs is GENERATED - the demo-wave2-js legs re-emit it
+  from the codegen template every gate run (its own banner says DO NOT EDIT, D63).
+  The environment was innocent; the hand-fix sat in the wrong layer. Root cure:
+  fixed the emitter (js.rs), re-regenerated the golden, skin copied per leg
+  grammar; post-gate byte-identity + forced-fresh clippy prove it stayed. PIT-31
+  amended with the correction; the post-commit tree-verification discipline is
+  kept (it caught the drift fast - it just named the wrong culprit).
 
 ## 12. Review trail
 
@@ -291,6 +295,7 @@ run per commit batch as usual. C3 shape per commit.
   disk while examples does; the position-mirror folder rule faithfully reproduced
   the asymmetry. Maintainer ruled A (move the boxes, keep the mirror honest): five
   fixture crates into test-plugins/rs/, members/deps/lane-fields/docs follow, full
-  gate green with the 9-entry census byte-identical. Third PIT-31 eviction attempt
-  during this step: the tree-verified fix in HEAD restored the worktree -
-  immutable-witness discipline paid off the moment it was needed.
+  gate green with the 9-entry census byte-identical. (The "PIT-31 eviction"
+  wording here predates the true-cause finding - see the amendment above: the
+  reversion was the js leg re-emitting the unfixed template, since cured at the
+  emitter.)
