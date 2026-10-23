@@ -1,7 +1,7 @@
 # Wave-2 Benchmark Volume Plan - MediaServo discipline tier
 
 > Date: 2026-10-23. Contract basis: D104 (docs/wave-2-benchmark-hearing.md, rulings
-> E/B/B/A, maintainer-adjudicated one by one). Status: MOMUS OKAY 2026-10-23; awaiting maintainer word.
+> E/B/B/A, maintainer-adjudicated one by one). Status: APPROVED 2026-10-23 (Momus OKAY + maintainer calibers A/A/A one-by-one).
 > This plan lands code only through the three batches below; the delivery plane
 > (frontend / docker / deploy CLI / SDK install face) is explicitly OUT - demand
 > triggered, per the standing demotion lineage.
@@ -99,9 +99,10 @@ All load-bearing anchors were re-read by the orchestrator on 2026-10-23:
   with `allow-unwrap-in-tests = true`, `allow-expect-in-tests = true` (inline
   #[cfg(test)] modules and tests/ dirs stay usable). Red proof: plant one
   `.unwrap()` in modukit-core non-test code -> clippy leg -D warnings must die;
-  remove, green. (If volume of pre-existing unwraps makes day-1 red beyond a
-  scoped cleanup, the deny lands per-crate as each crate is cleaned - ladder
-  noted in plan §7, never a blanket allow.)
+  remove, green. (Caliber ruled A 2026-10-23: measured production-zone debt is
+  exactly three sites - codegen 2, js 1 - so all five shipped crates switch on
+  day one with the three cleaned in-batch; the ladder clause is retired. A
+  blanket allow stays forbidden.)
 - **T2.5 Style pin.** rustfmt.toml: `edition = "2024"`, `max_width = 100`
   (matches today's habit - the fmt leg must stay green with zero reflow; if a
   file disagrees, that file is a bug the leg will show). Red proof: plant one
@@ -189,8 +190,9 @@ run per commit batch as usual. C3 shape per commit.
 - Egress-armed switches: T3.5 list (pixi interpreters, cargo-deny, advisory,
   fresh-box full run).
 - China-mirror slot in wrapper: maintainer network-policy call.
-- clippy deny ladder: per-crate opt-in lands as each crate is clean; blanket
-  allow is forbidden as an escape.
+- clippy deny: day-one full switch-on ruled (measured three-site debt, cleaned
+  in-batch); ladder retired; blanket allow forbidden.
+- floor bump-note rule: adopted at caliber ruling (A/A/A 2026-10-23).
 - Floor version 0.7.1: re-check at every future PolyOrch bump whether new API is
   relied on (bump commits gain a body bullet naming the floor if raised).
 
@@ -200,6 +202,7 @@ run per commit batch as usual. C3 shape per commit.
   re-verified (incl. pin project VERSION 0.7.1 matching the floor constant, CTEST knob
   values byte-matching the current hand-rolled properties); one cosmetic nit (bat 57
   not 50 lines) fixed in place; no blockers.
-- [ ] Maintainer approval word (three caliber calls listed at review time: clippy
-  per-crate ladder, floor 0.7.1 + bump-note rule, RUNNER line joining the eleven-leg
-  verdict rule)
+- [x] Maintainer approval 2026-10-23 - three caliber calls walked one by one,
+  ruled A / A / A: day-one full clippy switch-on (ladder retired at measured debt),
+  floor 0.7.1 + bump-note, RUNNER line joins the eleven-leg verdict rule (the gate
+  change carries its own planted-defect red proof).

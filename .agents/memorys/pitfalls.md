@@ -197,6 +197,8 @@
 
 - **Recurrence 5 (2026-10-23)**: the MediaServo-benchmark scope adjudication was first shipped as a term-stack (configure/CTEST keyword/version-floor/--self-test/diff as body sentences, file:line dump inside Sources). Same fix as recurrences 3-4 applies with prejudice: before sending ANY walkthrough message, replace every word a non-builder stumbles on, anchors live only in trailing parentheses. The skill states this rule; a third re-learn of a stated rule is the violation itself.
 
+- **Recurrence 6 (2026-10-23)**: adjudication 3 of the benchmark-caliber walk again read as legalese-builder-mix (verdict conditions, gate semantics, class-names as body text); corrected same session. Standing pre-send ritual now mandatory: every walkthrough message must pass a literal read-aloud pass with the test "would a neighbor outside programming understand this?", replacing terms like gate/verdict/lever/class with household words BEFORE sending.
+
 ## PIT-27: a resumed critic session stalls silently twice a day; a fresh session completes the same grill in minutes (2026-10-21)
 - **Symptom**: two resumed Momus review sessions (increment re-review of a written-back doc) burned the full 30-minute poll window with zero activity ("Poll inactivity timeout reached after 1800000ms"), on different sessions, same day; fresh Momus sessions on the same class of work returned full verdicts in 5-7 minutes (the T2 six-grill review: 5m23s, all anchors verified).
 - **Root cause**: the resume path waits on a child that stopped reporting status; whether the review actually ran somewhere unseen is unknowable from the poll side - the deliverable never arrives, so the timeout is a non-event, not a failure to retry-by-resuming.
