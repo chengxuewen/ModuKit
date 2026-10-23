@@ -128,6 +128,19 @@
   first boundary run with a machine-checkable census), docs swept incl the
   EINTR-sentinel hardening.
 
+- **JS volume (D102)**: LANDED 2026-10-23 (go order same day). M0 martial probe GREEN -
+  napi builds offline from cache, node loads the .node; the scratch probe settled the
+  type-shape quirks first (no tuple returns, no u64 crossing - create_object + i64 policy).
+  M1 generated bridge + facade over the 16 rung-0 verbs - tenth leg JS-DEMO PASS (23 checks,
+  lever red at scene [2], restored), node:test pin_test 4/4, AND the supply-chain fence
+  amended per its own words: the napi tree admitted with exact probe pins + one-door
+  confinement (set-leg was observed red before the admission - C0 honored). M2 sup rung (8)
+  + byte-FIDELITY against the SAME pinned constant as cpp (host_sup_demo.cc:139) and python
+  + /proc-census orphan proof - eleventh leg, both levers red-proved. Ledger JS column:
+  24 rows generated. Face-1 (JS-authored plugins) stays the script-host separate case.
+  Commits 687e7ea..7428c62; plan docs/wave-2-js-volume-plan.md. Acceptance open item:
+  the modukit-js coverage-region question (plan §5) - named, not hidden.
+
 ## 3. What this file deliberately does NOT decide
 
 - Parent->child live-push for ORDINARY publishes (named by the D99 CLOCK
@@ -142,9 +155,9 @@
   so post-start bus APIs and live child-to-child overlap are a FUTURE agenda the moment
   a real consumer needs them - named here, not a silent drop (fan-out already serves
   all interested children; parent-side behavior is unit-pinned);
-- live-attach debug tooling depth, JS dual-face product surface - remain armed in
-  `docs/stage-4-plan.md` §6, each needing its own word and round (Python bindings
-  LANDED 2026-10-23, lane row above)
+- live-attach debug tooling depth - remains armed in `docs/stage-4-plan.md` §6, needing
+  its own word and round (Python bindings LANDED 2026-10-23; JS face 2 LANDED 2026-10-23
+  above; JS face 1 = script-host separate case)
   (the regen-tool nit on that list CLOSED 2026-10-21, commit 00a5290).
 
 - Debug-reader first landing 2026-10-21: the adjudicated door shipped as a minimal

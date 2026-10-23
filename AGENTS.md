@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stages 1-3 are CLOSED** (D88/D91; the UI-composition tier stays demoted until a real beachhead demand, D89-K2); **STAGE-4 INFRA volume: C/C++ bindings line shipped M1+M2** 2026-10-20, ruled in as D93/D94 (M3 service-call door landed 2026-10-21), volume ACCEPTED AND CLOSED 2026-10-21 (D95); wave-2: v2 bus LANDED (D96) + debug-reader minimal face LANDED (D97) + closeout LANDED (D98: reader gate leg, cold-census coverage - core debt cleared) + CLOCK HEARING DRAWN (D99, T1+T2 LANDED 2026-10-22) + PYTHON VOLUME ACCEPTED (D100/D101, 2026-10-23; nine-leg gate + pinned coverage boundary) + JS HEARING DRAWN (D102, plan under review); remainder armed in plan §6. Working code: `crates/modukit-core / -runtime / -transport / -codegen` + `bindings/cpp` + contracts C originals (test totals volatile — live in the plans of record; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D102 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stages 1-3 are CLOSED** (D88/D91; the UI-composition tier stays demoted until a real beachhead demand, D89-K2); **STAGE-4 INFRA volume: C/C++ bindings line shipped M1+M2** 2026-10-20, ruled in as D93/D94 (M3 service-call door landed 2026-10-21), volume ACCEPTED AND CLOSED 2026-10-21 (D95); wave-2: v2 bus LANDED (D96) + debug-reader minimal face LANDED (D97) + closeout LANDED (D98: reader gate leg, cold-census coverage - core debt cleared) + CLOCK HEARING DRAWN (D99, T1+T2 LANDED 2026-10-22) + PYTHON VOLUME ACCEPTED (D100/D101, 2026-10-23; pinned coverage boundary) + JS VOLUME LANDED (D102 M0-M2 2026-10-23; napi bridge behind a green probe, tri-language fidelity; eleven-leg gate); remainder armed in plan §6. Working code: `crates/modukit-core / -runtime / -transport / -codegen` + `bindings/cpp` + contracts C originals (test totals volatile — live in the plans of record; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D102 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
 
 ## STRUCTURE
 
@@ -32,8 +32,8 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── bindings/cpp/             # C++ wrapper shelf: generated faces + live probe (Visia-grammar)
 ├── CMakeLists.txt + cmake/   # PolyOrch-driven graph: pixi translation, cargo lanes, ctest bridges, demo lanes
 ├── pixi.toml / mise.toml     # build envs (tools/rust/cov; vendor-test task) / host tooling pins
-├── scripts/                  # check.sh (D50 local gate incl ALL NINE demo legs + commit-shape),
-│                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh + demo-stage5-n2.sh + demo-wave2-{reader,clock,py,py-sup}.sh, regen-fdset/golden.sh,
+├── scripts/                  # check.sh (D50 local gate incl ALL ELEVEN demo legs + commit-shape),
+│                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh + demo-stage5-n2.sh + demo-wave2-{reader,clock,py,py-sup,js,js-sup}.sh, regen-fdset/golden.sh,
 │                             #   check-embed-parity/capability-ledger.sh, skill-lint.py
 ├── .agents/                  # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
 └── .vscode/ .opencode/ .omo/ # IDE cmake pin (PIT-7) / agent config / OMO state
@@ -81,7 +81,7 @@ grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
   AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
-# full local gate - fast checks incl ALL NINE demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader + T2 clock + D100 python x2)
+# full local gate - fast checks incl ALL ELEVEN demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader + T2 clock + D100 python x2 + D102 js x2)
 bash scripts/check.sh
 
 # stage acceptance gates
@@ -94,6 +94,8 @@ bash scripts/demo-wave2-reader.sh  # demo-wave2-reader: PASS (reader self-check;
 bash scripts/demo-wave2-clock.sh   # demo-wave2-clock: PASS (plugin bell crosses the wall at the dial; sabotage lever)
 bash scripts/demo-wave2-py.sh      # demo-wave2-py: PASS (python walks the 16 rung-0 verbs on the generated skin; lever)
 bash scripts/demo-wave2-py-sup.sh  # demo-wave2-py-sup: PASS (python sup rung + byte-FIDELITY + orphan census; two levers)
+bash scripts/demo-wave2-js.sh      # demo-wave2-js: PASS (node walks the 16 rung-0 verbs through the generated napi bridge; lever)
+bash scripts/demo-wave2-js-sup.sh  # demo-wave2-js-sup: PASS (js sup rung + tri-language FIDELITY + orphan census; two levers)
 bash scripts/coverage-boundary.sh  # D79 boundary run - all regions >= 80 (long; stage/acceptance edges only)
 
 # build/test via pixi ONLY (mise cargo/rustfmt shims are broken on this box)

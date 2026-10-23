@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-23: D1-D102 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, all walked one by one; queue EMPTY, remainder trigger-gated. **STAGE-1 COMPLETE 2026-10-16**: M1-M8 + M8.5 lanes + M8.6 shelves all landed (shelves: crates/ engine, test-plugins/ fixtures, examples/ demos, plugins/ reserved - rulings F+B) - evidence per-milestone in `docs/stage-1-plan.md`. C2 + PIN POLICY live in conventions.md (pin `f8f85db`; IDE pixi-cmake via .vscode, PIT-7). **STAGE-2 ACCEPTED AND CLOSED 2026-10-18**; **STAGE-3 (stability/docs re-scope) ACCEPTED 2026-10-19 (D91)**: plan `docs/stage-2-plan.md` (Momus OKAY; kickoff A1-A7 -> D74-D81; M1-M5 landed incl. wire dial, vendor-shm, modukit-host, dual demo + ORPHAN-PROOF); freeze hearing 8 rulings -> D82-D88: **v1 surfaces STABLE (D87)**, v2 verbs PLANNED (D82); amendment policy live (D83). **STAGE-3 CLOSED 2026-10-19 (D91)**; **STAGE-4 INFRA volume: C/C++ bindings M1+M2 CLOSED 2026-10-20, ruled in as D93; volume ACCEPTED AND CLOSED 2026-10-21 (D95)** — plan `docs/stage-4-plan.md`; wave-2 OPENED 2026-10-21 (D94, rulings A/A/A): **M3 door LANDED same day** (fidelity now gated); §12 APPLIED at D95. Wave-2 since: v2 bus LANDED (D96 N1+N2) + debug-reader face LANDED (D97) + closeout LANDED (D98) + CLOCK HEARING DRAWN (D99 six rulings; T1 door + T2 crossing LANDED 2026-10-22) + PYTHON VOLUME ACCEPTED (D100/D101; boundary all >= 80) + JS HEARING DRAWN (D102 A,A,A,A: face-2 24 verbs / napi bridge behind day-one probe / six gates / modukit-js crate; plan under review). Kernel v0 parked.
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-23: D1-D102 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, all walked one by one; queue EMPTY, remainder trigger-gated. **STAGE-1 COMPLETE 2026-10-16**: M1-M8 + M8.5 lanes + M8.6 shelves all landed (shelves: crates/ engine, test-plugins/ fixtures, examples/ demos, plugins/ reserved - rulings F+B) - evidence per-milestone in `docs/stage-1-plan.md`. C2 + PIN POLICY live in conventions.md (pin `f8f85db`; IDE pixi-cmake via .vscode, PIT-7). **STAGE-2 ACCEPTED AND CLOSED 2026-10-18**; **STAGE-3 (stability/docs re-scope) ACCEPTED 2026-10-19 (D91)**: plan `docs/stage-2-plan.md` (Momus OKAY; kickoff A1-A7 -> D74-D81; M1-M5 landed incl. wire dial, vendor-shm, modukit-host, dual demo + ORPHAN-PROOF); freeze hearing 8 rulings -> D82-D88: **v1 surfaces STABLE (D87)**, v2 verbs PLANNED (D82); amendment policy live (D83). **STAGE-3 CLOSED 2026-10-19 (D91)**; **STAGE-4 INFRA volume: C/C++ bindings M1+M2 CLOSED 2026-10-20, ruled in as D93; volume ACCEPTED AND CLOSED 2026-10-21 (D95)** — plan `docs/stage-4-plan.md`; wave-2 OPENED 2026-10-21 (D94, rulings A/A/A): **M3 door LANDED same day** (fidelity now gated); §12 APPLIED at D95. Wave-2 since: v2 bus LANDED (D96 N1+N2) + debug-reader face LANDED (D97) + closeout LANDED (D98) + CLOCK HEARING DRAWN (D99 six rulings; T1 door + T2 crossing LANDED 2026-10-22) + PYTHON VOLUME ACCEPTED (D100/D101; boundary all >= 80) + JS VOLUME LANDED 2026-10-23 (D102 M0-M2: probe green, 24-verb bridge, tri-language fidelity, eleven legs; acceptance pending). Kernel v0 parked.
 
 ## Modules
 
@@ -34,7 +34,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | C1 English-artifacts check | command block in conventions.md C1 (scope grown with artifact classes: +M1 build files, +contracts/, +examples/ - each extension red/green proved) | pass (2026-10-16) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
 | numbering discipline | `grep -rnE '^## (C[4-9][0-9]?|D[1-9][0-9]{3,})' .agents/memorys/` must be empty — allows D1-D102 / C0-C3 (pattern spans D1-D999 since D100; prose re-synced at each mint) | pass (2026-10-22) |
-| local check gate (D50) | `bash scripts/check.sh` - fast checks incl NINE demo legs (py skin + py sup/fidelity red-proved), pixi-routed per D65 | pass (2026-10-23) |
+| local check gate (D50) | `bash scripts/check.sh` - fast checks incl ELEVEN demo legs (js bridge + sup fidelity red-proved too), pixi-routed per D65 | pass (2026-10-23) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
 | M1-M8.6 milestone gates | per `docs/stage-1-plan.md` evidence rows; orchestrator re-ran independently | pass (2026-10-16) |
 | C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN) | pass (2026-10-15) |
@@ -53,9 +53,10 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 - [x] Stage-4 volume ACCEPTED 2026-10-21 (D95): M1-M3 + coverage boundary run + §12 applied + wave-2 door landed; push tail + K7 remain maintainer calls
 - [x] Wave-2 v2 bus: HEARING (D96 six-by-A) + **N1 door + N2 crossing both LANDED 2026-10-21** (five demo legs, wall transparent in the start window): docs/stage-5-plan.md
 - [x] Clock lanes LANDED (T1 2026-10-21 + T2 2026-10-22, D99); debug-reader face
-  LANDED + check.sh leg + core debt cleared (D97/D98). Python volume hearing DRAWN
-  PYTHON VOLUME ACCEPTED 2026-10-23 (D101; boundary green via pinned recipe). JS volume
-  hearing DRAWN (D102) 2026-10-23 - plan under review; still armed: live-attach depth.
+  LANDED + check.sh leg + core debt cleared (D97/D98). PYTHON VOLUME ACCEPTED
+  2026-10-23 (D101; boundary green via pinned recipe). JS VOLUME LANDED 2026-10-23
+  (M0-M2; eleven-leg green; acceptance pending - js coverage question named).
+  Still armed: live-attach depth.
 - [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — K7=C (D89): v1-STABLE factual note pending maintainer send; wiring-hearing proposal ARMED, not opened
 - [x] rules/common dangling-refs family CLOSED 2026-10-19 (M3S-1 sweep; doc-liveness leg in check.sh; unmounted pool kept per G10)
 - [x] Cargo workspace landed 2026-10-15 (M2; kernel filled from M3 on)

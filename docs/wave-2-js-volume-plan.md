@@ -137,9 +137,31 @@ case rail, the JS carve follows it by analogy). npm publishing, koffi/ffi-napi (
 dead). TS type emission (D48 lane). Hand-written floor (D63). Child-process shapes (not
 the embed face). Frozen surfaces (D87).
 
-## 7. Execution notes
+## 7. Execution notes (landing round, 2026-10-23)
 
-(empty - filled at landing, same-commit-cited rule)
+- M0 probe GREEN both steps: offline cargo build of a scratch napi cdylib (pinned
+  napi-2.16.17 / napi-derive-2.16.13 / napi-build-2.5.0) + `PROBE 1` through
+  process.dlopen. The scratch also de-risked the emitter first: no tuple ToNapiValue,
+  no u64/usize conversions -> create_object returns + i64 crossing policy, both cited
+  in the generated banners.
+- M1: bridge + facade emitted from the frozen header (rung-0 first); tenth leg green
+  (23 scene checks, `JS-DEMO PASS`), lever red at scene [2] observed, node:test 4/4,
+  goldens regen-stable. The supply-chain fence caught the napi tree as designed (its
+  set-leg observed RED in the first full gate) and was amended per its own rule: exact
+  probe pins + closure admission + one-door confinement test.
+- M2: filter site inverted (both rungs in, banners header-computed); sup rung walked
+  the exe chain; `FIDELITY PASS (24 typed bytes out, payload byte-exact)` asserts the
+  SAME constant cpp cites at host_sup_demo.cc:139 and python pins at K_FIDELITY_PAYLOAD
+  - first tri-language byte agreement; both levers observed RED, restored; eleventh leg
+  green; ledger JS column complete (24 generated).
+- Deviations honored as drawn: node-parent gates via status-file + liveness probe
+  (streams can't blocking-fgets); facade live path target/js (bindings/js unignored,
+  no .gitignore edit); LD_PRELOAD of the pinned-env libstdc++ (node boots the system
+  3.4.28, the cpp fixture chain needs 3.4.29) - all documented at their sites.
+- Outstanding for acceptance: the modukit-js coverage-region reading (generated
+  forwarders, no cargo-side tests - the pin surface is node-side); the boundary run
+  with four regions reports it honestly and the maintainer rules (classify bin-like
+  per the runtime precedent, or demand in-crate tests).
 
 ## 8. Review trail
 
