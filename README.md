@@ -21,7 +21,7 @@ Adjudicated architecture baseline (2026-10-15, records specific post-v1.0 deltas
 | Service registry | type-safe service discovery and dependency injection |
 | IPC abstraction | one interface over local sockets, shared memory, remote transport |
 | Capability discovery | platform differences (SHM, windowing, input injection, GPU sharing) declared and checked explicitly |
-| Polyglot bindings | C/C++/Rust native · Python (PyO3) · C# (csbindgen) · JS/Node (napi-rs), all generated from the C ABI |
+| Polyglot bindings | C/C++ native · Python (generated ctypes, D100) · JS/Node (generated napi bridge, D102) - all generated from the C ABI; C# remains an unchosen option |
 | Script & sandbox | Lua (mlua) · embedded JS (QuickJS/Boa) · WASM sandbox (wasmtime) for untrusted plugins |
 | UI composition | main HMI as compositor; child processes submit frames via Wayland/X11 or SHM (I420), input events routed back |
 | Remote streaming | WebRTC (webrtc-rs); the whitepaper-era name `getstream-rtc` is an audited mis-citation — the crate is `getstream`, a vendor cloud-SFU SDK candidate, not an open-source transport lib (`docs/reference/webrtc-rust-state.md`); receiver decodes to I420 and hands frames to the host over SHM |
@@ -49,6 +49,7 @@ crates/modukit-core        # kernel: lifecycle, registry, manifest, bundle, bus,
 crates/modukit-runtime     # host binaries: modukit-run (shadow runner) · modukit-host (supervisor loop)
 crates/modukit-transport   # transport seam: socketpair/memfd, SCM_RIGHTS fd-passing, optional vendor-shm (iceoryx2)
 crates/modukit-codegen     # protoc plugin (protoc-gen-modukit): Rust skeletons, C ABI shades, fdset decoder
+crates/modukit-js           # generated napi bridge crate (D102; bin-like metric-exempt, D103)
 ```
 
 Planned (whitepaper §2.3 namespace; naming authority `docs/whitepaper.md` §2/§4):
@@ -59,7 +60,7 @@ modukit-compositor    # multi-process UI compositor (extension)
 modukit-c             # C ABI export
 modukit-py            # Python bindings
 modukit-cs            # C# bindings
-modukit-js            # JS/Node bindings
+(modukit-js - SHIPPED since D102, see the Shipped block above)
 modukit-wasm          # WASM host & sandbox
 modukit-script-lua    # Lua extension host
 modukit-script-js     # QuickJS/Boa extension host
@@ -88,7 +89,7 @@ Five stages per the whitepaper implementation path:
 
 ## Development status
 
-As-built: four shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen` (v1 API surface frozen STABLE per `docs/architecture.md` §11, D87; test totals are volatile and live in the plans of record) — plus the Stage-4 bindings line: `contracts/modukit_embed.h` (HostEmbedV1, 24 verbs over two rungs incl. the sup service-call door), `contracts/modukit_plugin.h`, the generated C++ faces and the `bindings/cpp` shelf (M1/M2/M3 closed; the volume was accepted and closed 2026-10-21, D95). Stages 1-4 are closed (D88, D91, D95). Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
+As-built: five shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen`, `crates/modukit-js` (v1 API surface frozen STABLE per `docs/architecture.md` §11, D87; test totals are volatile and live in the plans of record) — plus the Stage-4/wave-2 bindings line: `contracts/modukit_embed.h` (HostEmbedV1, 24 verbs over two rungs incl. the sup service-call door), `contracts/modukit_plugin.h`, the generated C++ faces and the `bindings/cpp` shelf (M1/M2/M3 closed; the volume was accepted and closed 2026-10-21, D95), the generated Python ctypes floor `bindings/py` (D100/D101) and the generated napi bridge `crates/modukit-js` (D102/D103). Stages 1-4 are closed (D88, D91, D95); wave-2 volumes accepted through D103. Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
 
 First-time machine setup for dev toolchains (user-level, via mise; idempotent): `./bootstrap.sh` (Linux/macOS) or `bootstrap.bat` (Windows native). Pins live in `mise.toml`.
 

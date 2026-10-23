@@ -4,14 +4,14 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stages 1-3 are CLOSED** (D88/D91; the UI-composition tier stays demoted until a real beachhead demand, D89-K2); **STAGE-4 INFRA volume: C/C++ bindings line shipped M1+M2** 2026-10-20, ruled in as D93/D94 (M3 service-call door landed 2026-10-21), volume ACCEPTED AND CLOSED 2026-10-21 (D95); wave-2: v2 bus LANDED (D96) + debug-reader minimal face LANDED (D97) + closeout LANDED (D98: reader gate leg, cold-census coverage - core debt cleared) + CLOCK HEARING DRAWN (D99, T1+T2 LANDED 2026-10-22) + PYTHON VOLUME ACCEPTED (D100/D101, 2026-10-23; pinned coverage boundary) + JS VOLUME ACCEPTED (D102/D103; napi bridge, tri-language fidelity; eleven-leg gate) + BENCHMARK HEARING DRAWN (D104 2026-10-23: MediaServo discipline tier, three batches, plan armed); remainder armed in plan §6. Working code: `crates/modukit-core / -runtime / -transport / -codegen` + `bindings/cpp` + contracts C originals (test totals volatile — live in the plans of record; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D104 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stages 1-3 are CLOSED** (D88/D91; the UI-composition tier stays demoted until a real beachhead demand, D89-K2); **STAGE-4 INFRA volume: C/C++ bindings line shipped M1+M2** 2026-10-20, ruled in as D93/D94 (M3 service-call door landed 2026-10-21), volume ACCEPTED AND CLOSED 2026-10-21 (D95); wave-2: v2 bus LANDED (D96) + debug-reader minimal face LANDED (D97) + closeout LANDED (D98: reader gate leg, cold-census coverage - core debt cleared) + CLOCK HEARING DRAWN (D99, T1+T2 LANDED 2026-10-22) + PYTHON VOLUME ACCEPTED (D100/D101, 2026-10-23; pinned coverage boundary) + JS VOLUME ACCEPTED (D102/D103; napi bridge, tri-language fidelity; eleven-leg gate) + BENCHMARK VOLUME LANDED (D104 2026-10-23: discipline tier hearing E/B/B/A + plan approved A/A/A + batches 1-3 landed; acceptance pending; egress/Windows/mirror debts plan §7). Working code: `crates/modukit-core / -runtime / -transport / -codegen / -js` + `bindings/cpp` + `bindings/py` + contracts C originals (test totals volatile — live in the plans of record; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D104 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
 
 ## STRUCTURE
 
 ```
 ├── README.md / SKILL.md      # front door / skills registry
 ├── docs/whitepaper.md        # v1.0 canon - crate names §2.3, roadmap §8 (superseded by §9/§10/§12)
-├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D99, §12 roadmap (amended at D95 2026-10-21))
+├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D104, §12 roadmap (amended at D95 2026-10-21))
 ├── docs/modules/             # 00-11 deep dives (placement, service model, lifecycle, codegen,
 │                             #   manifest, bus, transport, walkthrough, record, observability, media base)
 ├── docs/stage-{1,2,3,4}-plan.md # PLANS OF RECORD: S1-S3 closed, S4 = INFRA volume (D93/D95: M1-M3 landed, ACCEPTED)
@@ -28,7 +28,9 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── crates/modukit-codegen/   # protoc plugin: Rust skeleton + C ABI shade + fdset decoder
 ├── contracts/                # .proto ledger + checked-in fdsets (regen-diff gated) + embed.h/plugin.h C
 │                             #   originals, HostEmbedV1 24 verbs (sup service-call door, M3), three-way parity-gated (D93/D94)
-├── examples/ test-plugins/   # demo shelf / fixture crates, rs + cpp bands (D93); plugins/ = reserved, NOT created
+├── examples/ test-plugins/   # demo shelf / fixture crates, language bands on disk
+│                             #   (examples rs/cpp/py/js; test-plugins rs+cpp bands, rs 2026-10-23);
+│                             #   plugins/ = reserved, NOT created
 ├── bindings/cpp/             # C++ wrapper shelf: generated faces + live probe (Visia-grammar)
 ├── CMakeLists.txt + cmake/   # PolyOrch-driven graph: pixi translation, cargo lanes, ctest bridges, demo lanes
 ├── pixi.toml / mise.toml     # build envs (tools/rust/cov; vendor-test task) / host tooling pins
@@ -60,7 +62,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 - **C1**: all artifacts English; chat follows user. (CJK scan is the canonical block below — keep it synced with conventions.md verbatim.)
 - **C0**: every constraint carries a runnable check, observed red once before trusted.
-- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D104/C3/PIT-29; numbering gate in status.md guards bounds.
+- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D104/C3/PIT-31; the prose re-sync at every mint covers high-water AND index ranges (doc-audit 2026-10-23 fixed three missed sites); numbering gate in status.md guards bounds.
 - **C2**: ModuKit lands on master; PolyOrch edits on dev-modukit, tests blessed on main; pin = fresh dev-modukit tip via standalone bumps.
 - **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
 - `Cargo.lock` commits with `Cargo.toml`.
@@ -78,10 +80,11 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ```bash
 # C1 English-artifact gate (canonical copy lives in .agents/memorys/conventions.md - keep synced)
 grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
+  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ bindings/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
-# full local gate - fast checks incl ALL ELEVEN demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader + T2 clock + D100 python x2 + D102 js x2)
+# full local gate - fast checks incl ALL ELEVEN demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader + T2 clock + D100 python x2 + D102 js x2
+#   + D104 lane-table/deny legs + RUNNER census + ctest per-name census)
 bash scripts/check.sh
 
 # stage acceptance gates

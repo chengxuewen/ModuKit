@@ -1,5 +1,30 @@
 # ModuKit — History Archive
 
+## 2026-10-23 - clock T2 to benchmark volume, one sweep (doc-audit H1 backfill)
+- Clock T2 crossing LANDED 2026-10-22 (bell demo crosses the wall; the T1 door
+  commit is also 10-22 - dates unified at today's doc-audit, sub-ruling a).
+- PYTHON volume: hearing D100 (A,A,A,A) -> plan -> M0-M2 -> closeout -> ACCEPTED
+  D101; coverage-boundary.sh minted as the single-source metric (awk false-green +
+  guardrail red both observed); pins: boundary all >= 80 with the pinned recipe.
+- JS volume: hearing D102 (A,A,A,A; napi probe GREEN day one) -> M1 bridge+facade
+  (tenth leg) -> M2 sup rung + tri-language fidelity (eleventh leg) -> ACCEPTED
+  D103 with the js region ruled bin-like metric-EXEMPT (row prints, vote skipped).
+- BENCHMARK volume (D104): MediaServo three-analyst survey -> hearing E/B/B/A walked
+  one by one -> plan Momus OKAY + three caliber calls A/A/A -> batch 1 THE WALL
+  (CTEST-keyword ctest minting, supplier-private reads retired, census leg upgraded)
+  -> batch 2 (version floor 0.7.1, four --self-test reconcilers, lane-table gate,
+  working clippy deny, rustfmt/toolchain pins; PIT-30 warm-cache false-green minted)
+  -> batch 3 (RUNNER-origin census, thin bootstrap wrappers both platforms,
+  CMakePresets, deny.toml licenses+bans leg; PIT-31 minted and CORRECTED same day -
+  the "vanishing edits" were the js leg legitimately re-emitting a DO-NOT-EDIT file;
+  root cure at the emitter template, edit-safety #29).
+- Acceptance QA (maintainer): test-plugins rs/cpp shelf asymmetry found -> ruled A ->
+  rs fixture band landed (members/deps/lane fields/docs follow; census 9 byte-held).
+- Full doc-audit (5 dims, 4-member team): 45 raw -> 26 merged -> swept in today's
+  commits; sub-rulings: git-date authority, bat hooks added, C1 +bindings/ with the
+  plant-and-observe red, whitepaper §2.3/§8 by D83 tail-adds.
+
+
 > Full chronological History log, moved out of `status.md` on 2026-10-14 (the per-turn-loaded file must stay small). Append NEW entries at the TOP of this file; status.md keeps only a pointer. Live state lives in status.md Phase/Open Items.
 
 - 2026-10-23 (PYTHON volume ACCEPTED, D101): the wave-2 door D93 left armed as "cheapest broad-audience consumer" closed in one day-cycle - hearing four rulings A/A/A/A (D100, walked one by one, plain-language redrew twice and lessoned PIT-26 recurrence 4), plan grilled twice (blockers: my own wrong enum-count/scene-range/over-length subject), M0-M2 delegated with two worker-signal failures (abort + unreadable transcript -> tree-audit takeover, PIT-29) - floor generated from the frozen header, step-0 protobuf fork measured RED and taken honestly, nine-leg gate green, byte-fidelity pinned to the cpp constant. The acceptance leg itself exposed and fixed two false-green mechanisms: the fresh coverage-boundary.sh awk-port empty-table PASS (guard added, synthetic red observed) and a missing -r in a C1 probe caught before commit. Transport 79.11 -> 88.29 by honest branch tests (no floor touch), sentinels EINTR-hardened cfg(test)-only. C2's second bless cycle landed mid-volume (dev-into-main, pin f8f85db). Remaining armed: live-attach depth, JS dual-face; push + K7 still maintainer-owned.
