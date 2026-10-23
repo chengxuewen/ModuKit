@@ -1,0 +1,53 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "displayName": "Pixi-mirror configure (out/build)",
+      "description": "Mirrors the pixi tasks: cmake -S . -B out/build -G Ninja (D65); MODUKIT_USE_PIXI stays at its option() default ON.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build",
+      "cacheVariables": {
+        "MODUKIT_USE_PIXI": "ON"
+      }
+    },
+    {
+      "name": "stage4",
+      "displayName": "Stage-4 cpp demo tree (out/build-stage4)",
+      "description": "Mirrors scripts/demo-stage4-m1.sh/m2.sh: cmake -S . -B out/build-stage4 -G Ninja, no -D flags.",
+      "inherits": ["default"],
+      "binaryDir": "${sourceDir}/out/build-stage4"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default"
+    },
+    {
+      "name": "stage4",
+      "configurePreset": "stage4"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "stage4",
+      "configurePreset": "stage4",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}
