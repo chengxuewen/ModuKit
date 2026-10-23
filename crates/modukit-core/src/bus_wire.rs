@@ -493,14 +493,22 @@ mod tests {
 
     fn assert_silent(reader: &mut UnixStream) {
         let mut byte = [0u8; 1];
-        match reader.read(&mut byte) {
-            Ok(0) => {} // write half closed (post-retire drop): silence too
-            Err(err)
-                if matches!(
-                    err.kind(),
-                    io::ErrorKind::TimedOut | io::ErrorKind::WouldBlock
-                ) => {}
-            other => panic!("expected wire silence, got {other:?}"),
+        // EINTR is a signal hitting the syscall, not wire noise: retry the read
+        // so a busy machine cannot turn silence into a spurious failure.
+        loop {
+            match reader.read(&mut byte) {
+                Ok(0) => return, // write half closed (post-retire drop): silence too
+                Err(err) if err.kind() == io::ErrorKind::Interrupted => continue,
+                Err(err)
+                    if matches!(
+                        err.kind(),
+                        io::ErrorKind::TimedOut | io::ErrorKind::WouldBlock
+                    ) =>
+                {
+                    return;
+                }
+                other => panic!("expected wire silence, got {other:?}"),
+            }
         }
     }
 
