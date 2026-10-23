@@ -47,11 +47,13 @@ Citations (legend to keep rows short):
   `examples/py/host_demo.py` + `scripts/demo-wave2-py.sh` (rung-0) and
   `examples/py/host_sup_demo.py` + `scripts/demo-wave2-py-sup.sh` (sup).
 - `generated` JS embed bridge + facade = `crates/modukit-codegen/testdata/golden/
-  `modukit_embed_bridge.rs` + `modukit_embed.js` (one napi forwarder per rung-0 verb
-  over the dlopened C door + the CommonJS facade with enum/error mirrors - the
-  `modukit_sup_*` exe rung joins at M2 like the python line did; emitter
-  `crates/modukit-codegen/src/js.rs`, D102 R2-A; proof chain:
-  `examples/js/pin_test.js` + `examples/js/host_demo.js` + `scripts/demo-wave2-js.sh`).
+  `modukit_embed_bridge.rs` + `modukit_embed.js` (one napi forwarder per verb across
+  both rungs over the dlopened C door + the CommonJS facade with enum/error mirrors -
+  the 16 rung-0 verbs since M1 and the 8 `modukit_sup_*` exe-rung verbs since M2, the
+  python line's shape; emitter `crates/modukit-codegen/src/js.rs`, D102 R2-A; proof
+  chain: `examples/js/pin_test.js` + `examples/js/host_demo.js` +
+  `scripts/demo-wave2-js.sh` (rung-0) and `examples/js/host_sup_demo.js` +
+  `scripts/demo-wave2-js-sup.sh` (sup)).
 - `embed.rs` ops per verb-group: lifecycle `kernel.rs`; service call
   `kernel.rs`/`registry.rs`; bus `bus.rs` (`recv` = `Receiver::try_recv` + the
   embed queue table, `unsubscribe` = table removal + `Receiver` drop); clock
@@ -84,14 +86,14 @@ Last verified: 2026-10-20 by `scripts/check-capability-ledger.sh`
 | `modukit_clock_advance` | header | generated | native | generated | generated |
 | `modukit_introspect_snapshot` | header | generated | native | generated | generated |
 | `modukit_introspect_events` | header | generated | native | generated | generated |
-| `modukit_sup_install` | header | generated | native | generated | planned |
-| `modukit_sup_stop` | header | generated | native | generated | planned |
-| `modukit_sup_state` | header | generated | native | generated | planned |
-| `modukit_sup_step` | header | generated | native | generated | planned |
-| `modukit_sup_dial` | header | generated | native | generated | planned |
-| `modukit_sup_restart` | header | generated | native | generated | planned |
-| `modukit_sup_uninstall` | header | generated | native | generated | planned |
-| `modukit_sup_service_call` | header | generated | native | generated | planned |
+| `modukit_sup_install` | header | generated | native | generated | generated |
+| `modukit_sup_stop` | header | generated | native | generated | generated |
+| `modukit_sup_state` | header | generated | native | generated | generated |
+| `modukit_sup_step` | header | generated | native | generated | generated |
+| `modukit_sup_dial` | header | generated | native | generated | generated |
+| `modukit_sup_restart` | header | generated | native | generated | generated |
+| `modukit_sup_uninstall` | header | generated | native | generated | generated |
+| `modukit_sup_service_call` | header | generated | native | generated | generated |
 
 ## B. Plugin-side surface (contracts/modukit_plugin.h <-> abi::PluginAbiV1/HostAbiV1)
 
