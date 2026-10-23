@@ -218,5 +218,10 @@ else note "ok commit-shape (pending range)"; fi
 # landed: it is a gate of this repo, not an optional tool - no skip-when-absent branch.
 bash scripts/check-doc-refs.sh || { note "FAIL doc-liveness"; status=1; }
 
+# leg: lane-table reconciliation (benchmark plan T2.3): the cmake lane rows and the
+# cargo workspace members must agree - ghost lanes and unregistered crates/*
+# members are red. Always-on like embed-parity; the gate ships in-repo.
+bash scripts/check-lane-table.sh || { note "FAIL lane-table"; status=1; }
+
 if [ "$status" -eq 0 ]; then note "check.sh: all green"; else note "check.sh: RED"; fi
 exit "$status"
