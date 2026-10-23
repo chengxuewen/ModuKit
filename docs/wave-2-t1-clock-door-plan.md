@@ -56,7 +56,8 @@ Per D99 R1-R6, in-process only:
     stamp + 1s -> TestHost advance -> bus recv on own topic answers the token
     payload; registrations still land; v1/v2 plugins unchanged (byte-identical
     prefix read).
-  - new fixture `test-plugins/timerv3-plugin` (busv2-plugin pattern).
+  - new fixture timerv3-plugin (busv2 pattern) [into the rs fixture band at
+    test-plugins/rs/ 2026-10-23, maintainer-ruled A].
   - stop-census test: schedule, stop the plugin, dial past deadline, assert
     no TimerDone post, no bus publish, pending count drops.
   - liar extension: v3-declared against the v1 guard... NO - v3 validates;
