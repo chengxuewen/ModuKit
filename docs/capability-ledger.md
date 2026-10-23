@@ -41,9 +41,11 @@ Citations (legend to keep rows short):
   (C++ service skeleton + `Dispatch` byte door, lane #3 face A).
 
 - `generated` Python embed floor = `crates/modukit-codegen/testdata/golden/modukit_embed.py`
-  (enum mirrors + one ctypes prototype per rung-0 verb, emitter
+  (enum mirrors + one ctypes prototype per verb across both rungs - the 16
+  rung-0 verbs since M1 and the 8 `modukit_sup_*` verbs since M2; emitter
   `crates/modukit-codegen/src/py.rs`, D100 R2-A; proof chain:
-  `examples/py/host_demo.py` + `scripts/demo-wave2-py.sh`).
+  `examples/py/host_demo.py` + `scripts/demo-wave2-py.sh` (rung-0) and
+  `examples/py/host_sup_demo.py` + `scripts/demo-wave2-py-sup.sh` (sup)).
 - `embed.rs` ops per verb-group: lifecycle `kernel.rs`; service call
   `kernel.rs`/`registry.rs`; bus `bus.rs` (`recv` = `Receiver::try_recv` + the
   embed queue table, `unsubscribe` = table removal + `Receiver` drop); clock
@@ -76,14 +78,14 @@ Last verified: 2026-10-20 by `scripts/check-capability-ledger.sh`
 | `modukit_clock_advance` | header | generated | native | generated |
 | `modukit_introspect_snapshot` | header | generated | native | generated |
 | `modukit_introspect_events` | header | generated | native | generated |
-| `modukit_sup_install` | header | generated | native | planned |
-| `modukit_sup_stop` | header | generated | native | planned |
-| `modukit_sup_state` | header | generated | native | planned |
-| `modukit_sup_step` | header | generated | native | planned |
-| `modukit_sup_dial` | header | generated | native | planned |
-| `modukit_sup_restart` | header | generated | native | planned |
-| `modukit_sup_uninstall` | header | generated | native | planned |
-| `modukit_sup_service_call` | header | generated | native | planned |
+| `modukit_sup_install` | header | generated | native | generated |
+| `modukit_sup_stop` | header | generated | native | generated |
+| `modukit_sup_state` | header | generated | native | generated |
+| `modukit_sup_step` | header | generated | native | generated |
+| `modukit_sup_dial` | header | generated | native | generated |
+| `modukit_sup_restart` | header | generated | native | generated |
+| `modukit_sup_uninstall` | header | generated | native | generated |
+| `modukit_sup_service_call` | header | generated | native | generated |
 
 ## B. Plugin-side surface (contracts/modukit_plugin.h <-> abi::PluginAbiV1/HostAbiV1)
 
