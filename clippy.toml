@@ -1,0 +1,4 @@
+# ModuKit clippy config (D104 T2.4): the workspace unwrap/expect denial governs
+# production zones only; #[cfg(test)] modules and tests/ targets keep the valve.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
