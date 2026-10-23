@@ -196,12 +196,32 @@ run per commit batch as usual. C3 shape per commit.
 - Floor version 0.7.1: re-check at every future PolyOrch bump whether new API is
   relied on (bump commits gain a body bullet naming the floor if raised).
 
-## 8. Review trail
-
 - [x] Momus review 2026-10-23 (fresh session): OKAY - every §0 anchor independently
   re-verified (incl. pin project VERSION 0.7.1 matching the floor constant, CTEST knob
   values byte-matching the current hand-rolled properties); one cosmetic nit (bat 57
   not 50 lines) fixed in place; no blockers.
+## 9. Batch 1 landing notes (2026-10-23)
+
+- Migration landed as designed; the post-change census was captured byte-identical
+  to the pre-change baseline (9 entries, same names/labels/SKIP-77).
+- C0 reds observed on the REAL gate, both plants, restored after each:
+  - plant A (stray unknown token where CTEST sat): the supplier parse layer
+    LOUDLY rejects at reconfigure - gate red via the build branch. Bonus fact:
+    extra-arg drift can never be silent on this verb.
+  - plant B (the census-only failure mode, whole CTEST arg-group absent,
+    call otherwise legal): configure clean, five lane entries vanish, plain
+    ctest would stay green on the four survivors - the new census assertion
+    caught it: "FAIL ctest-stage4 census (missing: <5 names>)", gate exit 1.
+  - the shared verb call loses all five lanes at once (single call site);
+    one-lane precision would need per-lane calls and was not worth it - the
+    census names any missing subset.
+- Supplier-internal grep (exact names) in cmake/: 0 hits. The four remaining
+  "_polyorch_" matches are our own modukit_ensure_polyorch_rust function name.
+- check.sh ctest-stage4 leg now checks three phases: build, per-name census,
+  full run (replacing the single run that could be green on a shrunk list).
+
+## 10. Review trail
+
 - [x] Maintainer approval 2026-10-23 - three caliber calls walked one by one,
   ruled A / A / A: day-one full clippy switch-on (ladder retired at measured debt),
   floor 0.7.1 + bump-note, RUNNER line joins the eleven-leg verdict rule (the gate
