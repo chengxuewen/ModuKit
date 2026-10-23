@@ -11,6 +11,11 @@
 //! zombie may survive that path either), and the zero-zombie scan for the
 //! whole process.
 
+// D104 T2.4: test-scaffolding file; the clippy.toml allow-*-in-tests valve
+// exempts #[test] fn bodies only, not plain helper fns in a tests/ target
+// (clippy 0.1.99), so the exemption lands here. Production stays denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration, Instant};

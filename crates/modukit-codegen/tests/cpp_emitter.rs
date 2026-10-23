@@ -11,6 +11,11 @@
 //! same byte-compare + regen discipline; the smoke legs compile the emitted
 //! text with the pinned pixi-env compiler and skip cleanly without one.
 
+// D104 T2.4: test-scaffolding file; the clippy.toml allow-*-in-tests valve
+// exempts #[test] fn bodies only, not plain helper fns in a tests/ target
+// (clippy 0.1.99), so the exemption lands here. Production stays denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::path::{Path, PathBuf};
 
 use modukit_codegen::{emit_embed_hpp, emit_plugin_hpp, generate};

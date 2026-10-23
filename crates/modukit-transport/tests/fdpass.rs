@@ -11,6 +11,11 @@
 //! data through the received fd, then answers with its own memfd blob — the
 //! round trip byte-equal in both directions.
 
+// D104 T2.4: test-scaffolding file; the allow-*-in-tests valve does not
+// reach plain helper fns in a tests/ target (clippy 0.1.99), so the
+// exemption lands at the file head. Production zones stay denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::io::{Read, Write};
 use std::os::fd::OwnedFd;
 use std::os::unix::net::UnixStream;

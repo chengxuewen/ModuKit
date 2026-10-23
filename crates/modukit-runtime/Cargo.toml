@@ -20,3 +20,6 @@ path = "src/debug_reader.rs"
 
 [dependencies]
 modukit-core = { path = "../modukit-core" }
+
+[lints]
+workspace = true

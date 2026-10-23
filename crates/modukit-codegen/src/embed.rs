@@ -241,8 +241,8 @@ pub(crate) fn parse_verbs(text: &str) -> Vec<CVerb> {
         if joined_complete {
             // take() (not mem::take through the borrow) so the slot resets
             // to None - a dead Some("") would swallow every later verb.
-            let full = pending.take().expect("pending was present");
-            if let Some(rest) = full.strip_prefix("int32_t ")
+            if let Some(full) = pending.take()
+                && let Some(rest) = full.strip_prefix("int32_t ")
                 && rest.starts_with("modukit_")
             {
                 finish_verb(rest, &mut verbs);

@@ -4,6 +4,11 @@
 //! golden.rs:34-37 the `generate()` fdset corpus is NOT the seam) and
 //! byte-pinned here - the py_emitter.rs pattern, never in golden.rs's list.
 
+// D104 T2.4: test-scaffolding file; the clippy.toml allow-*-in-tests valve
+// exempts #[test] fn bodies only, not plain helper fns in a tests/ target
+// (clippy 0.1.99), so the exemption lands here. Production stays denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::collections::BTreeSet;
 use std::path::{Path, PathBuf};
 

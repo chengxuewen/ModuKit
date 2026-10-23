@@ -17,3 +17,6 @@ path = "src/main.rs"
 
 [dev-dependencies]
 modukit-core = { path = "../modukit-core" }
+
+[lints]
+workspace = true

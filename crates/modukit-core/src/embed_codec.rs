@@ -281,15 +281,15 @@ pub(crate) fn encode_events(
     let mut off = 0usize;
     let mut last = since_seq;
     while off + 28 <= all.len() && off + 28 <= buf_cap {
-        let len = usize::try_from(u64::from_le_bytes(
-            all[off + 20..off + 28].try_into().unwrap(),
-        ))
-        .unwrap_or(usize::MAX);
+        let mut word = [0u8; 8];
+        word.copy_from_slice(&all[off + 20..off + 28]);
+        let len = usize::try_from(u64::from_le_bytes(word)).unwrap_or(usize::MAX);
         let end = off + 28 + len;
         if end > buf_cap {
             break;
         }
-        last = u64::from_le_bytes(all[off + 4..off + 12].try_into().unwrap());
+        word.copy_from_slice(&all[off + 4..off + 12]);
+        last = u64::from_le_bytes(word);
         off = end;
     }
     all.truncate(off);

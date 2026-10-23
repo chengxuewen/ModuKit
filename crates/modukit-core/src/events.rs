@@ -140,7 +140,11 @@ impl Observatory {
         if let Some(ledger) = &*edges {
             // Same doorway, two projections: ring entry and edge record
             // share seq + stamp, so they can never disagree (D18/D17).
-            ledger.record(seq, ts, &ring.entries.back().expect("just pushed").event);
+            // just pushed above, so back() is Some; if-let keeps the
+            // invariant read panic-free (D104: no expect in production).
+            if let Some(last) = ring.entries.back() {
+                ledger.record(seq, ts, &last.event);
+            }
         }
         seq
     }

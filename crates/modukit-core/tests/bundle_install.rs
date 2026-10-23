@@ -7,6 +7,11 @@
 //! dlopen legs follow the M3 fixture-build pattern (SKIP green with a
 //! printed reason where cargo cannot run).
 
+// D104 T2.4: test-scaffolding file; the clippy.toml allow-*-in-tests valve
+// exempts #[test] fn bodies only, not plain helper fns in a tests/ target
+// (clippy 0.1.99), so the exemption lands here. Production stays denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::path::{Path, PathBuf};
 use std::process::Command;
 

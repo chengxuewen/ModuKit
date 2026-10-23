@@ -4,6 +4,11 @@
 
 // Generated artifacts - formatting is the generator's business, not
 // rustfmt's (byte-compare is the golden gate).
+// D104 T2.4: test-scaffolding file; the clippy.toml allow-*-in-tests valve
+// exempts #[test] fn bodies only, not plain helper fns in a tests/ target
+// (clippy 0.1.99), so the exemption lands here. Production stays denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 #[rustfmt::skip]
 #[allow(dead_code)]
 #[path = "../testdata/golden/org_modukit_runtime.rs"]

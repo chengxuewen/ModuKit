@@ -4,6 +4,12 @@
 //! applied small (C0: written before `seam.rs` existed, so the first red is an
 //! unresolved-import compile error).
 
+// D104 T2.4: this whole file is test scaffolding. The clippy.toml
+// allow-*-in-tests valve exempts #[test] fn bodies only, not plain helper
+// fns in a tests/ target (measured on clippy 0.1.99), so the exemption
+// lands here; production zones stay denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use modukit_transport::seam::{Dummy, SocketpairLane, Transport};
 
 /// The locked contract every local lane must satisfy identically. Message

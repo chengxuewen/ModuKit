@@ -8,6 +8,11 @@
 //! at M4 scale; the ledger stays the single source because the test reads
 //! it through the same decoder the generator uses.
 
+// D104 T2.4: test-scaffolding file; the clippy.toml allow-*-in-tests valve
+// exempts #[test] fn bodies only, not plain helper fns in a tests/ target
+// (clippy 0.1.99), so the exemption lands here. Production stays denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::collections::BTreeSet;
 
 use modukit_codegen::descriptor::decode_file_descriptor_set;

@@ -13,6 +13,11 @@
 //! version-oracled by the M0 offline probe) reachable from nothing but
 //! modukit-js - the same rail as (2): decided at a hearing, fenced here.
 
+// D104 T2.4: test-scaffolding file; the allow-*-in-tests valve does not
+// reach plain helper fns in a tests/ target (clippy 0.1.99), so the
+// exemption lands at the file head. Production zones stay denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::collections::{BTreeSet, VecDeque};
 use std::path::PathBuf;
 
@@ -332,7 +337,7 @@ fn the_js_bridge_tree_enters_only_exact_pinned_and_only_via_modukit_js() {
         let reach = closure_of(&packages, &member.name);
         for root in ADMITTED_JS_ROOTS {
             assert!(
-                !reach.contains(&root.to_string()),
+                !reach.contains(*root),
                 "local package {} reaches the admitted js root {root}; only \
                  modukit-js may, exactly as the vendor's seam confinement reads",
                 member.name

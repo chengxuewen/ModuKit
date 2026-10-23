@@ -4,6 +4,11 @@
 //! read back from `LedgerDump` BYTE-EQUAL when the host is booted with them.
 //! First-red area: fdset-equality — written before the seam existed.
 
+// D104 T2.4: test-scaffolding file; the clippy.toml allow-*-in-tests valve
+// exempts #[test] fn bodies only, not plain helper fns in a tests/ target
+// (clippy 0.1.99), so the exemption lands here. Production stays denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::path::{Path, PathBuf};
 
 use modukit_core::identity::ServiceId;

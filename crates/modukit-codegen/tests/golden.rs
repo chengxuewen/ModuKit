@@ -3,6 +3,11 @@
 //! contract fdsets into a temp dir and byte-compares against
 //! `testdata/golden/`. Regenerate the goldens with `pixi run regen-golden`.
 
+// D104 T2.4: test-scaffolding file; the clippy.toml allow-*-in-tests valve
+// exempts #[test] fn bodies only, not plain helper fns in a tests/ target
+// (clippy 0.1.99), so the exemption lands here. Production stays denied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use std::path::{Path, PathBuf};
 
 use modukit_codegen::{CodegenError, generate};

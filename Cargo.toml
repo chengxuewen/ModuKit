@@ -10,3 +10,10 @@ version = "0.1.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
 repository = "https://gitee.com/chengxuewen/ModuKit"
+
+# D104 T2.4: production zones of the five shipped crates may not unwrap or expect;
+# fixtures/examples stay exempt (they do not opt in). Test zones keep the valve
+# via clippy.toml allow-*-in-tests. Blanket allows are forbidden (plan §10).
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
