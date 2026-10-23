@@ -15,7 +15,10 @@
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use modukit_codegen::{CodegenError, emit_embed_hpp, emit_embed_py, emit_plugin_hpp, generate};
+use modukit_codegen::{
+    CodegenError, emit_embed_hpp, emit_embed_js_bridge, emit_embed_js_facade, emit_embed_py,
+    emit_plugin_hpp, generate,
+};
 
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().skip(1).collect();
@@ -39,6 +42,7 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
     let mut embed_header: Option<PathBuf> = None;
     let mut plugin_header: Option<PathBuf> = None;
     let mut py_out: Option<PathBuf> = None;
+    let mut js_out: Option<PathBuf> = None;
     let mut it = args.iter();
     while let Some(arg) = it.next() {
         if arg == "--output_dir" {
@@ -67,6 +71,11 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
             py_out = Some(PathBuf::from(value));
         } else if let Some(value) = arg.strip_prefix("--py_out=") {
             py_out = Some(PathBuf::from(value));
+        } else if arg == "--js_out" {
+            let value = it.next().ok_or_else(|| usage("--js_out needs a path"))?;
+            js_out = Some(PathBuf::from(value));
+        } else if let Some(value) = arg.strip_prefix("--js_out=") {
+            js_out = Some(PathBuf::from(value));
         } else if let Some(path) = arg.strip_prefix('@') {
             // protoc-style request file: a FileDescriptorSet binary on disk.
             fdsets.push(PathBuf::from(path));
@@ -124,6 +133,26 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
         std::fs::write(&path, emit_embed_py(&text)?)?;
         files.push(path);
     }
+    if let Some(js_dir) = js_out {
+        // Wave-2 JS volume M1 (D102 R2-A): the bridge + facade ride the same
+        // header text at this door - emission beside --py_out, never through
+        // generate()'s fdset corpus. Both faces land in js_dir.
+        let header_path = embed_header
+            .as_ref()
+            .ok_or_else(|| usage("--js_out needs --embed_header"))?;
+        let text = std::fs::read_to_string(header_path)?;
+        let stem = header_path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .ok_or_else(|| usage("--embed_header needs a file path"))?;
+        std::fs::create_dir_all(&js_dir)?;
+        let bridge = js_dir.join(format!("{stem}_bridge.rs"));
+        std::fs::write(&bridge, emit_embed_js_bridge(&text)?)?;
+        files.push(bridge);
+        let facade = js_dir.join(format!("{stem}.js"));
+        std::fs::write(&facade, emit_embed_js_facade(&text)?)?;
+        files.push(facade);
+    }
     Ok(files)
 }
 
@@ -133,7 +162,7 @@ fn usage(msg: impl Into<String>) -> CodegenError {
         "{msg}\n\
          usage: protoc-gen-modukit @<descriptor_set.fdset> [more @fdsets...] \
          --output_dir <dir> [--embed_header <modukit_embed.h>] \
-         [--plugin_header <modukit_plugin.h>] [--py_out <dir>]\
+         [--plugin_header <modukit_plugin.h>] [--py_out <dir>] [--js_out <dir>]\
          (v0 seam: reads FileDescriptorSet binaries directly, not a \
          CodeGeneratorRequest on stdin - see src/main.rs)"
     ))

@@ -19,7 +19,8 @@
 //! skeleton), `cabi` (vtable shade + header), `cpp` (C++ plugin face),
 //! `embed` (C++ embed-face wrapper generator from
 //! `contracts/modukit_embed.h`, C++-3 face B), `py` (Python ctypes embed
-//! floor from the same header text, D100 R2-A), `error` (typed failures).
+//! floor from the same header text, D100 R2-A), `js` (napi embed bridge +
+//! JS facade from the same header text, D102 R2-A), `error` (typed failures).
 
 use std::path::{Path, PathBuf};
 
@@ -29,6 +30,7 @@ pub mod descriptor;
 pub mod embed;
 pub mod emit;
 pub mod error;
+pub mod js;
 pub mod model;
 pub mod pluginface;
 pub mod py;
@@ -37,6 +39,7 @@ pub mod wire;
 pub use descriptor::decode_file_descriptor_set;
 pub use embed::emit_embed_hpp;
 pub use error::CodegenError;
+pub use js::{emit_embed_js_bridge, emit_embed_js_facade};
 use model::{File, RUNTIME_PACKAGE};
 pub use pluginface::emit_plugin_hpp;
 pub use py::emit_embed_py;
