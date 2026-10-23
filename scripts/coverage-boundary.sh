@@ -3,7 +3,8 @@
 # definition, one recipe so numbers are comparable across landings).
 #
 # What it measures: line coverage per REGION crate - modukit-core,
-# modukit-transport, modukit-codegen - computed from the per-file table of
+# modukit-transport, modukit-codegen, modukit-js (four, since D102) - from the
+# per-file table of
 # one instrumented `cargo llvm-cov --workspace` run: region % =
 # (sum(lines) - sum(missed)) / sum(lines) over crates/<region>/src/*.rs.
 # Boundary-excluded by D84a: modukit-runtime bins and the test-plugins /
@@ -38,11 +39,12 @@ if [ "$cov_exit" -ne 0 ] || [ "$failed" -ne 0 ]; then
 fi
 
 # Region metric - THE parser (single source of the aggregation).
-grep -E '^crates/modukit-(core|transport|codegen)/src/[a-z0-9_]+\.rs[[:space:]]' "$LOG" \
+grep -E '^crates/modukit-(core|transport|codegen|js)/src/[a-z0-9_]+\.rs[[:space:]]' "$LOG" \
   | awk '{
       if ($1 ~ /modukit-core/)      crate = "modukit-core";
       else if ($1 ~ /modukit-transport/) crate = "modukit-transport";
-      else                           crate = "modukit-codegen";
+      else if ($1 ~ /modukit-js/)        crate = "modukit-js";
+      else                               crate = "modukit-codegen";
       lines[crate] += $8; missed[crate] += $9;
     } END {
       for (c in lines) printf "%-20s %6.2f%% (%d lines, %d missed)\n", \
@@ -50,9 +52,9 @@ grep -E '^crates/modukit-(core|transport|codegen)/src/[a-z0-9_]+\.rs[[:space:]]'
     }' | sort > "$SUM"
 
 # guard against the empty-table false green (rule #17 family): the parse MUST
-# yield exactly the three region rows or the verdict is FAIL, not silence.
-if [ "$(wc -l < "$SUM")" -ne 3 ]; then
-  echo "coverage-boundary: FAIL (summary table holds $(wc -l < "$SUM") rows, expected 3 - parser or log shape broke)"
+# yield exactly the four region rows or the verdict is FAIL, not silence.
+if [ "$(wc -l < "$SUM")" -ne 4 ]; then
+  echo "coverage-boundary: FAIL (summary table holds $(wc -l < "$SUM") rows, expected 4 - parser or log shape broke)"
   exit 1
 fi
 
