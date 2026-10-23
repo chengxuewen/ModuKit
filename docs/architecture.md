@@ -1,6 +1,6 @@
 # ModuKit Architecture
 
-**Status**: adjudicated engineering baseline (2026-10-10; D56-D63 added 2026-10-13; D64-D73 added 2026-10-15). Where this document differs from the
+**Status**: adjudicated engineering baseline (2026-10-10; D56-D63 added 2026-10-13; D64-D73 added 2026-10-15; D74-D104 added through 2026-10-23). Where this document differs from the
 [whitepaper](whitepaper.md) v1.0 vision text, the delta table in §9 is authoritative and the
 whitepaper remains canon for naming (§2.3) and principles (§3) not amended here.
 **Provenance**: architecture questions were adjudicated one-by-one with the maintainer
@@ -178,6 +178,7 @@ repo fact.
 | §4.1 "type-safe service discovery and dependency injection" | operationalized as C+: static binding + dynamic events + six invariants (D4) |
 | §5 rows `modukit-script-lua` / `modukit-script-js` / bindings | language-axis runner packages, not core mechanisms (D2) |
 | §8 stage ordering | deltas in §12 |
+| §4.1 Python-bindings technology ("PyO3") | generated-ctypes floor - PyO3 row SUPERSEDED by name (D100 R2); the C-ABI single exit unchanged |
 | principle "unified in-process / multi-process model" (§3.5) | implemented as the two-axis model (§4) |
 
 ## 10. Stage-1 scope (builder mode: solo + AI, demo-driven)
@@ -304,12 +305,12 @@ them. Re-review trigger recorded in D5.
 | D96 | v2 bus hearing | six-by-A: HostAbiV2 door (v1 byte-identical) / mailbox verbs mirror host face / two talkers on the existing wire + HELLO capability field / transparent wall; timer deferred; N1/N2 spec'd not open |
 | D97 | wave-2 debug-reader door | five rulings (A,A,A,A,B): smallest-door priority criterion -\> debug reader -\> reader-only no live attach -\> one runtime bin; minimal self-check face LANDED same day, plan docs/wave-2-debug-reader-plan.md; live-attach/dump-file remain armed |
 | D98 | wave-2 closeout | rulings A,A,C,A,A: reader face promoted to the sixth check.sh demo leg (sabotage red observed in the leg, D97 trigger closed); cold-census coverage rerun 50/50 suites - core 84.15 / transport 80.78 / codegen 84.25 region metric D84a, the named core debt CLEARED; plan docs/wave-2-closeout-plan.md |
-| D104 | benchmark hearing | MediaServo discipline tier adopted (E/B/B/A): private-use retirement, reconciler+pin files, interpreter authority, bootstrap wrapper; delivery plane stays trigger-gated |
-| D103 | js volume accepted | four-point DoD green 2026-10-23; modukit-js classified bin-like metric-exempt (row prints, vote skipped - proofs run node-side) |
-| D102 | js bindings hearing | four rulings (A,A,A,A): face-2 only all 24 verbs two milestones / generated napi bridge + facade behind day-one probe / six-gate mirror incl node:test harness + ledger JS column / workspace crate modukit-js (name pre-registered) |
-| D101 | python volume accepted | four-point DoD green 2026-10-23; first boundary run on the pinned coverage-boundary.sh recipe (86.18/88.29/85.74 all >= 80) |
-| D100 | python bindings hearing | four rulings (A,A,A,A): full 24-verb embed scope two milestones / generated-ctypes floor + whitepaper PyO3 row superseded + pybind11 recorded not-adopted / five-gate parity stdlib instruments / one-line core cdylib (staticlib precedent b89f7b9) |
 | D99 | CLOCK hearing | six rulings (B,A,A,A,A,A): schedule+now verbs on HostAbiV3 (V2 prefix byte-identical) / mirrored grammars / due = per-plugin bus topic Lossy(16) with replay pinned / local schedule + due routed existing frames (parent->child push absence NAMED, general pump deferred) / T1 door -> T2 crossing lanes spec'd not open |
+| D100 | python bindings hearing | four rulings (A,A,A,A): full 24-verb embed scope two milestones / generated-ctypes floor + whitepaper PyO3 row superseded + pybind11 recorded not-adopted / five-gate parity stdlib instruments / one-line core cdylib (staticlib precedent b89f7b9) |
+| D101 | python volume accepted | four-point DoD green 2026-10-23; first boundary run on the pinned coverage-boundary.sh recipe (86.18/88.29/85.74 all >= 80) |
+| D102 | js bindings hearing | four rulings (A,A,A,A): face-2 only all 24 verbs two milestones / generated napi bridge + facade behind day-one probe / six-gate mirror incl node:test harness + ledger JS column / workspace crate modukit-js (name pre-registered) |
+| D103 | js volume accepted | four-point DoD green 2026-10-23; modukit-js classified bin-like metric-exempt (row prints, vote skipped - proofs run node-side) |
+| D104 | benchmark hearing | MediaServo discipline tier adopted (E/B/B/A): private-use retirement, reconciler+pin files, interpreter authority, bootstrap wrapper; delivery plane stays trigger-gated |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
