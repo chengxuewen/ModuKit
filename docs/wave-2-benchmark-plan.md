@@ -252,7 +252,35 @@ run per commit batch as usual. C3 shape per commit.
   task-store cross-talk; every lane ignored them and stayed on brief; the
   orchestrator judged on filesystem ground truth + gate reruns, never on narrative.
 
-## 11. Review trail
+## 11. Batch 3 landing notes (2026-10-23)
+
+- Runner-origin census LANDED (caliber ruling 3): the four py/js legs each print
+  one RUNNER line (pixi-env first, PATH fallback announced, loud SKIP untouched);
+  check.sh now FAILs PASS-without-RUNNER. Sabotage red observed (echo stripped ->
+  leg FAIL, gate exit 1), restored green. The pixi-env branch arms with T3.5.
+- cargo-deny leg LANDED: deny.toml allow list is the real license census (48 pkgs:
+  MIT/Apache-2.0/ISC/Unicode-3.0 closure, each with bearer comment); bans stanza
+  intentionally empty (unverifiable offline, C0 says no unfired gates); leg today
+  prints the loud skip note; pixi task "deny" added.
+- Bootstrap wrappers LANDED: guard + delegation to PolyOrch/scripts/pixi-init.sh
+  (default pin 0.78.0; box runs pixi 0.82.0 so the ready-branch no-op is live-
+  verified; lock-drift retry now supplier-owned); rsproxy reserved host-policy
+  slot; mise/hooks stages unchanged; e2e idempotence md5-proved (rc-files + pixi
+  binary untouched). Guard red observed (supplier script hidden -> loud exit 1).
+  bootstrap.bat mirrors the shape; WINDOWS FIRST-RUN DEBT RECORDED - never executed.
+- CMakePresets.json LANDED (schema v3, >=3.25 floor): default/stage4 configure +
+  build + test presets mirror the pixi tasks exactly; live green chain configure
+  -> build -> census 9 -> ctest --preset. Finding: out/build held a stale Unix
+  Makefiles tree that the pixi configure task ALSO could not reconfigure - the
+  presets structurally end that drift class. No .vscode change needed (values
+  mirror 1:1; auto-selected preset reproduces the IDE flow). Red observed via
+  version 999 rejection.
+- VANISHED-EDIT INCIDENT: the js kernel() typed-error fix (landed, gate-green at
+  16:02) was absent from the worktree at commit time 16:05 with no git op in the
+  window - re-applied, re-verified, and every batch commit now gets post-commit
+  tree-content verification. Filed as PIT-31.
+
+## 12. Review trail
 
 - [x] Maintainer approval 2026-10-23 - three caliber calls walked one by one,
   ruled A / A / A: day-one full clippy switch-on (ladder retired at measured debt),

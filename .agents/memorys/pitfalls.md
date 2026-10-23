@@ -226,3 +226,10 @@
 - **Solution**: orchestrator revalidation after lint-surface edits must force real compiles: touch the suspect files, or `cargo clean -p <crate>` before the leg, or verify with the failing-command replay plus grep of the emitted error lines (0 errors only counts when compilation actually ran - check the log has "Compiling" lines for the crate).
 - **Verification**: `grep -c "Compiling modukit-js" <log>` >= 1 alongside exit 0; a green log with zero "Compiling" lines for the touched crate is a cache verdict - rerun with a touch.
 - **Forbidden**: accepting a re-verification GREEN whose log never recompiled the touched zone; recording gate evidence from warm-cache runs at batch edges.
+
+## PIT-31: worktree edits can vanish between green verification and commit under parallel agents (2026-10-23)
+- **Symptom**: crates/modukit-js/src/lib.rs carried the typed-error kernel fix, clippy legs and the full gate went green at 16:02; at the 16:05 commit the same file (worktree, index, and resulting tree) showed the pre-fix expect line again - no git operation, no cp, no agent owned that pathspec in between.
+- **Root cause**: unidentified worktree tampering in the shared-session environment (same contamination class as the task-store cross-talk and injected tool-result noise reported by the three concurrent lanes this volume); the cargo/index plumbing stayed consistent with the reverted file throughout.
+- **Solution**: treat every "verified green" file as unverified until its content is confirmed IN THE COMMIT TREE: re-apply, commit, then verify per-commit with git show <sha>:<path> | grep -c "<fix-phrase>" == 1 (and git log -S "<phrase>" finds the commit). Batch landings with concurrent agents get this sweep as the final step before declaring done.
+- **Verification**: the post-commit grep returns 1 for each fix-carrying file of the batch; a 0 result means the edit evaporated again - re-land and re-verify immediately.
+- **Forbidden**: declaring a batch landed on gate-green evidence alone when concurrent agents share the worktree; trusting git status clean as proof of intended content (clean matches whatever HEAD holds, including regressions).

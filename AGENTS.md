@@ -105,8 +105,9 @@ pixi run cargo clippy --workspace --all-targets -- -D warnings
 pixi run vendor-test                     # vendor-shm lane (17-18s cold, not in fast gate)
 pixi run -e cov cargo llvm-cov --workspace   # D79 80-line at stage boundaries
 
-# cmake graph (IDE/ctest surface)
+# cmake graph (IDE/ctest surface) - presets mirror the pixi routes (D104)
 pixi run configure && pixi run build && pixi run ctest --test-dir out/build
+pixi run cmake --preset default && pixi run cmake --build --preset default
 ```
 
 ## NOTES
