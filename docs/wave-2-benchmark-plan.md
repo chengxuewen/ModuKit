@@ -286,3 +286,11 @@ run per commit batch as usual. C3 shape per commit.
   ruled A / A / A: day-one full clippy switch-on (ladder retired at measured debt),
   floor 0.7.1 + bump-note, RUNNER line joins the eleven-leg verdict rule (the gate
   change carries its own planted-defect red proof).
+- [x] Acceptance QA caught a real finding (maintainer): test-plugins rs/cpp targets
+  not band-separated in the IDE tree. Root cause: the shelf never had an rs band on
+  disk while examples does; the position-mirror folder rule faithfully reproduced
+  the asymmetry. Maintainer ruled A (move the boxes, keep the mirror honest): five
+  fixture crates into test-plugins/rs/, members/deps/lane-fields/docs follow, full
+  gate green with the 9-entry census byte-identical. Third PIT-31 eviction attempt
+  during this step: the tree-verified fix in HEAD restored the worktree -
+  immutable-witness discipline paid off the moment it was needed.
