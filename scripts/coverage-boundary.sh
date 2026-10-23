@@ -9,6 +9,9 @@
 # (sum(lines) - sum(missed)) / sum(lines) over crates/<region>/src/*.rs.
 # Boundary-excluded by D84a: modukit-runtime bins and the test-plugins /
 # example fixture crates (they stay in the run for census, not in the metric).
+# modukit-js is bin-like-exempt per D103 (generated face; its proofs run node-side):
+# the row still PRINTS and the table still needs all four rows - visibility,
+# not a vote.
 #
 # What it asserts (all hard):
 #   1. the cov run exits 0 (no failing test can hide behind percentages);
@@ -64,6 +67,10 @@ echo "census: suites=$suites tests_passed=$tests failed_lines=$failed"
 verdict=0
 while read -r crate pct rest; do
   val=$(echo "$pct" | tr -d '%')
+  if [ "$crate" = "modukit-js" ]; then
+    echo "exempt modukit-js ($pct) - bin-like per D103; proofs run node-side"
+    continue
+  fi
   low=$(awk -v v="$val" 'BEGIN {print (v < 80.0) ? 1 : 0}')
   if [ "$low" = "1" ]; then echo "coverage-boundary: FAIL $crate $pct < 80.0"; verdict=1; fi
 done < "$SUM"
