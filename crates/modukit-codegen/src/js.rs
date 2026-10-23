@@ -462,7 +462,9 @@ fn kernel() -> Result<&'static Kernel> {
         let k = load_kernel()?;
         let _ = KERNEL.set(k);
     }
-    Ok(KERNEL.get().expect("load_kernel ran above or in the racing winner"))
+    KERNEL.get().ok_or_else(|| {
+        Error::new(Status::GenericFailure, String::from("kernel table vanished after init"))
+    })
 }
 "#,
     );

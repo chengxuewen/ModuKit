@@ -396,8 +396,6 @@ fn kernel() -> Result<&'static Kernel> {
         let k = load_kernel()?;
         let _ = KERNEL.set(k);
     }
-    // set() above means get() is Some (own write or racing winner); typed
-    // error on the unreachable arm - panics never cross the napi boundary (D104).
     KERNEL.get().ok_or_else(|| {
         Error::new(Status::GenericFailure, String::from("kernel table vanished after init"))
     })
