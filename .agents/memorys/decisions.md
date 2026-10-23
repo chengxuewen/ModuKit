@@ -586,6 +586,7 @@
 ## D84: coverage 80 hard gate - bins boundary-exempt, real debt calendared (2026-10-18)
 
 - **Decision**: D79 executes SPLIT: (a) modukit-runtime bins and fixture crates are measurement-boundary (llvm-cov cannot attribute spawned-process coverage; M8 fixture precedent) - excluded from the denominator, recorded as boundary not gap; (b) the REAL debt is calendared: core 78.42 -> 80 and codegen 73.19 -> 80 (the M8-era 72.7 debt) must both clear at the STAGE-3 KICKOFF GATE re-measurement; (c) anti-second-delay hook: if either crate misses at that gate, Stage-3 acceptance blocks new features until cleared. The 80% hard line itself is NOT relaxed.
+- **Amendment (2026-10-23, tail-note per the explicit-supersession habit cf. D78)**: the bin-like family widened - modukit-js (pure generated face, proofs run node-side) joins runtime bins + fixtures as boundary-exempt, ruled at D103; the metric lives in scripts/coverage-boundary.sh.
 - **Rationale**: user-adjudicated (ruling 3). Ruler problems and debt problems are different animals; punishing physics manufactures fake tests (ruling 6's return-the-goods clause), ignoring debt kills the gate (C refused).
 - **Reference**: M5a coverage table (71.76 total / 78.42 / 73.19 / 80.78 / 0% bins), M8 precedent row, ruling 6 anti-gaming text.
 - **Re-review triggers**: Stage-3 kickoff measurement (the calendar fires); any new bin crate joining the workspace (boundary scope re-checked).
@@ -699,7 +700,8 @@
    on the record. (R2=A) HostAbiV3: V2 prefix byte-identical + the two tail
    slots, declared-major negotiation per D83/D96-r2. (R3=A) verbs mirror
    landed host-side shapes exactly - timer_schedule(deadline_ns u64, label)
-   -> status + token out (clock.rs:181 shape) and clock_now(out ns) -> status
+   -> status + token out (clock.rs timer() shape, landed ~:207 after T1/T2 -
+   re-cited by doc-audit 2026-10-23; line 181 drifted into now()) and clock_now(out ns) -> status
    (embed.h:212 shape); relative-delta and recurring die on §3 no-invention.
    (R4=A) due rides the bus on a PER-PLUGIN topic org.modukit.timer.<plugin-id>,
    payload token u64 LE + label UTF-8 (origin retired with reason stated),
