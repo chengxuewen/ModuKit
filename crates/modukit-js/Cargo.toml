@@ -1,0 +1,20 @@
+[package]
+name = "modukit-js"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "JS/Node embed bridge (wave-2 D102): generated napi addon over the HostEmbedV1 C door - dlopens libmodukit_core.so, never links modukit-core"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+# Versions pinned by the M0 offline probe (D102 R2-A): the cached napi stack
+# that built + loaded under node 22.23.3 (modules ABI 127) on this box.
+[dependencies]
+napi = "=2.16.17"
+napi-derive = "=2.16.13"
+libloading = "0.9.0"
+
+[build-dependencies]
+napi-build = "=2.5.0"

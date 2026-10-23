@@ -9,6 +9,9 @@
 //! whatever it adds to `Cargo.lock` must be exactly its own transitive tree —
 //! no third-party package may ride in on any other pretext. (3) Every other
 //! workspace member (kernel core first) must not reach the vendor at all.
+//! (4) The D102 JS volume admits its OWN exact-pinned tree (the napi family,
+//! version-oracled by the M0 offline probe) reachable from nothing but
+//! modukit-js - the same rail as (2): decided at a hearing, fenced here.
 
 use std::collections::{BTreeSet, VecDeque};
 use std::path::PathBuf;
@@ -52,6 +55,15 @@ const ADMITTED_VENDOR_VERSION: &str = "0.10.0";
 /// `iceoryx` and every future vendor are gate material for their own hearing,
 /// never a silent milestone entry.
 const FORBIDDEN_VENDORS: &[&str] = &["iceoryx", "zenoh", "tokio", "nix"];
+
+/// The D102-admitted JS bridge tree (the hearing's R2-R4 rulings; the M0
+/// probe is the version oracle, D25's auditability inherited whole).
+const ADMITTED_JS_ROOTS: &[&str] = &["napi", "napi-derive", "napi-build"];
+const ADMITTED_JS_PINS: &[(&str, &str)] = &[
+    ("napi", "2.16.17"),
+    ("napi-derive", "2.16.13"),
+    ("napi-build", "2.5.0"),
+];
 
 fn workspace_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -157,12 +169,20 @@ fn the_crates_io_set_is_the_frozen_baseline_plus_exactly_the_admitted_vendor_tre
         vendor_tree.contains(ADMITTED_VENDOR),
         "the admitted vendor must exist in the lock graph"
     );
-    let admitted: BTreeSet<String> = approved.union(&vendor_tree).cloned().collect();
+    let mut js_tree: BTreeSet<String> = BTreeSet::new();
+    for root in ADMITTED_JS_ROOTS {
+        js_tree.extend(closure_of(&packages, root));
+    }
+    let admitted: BTreeSet<String> = approved
+        .union(&vendor_tree)
+        .chain(js_tree.iter())
+        .cloned()
+        .collect();
     let slipped: Vec<&String> = registry.difference(&admitted).collect();
     assert!(
         slipped.is_empty(),
-        "crates.io packages appeared that are neither the frozen baseline nor \
-         part of the admitted vendor's transitive tree: {slipped:?}"
+        "crates.io packages appeared outside the frozen baseline, the admitted \
+         vendor tree, and the D102 js bridge tree: {slipped:?}"
     );
     let vendor_pkg = packages
         .iter()
@@ -278,5 +298,45 @@ fn no_other_workspace_member_reaches_the_admitted_vendor() {
              may, and only behind the non-default feature",
             member.name
         );
+    }
+}
+
+#[test]
+fn the_js_bridge_tree_enters_only_exact_pinned_and_only_via_modukit_js() {
+    // D25's auditability applied to D102's tree: exact lock pins, one door.
+    let packages = lockfile_packages();
+    for (name, pin) in ADMITTED_JS_PINS {
+        let pkg = packages
+            .iter()
+            .find(|p| p.name == *name)
+            .unwrap_or_else(|| panic!("the admitted js root {name} must be locked"));
+        assert_eq!(
+            &pkg.version, pin,
+            "the js bridge tree is exact-pinned at the M0 probe versions"
+        );
+    }
+    let js = packages
+        .iter()
+        .find(|p| p.name == "modukit-js")
+        .expect("the bridge crate is locked");
+    assert!(
+        ADMITTED_JS_ROOTS
+            .iter()
+            .all(|r| js.deps.iter().any(|d| d == r)),
+        "modukit-js must carry all three roots as direct lock edges"
+    );
+    for member in packages
+        .iter()
+        .filter(|p| p.source.is_none() && p.name != "modukit-js")
+    {
+        let reach = closure_of(&packages, &member.name);
+        for root in ADMITTED_JS_ROOTS {
+            assert!(
+                !reach.contains(&root.to_string()),
+                "local package {} reaches the admitted js root {root}; only \
+                 modukit-js may, exactly as the vendor's seam confinement reads",
+                member.name
+            );
+        }
     }
 }

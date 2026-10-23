@@ -45,7 +45,13 @@ Citations (legend to keep rows short):
   rung-0 verbs since M1 and the 8 `modukit_sup_*` verbs since M2; emitter
   `crates/modukit-codegen/src/py.rs`, D100 R2-A; proof chain:
   `examples/py/host_demo.py` + `scripts/demo-wave2-py.sh` (rung-0) and
-  `examples/py/host_sup_demo.py` + `scripts/demo-wave2-py-sup.sh` (sup)).
+  `examples/py/host_sup_demo.py` + `scripts/demo-wave2-py-sup.sh` (sup).
+- `generated` JS embed bridge + facade = `crates/modukit-codegen/testdata/golden/
+  `modukit_embed_bridge.rs` + `modukit_embed.js` (one napi forwarder per rung-0 verb
+  over the dlopened C door + the CommonJS facade with enum/error mirrors - the
+  `modukit_sup_*` exe rung joins at M2 like the python line did; emitter
+  `crates/modukit-codegen/src/js.rs`, D102 R2-A; proof chain:
+  `examples/js/pin_test.js` + `examples/js/host_demo.js` + `scripts/demo-wave2-js.sh`).
 - `embed.rs` ops per verb-group: lifecycle `kernel.rs`; service call
   `kernel.rs`/`registry.rs`; bus `bus.rs` (`recv` = `Receiver::try_recv` + the
   embed queue table, `unsubscribe` = table removal + `Receiver` drop); clock
@@ -60,32 +66,32 @@ Last verified: 2026-10-20 by `scripts/check-capability-ledger.sh`
 
 ## A. HostEmbedV1 embed verbs (24 rows = EMBED_VERBS)
 
-| Capability | C | C++ | Rust | Python |
-|---|---|---|---|---|
-| `modukit_embed_abi_version` | header | generated | native | generated |
-| `modukit_install` | header | generated | native | generated |
-| `modukit_uninstall` | header | generated | native | generated |
-| `modukit_resolve` | header | generated | native | generated |
-| `modukit_start` | header | generated | native | generated |
-| `modukit_stop` | header | generated | native | generated |
-| `modukit_state` | header | generated | native | generated |
-| `modukit_service_call` | header | generated | native | generated |
-| `modukit_bus_publish` | header | generated | native | generated |
-| `modukit_bus_subscribe` | header | generated | native | generated |
-| `modukit_bus_recv` | header | generated | native | generated |
-| `modukit_bus_unsubscribe` | header | generated | native | generated |
-| `modukit_clock_now` | header | generated | native | generated |
-| `modukit_clock_advance` | header | generated | native | generated |
-| `modukit_introspect_snapshot` | header | generated | native | generated |
-| `modukit_introspect_events` | header | generated | native | generated |
-| `modukit_sup_install` | header | generated | native | generated |
-| `modukit_sup_stop` | header | generated | native | generated |
-| `modukit_sup_state` | header | generated | native | generated |
-| `modukit_sup_step` | header | generated | native | generated |
-| `modukit_sup_dial` | header | generated | native | generated |
-| `modukit_sup_restart` | header | generated | native | generated |
-| `modukit_sup_uninstall` | header | generated | native | generated |
-| `modukit_sup_service_call` | header | generated | native | generated |
+| Capability | C | C++ | Rust | Python | JS |
+|---|---|---|---|---|---|
+| `modukit_embed_abi_version` | header | generated | native | generated | generated |
+| `modukit_install` | header | generated | native | generated | generated |
+| `modukit_uninstall` | header | generated | native | generated | generated |
+| `modukit_resolve` | header | generated | native | generated | generated |
+| `modukit_start` | header | generated | native | generated | generated |
+| `modukit_stop` | header | generated | native | generated | generated |
+| `modukit_state` | header | generated | native | generated | generated |
+| `modukit_service_call` | header | generated | native | generated | generated |
+| `modukit_bus_publish` | header | generated | native | generated | generated |
+| `modukit_bus_subscribe` | header | generated | native | generated | generated |
+| `modukit_bus_recv` | header | generated | native | generated | generated |
+| `modukit_bus_unsubscribe` | header | generated | native | generated | generated |
+| `modukit_clock_now` | header | generated | native | generated | generated |
+| `modukit_clock_advance` | header | generated | native | generated | generated |
+| `modukit_introspect_snapshot` | header | generated | native | generated | generated |
+| `modukit_introspect_events` | header | generated | native | generated | generated |
+| `modukit_sup_install` | header | generated | native | generated | planned |
+| `modukit_sup_stop` | header | generated | native | generated | planned |
+| `modukit_sup_state` | header | generated | native | generated | planned |
+| `modukit_sup_step` | header | generated | native | generated | planned |
+| `modukit_sup_dial` | header | generated | native | generated | planned |
+| `modukit_sup_restart` | header | generated | native | generated | planned |
+| `modukit_sup_uninstall` | header | generated | native | generated | planned |
+| `modukit_sup_service_call` | header | generated | native | generated | planned |
 
 ## B. Plugin-side surface (contracts/modukit_plugin.h <-> abi::PluginAbiV1/HostAbiV1)
 
@@ -95,18 +101,18 @@ the plugin author, so those rows are `planned` until an emitter ships them.
 The Rust column here is the frozen v1 truth: `abi.rs` layout, consumed by
 `executor.rs` handshake guards (`open_validated`/`validate`).
 
-| Capability | C | C++ | Rust | Python |
-|---|---|---|---|---|
-| `modukit_plugin_init` (entry symbol) | header | planned | native | planned |
-| `abi_version` (PluginAbiV1) | header | planned | native | planned |
-| `size` (PluginAbiV1) | header | planned | native | planned |
-| `name` (PluginAbiV1) | header | planned | native | planned |
-| `id` (PluginAbiV1) | header | planned | native | planned |
-| `version` (PluginAbiV1) | header | planned | native | planned |
-| `start` (PluginAbiV1) | header | planned | native | planned |
-| `stop` (PluginAbiV1) | header | planned | native | planned |
-| `register_service` (HostAbiV1 slot) | header | planned | native | planned |
-| `modukit_service_call_fn_t` (service-call slot) | header | generated | native | planned |
+| Capability | C | C++ | Rust | Python | JS |
+|---|---|---|---|---|---|
+| `modukit_plugin_init` (entry symbol) | header | planned | native | planned | planned |
+| `abi_version` (PluginAbiV1) | header | planned | native | planned | planned |
+| `size` (PluginAbiV1) | header | planned | native | planned | planned |
+| `name` (PluginAbiV1) | header | planned | native | planned | planned |
+| `id` (PluginAbiV1) | header | planned | native | planned | planned |
+| `version` (PluginAbiV1) | header | planned | native | planned | planned |
+| `start` (PluginAbiV1) | header | planned | native | planned | planned |
+| `stop` (PluginAbiV1) | header | planned | native | planned | planned |
+| `register_service` (HostAbiV1 slot) | header | planned | native | planned | planned |
+| `modukit_service_call_fn_t` (service-call slot) | header | generated | native | planned | planned |
 
 
 ## C. Plugin-side v2 door - HostAbiV2 slots (Stage-5 N1, D96 ruling 2/5)
@@ -123,15 +129,15 @@ forwarding method per mailbox slot, behind the declared major; `size`/`user`
 are the guard's data, not verbs, so they read `header`). Proof chain:
 `test-plugins/busv2-plugin` + `crates/modukit-core/tests/abi_v2_door.rs`.
 
-| Capability | C | C++ | Rust | Python |
-|---|---|---|---|---|
-| `size` (HostAbiV2 slot) | header | header | native | planned |
-| `user` (HostAbiV2 context) | header | header | native | planned |
-| `register_service` (HostAbiV2 slot) | header | generated | native | planned |
-| `bus_publish` (HostAbiV2 verb) | header | generated | native | planned |
-| `bus_subscribe` (HostAbiV2 verb) | header | generated | native | planned |
-| `bus_recv` (HostAbiV2 verb) | header | generated | native | planned |
-| `bus_unsubscribe` (HostAbiV2 verb) | header | generated | native | planned |
+| Capability | C | C++ | Rust | Python | JS |
+|---|---|---|---|---|---|
+| `size` (HostAbiV2 slot) | header | header | native | planned | planned |
+| `user` (HostAbiV2 context) | header | header | native | planned | planned |
+| `register_service` (HostAbiV2 slot) | header | generated | native | planned | planned |
+| `bus_publish` (HostAbiV2 verb) | header | generated | native | planned | planned |
+| `bus_subscribe` (HostAbiV2 verb) | header | generated | native | planned | planned |
+| `bus_recv` (HostAbiV2 verb) | header | generated | native | planned | planned |
+| `bus_unsubscribe` (HostAbiV2 verb) | header | generated | native | planned | planned |
 ## D. Plugin-side v3 clock door - HostAbiV3 slots (Wave-2 T1, D99 R2/R3/R4)
 
 The THIRD host table, negotiated by declared ABI major: the byte-identical
@@ -154,14 +160,14 @@ method per parsed slot, the timer pair behind the v3 size guard; `size`/
 chain: `test-plugins/timerv3-plugin` +
 `crates/modukit-core/tests/abi_v3_door.rs`.
 
-| Capability | C | C++ | Rust | Python |
-|---|---|---|---|---|
-| `size` (HostAbiV3 slot) | header | header | native | planned |
-| `user` (HostAbiV3 context) | header | header | native | planned |
-| `register_service` (HostAbiV3 slot) | header | generated | native | planned |
-| `bus_publish` (HostAbiV3 slot) | header | generated | native | planned |
-| `bus_subscribe` (HostAbiV3 slot) | header | generated | native | planned |
-| `bus_recv` (HostAbiV3 slot) | header | generated | native | planned |
-| `bus_unsubscribe` (HostAbiV3 slot) | header | generated | native | planned |
-| `timer_schedule` (HostAbiV3 verb) | header | generated | native | planned |
-| `clock_now` (HostAbiV3 verb) | header | generated | native | planned |
+| Capability | C | C++ | Rust | Python | JS |
+|---|---|---|---|---|---|
+| `size` (HostAbiV3 slot) | header | header | native | planned | planned |
+| `user` (HostAbiV3 context) | header | header | native | planned | planned |
+| `register_service` (HostAbiV3 slot) | header | generated | native | planned | planned |
+| `bus_publish` (HostAbiV3 slot) | header | generated | native | planned | planned |
+| `bus_subscribe` (HostAbiV3 slot) | header | generated | native | planned | planned |
+| `bus_recv` (HostAbiV3 slot) | header | generated | native | planned | planned |
+| `bus_unsubscribe` (HostAbiV3 slot) | header | generated | native | planned | planned |
+| `timer_schedule` (HostAbiV3 verb) | header | generated | native | planned | planned |
+| `clock_now` (HostAbiV3 verb) | header | generated | native | planned | planned |
