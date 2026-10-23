@@ -61,9 +61,10 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo.
-echo [bootstrap] done. Open a NEW terminal, then verify:  node -v  (expect v22.x pin),  pixi --version
 echo [bootstrap] step 5/5: repo-local git hooks (C3 pre-flight) ...
 git config core.hooksPath scripts/hooks
 rem reserved host-policy slot: China cargo mirror (rsproxy) would go here -
 rem maintainer network-policy call (D104); deliberately not the supplier job.
+
+echo.
+echo [bootstrap] done. Open a NEW terminal, then verify:  node -v  (expect v22.x pin),  pixi --version
