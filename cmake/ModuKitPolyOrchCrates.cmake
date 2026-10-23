@@ -6,13 +6,13 @@
 # deliberately FOLDER-less (R10 naming: real target = name = ctest entry, button
 # suffixes -run/-test/-clean).
 #
-# W4 note (measured on this gitlink pin): polyorch_rust_test registers a BUILD
-# target (add_custom_target), NOT a ctest entry. The bridge below therefore adds
-# one add_test per lane executing the SAME cargo argv through the SAME command
-# wrapper the helper uses (_polyorch_rust_command: pixi PATH prefix + PIT-14
-# host-leak strip), so button and ctest entry can never drift in env handling.
-# These two _polyorch_* calls are the only internal-surface reads in this file
-# (the alternative was duplicating the strip/prefix recipe - forbidden).
+# ctest note (benchmark batch 1, D104, 2026-10-23): the verb's own CTEST keyword
+# (supplier D45; present at the pin - PolyOrch project version 0.7.1) mints each
+# lane's ctest entry from the SAME command vector as the button, so entry and
+# button can never drift in argv or env hygiene. The former W4 bridge (two
+# sanctioned-internal reads + a hand add_test) is RETIRED here: this file
+# touches no supplier internals. The twin project retired the identical pattern
+# citing this file's W4 as its own precedent - that debt is now cleared.
 
 option(MODUKIT_POLYORCH_CRATES "register the PolyOrch-driven cargo lanes in the graph" ON)
 
@@ -61,14 +61,18 @@ function(modukit_polyorch_crates)
         BASE_DIR "${_base}"
         FOLDER   "${_fold}")
 
-    # -test button (build-time verb; the ctest twin is registered below).
+    # -test button + ctest twin from the one vector (default entry name
+    # <package>-test matches the button NAME below - census unchanged).
     polyorch_rust_test(
         PACKAGE  ${_pkg}
         NAME     ${_pkg}-test
         TARGET   ${_pkg}
         MANIFEST "${_manifest}"
         BASE_DIR "${_base}"
-        FOLDER   "${_fold}")
+        FOLDER   "${_fold}"
+        CTEST CTEST_LABELS "rust;headless"
+            CTEST_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+            CTEST_SKIP_RETURN_CODE 77)
 
     # -clean button: every lane's clean clears the SHARED face (rm -rf of the
     # one cache dir; idempotent across lanes - the honest action, not a
@@ -77,20 +81,6 @@ function(modukit_polyorch_crates)
         NAME     ${_pkg}-clean
         BASE_DIR "${_base}"
         FOLDER   "${_fold}")
-
-    # W4 bridge: same argv as polyorch_rust_test assembles (test --package P
-    # --manifest-path M --target-dir TD), same host-route env forwarding, same
-    # _polyorch_rust_command wrapper (pixi prefix + --unset strip). Stage-1 is
-    # host-only; a future cross lane must route like the helper does.
-    _polyorch_rust_forward_env(TRIPLE "${POLYORCH_RUST_HOST_TARGET}" OUT_ENV _fenv)
-    _polyorch_rust_command(_cmd SUBCOMMAND
-        test --package "${_pkg}" --manifest-path "${_manifest}" --target-dir "${_base}"
-        ENV "${_fenv}")
-    add_test(NAME ${_pkg}-test COMMAND ${_cmd})
-    set_tests_properties(${_pkg}-test PROPERTIES
-        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-        SKIP_RETURN_CODE 77
-        LABELS "rust;headless")
 
     list(APPEND _mediators ${_pkg}-build)
   endforeach()
@@ -146,7 +136,7 @@ function(modukit_polyorch_crates)
   #   CARGO=<routed cargo>          - the demo falls back to bare "cargo";
   #   PATH=<pixi bin dir> first     - cargo resolves its rustc SIBLING via
   #                                     PATH, so the shim dir must not answer
-  # (same recipe as _polyorch_rust_command's pixi branch; the semicolon
+  # (same env hygiene the supplier command wrapper applies; the semicolon
   # escape is inert on POSIX, needed where PATH entries carry ';').
   if(WIN32)
     set(_sep ";")
