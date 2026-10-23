@@ -3,6 +3,29 @@
 # wiring (rust / crates / wasm) grows here as modukit_* functions when those lanes land
 # (the VisiaEngine PolyOrchCrates/PolyOrchWasm wrapper precedent).
 
+# modukit_polyorch_version_floor(_mode): T2.1 version floor (wave-2 benchmark
+#   plan section 3). Our lanes mint ctest entries via the supplier's CTEST
+#   keyword, which landed in PolyOrch 0.7.1 - below that floor the lanes would
+#   configure clean but never register a test. Reads INTERFACE_POLYORCH_VERSION
+#   off the sentinel target (PolyOrch/CMakeLists.txt:25); a missing value counts
+#   as below floor. Grammar mirrored from MediaServoPolyOrch.cmake:39-44/70-76.
+#   Called from BOTH branches of modukit_ensure_polyorch() (reuse + self-embed).
+function(modukit_polyorch_version_floor _mode)
+  if(TARGET PolyOrch::PolyOrch)
+    get_target_property(_ver PolyOrch::PolyOrch INTERFACE_POLYORCH_VERSION)
+  else()
+    set(_ver "NOTFOUND")   # bare sentinel without the target - treated as missing
+  endif()
+  set(_floor "0.7.1")   # single floor constant - the pin that ships the CTEST keyword
+  if(NOT _ver OR _ver VERSION_LESS _floor)
+    message(FATAL_ERROR
+      "modukit: needs PolyOrch >= ${_floor} (the CTEST keyword our lanes use to mint "
+      "ctest entries) but the ${_mode} copy reports '${_ver}'. Fix: raise the "
+      "gitlink pin to a >= ${_floor} SHA (standalone chore(deps) bump, C2/D67); in "
+      "reuse mode upgrade the superbuild's outer PolyOrch checkout instead.")
+  endif()
+endfunction()
+
 # modukit_ensure_polyorch(): sentinel embed, first-wins (D66).
 #   - A superbuild that already added PolyOrch wins; we reuse its copy.
 #   - Otherwise self-embed the submodule at its gitlink pin (D67: the gitlink is the
@@ -10,6 +33,7 @@
 function(modukit_ensure_polyorch)
   if(COMMAND polyorch_rust_setup)
     message(STATUS "modukit: reusing PolyOrch provided by the superbuild (first-wins, D66)")
+    modukit_polyorch_version_floor("superbuild-provided (reuse)")
     return()
   endif()
 
@@ -26,6 +50,7 @@ function(modukit_ensure_polyorch)
       "PolyOrch embedded but its helpers are absent - check the gitlink pin (D67 bump is a standalone commit)")
   endif()
   message(STATUS "modukit: PolyOrch self-embedded at its gitlink pin (D66)")
+  modukit_polyorch_version_floor("self-embedded gitlink pin")
 endfunction()
 
 
