@@ -840,3 +840,36 @@
   re-arms the region; with egress someday, real Rust-side tests may retire the
   exemption honestly; metric-definition changes amend coverage-boundary.sh itself
   (D101 rule stands).
+
+## D104: MediaServo benchmark - discipline tier adopted wholesale; delivery plane stays trigger-gated (2026-10-23)
+- **Decision**: four adjudications walked one-by-one with the maintainer (protocol:
+  adjudication-walkthrough; record docs/wave-2-benchmark-hearing.md). Rulings:
+  (1) scope E - adopt MediaServo's engineering-discipline layer across three batches:
+  batch 1 retires the supplier-private-function reads in the cmake lane file by
+  minting ctest entries through the CTEST keyword at our pin (the twin project
+  retired this pattern citing our repo as its precedent); batch 2 lands the shim
+  version floor, --self-test planted-defect hooks on the reconciliation scripts, a
+  new lane-table reconciler (cmake lanes vs Cargo members), clippy.toml,
+  rustfmt.toml, rust-toolchain.toml; batch 3 lands environment authority (see 2/4).
+  NOT adopted: the delivery plane (frontend/docker/deploy CLI/SDK install face -
+  demand-triggered per the demotion lineage) and four regressions we refuse (keep
+  llvm-cov, the 80 hard line, the single check.sh entry, centralized workspace deps).
+  (2) interpreters B - pixi declared sole authority; demo legs probe-and-announce
+  their interpreter origin; silent skip becomes a violation; the switch itself is
+  egress-armed (no fake greens on this offline box). (3) format leg B - KEEP
+  whole-workspace checking + style pin file; the changed-files-only scheme cures a
+  large-team disease we don't have and our diff baseline trails unpushed work;
+  explicit recorded deviation from the twin, re-openable. (4) bootstrap A - thin
+  host wrapper on BOTH platforms delegating to PolyOrch/scripts/pixi-init.sh/.bat
+  (auditable installer, pinned version, no-op when satisfied, lock-drift retry);
+  host keeps submodule guard + mise + git-hook stages + a reserved mirror-policy
+  slot; Windows first-run verification recorded as debt (owed either way).
+- **Rationale**: same-family twin, same pin, same governance grammar - the
+  discipline layer is portable fact; the delivery layer is somebody else's demand.
+- **Reference**: docs/wave-2-benchmark-hearing.md (full contract + open ledger);
+  verified anchors inside.
+- **Re-review triggers**: repo outgrows the solo line -> revisit ruling 3 (and the
+  incremental-fmt decline); egress returns -> warm pixi locks, install cargo-deny,
+  flip interpreter authority, arm advisory leg; any Windows-capable run -> settle
+  the .bat first-run debt; first external SDK consumer -> open the delivery-plane
+  hearing (install face, SOVERSION posture).

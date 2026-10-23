@@ -142,6 +142,14 @@
   (D103): the js region ruled bin-like metric-EXEMPT (0.00% displayed, vote skipped -
   the generated face's proofs are the two node-side legs + pin_test; hand-written logic
   in that crate would void the exemption and re-arm the region).
+- **Benchmark volume hearing DRAWN 2026-10-23 (D104)**: MediaServo discipline tier
+  adopted (E/B/B/A, walked one by one). Three batches: wall retirement (CTEST-keyword
+  ctest minting, supplier-private reads deleted), reconciliation + config pins (shim
+  floor, --self-test hooks, lane-table reconciler, clippy/rustfmt/toolchain files),
+  environment authority (pixi declares interpreters with loud fallback; bootstrap
+  thin wrapper on both platforms; presets; deny license+bans legs). Format-leg
+  increment DECLINED as recorded deviation; delivery plane stays trigger-gated.
+  Plan pending - contract = docs/wave-2-benchmark-hearing.md batches section.
 
 ## 3. What this file deliberately does NOT decide
 
