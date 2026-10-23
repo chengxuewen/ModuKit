@@ -1,6 +1,7 @@
 # Wave-2 Python Volume Plan (D100 rail)
 
-STATUS: REVIEWED OKAY 2026-10-22 (trail in §8). Nothing opens before the go order.
+STATUS: LANDED 2026-10-23 (M0/M1/M2 green on the nine-leg gate; notes §7).
+Volume acceptance stays the maintainer's call (D95 four-point DoD precedent).
 Rulings of record: D100 (docs/wave-2-python-hearing.md, drawn 2026-10-22, A,A,A,A).
 Deliverable: a generated Python floor over the frozen embed face - 24 verbs, two
 milestones, five-gate parity with the C++ volume, stdlib instruments, one-line cdylib.
@@ -131,9 +132,26 @@ Python-SCRIPT plugins (own hearing, stage-4-plan.md:134). PyO3 floor (superseded
 recorded). pybind11 (recorded not adopted; re-entry = measured overhead). asyncio sugar
 (D6). pytest/cffi (offline env fact). Any touch to v1/frozen surfaces (D87).
 
-## 7. Execution notes
+## 7. Execution notes (landing round, 2026-10-22/23)
 
-(empty - filled at landing, same-commit-cited rule)
+- M0 cdylib line + ctypes probe OK (24 exported symbols on the fresh .so,
+  embed_abi_version == 1). Commits: efbb24a (emitter+M0), a437f20 (M1 demo leg),
+  1223131 (regen wiring), c9f442e + e95bbe0 (M2 face + sup demo), f538894 (pin).
+- Step-0 measured RED: system protobuf-python 3.6.1 refuses protoc-36 gencode
+  (ImportError on runtime_version) -> demo-only fixture codec, floor untouched.
+- Worker signal failures twice in M2 (one session aborted mid-run; the finish
+  reported "complete" with an unreadable transcript). Takeover per tree-audit
+  protocol: diff audit (filter inversion, header-computed banner counts,
+  skin-only demo bindings, fidelity pinned to host_sup_demo.cc:139) + full live
+  re-measure (10 suites/56, clippy 0, regen x3 byte-stable, sup green / both
+  levers red / restore, nine-leg gate x2, M1-leg regression). Lesson PIT-29.
+- Gates kept earning their keep this volume: C1 caught two verbatim-chat
+  transcriptions, the commit-msg hook rejected one continuation-line bullet
+  (both same known families, fixed same-turn, never shipped).
+- Pin f8f85db = first maintainer-run dev-into-main bless cycle landed mid-volume
+  (second full cycle); nine-leg gate re-run AFTER the checkout, all green ctest 9/9.
+- Outstanding for acceptance: coverage boundary run (D79 at this boundary),
+  maintainer DoD verdict; push decision stays maintainer-owned.
 
 ## 8. Review trail
 

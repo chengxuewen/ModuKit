@@ -114,6 +114,15 @@
   leg SEVEN `scripts/demo-wave2-clock.sh` landed in check.sh; ledger sweep
   SIX->SEVEN done (AGENTS x2 + scripts line, status.md gate row, README).
 
+- **PYTHON volume (D100)**: LANDED 2026-10-23 (go order 2026-10-22). M0 one-line
+  cdylib lane (staticlib precedent); M1 generated-ctypes floor over the 16 rung-0
+  verbs - goldens + pins + eighth demo leg + lever, step-0 measured RED on protobuf
+  (demo-only fixture codec, floor untouched); M2 sup rung + byte-FIDELITY pinned to
+  host_sup_demo.cc:139 shared bytes + /proc-census orphan check, ninth leg, two
+  levers all red-proved by the orchestrator's own eyes; ledger's Python column
+  flipped planned->generated for all 24 rows. The S3 equal-capability line now
+  holds for C++ AND Python on both rungs. Plan: docs/wave-2-python-volume-plan.md §7.
+
 ## 3. What this file deliberately does NOT decide
 
 - Parent->child live-push for ORDINARY publishes (named by the D99 CLOCK
@@ -128,8 +137,9 @@
   so post-start bus APIs and live child-to-child overlap are a FUTURE agenda the moment
   a real consumer needs them - named here, not a silent drop (fan-out already serves
   all interested children; parent-side behavior is unit-pinned);
-- Python bindings, live-attach debug tooling depth, JS dual-face product surface -
-  all remain armed in `docs/stage-4-plan.md` §6, each needing its own word and round
+- live-attach debug tooling depth, JS dual-face product surface - remain armed in
+  `docs/stage-4-plan.md` §6, each needing its own word and round (Python bindings
+  LANDED 2026-10-23, lane row above)
   (the regen-tool nit on that list CLOSED 2026-10-21, commit 00a5290).
 
 - Debug-reader first landing 2026-10-21: the adjudicated door shipped as a minimal
