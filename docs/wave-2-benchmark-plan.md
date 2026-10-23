@@ -220,7 +220,39 @@ run per commit batch as usual. C3 shape per commit.
 - check.sh ctest-stage4 leg now checks three phases: build, per-name census,
   full run (replacing the single run that could be green on a shrunk list).
 
-## 10. Review trail
+## 10. Batch 2 landing notes (2026-10-23)
+
+- Landed: version floor both-mode + single-constant (lane A); --self-test hooks on
+  all three reconcilers; new lane-table gate wired into check.sh (5 lanes <-> 11
+  members, 2 reason-carrying exception rows); working clippy deny across the five
+  shipped crates; rustfmt/toolchain pin files.
+- CALIBER CORRECTION (honest metric rule): the day-one ruling measured production
+  debt as 3 sites by an awk heuristic; the compiler truth was 5 (core 3, codegen 1,
+  js 1). All five fixed properly per crate style. The ruling (day-one full switch-on,
+  no blanket production allow) held; the number in the ruling is corrected here.
+- VALVE-SCOPE FINDING: clippy 0.1.99 allow-*-in-tests exempts #[test]/#[should_panic]
+  FUNCTION BODIES ONLY - plain helper fns inside tests/ targets still lint. The plan
+  T2.4 parenthetical assumed tests/ dirs were covered; they are not. Resolution:
+  file-scoped #![allow(clippy::unwrap_used, clippy::expect_used)] headers on tests/
+  files, each carrying the measured rationale; test logic untouched; production
+  zones stay denied. Recorded deviation from the plan text.
+- CACHE FALSE-GREEN: one residual expect at js/src/lib.rs:399 passed an orchestrator
+  re-verification because the warm clippy fingerprint served a stale green; the mtime
+  churn of a later probe forced a real recompute and exposed it. Fixed (typed napi
+  error arm - panics never cross the FFI boundary). Filed as PIT-30: post-edit
+  revalidation gets fresh compiles, not warm-cache verdicts.
+- Reds observed (C0): floor raised to 99.0 -> configure FATAL; four --self-test modes
+  each caught their planted defect; planted unwrap -> clippy leg exit 101; planted
+  120-char line -> fmt --check red. All restored; final full gate green.
+- Cold flake: modukit-transport-test failed once, first run after the build; 9 warm
+  iterations + 2 subsequent full gates green; the output file was overwritten before
+  capture. Cause TBD - next occurrence captures output-on-failure immediately.
+- Parallel-delegation noise: the three concurrent lanes intermittently saw injected
+  content inside tool results (fake system directives, unrelated tasks) and shared
+  task-store cross-talk; every lane ignored them and stayed on brief; the
+  orchestrator judged on filesystem ground truth + gate reruns, never on narrative.
+
+## 11. Review trail
 
 - [x] Maintainer approval 2026-10-23 - three caliber calls walked one by one,
   ruled A / A / A: day-one full clippy switch-on (ladder retired at measured debt),
