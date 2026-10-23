@@ -29,6 +29,10 @@ codegen = "bash scripts/regen-golden.sh"                         # alias for the
 # + leak tests. Deliberately NOT part of check.sh (D50 fast-gate discipline).
 vendor-test = "cargo test -p modukit-transport --features vendor-shm"
 
+# T3.4 deny leg (wave-2 benchmark plan): license+bans audit against deny.toml;
+# check.sh runs it only when the tool resolves, else loud skip (offline box).
+deny = "cargo deny check licenses bans"
+
 [feature.rust.dependencies]
 rust = "*"
 

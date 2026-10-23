@@ -1,0 +1,24 @@
+# cargo-deny config (wave-2 benchmark plan T3.4). The allow list below is the
+# COMPLETE license census of Cargo.lock, taken 2026-10-23 via
+# `pixi run cargo metadata --offline --format-version 1` (48 packages, every one
+# with a license field) - compiler truth, not a guessed list. No wildcards.
+# Tool is not installable on this offline box, so the check.sh leg prints a
+# loud skip today; re-run the census before widening this list.
+
+[licenses]
+allow = [
+  "MIT",          # 33x "MIT OR Apache-2.0" + 7x "MIT" + 3x "Apache-2.0 OR MIT" + 2x "Unlicense OR MIT" (MIT leg)
+  "Apache-2.0",   # dual-license legs of the MIT-family expressions above
+  "ISC",          # libloading 0.8.9 + 0.9.0 ("ISC")
+  "Unicode-3.0",  # unicode-ident 1.0.27 ("(MIT OR Apache-2.0) AND Unicode-3.0")
+]
+# Unlicense is NOT listed: the only bearers (aho-corasick, memchr) are
+# "Unlicense OR MIT" and the MIT leg above already satisfies them.
+# "MIT/Apache-2.0" (no OR) and "BSD"/"Zlib" appear 0x in the census - the
+# plan's baseline expectation was wider than the actual tree.
+
+# bans: stanza intentionally left minimal - cargo-deny cannot run on this
+# offline box, so duplicate-version behavior is unverifiable today and no
+# deny/wildcard/multiple-versions rules are minted unfired (C0). The pixi
+# task still invokes `check licenses bans`; bans stays at tool defaults.
+[bans]

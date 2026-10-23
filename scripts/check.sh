@@ -130,7 +130,8 @@ else note "skip demo-wave2-clock (no script)"; fi
 # pinned protoc / cpp fixture band) is green, RED fails.
 if [ -f scripts/demo-wave2-py.sh ]; then
   w2p=$(bash scripts/demo-wave2-py.sh 2>/dev/null)
-  if echo "$w2p" | grep -q "demo-wave2-py: PASS"; then note "ok demo-wave2-py";
+  if echo "$w2p" | grep -q "demo-wave2-py: PASS" && echo "$w2p" | grep -q "^RUNNER: "; then note "ok demo-wave2-py";
+  elif echo "$w2p" | grep -q "demo-wave2-py: PASS"; then note "FAIL demo-wave2-py (PASS without RUNNER line - T3.1 runner census)"; status=1;
   elif echo "$w2p" | grep -q "demo-wave2-py: SKIP"; then note "skip demo-wave2-py (no python3/toolchain/fixture)";
   else note "FAIL demo-wave2-py (gate did not print PASS)"; status=1; fi
 else note "skip demo-wave2-py (no script)"; fi
@@ -139,7 +140,8 @@ else note "skip demo-wave2-py (no script)"; fi
 # pinned protoc / cpp fixture band) is green, RED fails.
 if [ -f scripts/demo-wave2-py-sup.sh ]; then
   w2ps=$(bash scripts/demo-wave2-py-sup.sh 2>/dev/null)
-  if echo "$w2ps" | grep -q "demo-wave2-py-sup: PASS"; then note "ok demo-wave2-py-sup";
+  if echo "$w2ps" | grep -q "demo-wave2-py-sup: PASS" && echo "$w2ps" | grep -q "^RUNNER: "; then note "ok demo-wave2-py-sup";
+  elif echo "$w2ps" | grep -q "demo-wave2-py-sup: PASS"; then note "FAIL demo-wave2-py-sup (PASS without RUNNER line - T3.1 runner census)"; status=1;
   elif echo "$w2ps" | grep -q "demo-wave2-py-sup: SKIP"; then note "skip demo-wave2-py-sup (no python3/toolchain/fixture)";
   else note "FAIL demo-wave2-py-sup (gate did not print PASS)"; status=1; fi
 else note "skip demo-wave2-py-sup (no script)"; fi
@@ -148,7 +150,8 @@ else note "skip demo-wave2-py-sup (no script)"; fi
 # cpp fixture band) is green, RED fails.
 if [ -f scripts/demo-wave2-js.sh ]; then
   w2j=$(bash scripts/demo-wave2-js.sh 2>/dev/null)
-  if echo "$w2j" | grep -q "demo-wave2-js: PASS"; then note "ok demo-wave2-js";
+  if echo "$w2j" | grep -q "demo-wave2-js: PASS" && echo "$w2j" | grep -q "^RUNNER: "; then note "ok demo-wave2-js";
+  elif echo "$w2j" | grep -q "demo-wave2-js: PASS"; then note "FAIL demo-wave2-js (PASS without RUNNER line - T3.1 runner census)"; status=1;
   elif echo "$w2j" | grep -q "demo-wave2-js: SKIP"; then note "skip demo-wave2-js (no node/toolchain/fixture)";
   else note "FAIL demo-wave2-js (gate did not print PASS)"; status=1; fi
 else note "skip demo-wave2-js (no script)"; fi
@@ -157,10 +160,22 @@ else note "skip demo-wave2-js (no script)"; fi
 # protoc / cpp fixture band) is green, RED fails.
 if [ -f scripts/demo-wave2-js-sup.sh ]; then
   w2js=$(bash scripts/demo-wave2-js-sup.sh 2>/dev/null)
-  if echo "$w2js" | grep -q "demo-wave2-js-sup: PASS"; then note "ok demo-wave2-js-sup";
+  if echo "$w2js" | grep -q "demo-wave2-js-sup: PASS" && echo "$w2js" | grep -q "^RUNNER: "; then note "ok demo-wave2-js-sup";
+  elif echo "$w2js" | grep -q "demo-wave2-js-sup: PASS"; then note "FAIL demo-wave2-js-sup (PASS without RUNNER line - T3.1 runner census)"; status=1;
   elif echo "$w2js" | grep -q "demo-wave2-js-sup: SKIP"; then note "skip demo-wave2-js-sup (no node/toolchain/fixture)";
   else note "FAIL demo-wave2-js-sup (gate did not print PASS)"; status=1; fi
 else note "skip demo-wave2-js-sup (no script)"; fi
+
+# leg: cargo-deny (wave-2 benchmark plan T3.4): license+bans audit against
+# deny.toml. Tool present -> run it; absent (this offline box cannot install
+# it) -> loud skip, never a silent one.
+if [ "$HAS_WS" -eq 1 ] && [ -f deny.toml ]; then
+  if "${CARGO[@]}" deny --version >/dev/null 2>&1; then
+    "${CARGO[@]}" deny check licenses bans || { note "FAIL cargo-deny"; status=1; }
+  else
+    note "skip cargo-deny (tool not installable offline)"
+  fi
+else note "skip cargo-deny (no deny.toml or no workspace)"; fi
 
 # leg: ctest bridge over the dedicated Stage-4 tree (gate escalation 2026-10-21;
 # PIT-17 class - a warm stale tree once fabricated a false 9/9). Incremental rebuild

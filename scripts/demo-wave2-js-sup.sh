@@ -30,10 +30,21 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 export PATH="$HOME/.pixi/bin:$PATH"
-if ! command -v node >/dev/null 2>&1; then
+# T3.1 runner-origin probe (wave-2 benchmark plan §4): pixi default env
+# interpreter first, PATH fallback; neither present keeps the loud SKIP
+# (marker string byte-identical). One RUNNER line per invocation, version
+# read from the interpreter itself.
+if [ -x ".pixi/envs/default/bin/node" ]; then
+  NBIN=".pixi/envs/default/bin/node"
+  NSRC="pixi-env"
+elif command -v node >/dev/null 2>&1; then
+  NBIN="node"
+  NSRC="PATH fallback - pixi env not warmed"
+else
   echo "demo-wave2-js-sup: SKIP (no node: the bridge has no addon runtime to load into)"
   exit 0
 fi
+echo "RUNNER: node $("$NBIN" --version 2>&1) ($NSRC)"
 if command -v pixi >/dev/null 2>&1; then
   CARGO=(pixi run cargo)
 elif command -v cargo >/dev/null 2>&1; then
@@ -135,7 +146,7 @@ if [ -f "$cxxlib" ]; then
   export LD_PRELOAD="$cxxlib${LD_PRELOAD:+:$LD_PRELOAD}"
 fi
 
-node examples/js/host_sup_demo.js --proof "$core_so" target/js/modukit_js.node "$so" "$runner" 2>&1 | tee "$log"
+"$NBIN" examples/js/host_sup_demo.js --proof "$core_so" target/js/modukit_js.node "$so" "$runner" 2>&1 | tee "$log"
 status=${PIPESTATUS[0]}
 if [ "$status" -eq 77 ]; then
   echo "demo-wave2-js-sup: SKIP (demo reported a missing input - see the transcript above)"

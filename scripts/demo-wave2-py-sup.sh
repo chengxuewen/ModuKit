@@ -26,10 +26,21 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 export PATH="$HOME/.pixi/bin:$PATH"
-if ! command -v python3 >/dev/null 2>&1; then
+# T3.1 runner-origin probe (wave-2 benchmark plan §4): pixi default env
+# interpreter first, PATH fallback; neither present keeps the loud SKIP
+# (marker string byte-identical). One RUNNER line per invocation, version
+# read from the interpreter itself.
+if [ -x ".pixi/envs/default/bin/python3" ]; then
+  PYBIN=".pixi/envs/default/bin/python3"
+  PYSRC="pixi-env"
+elif command -v python3 >/dev/null 2>&1; then
+  PYBIN="python3"
+  PYSRC="PATH fallback - pixi env not warmed"
+else
   echo "demo-wave2-py-sup: SKIP (no python3: the floor has no interpreter to run in)"
   exit 0
 fi
+pyver=$("$PYBIN" --version 2>&1); echo "RUNNER: python ${pyver#Python } ($PYSRC)"
 if command -v pixi >/dev/null 2>&1; then
   CARGO=(pixi run cargo)
 elif command -v cargo >/dev/null 2>&1; then
@@ -101,7 +112,7 @@ if [ -z "$so" ]; then
   exit 0
 fi
 
-python3 examples/py/host_sup_demo.py --proof "$core_so" "$so" "$runner" 2>&1 | tee "$log"
+"$PYBIN" examples/py/host_sup_demo.py --proof "$core_so" "$so" "$runner" 2>&1 | tee "$log"
 status=${PIPESTATUS[0]}
 if [ "$status" -eq 77 ]; then
   echo "demo-wave2-py-sup: SKIP (demo reported a missing input - see the transcript above)"
