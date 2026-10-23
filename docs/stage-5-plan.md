@@ -122,6 +122,11 @@
   levers all red-proved by the orchestrator's own eyes; ledger's Python column
   flipped planned->generated for all 24 rows. The S3 equal-capability line now
   holds for C++ AND Python on both rungs. Plan: docs/wave-2-python-volume-plan.md §7.
+- **Volume ACCEPTED 2026-10-23 (D101)**: four-point DoD green - goals re-measured by
+  the orchestrator, freeze audit zero-touch, coverage via the NEW pinned recipe
+  (`scripts/coverage-boundary.sh`: core 86.18 / transport 88.29 / codegen 85.74 - the
+  first boundary run with a machine-checkable census), docs swept incl the
+  EINTR-sentinel hardening.
 
 ## 3. What this file deliberately does NOT decide
 

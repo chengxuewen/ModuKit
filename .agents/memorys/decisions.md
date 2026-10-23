@@ -772,3 +772,9 @@
   separate case (docs/stage-4-plan.md:134) - own hearing only; per-language asyncio
   sugar stays runner-side per D6; pybind11 re-entry = measured overhead numbers;
   v1/frozen surfaces untouched - any drift rearms this hearing (D87 class).
+
+## D101: Python bindings volume ACCEPTED - four-point DoD green; first boundary run on the pinned recipe (2026-10-23)
+- **Decision**: the volume (D100 rail: M0 cdylib one-liner, M1 generated-ctypes floor over the 16 rung-0 verbs, M2 sup rung + byte-fidelity + orphan census, nine-leg gate) is accepted on the D95 four-point template: (1) goals evidenced - every demo state re-measured by the orchestrator's own hands (green/red/restore x3 legs, census cross-checked 57 suites/280 tests plain-vs-instrumented); (2) frozen surface held - whole-volume audit: zero touch on contracts/ and core production lines (one crate-type line + cfg(test)-only edits); (3) coverage boundary MEASURED ON A NEW PINNED RECIPE - scripts/coverage-boundary.sh is now the single source of the D84a metric (mawk-proven parser, census + zero-FAILED + 3-row table guards, synthetic red observed): core 86.18 / transport 88.29 / codegen 85.74, all >= 80 (transport was 79.11 on the unpinned hand-parse the same day - the recipe fixed both the number and the drift); (4) docs swept - lane rows, ledger 24 flips, gallery, PIT-29 takeover lesson.
+- **Rationale**: maintainer "he" verdict after the A-package (patch to line + pin the recipe + EINTR sentinel hardening); the false-green found in the first boundary-script draft was fixed same-day behind a guard whose red was observed - C0 honored.
+- **Reference**: docs/wave-2-python-volume-plan.md §7; stage-5 lane rows; commits efbb24a..796e6ee.
+- **Re-review triggers**: metric-definition changes must amend coverage-boundary.sh itself (never a side parser); Python sugar layers (asyncio, D63(c)) or script-host open their own hearings; v1 drift rearms D100.
