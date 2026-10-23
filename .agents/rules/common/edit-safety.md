@@ -324,3 +324,11 @@ user interrupted both times asking why the session kept blocking).
 **Rule**: totals parsed from `cargo test`/`cargo build` output must come from a REDIRECTED FILE, never a pipe attached to the live terminal (concurrent cargo interleaves and drops lines under the tty). Wrong totals were shipped twice (82 vs 134; 94 vs 133) before the redirect habit landed.
 **Verification**: `pixi run cargo test --workspace >/tmp/x.txt 2>&1 && grep -cE "^test result" /tmp/x.txt` - suite count and totals agree with a per-suite listing.
 **Blocking condition**: quoting any test/build total parsed through a tty pipe; diagnosing "missing suites" without a redirected re-read.
+
+### 29. Read the banner before hand-editing a source file - generated files get fixed at the EMITTER (PIT-31, hit twice 2026-10-23)
+
+**Rule**: before ANY repair edit, `head -5 <file> | grep -qi generated` (and eye the "DO NOT EDIT" wording). If the banner says generated, the fix belongs in the emitter (crates/modukit-codegen/src/{py,js}.rs and friends), then `pixi run regen-golden`, then the skin copies from the golden - the leg grammar owns the last mile. Hand-fixing an artifact evaporates on the next gate run: the js legs re-emit crates/modukit-js/src/lib.rs from the template every pass (observed twice this volume).
+
+**Verification**: after emitter fix + regen + skin copy, run the FULL gate (legs re-emit), then `cmp` skin vs golden - byte identity SURVIVING the leg's own regeneration is the root-cured proof.
+
+**Blocking condition**: writing manual edits into a file whose banner says Generated; closing a "vanished edit" incident without checking that banner first.
