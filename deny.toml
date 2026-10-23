@@ -1,21 +1,28 @@
-# cargo-deny config (wave-2 benchmark plan T3.4). The allow list below is the
-# COMPLETE license census of Cargo.lock, taken 2026-10-23 via
-# `pixi run cargo metadata --offline --format-version 1` (48 packages, every one
-# with a license field) - compiler truth, not a guessed list. No wildcards.
-# Tool is not installable on this offline box, so the check.sh leg prints a
-# loud skip today; re-run the census before widening this list.
+# cargo-deny config (wave-2 benchmark plan T3.4). Two censuses taken 2026-10-23
+# from the compiler truth, scoped honestly (gate-review correction, D105 era):
+#   default-features graph  = 48 packages (the instrument first used here);
+#   --all-features graph    = 110 packages (what cargo-deny walks - the lock).
+# The allow list covers BOTH graphs (no wildcards). Tool is not installable on
+# this offline box, so the check.sh leg prints a loud skip today.
+# ARMING-DAY CHECK (plan §7): two old-syntax strings ("Apache-2.0/MIT" cexpr,
+# "MIT/Apache-2.0" minimal-lexical) may not parse as SPDX expressions - if
+# cargo-deny rejects them, map via licenses.exceptions, do not widen blindly.
 
 [licenses]
 allow = [
   "MIT",          # 33x "MIT OR Apache-2.0" + 7x "MIT" + 3x "Apache-2.0 OR MIT" + 2x "Unlicense OR MIT" (MIT leg)
   "Apache-2.0",   # dual-license legs of the MIT-family expressions above
   "ISC",          # libloading 0.8.9 + 0.9.0 ("ISC")
-  "Unicode-3.0",  # unicode-ident 1.0.27 ("(MIT OR Apache-2.0) AND Unicode-3.0")
+  "Unicode-3.0",   # unicode-ident 1.0.27 ("(MIT OR Apache-2.0) AND Unicode-3.0")
+  "BSD-3-Clause",  # lock-graph only: bindgen 0.72.1, sha1_smol 1.0.1 (vendor-shm tree)
+  "0BSD",          # lock-graph only: enum-iterator 2.3.0 + enum-iterator-derive 1.5.0
 ]
 # Unlicense is NOT listed: the only bearers (aho-corasick, memchr) are
 # "Unlicense OR MIT" and the MIT leg above already satisfies them.
-# "MIT/Apache-2.0" (no OR) and "BSD"/"Zlib" appear 0x in the census - the
-# plan's baseline expectation was wider than the actual tree.
+# The earlier claim "BSD appears 0x in the census" was true ONLY for the
+# default-graph instrument; the lock graph measures BSD-3-Clause x2 and 0BSD
+# x2 (carriers listed above). Corrected at gate review - metric definition is
+# part of the claim.
 
 # bans: stanza intentionally left minimal - cargo-deny cannot run on this
 # offline box, so duplicate-version behavior is unverifiable today and no

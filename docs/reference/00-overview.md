@@ -162,7 +162,9 @@ does not need to be resolved before Stage 1 lands.
    D104 batch 3): opt in or leave commented - maintainer network-policy call.
 10. Windows first-run of the bootstrap.bat delegation (hooks + mirror stages
     mirrored 2026-10-23, never executed there; any Windows-capable machine
-    settles it; debt also on wave-2-benchmark-plan §7).
+    settles it; debt also on wave-2-benchmark-plan §7). CHECK FIRST: file is
+    CRLF-restored + .gitattributes-pinned (gate-review 2026-10-23) - confirm
+    checkout bytes carry CR before trusting any goto/if-block failure report.
 
 ## 5. Reading order by stage
 

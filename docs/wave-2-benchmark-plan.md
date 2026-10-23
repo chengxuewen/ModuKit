@@ -189,7 +189,11 @@ run per commit batch as usual. C3 shape per commit.
 - Incremental fmt: DECLINED (ruling 3). Re-open on team growth.
 - Windows first-run of bootstrap wrapper: owed to any Windows-capable machine.
 - Egress-armed switches: T3.5 list (pixi interpreters, cargo-deny, advisory,
-  fresh-box full run).
+  fresh-box full run). cargo-deny install day: re-census the full lock graph AND
+  confirm the "Apache-2.0/MIT" / "MIT/Apache-2.0" old-syntax strings parse (or
+  map via exceptions) before expecting the licenses leg green (gate-review).
+  Windows first-run day: the bat is CRLF-pinned via .gitattributes (gate-review
+  found the volume's rewrites had leaked LF) - verify line endings FIRST.
 - China-mirror slot in wrapper: maintainer network-policy call.
 - clippy deny: day-one full switch-on ruled (measured three-site debt, cleaned
   in-batch); ladder retired; blanket allow forbidden.
@@ -263,6 +267,11 @@ run per commit batch as usual. C3 shape per commit.
   MIT/Apache-2.0/ISC/Unicode-3.0 closure, each with bearer comment); bans stanza
   intentionally empty (unverifiable offline, C0 says no unfired gates); leg today
   prints the loud skip note; pixi task "deny" added.
+  GATE-REVIEW CORRECTION (same day): "census of Cargo.lock" was mis-scoped - the
+  instrument measured the default-features graph (48) while cargo-deny walks the
+  lock graph (110); BSD-3-Clause (bindgen, sha1_smol) and 0BSD (enum-iterator x2)
+  live ONLY there and the allow list was widened with them, bearer-commented. Two
+  old-syntax strings are flagged for an arming-day parse check (plan §7).
 - Bootstrap wrappers LANDED: guard + delegation to PolyOrch/scripts/pixi-init.sh
   (default pin 0.78.0; box runs pixi 0.82.0 so the ready-branch no-op is live-
   verified; lock-drift retry now supplier-owned); rsproxy reserved host-policy
