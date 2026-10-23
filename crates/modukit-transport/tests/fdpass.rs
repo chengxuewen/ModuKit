@@ -296,3 +296,114 @@ fn a_memfd_blob_round_trips_across_a_real_process_boundary() {
         std::thread::sleep(Duration::from_millis(5));
     }
 }
+
+/// The send leg on a dead lane: with the peer gone, `sendmsg` is refused by
+/// the OS and the shim maps errno through `Backend` — never a silent
+/// success that would strand the queued fd. Bounded retries because AF_UNIX
+/// may absorb one buffered frame before reporting EPIPE.
+#[test]
+fn sendmsg_on_a_dead_lane_surfaces_the_typed_backend_error() {
+    let (a, b) = UnixStream::pair().expect("socketpair");
+    drop(b);
+    let mut blob = match MemfdBlob::create("modukit-fdpass-deadlane") {
+        Ok(x) => x,
+        Err(e) => {
+            eprintln!("SKIPPING: memfd_create unavailable here: {e}");
+            return;
+        }
+    };
+    blob.send(b"x".to_vec()).expect("write the blob");
+    let mut refusal = None;
+    for _ in 0..3 {
+        if let Err(e) = send_with_fd(&a, b"dead", blob.raw_fd().expect("open blob")) {
+            refusal = Some(e);
+            break;
+        }
+    }
+    let err = refusal.expect("a dead lane must refuse within three sends");
+    assert_eq!(err.code(), "CARRIER_UNREACHABLE", "{err}");
+}
+
+/// The recv leg under `set_read_timeout` on an empty queue: the shim is a
+/// raw recvmsg, so the OS EAGAIN surfaces as the typed Backend error
+/// (documented in the verb's `# Errors` — it is NOT mapped to Closed).
+#[test]
+fn a_recv_timeout_on_an_empty_lane_is_the_typed_backend_error() {
+    let (_a, b) = UnixStream::pair().expect("socketpair");
+    b.set_read_timeout(Some(Duration::from_millis(50)))
+        .expect("short recv bound");
+    let mut buf = [0u8; 20];
+    let err = recv_with_fd(&b, &mut buf).expect_err("an empty queue must time out");
+    assert_eq!(err.code(), "CARRIER_UNREACHABLE", "{err}");
+}
+
+/// Truncation honesty gate, reached the only way the public API allows:
+/// a non-conforming peer that attaches more ancillary space than this shim's
+/// fixed 24-byte cbuf (seven SCM_RIGHTS ints). The kernel sets MSG_CTRUNC;
+/// the refusal must name it — a half-received descriptor is never handed
+/// back. (The raw sender mirrors the CHILD_SRC shim layout already documented
+/// in this file; the fds the kernel did fit into the cbuf leak inside the
+/// test process — bounded, reclaimed at exit — the crate's own sender never
+/// produces a message that can truncate.)
+#[test]
+fn an_oversized_ancillary_block_is_refused_as_ctrunc() {
+    #[repr(C)]
+    struct CIovec {
+        base: *mut std::ffi::c_void,
+        len: usize,
+    }
+    #[repr(C)]
+    struct CHdr {
+        name: *mut std::ffi::c_void,
+        namelen: std::ffi::c_int,
+        iov: *mut CIovec,
+        iovlen: usize,
+        control: *mut std::ffi::c_void,
+        controllen: usize,
+        flags: std::ffi::c_int,
+    }
+    unsafe extern "C" {
+        fn sendmsg(fd: std::ffi::c_int, hdr: *const CHdr, flags: std::ffi::c_int) -> isize;
+    }
+
+    use std::os::fd::AsRawFd;
+    let (a, b) = UnixStream::pair().expect("socketpair");
+    let nulls: Vec<std::fs::File> = (0..7)
+        .map(|_| std::fs::File::open("/dev/null").expect("open /dev/null"))
+        .collect();
+    // One cmsg header carrying all seven ints: CMSG_LEN(28) = 44 > the 24 the
+    // receiver reserved, so the kernel truncates the control channel.
+    let mut cbuf = vec![0u8; 16 + 4 * nulls.len()];
+    cbuf[0..8].copy_from_slice(&(16 + 4 * nulls.len()).to_ne_bytes());
+    cbuf[8..12].copy_from_slice(&1i32.to_ne_bytes()); // SOL_SOCKET
+    cbuf[12..16].copy_from_slice(&1i32.to_ne_bytes()); // SCM_RIGHTS
+    for (i, f) in nulls.iter().enumerate() {
+        let o = 16 + 4 * i;
+        cbuf[o..o + 4].copy_from_slice(&f.as_raw_fd().to_ne_bytes());
+    }
+    let data = meta_bytes(1, 1, 1);
+    let mut iov = CIovec {
+        base: data.as_ptr().cast_mut().cast(),
+        len: data.len(),
+    };
+    let hdr = CHdr {
+        name: std::ptr::null_mut(),
+        namelen: 0,
+        iov: &mut iov,
+        iovlen: 1,
+        control: cbuf.as_mut_ptr().cast(),
+        controllen: cbuf.len(),
+        flags: 0,
+    };
+    // SAFETY: connected AF_UNIX socket; the iovec and cbuf outlive the call
+    // (same layout law the CHILD_SRC shim documents).
+    let sent = unsafe { sendmsg(a.as_raw_fd(), &hdr, 0) };
+    assert_eq!(sent as usize, data.len(), "the raw peer frame went out");
+
+    let mut buf = [0u8; 20];
+    b.set_read_timeout(Some(CROSS_PROC_TIMEOUT))
+        .expect("recv bound");
+    let err = recv_with_fd(&b, &mut buf).expect_err("44 > 24 must truncate");
+    assert_eq!(err.code(), "CARRIER_UNREACHABLE", "{err}");
+    assert!(format!("{err}").contains("truncated"), "{err}");
+}

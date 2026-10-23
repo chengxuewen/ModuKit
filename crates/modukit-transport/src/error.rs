@@ -74,3 +74,83 @@ impl fmt::Display for TransportError {
 }
 
 impl std::error::Error for TransportError {}
+
+#[cfg(test)]
+mod tests {
+    use super::TransportError;
+
+    /// Every variant names its D51 dictionary entry — the vocabulary claim
+    /// of the module header, asserted verbatim.
+    #[test]
+    fn each_variant_names_its_d51_code() {
+        assert_eq!(TransportError::Closed.code(), "CARRIER_UNREACHABLE");
+        assert_eq!(
+            TransportError::Backend {
+                syscall: "recvmsg",
+                reason: "x".into()
+            }
+            .code(),
+            "CARRIER_UNREACHABLE",
+            "a backend refusal never invents a code"
+        );
+        assert_eq!(
+            TransportError::StaleEpoch {
+                slot: 1,
+                expected: 2,
+                found: 3
+            }
+            .code(),
+            "EPOCH_EXPIRED"
+        );
+        assert_eq!(TransportError::UnknownSlot { slot: 4 }.code(), "NOT_FOUND");
+        assert_eq!(
+            TransportError::Busy { slot: 5 }.code(),
+            "CONTRACT_VIOLATION"
+        );
+    }
+
+    /// Display is the prose channel: each arm renders its documented sentence
+    /// with the fields interpolated (the lanes' tests only ever read `code()`).
+    #[test]
+    fn display_renders_each_variant_prose() {
+        assert_eq!(
+            TransportError::Closed.to_string(),
+            "the transport lane is closed"
+        );
+        assert_eq!(
+            TransportError::Backend {
+                syscall: "sendmsg",
+                reason: "Broken pipe".into()
+            }
+            .to_string(),
+            "transport backend: sendmsg failed: Broken pipe"
+        );
+        let prose = TransportError::StaleEpoch {
+            slot: 7,
+            expected: 1,
+            found: 2,
+        }
+        .to_string();
+        assert!(
+            prose.contains("slot 7 resolved at epoch 1 but the pool is now at epoch 2"),
+            "{prose}"
+        );
+        assert!(prose.contains("EPOCH_EXPIRED"), "{prose}");
+        assert_eq!(
+            TransportError::UnknownSlot { slot: 9 }.to_string(),
+            "descriptor references unknown slot 9"
+        );
+        let busy = TransportError::Busy { slot: 10 }.to_string();
+        assert!(
+            busy.contains("slot 10 is still viewed; release it before retiring"),
+            "{busy}"
+        );
+    }
+
+    /// The std `Error` impl rides `Display` — a boxed seam error still speaks.
+    #[test]
+    fn the_std_error_impl_carries_the_display_string() {
+        let err: &dyn std::error::Error = &TransportError::Closed;
+        assert_eq!(err.to_string(), "the transport lane is closed");
+    }
+}
