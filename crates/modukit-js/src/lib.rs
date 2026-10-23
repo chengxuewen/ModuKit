@@ -396,7 +396,11 @@ fn kernel() -> Result<&'static Kernel> {
         let k = load_kernel()?;
         let _ = KERNEL.set(k);
     }
-    Ok(KERNEL.get().expect("load_kernel ran above or in the racing winner"))
+    // set() above means get() is Some (own write or racing winner); typed
+    // error on the unreachable arm - panics never cross the napi boundary (D104).
+    KERNEL.get().ok_or_else(|| {
+        Error::new(Status::GenericFailure, String::from("kernel table vanished after init"))
+    })
 }
 
 /// forwarder for `modukit_embed_abi_version` (contracts/modukit_embed.h:128) - calls the
