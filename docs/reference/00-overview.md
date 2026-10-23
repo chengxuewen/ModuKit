@@ -156,6 +156,13 @@ does not need to be resolved before Stage 1 lands.
    DONE; sole survivor = doc-liveness check, re-hung to Stage-3 M3S-1.
    (source: VisiaEngine adoption tribunal distillation, status.md History
    2026-10-09; elevated into this register by the 2026-10-10 doc-audit, M9).
+   CLOSED 2026-10-19 (doc-liveness leg live in check.sh; PORT_NOW fully retired) -
+   marked by doc-audit 2026-10-23.
+9. China-mirror step inside the bootstrap wrapper (reserved host-policy slot,
+   D104 batch 3): opt in or leave commented - maintainer network-policy call.
+10. Windows first-run of the bootstrap.bat delegation (hooks + mirror stages
+    mirrored 2026-10-23, never executed there; any Windows-capable machine
+    settles it; debt also on wave-2-benchmark-plan §7).
 
 ## 5. Reading order by stage
 

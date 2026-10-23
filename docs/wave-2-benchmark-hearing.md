@@ -65,11 +65,12 @@
 - Twin retirement note naming our precedent: .refinfo/MediaServo/cmake/MediaServoCrates.cmake:26-29;
   CTEST keyword usage: same file 108-119; floor grammar: MediaServoPolyOrch.cmake:39-44.
 - Supplier scripts: PolyOrch/scripts/pixi-init.sh (:20 pin 0.78.0, :66 already-satisfied
-  no-op, :8-9 lock-drift retry), pixi-init.bat (50 lines, twin present).
+  no-op, :8-9 lock-drift retry), pixi-init.bat (57 lines, twin present).
 - Our ad-hoc stage: bootstrap.sh:51-58 (curl-pipe install, no pin/recovery).
 - Interpreter status quo: mise.toml:5-6 (node 22, uv) - no python pin; demo legs skip
   silently when absent; pixi.toml has no node/python feature.
 
 ## Review trail
 
-- [ ] plan document (docs/wave-2-benchmark-plan.md) - Momus review pending
+- [x] plan document landed - Momus OKAY 2026-10-23 (fresh session); calibers A/A/A
+  ruled one by one; batches 1-3 landed (plan §9-§11 evidence rows)

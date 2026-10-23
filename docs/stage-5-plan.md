@@ -2,7 +2,8 @@
 
 > STATUS: HEARING HELD 2026-10-21 - the v2 plugin-facing bus door was ruled six-by-A
 > on maintainer word ("open the hearing", agenda letter 4); ledger record D96.
-> Implementation lanes below are SPEC'd, not open - each needs its own go order.
+> Implementation lanes below were SPEC'd pre-opening; each opened on its own
+maintainer word (D94/D96/D97/D99/D100-D104) - the rows carry current state.
 > The schedule-timer agenda was HEARD and DRAWN 2026-10-21 (D99,
 > docs/wave-2-clock-hearing.md); its lane T1 (the door) LANDED the same
 > day; its lane T2 (the crossing) LANDED 2026-10-22 - row below. The §3
@@ -34,7 +35,8 @@
    assertion suite run wall-in AND wall-out (the dual_placement precedent), so a
    semantic discount cannot hide in only one column.
 
-## 2. Landing split (lane shape per the C++-4 risk-split precedent; NOT open)
+## 2. Landing split (lane shape per the C++-4 risk-split precedent; header wording
+predates the openings - see the rows
 
 - **N1 - the door**: LANDED 2026-10-21. `HostAbiV2` (v1 prefix byte-identical + four
   mailbox slots; abi.rs 111/0, kernel.rs 14/0, executor.rs 39/0 - pure insertions,
@@ -58,7 +60,7 @@
 
 ### CLOCK lane (D99)
 
-- **T1 - the clock door**: LANDED 2026-10-21. `HostAbiV3` = the byte-identical
+- **T1 - the clock door**: LANDED 2026-10-22 (drafted 10-21; commit d7434af - date unified by doc-audit 2026-10-23). `HostAbiV3` = the byte-identical
   V2 prefix + `timer_schedule`/`clock_now` tail slots (frozen audit by the
   orchestrator: abi.rs 84/0, kernel.rs 59/0, executor.rs 147/0 - pure
   insertions; proc_wire/executor_proc/embed.h zero touch). The five prefix
@@ -149,7 +151,8 @@
   environment authority (pixi declares interpreters with loud fallback; bootstrap
   thin wrapper on both platforms; presets; deny license+bans legs). Format-leg
   increment DECLINED as recorded deviation; delivery plane stays trigger-gated.
-  Plan pending - contract = docs/wave-2-benchmark-hearing.md batches section.
+  plan APPROVED (Momus OKAY + calibers A/A/A); BATCHES 1-3 LANDED 2026-10-23;
+  acceptance sheet pending (maintainer word); debts on plan §7 ledger.
 
 ## 3. What this file deliberately does NOT decide
 

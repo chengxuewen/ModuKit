@@ -183,7 +183,8 @@ the core exe-placement family is named debt for the next boundary gate. RESOLVED
 80.78 / codegen 84.25 region metric - the named debt is CLEARED on this tree];
 docs closed via the applied §7 amendment + roadmap sync. Wave-2 (§6) armed, not open.
 
-## 6. Wave-2 candidates (in this volume's shadow, NOT open; trigger = maintainer word or named consumer)
+## 6. Wave-2 candidates (historical register - all five since opened on maintainer
+word (D94/D96/D97/D99/D100-D103); landing rows live in docs/stage-5-plan.md)
 - Python bindings (skins of the C tables) and the Python script host (separate rulings)
 - Communication: v2 plugin-facing bus/clock verbs (I3/I4 hearing material preserved in §1)
   - BUS HALF: hearing HELD + LANDED (D96; N1 door + N2 crossing closed 2026-10-21,
