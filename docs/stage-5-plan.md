@@ -138,8 +138,10 @@
   + byte-FIDELITY against the SAME pinned constant as cpp (host_sup_demo.cc:139) and python
   + /proc-census orphan proof - eleventh leg, both levers red-proved. Ledger JS column:
   24 rows generated. Face-1 (JS-authored plugins) stays the script-host separate case.
-  Commits 687e7ea..7428c62; plan docs/wave-2-js-volume-plan.md. Acceptance open item:
-  the modukit-js coverage-region question (plan §5) - named, not hidden.
+  Commits 687e7ea..87aae6e; plan docs/wave-2-js-volume-plan.md. ACCEPTED 2026-10-23
+  (D103): the js region ruled bin-like metric-EXEMPT (0.00% displayed, vote skipped -
+  the generated face's proofs are the two node-side legs + pin_test; hand-written logic
+  in that crate would void the exemption and re-arm the region).
 
 ## 3. What this file deliberately does NOT decide
 

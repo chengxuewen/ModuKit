@@ -814,3 +814,29 @@
   acceptance (D84a classification - revisit if it resists the 80-line honestly); face 1
   opens ONLY as its own script-host hearing (stage-4-plan.md:134); node ABI pin (modules
   =127, v22) re-arms R2 if the toolchain moves under us.
+
+## D103: JS bindings volume ACCEPTED - four-point DoD green; modukit-js classified bin-like metric-exempt (2026-10-23)
+- **Decision**: the volume (M0 martial probe, M1 generated bridge+facade over the 16
+  rung-0 verbs, M2 sup rung with tri-language byte-fidelity, legs ten + eleven) is
+  accepted on the D95 template: (1) goals evidenced - probe green incl. the type-shape
+  de-risking (no tuples, no u64: create_object + i64), every demo state re-measured by
+  the orchestrator (three levers observed RED, restorations green, pin_test 4/4);
+  (2) frozen surface held - zero touch (contracts/, core src), Cargo.lock purely
+  additive, the supply-chain fence caught the napi slip RED and was amended per its own
+  admission rule (exact probe pins, one-door confinement); (3) coverage boundary -
+  core 84.79 / transport 88.29 / codegen 86.43 all >= 80, and the named js question
+  answered by CLASSIFICATION, not exception-by-mood: modukit-js is bin-like (D84a
+  family with the runtime bins) - a generated 426-line shell whose proofs run
+  node-side; the boundary table still REQUIRES and PRINTS the js row (visibility,
+  not a vote), synthetic reds prove the exemption cannot shelter a shirking sibling;
+  (4) docs swept - lane row, ledger 24 JS cells generated, plan §7 at landing.
+- **Rationale**: unit-testing generated code re-tests the emitter (already measured
+  inside codegen's 86.43); the bridge's live truth is the legs - the same evidentiary
+  shape the runtime bins carry. Maintainer word: exempt (ruled at the verdict sheet).
+- **Reference**: docs/wave-2-js-volume-plan.md §7; scripts/coverage-boundary.sh
+  exemption block; stage-5 JS lane row.
+- **Re-review triggers**: the exemption covers modukit-js ONLY while it remains a pure
+  generated shell over the C door - any hand-written logic landing there voids it and
+  re-arms the region; with egress someday, real Rust-side tests may retire the
+  exemption honestly; metric-definition changes amend coverage-boundary.sh itself
+  (D101 rule stands).
