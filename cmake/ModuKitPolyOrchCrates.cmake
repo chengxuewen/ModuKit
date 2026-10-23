@@ -23,8 +23,8 @@ set(MODUKIT_RUST_LANES
     "modukit-core@crates/modukit-core@lib@modukit_core"
     "modukit-transport@crates/modukit-transport@lib@modukit_transport"
     "modukit-codegen@crates/modukit-codegen@lib@modukit_codegen"
-    "example-plugin@test-plugins/example-plugin@shared@example_plugin"
-    "bad-plugin@test-plugins/bad-plugin@shared@bad_plugin")
+    "example-plugin@test-plugins/rs/example-plugin@shared@example_plugin"
+    "bad-plugin@test-plugins/rs/bad-plugin@shared@bad_plugin")
 
 # modukit_polyorch_crates() - call AFTER modukit_ensure_polyorch_rust().
 function(modukit_polyorch_crates)
