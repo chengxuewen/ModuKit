@@ -1,0 +1,5 @@
+# D104 T2.5: pins today's habit (edition 2024, max_width 100 - the rustfmt
+# default width we already keep); the whole-workspace `cargo fmt --check` leg
+# stays the authority, no file reflowed at landing (see D104 ruling).
+edition = "2024"
+max_width = 100
