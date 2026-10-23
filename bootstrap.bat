@@ -5,6 +5,8 @@ rem   1. ensure mise   (official GitHub release zip -> %LOCALAPPDATA%\mise\bin)
 rem   2. ensure user PATH contains that bin dir (via .NET User-scope API, not setx)
 rem   3. mise install  (toolchain pins from mise.toml; no-op when satisfied)
 rem   4. ensure pixi   (delegated to PolyOrch\scripts\pixi-init.bat: pinned
+rem   5. git hooks: C3 commit-shape pre-flight (2026-10-23 doc-audit, mirrors
+rem      bootstrap.sh; Windows first-run debt stands)
 rem                         auditable installer, already-satisfied no-op, lock-drift retry)
 rem
 rem Windows first-run verification DEBT (D104): the delegation below mirrors
@@ -38,7 +40,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo [bootstrap] step 4/4: ensuring pixi via PolyOrch standard script ...
+echo [bootstrap] step 4/5: ensuring pixi via PolyOrch standard script ...
 rem guard: the supplier script must exist before delegation - initialise the
 rem submodule if it is not checked out, fail loudly when it is still missing.
 if not exist "PolyOrch\scripts\pixi-init.bat" (
@@ -61,3 +63,7 @@ if errorlevel 1 (
 
 echo.
 echo [bootstrap] done. Open a NEW terminal, then verify:  node -v  (expect v22.x pin),  pixi --version
+echo [bootstrap] step 5/5: repo-local git hooks (C3 pre-flight) ...
+git config core.hooksPath scripts/hooks
+rem reserved host-policy slot: China cargo mirror (rsproxy) would go here -
+rem maintainer network-policy call (D104); deliberately not the supplier job.

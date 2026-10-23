@@ -11,7 +11,9 @@
 #                         auditable installer, already-satisfied no-op, lock-drift retry)
 #
 # After first run: open a NEW terminal (activation is read at shell start).
-# Windows native: use bootstrap.bat (same steps, no WSL required).
+# Windows native: use bootstrap.bat - stages mirrored (pixi delegation, git hooks,
+#   mirror slot; hooks+slot added 2026-10-23 doc-audit). WINDOWS FIRST-RUN DEBT stands:
+#   the bat has never been executed on Windows.
 
 set -euo pipefail
 
