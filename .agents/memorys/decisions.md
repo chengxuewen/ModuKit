@@ -778,3 +778,39 @@
 - **Rationale**: maintainer "he" verdict after the A-package (patch to line + pin the recipe + EINTR sentinel hardening); the false-green found in the first boundary-script draft was fixed same-day behind a guard whose red was observed - C0 honored.
 - **Reference**: docs/wave-2-python-volume-plan.md §7; stage-5 lane rows; commits efbb24a..796e6ee.
 - **Re-review triggers**: metric-definition changes must amend coverage-boundary.sh itself (never a side parser); Python sugar layers (asyncio, D63(c)) or script-host open their own hearings; v1 drift rearms D100.
+
+## D102: JS bindings hearing held - four rulings (A,A,A,A) drawn; face-2 scope, generated napi bridge behind a probe, six gates, workspace crate (2026-10-23)
+- **Decision**: the armed JS door opened on maintainer word (the stage-4 §6 "own word and
+  round" rail, and the D54 wait-for-trigger implementation clause answered). Four items
+  walked one by one: (R1=A) FACE 2 ONLY - a JS program embedding the kernel through the C
+  door, all 24 embed verbs in two milestones mirroring the cpp/python volumes; face 1
+  (JS-authored plugins, embedding a script engine) stays the script-host separate case -
+  D54's direction law quoted verbatim at the walk. (R2=A) the technique is a GENERATED
+  napi bridge + JS facade, both emitted by the codegen pipeline from the same frozen
+  header; the bridge body may only dlopen libmodukit_core.so (libloading, already a core
+  dependency since Stage-1) and forward the C symbols - no Rust-ABI side door; HARD
+  CONDITION: a day-one probe (M0) must prove the bridge compiles from the offline cache
+  AND the produced .node loads into the measured node v22.23.3; probe failure stands the
+  volume down honestly (a valid outcome, not a defeat) and the door stays armed.
+  (R3=A) six-gate mirror: dual goldens, dual structural pins, a node:test harness
+  (measured present in the stdlib) pinning facade against the real .node, demo legs ten
+  + eleven with sabotage levers, byte-FIDELITY asserting the SAME pinned constant the cpp
+  and python stanzas use (first tri-language byte agreement), and the capability ledger
+  GAINS the JS column - four header rows + honest per-row cells; the checker script stays
+  untouched (it is existence-only by design, scripts/check-capability-ledger.sh:9-10).
+  (R4=A) the bridge is a workspace member `crates/modukit-js` - the name is already on the
+  whitepaper's planned register (:43), so this settles a planned letter, not a new naming
+  round; single lockfile and all cargo machinery inherited.
+- **Rationale**: full grill + increment recheck (both fresh sessions per PIT-27) caught
+  two overstatement blockers in the draft's measured claims and forced them straight
+  (checker misdescription; libloading "unreferenced" error) - the fixed fact base then
+  verified clean; every fork's A-option is the copy-of-precedent path, the non-A options
+  are environment-dead (koffi), doctrine-dead (hand-written floor), or door-crossings
+  (face 1, child-process shape).
+- **Reference**: docs/wave-2-js-hearing.md (DRAWN; review trail §6); volume plan
+  docs/wave-2-js-volume-plan.md follows the rail.
+- **Re-review triggers**: M0 probe RED = stand-down with a named evidence row (no
+  silent retry loops); the bridge enters the coverage denominator as a lib region at
+  acceptance (D84a classification - revisit if it resists the 80-line honestly); face 1
+  opens ONLY as its own script-host hearing (stage-4-plan.md:134); node ABI pin (modules
+  =127, v22) re-arms R2 if the toolchain moves under us.
