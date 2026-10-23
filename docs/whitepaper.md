@@ -40,6 +40,8 @@ modukit-transport     # transport abstraction: local SHM / remote WebRTC (extens
 modukit-c             # C ABI export
 modukit-py            # Python bindings
 modukit-cs            # C# bindings
+modukit-codegen       # skeleton/ABI-shade codegen (shipped since Stage-1; tail-added
+                      #   2026-10-23 doc-audit per D83 - the naming authority had missed it)
 modukit-js            # JS/Node bindings
 modukit-wasm          # WASM host & sandbox
 modukit-script-lua    # Lua extension host
@@ -201,6 +203,10 @@ flowchart TD
 ---
 
 ## 8. Implementation Path
+
+> Pointer (tail-added 2026-10-23 doc-audit, D83 grammar): the LIVE roadmap is
+> `docs/architecture.md` §12 - the stage meanings below predate the Stage-3
+> re-scope (D89-K2 demotion) and the wave re-splits (D93-D95, wave-2). §12 first.
 
 1. **Stage 1: in-process plugin kernel**  
    OSGi-style lifecycle and service registry; reference `rutis`, `rustbridge`.
