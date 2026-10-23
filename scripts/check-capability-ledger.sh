@@ -15,10 +15,33 @@
 # Section-A row is a markdown table line starting `| \`verb\` |`. If the
 # row grammar changes, change the grep below in the same commit.
 set -uo pipefail
+SELF=$(realpath "$0") # absolute for the self-test re-exec below
 cd "$(dirname "$0")/.."
+IN="${MODUKIT_GATE_INPUT_DIR:-}"; [ -n "$IN" ] && IN="${IN%/}/"
 
-LEDGER=docs/capability-ledger.md
-MIRROR=crates/modukit-core/src/embed_abi.rs
+# ---- self-test (benchmark plan T2.2) ----
+# Copy the ledger and the verb mirror to a scratch dir, delete one
+# `| `verb` |` row from the scratch ledger, re-run against the scratch
+# copy: the covering-row check MUST go red. Repo files are never touched.
+if [ "${1:-}" = "--self-test" ]; then
+  s=$(mktemp -d)
+  trap 'rm -rf "$s"' EXIT
+  mkdir -p "$s/docs" "$s/crates/modukit-core/src"
+  cp docs/capability-ledger.md "$s/docs/"
+  cp crates/modukit-core/src/embed_abi.rs "$s/crates/modukit-core/src/"
+  verb=$(sed -n '/^pub const EMBED_VERBS:/,/^\];/p' "$s/crates/modukit-core/src/embed_abi.rs" \
+    | grep -oE '"modukit_[a-z_0-9]+"' | tr -d '"' | head -1)
+  grep -v "^| \`$verb\`" "$s/docs/capability-ledger.md" > "$s/ledger.tmp" && mv "$s/ledger.tmp" "$s/docs/capability-ledger.md"
+  if MODUKIT_GATE_INPUT_DIR="$s" bash "$SELF" > /dev/null 2>&1; then
+    echo "self-test FAIL (check-capability-ledger.sh): planted defect NOT caught"
+    exit 1
+  fi
+  echo "self-test OK (check-capability-ledger.sh): planted defect caught"
+  exit 0
+fi
+
+LEDGER="${IN}docs/capability-ledger.md"
+MIRROR="${IN}crates/modukit-core/src/embed_abi.rs"
 
 for f in "$LEDGER" "$MIRROR"; do
   if [ ! -f "$f" ]; then

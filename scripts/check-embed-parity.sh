@@ -23,12 +23,32 @@
 # Amendment policy is D83 tail-add - a verb/field moved or added on one
 # side without the other fails here before anything downstream can drift.
 set -uo pipefail
+SELF=$(realpath "$0") # absolute for the self-test re-exec below
 cd "$(dirname "$0")/.."
+IN="${MODUKIT_GATE_INPUT_DIR:-}"; [ -n "$IN" ] && IN="${IN%/}/"
 
-EMBED_HEADER=contracts/modukit_embed.h
-PLUGIN_HEADER=contracts/modukit_plugin.h
-MIRROR=crates/modukit-core/src/embed_abi.rs
-ABI=crates/modukit-core/src/abi.rs
+# ---- self-test (benchmark plan T2.2) ----
+# Copy the gate's four inputs to a scratch dir, drop one verb declaration
+# from the scratch embed header, re-run against the scratch copy: the
+# header <-> mirror diff MUST go red. Repo files are never touched.
+if [ "${1:-}" = "--self-test" ]; then
+  s=$(mktemp -d)
+  trap 'rm -rf "$s"' EXIT
+  mkdir -p "$s/contracts" "$s/crates/modukit-core/src"
+  cp contracts/modukit_embed.h contracts/modukit_plugin.h "$s/contracts/"
+  cp crates/modukit-core/src/embed_abi.rs crates/modukit-core/src/abi.rs "$s/crates/modukit-core/src/"
+  sed -i '0,/^int32_t modukit_/{/^int32_t modukit_/d}' "$s/contracts/modukit_embed.h"
+  if MODUKIT_GATE_INPUT_DIR="$s" bash "$SELF" > /dev/null 2>&1; then
+    echo "self-test FAIL (check-embed-parity.sh): planted defect NOT caught"
+    exit 1
+  fi
+  echo "self-test OK (check-embed-parity.sh): planted defect caught"
+  exit 0
+fi
+EMBED_HEADER="${IN}contracts/modukit_embed.h"
+PLUGIN_HEADER="${IN}contracts/modukit_plugin.h"
+MIRROR="${IN}crates/modukit-core/src/embed_abi.rs"
+ABI="${IN}crates/modukit-core/src/abi.rs"
 
 for f in "$EMBED_HEADER" "$PLUGIN_HEADER" "$MIRROR" "$ABI"; do
   if [ ! -f "$f" ]; then
