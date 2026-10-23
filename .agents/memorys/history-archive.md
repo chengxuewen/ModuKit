@@ -23,6 +23,8 @@
 - Full doc-audit (5 dims, 4-member team): 45 raw -> 26 merged -> swept in today's
   commits; sub-rulings: git-date authority, bat hooks added, C1 +bindings/ with the
   plant-and-observe red, whitepaper §2.3/§8 by D83 tail-adds.
+- VOLUME ACCEPTED (D105) same day: fresh coverage-boundary green at the acceptance
+  edge (codegen 86.44 / core 84.41 / transport 88.29; js printed, vote skipped).
 
 
 > Full chronological History log, moved out of `status.md` on 2026-10-14 (the per-turn-loaded file must stay small). Append NEW entries at the TOP of this file; status.md keeps only a pointer. Live state lives in status.md Phase/Open Items.

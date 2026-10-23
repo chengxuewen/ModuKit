@@ -875,3 +875,28 @@
   flip interpreter authority, arm advisory leg; any Windows-capable run -> settle
   the .bat first-run debt; first external SDK consumer -> open the delivery-plane
   hearing (install face, SOVERSION posture).
+
+## D105: Benchmark volume ACCEPTED - discipline tier landed, same-day audit swept (2026-10-23)
+- **Decision**: the benchmark volume (D104 hearing E/B/B/A + plan calibers A/A/A +
+  batches 1-3) is accepted on the D95/D101/D103 template: (1) goals re-measured by
+  the orchestrator - twelve items plus two acceptance-QA additions (rs shelf banding,
+  maintainer-ruled A; emitter root cure), every new gate observed red on the real
+  gate before trusted (CTEST-keyword census byte-identical at 9 entries, RUNNER
+  sabotage, guard-hidden supplier, floor 99.0 FATAL, presets version 999, four
+  self-test hooks, planted unwrap and fmt); (2) frozen surface held - contracts/
+  zero-touch since volume start; production Rust delta = four behavior-preserving
+  lint fixes plus one emitter template line (verified via the leg's own re-emission
+  byte-identity); v1 surface untouched (D87); (3) coverage boundary - fresh run at
+  the acceptance edge: codegen 86.44 / core 84.41 / transport 88.29 all >= 80, js
+  row printed and vote-skipped per D103; (4) docs swept - the same-day full
+  doc-audit (5 dims; 45 raw findings -> 26 merged -> all landed in 8 commits) fixed
+  the drift this volume itself caused and closed the unguarded bindings/ shelf.
+- **Rationale**: the volume's thesis - checks must bite - applies to its own paper
+  trail; accepting without the audit sweep would ship exactly the staleness class
+  the volume exists to retire.
+- **Reference**: docs/wave-2-benchmark-plan.md §9-§12 landing notes + audit entries;
+  docs/wave-2-benchmark-hearing.md.
+- **Re-review triggers**: plan §7 debts (egress-armed switches, Windows first-run of
+  the bat twin, China-mirror slot - maintainer register items 9/10); incremental-fmt
+  decline re-opens if the team or repo outgrows the solo line; the floor bump-note
+  rule binds every future PolyOrch bump (body bullet or the gate floor is stale).

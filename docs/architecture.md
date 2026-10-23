@@ -311,6 +311,7 @@ them. Re-review trigger recorded in D5.
 | D102 | js bindings hearing | four rulings (A,A,A,A): face-2 only all 24 verbs two milestones / generated napi bridge + facade behind day-one probe / six-gate mirror incl node:test harness + ledger JS column / workspace crate modukit-js (name pre-registered) |
 | D103 | js volume accepted | four-point DoD green 2026-10-23; modukit-js classified bin-like metric-exempt (row prints, vote skipped - proofs run node-side) |
 | D104 | benchmark hearing | MediaServo discipline tier adopted (E/B/B/A): private-use retirement, reconciler+pin files, interpreter authority, bootstrap wrapper; delivery plane stays trigger-gated |
+| D105 | benchmark volume accepted | four-point DoD green 2026-10-23 (fresh boundary; contracts zero-touch); same-day doc-audit 26 findings swept; debts on plan §7 |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 

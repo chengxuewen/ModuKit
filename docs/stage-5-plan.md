@@ -152,7 +152,8 @@ predates the openings - see the rows
   thin wrapper on both platforms; presets; deny license+bans legs). Format-leg
   increment DECLINED as recorded deviation; delivery plane stays trigger-gated.
   plan APPROVED (Momus OKAY + calibers A/A/A); BATCHES 1-3 LANDED 2026-10-23;
-  acceptance sheet pending (maintainer word); debts on plan §7 ledger.
+  ACCEPTED 2026-10-23 (D105; fresh boundary green + same-day doc-audit swept);
+  debts on plan §7 ledger (egress switches, Windows first-run, mirror slot).
 
 ## 3. What this file deliberately does NOT decide
 

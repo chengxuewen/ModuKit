@@ -1,7 +1,8 @@
 # Wave-2 Benchmark Volume Plan - MediaServo discipline tier
 
 > Date: 2026-10-23. Contract basis: D104 (docs/wave-2-benchmark-hearing.md, rulings
-> E/B/B/A, maintainer-adjudicated one by one). Status: APPROVED 2026-10-23 (Momus OKAY + maintainer calibers A/A/A one-by-one).
+> E/B/B/A, maintainer-adjudicated one by one). Status: ACCEPTED 2026-10-23 (D105) - four-point DoD green on a fresh boundary
+> run; same-day doc-audit swept; §7 debts live on.
 > This plan lands code only through the three batches below; the delivery plane
 > (frontend / docker / deploy CLI / SDK install face) is explicitly OUT - demand
 > triggered, per the standing demotion lineage.
