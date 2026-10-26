@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# D50 local check gate: fast legs + ELEVEN demo legs + ctest per-name census +
+# D50 local check gate: fast legs + TWELVE demo legs (newest leg twelve:
+# wave2-plugin-py, D106 batch 2) + ctest per-name census +
 # lane-table + wire-parity + loud cargo-deny + commit-shape + doc-liveness (D104/D106 named);
 # each leg skips cleanly when its target is absent. CI at the revival trigger runs
 # THIS SAME script - zero drift between local and CI.
@@ -164,7 +165,20 @@ if [ -f scripts/demo-wave2-js-sup.sh ]; then
   elif echo "$w2js" | grep -q "demo-wave2-js-sup: SKIP"; then note "skip demo-wave2-js-sup (no node/toolchain/fixture)";
   else note "FAIL demo-wave2-js-sup (gate did not print PASS)"; status=1; fi
 else note "skip demo-wave2-js-sup (no script)"; fi
-
+# Wave-2 plugin-door python leg (D106 batch 2, the twelfth demo leg): the
+# hand-written skin walks all 11 wire kinds across the exe wall (conformance
+# + lifecycle + FIDELITY + BUS ROUNDTRIP + liar typed error + orphan census,
+# sabotage lever DEMO_PLUGIN_PY_SABOTAGE=1). Same PASS/SKIP grammar as the
+# other eleven demo legs; the PASS-without-RUNNER FAIL arm below is copied
+# from the D104-census template (scripts/check.sh:130-135 pattern - the
+# runner-origin line is the census proof, its absence reds the leg).
+if [ -f scripts/demo-wave2-plugin-py.sh ]; then
+  w2pp=$(bash scripts/demo-wave2-plugin-py.sh 2>/dev/null)
+  if echo "$w2pp" | grep -q "demo-wave2-plugin-py: PASS" && echo "$w2pp" | grep -q "^RUNNER: "; then note "ok demo-wave2-plugin-py";
+  elif echo "$w2pp" | grep -q "demo-wave2-plugin-py: PASS"; then note "FAIL demo-wave2-plugin-py (PASS without RUNNER line - D104-census)"; status=1;
+  elif echo "$w2pp" | grep -q "demo-wave2-plugin-py: SKIP"; then note "skip demo-wave2-plugin-py (no python3/toolchain/fixture)";
+  else note "FAIL demo-wave2-plugin-py (gate did not print PASS)"; status=1; fi
+else note "skip demo-wave2-plugin-py (no script)"; fi
 # leg: cargo-deny (wave-2 benchmark plan T3.4): license+bans audit against
 # deny.toml. Tool present -> run it; absent (this offline box cannot install
 # it) -> loud skip, never a silent one.
@@ -196,10 +210,11 @@ if [ -d out/build-stage4 ] && command -v pixi >/dev/null 2>&1; then
     done
     if [ -n "$census_missing" ]; then
       note "FAIL ctest-stage4 census (missing:${census_missing})"; status=1
-    elif pixi run ctest --test-dir out/build-stage4 > /tmp/ctest-run.log 2>&1; then
+    elif pixi run ctest --test-dir out/build-stage4 --output-on-failure > /tmp/ctest-run.log 2>&1; then
       note "ok ctest-stage4 ($(grep -E 'tests passed' /tmp/ctest-run.log | tail -1))"
     else
-      note "FAIL ctest-stage4 (tests red; see /tmp/ctest-build.log + /tmp/ctest-run.log)"; status=1
+      cp -f out/build-stage4/Testing/Temporary/LastTest.log /tmp/ctest-lasttest.log 2>/dev/null || true
+      note "FAIL ctest-stage4 (tests red; see /tmp/ctest-build.log + /tmp/ctest-run.log + /tmp/ctest-lasttest.log)"; status=1
     fi
   fi
 else note "skip ctest-stage4 (no out/build-stage4 tree or no pixi)"; fi
