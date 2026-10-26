@@ -80,7 +80,7 @@ FlightData {
 | Object | Verdict | Note |
 |---|---|---|
 | Bill-of-lading/cargo split (FlightData shape, tag-1000 ordering) | **CONFIRMS D12 — technique adopted** | already written into modules/04 §2 as our sidecar rule |
-| `Ticket` as opaque handle; descriptor→info→ticket flow | **BORROW-PATTERN (shape validation)** | our D4 handles + D9 ids map 1:1; the 3-step discovery handshake is a good checklist for slot ③ |
+| `Ticket` as opaque handle; descriptor→info→ticket flow | **BORROW-PATTERN (shape validation)** | our D4 handles + D9 ids map 1:1; the 3-step discovery handshake is a good checklist for slot 3) |
 | `PollFlightInfo` | **BORROW-PATTERN** | long-running-job-with-progress as protocol citizen = D6 vindicated at spec level |
 | `DoExchange` bidirectional streams | **BORROW-SHAPE** for remote topic lanes | our D10 keeps the vocabulary kernel-owned (no DDS-style worldview import) |
 | gRPC/tonic substrate (http2, tokio, codegen stack) | **REJECT (as decided)** | D6 sync-boundary + D11 porter-seam already declined this universe; Flight's *framing* is portable without its *transport* |
@@ -91,7 +91,7 @@ FlightData {
 ## 6. Sharpest single finding
 
 Flight's `FlightData` puts its giant payload at **proto tag 1000** — the field-numbering
-discipline we mandate (D12 rule ①) used not for compatibility but as *streaming architecture*:
+discipline we mandate (D12 rule 1)) used not for compatibility but as *streaming architecture*:
 ordering metadata before body in the number line is what lets every reader be lazy about the
 cargo. One integer choice, whole performance story — the cheapest possible advertisement for
 "tags from day one".

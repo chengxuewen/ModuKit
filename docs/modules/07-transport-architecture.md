@@ -38,8 +38,8 @@ Slot inventory (all simultaneous, per plane, no favorites):
 
 **Framing precedent (D12)**: Arrow Flight ships exactly the shape we standardize — small
 proto bill of lading, opaque Arrow IPC tail (sidecar), zero/one-copy discipline. We adopt
-the *technique* over our own TL framing in slot ③; we do **not** adopt Flight's gRPC
-substrate (D6 sync-boundary doctrine; slot ③ candidates stay zenoh-shaped per §2 sheet).
+the *technique* over our own TL framing in slot 3); we do **not** adopt Flight's gRPC
+substrate (D6 sync-boundary doctrine; slot 3) candidates stay zenoh-shaped per §2 sheet).
 
 ## 3. Descriptor access protocol (D14)
 
@@ -49,7 +49,7 @@ geometry). The reader computes addresses by pure addition — **no per-frame met
 no lockstep with the writer ever**.
 
 - **Attach once, hot path zero syscalls**: at subscribe-resolve the pool fd is handed over
-  exactly once via UDS (`SCM_RIGHTS`) — slot ① remains the only fd courier (D7); the
+  exactly once via UDS (`SCM_RIGHTS`) — slot 1) remains the only fd courier (D7); the
   consumer mmaps the pool and caches the base. Per frame: receive envelope → slice =
   base + slot×cell + offset → release = one atomic refcount decrement.
 - **Liveness is enforced by types, not by docs**: local views are borrows (Rust
@@ -131,13 +131,13 @@ network story is transport-level until a real multi-machine need).
 
 ## 8. As built (2026-10-19, S2 shipped)
 
-Slot ① is live in `crates/modukit-transport` and `proc_wire.rs`. The control frame is
+Slot 1) is live in `crates/modukit-transport` and `proc_wire.rs`. The control frame is
 exactly the TL envelope — `u32 LE len | u8 ver | u8 type | payload` — with
 `WIRE_VERSION = 1`: every frame carries the version byte and a foreign `ver` is a typed
 protocol error, never a reinterpret. Nine kinds ride it today (HELLO, START, STOP, ACK,
 REGISTER, CALL, RESULT, plus the S2-M3b dial pair DIAL/DUE); payload ceiling `FRAME_MAX`
 (64 KiB) so a lying length prefix cannot make the host allocate unbounded. Descriptor
-passing over `SCM_RIGHTS` (`fdpass.rs`) shipped as slot ①'s fd courier — §3's
+passing over `SCM_RIGHTS` (`fdpass.rs`) shipped as slot 1)'s fd courier — §3's
 "attach once, hot path zero syscalls" is now the mechanism, not the plan. The first pool
 backend is `vendor-shm`: iceoryx2 pinned exact (`=0.10.0`), behind a non-default
 vendor-neutral feature, confined to one module plus one dependency line per D76, with

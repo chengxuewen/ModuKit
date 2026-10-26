@@ -1,5 +1,5 @@
 //! Cross-process descriptor passing over SCM_RIGHTS (S2-M3a; modules/07 §3
-//! "the pool fd is handed over exactly once via UDS (SCM_RIGHTS) — slot ①
+//! "the pool fd is handed over exactly once via UDS (SCM_RIGHTS) — slot 1)
 //! remains the only fd courier (D7)"). The memfd lane's blob fd genuinely
 //! crosses a process boundary: the crate side rides the hand-written
 //! `fdpass` shim (the documented-unsafe `memfd_create` precedent); the child

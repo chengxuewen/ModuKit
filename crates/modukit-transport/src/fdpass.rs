@@ -1,6 +1,6 @@
 //! SCM_RIGHTS descriptor passing over a connected `UnixStream` — the fd
 //! courier of the local-frames slot (D7/D14, modules/07 §3: "the pool fd is
-//! handed over exactly once via UDS (SCM_RIGHTS) — slot ① remains the only
+//! handed over exactly once via UDS (SCM_RIGHTS) — slot 1) remains the only
 //! fd courier"). A memfd blob's descriptor genuinely crosses a process
 //! boundary: one small data frame (the self-sufficient SlotHandle meta,
 //! D14) plus the fd riding as ancillary data on the same message.

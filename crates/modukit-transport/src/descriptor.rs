@@ -5,7 +5,7 @@
 //! lockstep with the writer ever").
 //!
 //! Hand-written here as the shape the M4.5+ codegen will mirror from a `.proto`.
-//! It is NOT a `.proto`-in-boundary type yet (D13 pipeline boundary ①: kernel
+//! It is NOT a `.proto`-in-boundary type yet (D13 pipeline boundary 1): kernel
 //! shape first, contract door later); pixels never enter `.proto` (04 §2, D15).
 
 /// One plane's geometry: a byte offset into the cell, a row stride, and a row
