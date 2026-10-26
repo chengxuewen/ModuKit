@@ -124,5 +124,9 @@ target/
 
 # regenerated live skin for the wave-2 python band (scripts/demo-wave2-py.sh
 # re-emits it through the codegen door; the byte-pinned face lives in
-# crates/modukit-codegen/testdata/golden/modukit_embed.py - never hand-commit)
-bindings/py/
+# crates/modukit-codegen/testdata/golden/modukit_embed.py - never hand-commit).
+# The hand-written plugin runtime is TRACKED (D106 batch-2 T2.4): the dir-
+# exclusion form cannot be re-included by a negation (git never descends),
+# hence bindings/py/* + an explicit !-line, proven both ways via check-ignore.
+bindings/py/*
+!bindings/py/plugin_runtime.py
