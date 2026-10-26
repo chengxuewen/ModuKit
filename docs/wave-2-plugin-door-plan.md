@@ -1,190 +1,222 @@
-# Wave-2 Plugin-Door Volume Plan - language plugins via the wire
+# Wave-2 Plugin-Door Volume Plan (v2) - language plugins via the wire
 
-> Date: 2026-10-23. Contract basis: D106 (docs/wave-2-plugin-door-hearing.md,
-> rulings C/A/A/A, maintainer-adjudicated one by one). Status: PENDING REVIEW.
-> Thesis: Python and Node become plugin AUTHORING languages with ZERO kernel
-> change and ZERO new dependencies - the exe door's runner hook is already wired
-> (executor_proc.rs:221-251: manifest `runner` names the executable, artifact
-> rides as argv, control fd via `--fd=N`; no runner = the stand-in-executable
-> path, artifacts exec'd directly - M1 precedent).
+> Date: 2026-10-23. Contract basis: D106 (rulings C,A,A,A) + post-hearing amendment
+> round (maintainer-adjudicated one by one: A1 = install-door probe exemption for
+> runner-bearing entries, kernel 3 lines + tests; A2 = full bus/clock roundtrip
+> per the hearing's acceptance sentence - no silent scope reduction). v1 of this
+> plan was team-reviewed (4 lanes, 45 raw -> 2 blockers + 17 corrections, all
+> folded here). Status: PENDING RE-REVIEW.
 
-## 0. Facts verified before writing
+## 0. Corrected fact base (v1 errors fixed at team review)
 
-- The whole wire surface lives in ONE Rust module (proc_wire.rs): 11 message
-  constants (HELLO=1 .. DELIVER=11) + 3 FWD sub-codes + 2 HELLO capability bits,
-  FRAME_MAX 64 KiB, WIRE_VERSION=1 stamped by the writer, per-kind
-  parse_/payload_ function pairs, pstr (u32-LE-length-prefixed string) convention.
-- Payload codecs for CALL/RESULT are opaque bytes - a plugin in any language may
-  pick its own service encoding (JSON included); the wire itself only frames.
-- Child control fd rides as fd 0 (stdio swap is the design, executor_proc.rs
-  header + modules/01 §4); `--fd=N` argv carries the number convention.
-- Skin-relevant placements: the exe arm only; dl stays native (honest limit
-  already documented, modules/03 §dl row).
-- Offline inventory: python 3.8 stdlib (socket.fromfd, struct) and node 22
-  (net.Socket({fd})) can both frame these bytes with zero deps.
-- Leg grammar to mirror: the frame-parity fast leg copies the regen-diff shape
-  (checked-in artifact, regenerate, byte-compare, loud FAIL); the two demo legs
-  copy the wave-2 sup-leg shape (PASS marker + RUNNER line + sabotage lever +
-  embedded orphan census).
+- pstr = **u8**-length-prefixed string (cap 255, HELLO_STR_MAX family); the
+  u32-LE length belongs to the opaque BYTES fields (CALL input, RESULT/DUE/
+  FORWARD payloads), not to strings. v1 §0 conflated them.
+- Frame header, verbatim from write_frame (read_frame is its mirror):
+  **[u32 LE payload-length][u8 WIRE_VERSION=1][u8 kind]**, 6 bytes, length
+  covers the payload only. FRAME_MAX 64 KiB is enforced READ-side; the writer
+  does not cap -> the ledger declares it a two-way ceiling and skins MUST
+  pre-check length before allocating (hosted by the conformance stage, §6).
+- Control channel rides the child's **fd 0** (stdin swap; `--fd=0` argv
+  convention). stdout AND stderr are nulled by the kernel - scripts get NO
+  console; skin `log()` is therefore deleted from the API (diagnostics ride
+  the RESULT channel or the reader face, not stdio).
+- REGISTER is **pushed by the child** after START (self-report of services) -
+  the kernel never sends it; v1's dispatcher description was inverted.
+- START/STOP carry empty payloads; ACK carries one i32-LE status but has NO
+  encoder pair (the runner hand-rolls `to_le_bytes`). Batch 0 adds the missing
+  `ack_payload` twin so goldens cover every kind through proc_wire ONLY.
+- `runner` must be a real existing file path (is_file check before spawn; bare
+  "python3" is refused) and is deliberately NOT inside the bundle hash envelope
+  (it names a HOST interpreter, not a bundle member). Fixtures template the
+  absolute interpreter path when the demo builds the bundle.
+- Trust posture (stated, not hidden): install-time authenticity = none (anyone
+  who can place a bundle + call install runs code as the host user; the hash
+  envelope = tamper-after-install integrity for members, not origin auth);
+  post-install re-verification today covers >1MiB files only - the script-door
+  amendment keeps member hashing at install time; load-time small-file rehash
+  stays a named family-wide residual (not this volume's).
+- `bindings/py/` is git-ignored WHOLESALE (generated-skin shelf): batch 2 adds
+  a tracked carve-out for the hand-written plugin runtime, proven by
+  git check-ignore before and after (plant-and-observe, C0).
+- Cross-check at the bundle door is unconditional dlopen today (bundle.rs
+  :260/:347) - Batch 0 amends it: entries that declare a runner skip the
+  dlopen probe (the [[files]] hash envelope, grammar checks and id cross-check
+  all stay); entries without a runner behave exactly as before.
 
-## 1. Shape (diagram)
+## 1. Shape (v2: four batches)
 
 ```
-  BATCH 1 - THE LEDGER              BATCH 2 - PYTHON DOOR        BATCH 3 - NODE DOOR
-  (contract before consumers)       (first speaker)              (second speaker)
- +--------------------------+     +-------------------------+   +------------------------+
- | contracts/modukit_wire.h |     | bindings/py/            |   | bindings/js/           |
- |  frame vocabulary ledger |     |   plugin_runtime.py     |   |   plugin_runtime.mjs   |
- |  (11 kinds + FWD subs +  |     |   (framing, HELLO self- |   |   (net.Socket fd 0,    |
- |   2 cap bits + pstr +    |     |    report, register/    |   |    same lifecycle,    |
- |   TL header spec)        |     |    call/bus/clock sugar)|   |    ESM + no deps)     |
- | codegen bin `wire-golden`|     | test-plugins/py/        |   | test-plugins/js/       |
- |  exports golden frame    |     |  echo plugin (.py,      |   |  echo plugin (.mjs,     |
- |  vectors per kind        |     |  runner=python3) +      |   |  runner=node) +       |
- | check.sh NEW FAST LEG:   |     |  liar fixture           |   | demo-wave2-plugin-js.sh |
- |  wire-parity: ledger<->  |     | demo-wave2-plugin-py.sh |   |  (conformance stage -> |
- |  Rust consts -> golden   |     |  (conformance stage ->  |   |   lifecycle -> orphan  |
- |  vectors byte-compare    |     |   lifecycle w/ fidelity |   |   census -> sabotage)  |
- |  (+--self-test hook)     |     |   constant -> orphan    |   | ledger plugin table    |
- | ledger leg extension:    |     |   census -> sabotage)   |   |  gains JS rows         |
- |  frame-rows coverage     |     | RUNNER line + pixi-free |   | RUNNER line ...        |
- +--------------------------+     +-------------------------+   +------------------------+
- Everything runs offline. egress/Windows debts of PARENT volumes untouched.
- DECLINED (armed, with reasons): embedded-interpreter skins (dl-position
-  fast-lane; blocked by Python.h + engine crates), plugin-skin codegen (ledger
-  not yet hammered by real users), res:// cross-bundle (D30 trigger), CLI day.
+ BATCH 0 - THE DOOR AMENDMENT   BATCH 1 - THE LEDGER           BATCH 2 - PYTHON DOOR   BATCH 3 - NODE DOOR
+ (kernel, tests first)          (contract before consumers)    (full-11-kind skin)     (mirror)
+ +--------------------------+  +---------------------------+  +---------------------+  +--------------------+
+ | cross_check: runner =>   |  | contracts/modukit_wire.h  |  | bindings/py/        |  | bindings/js/       |
+ |   skip dlopen probe,     |  |  11 kinds + FWD subs +    |  |   plugin_runtime.py |  |  plugin_runtime.mjs|
+ |   envelope intact        |  |  caps + TL header bytes + |  | gitignore carve-out |  |  ESM net.Socket    |
+ | proc_wire: +ack_payload  |  |  EXTENSIBILITY column     |  | fixtures test-      |  |  js-echo + js-liar |
+ | tests: runner-exempt      | |  (which kinds tolerate    |  | plugins/py/:        |  | leg thirteen;      |
+ |  install OK; tampered     | |   tail fields / new kinds  |  |  py-echo, py-liar   |  |  ledger E rows     |
+ |  script STILL refused;    | |  / unknown-kind posture)  |  | leg twelve:         |  |  gain js cells     |
+ |  no-runner bundles        | | wire-golden bin (codegen  |  |  RUNNER -> con-     |  | 4-site sweep 13;   |
+ |  byte-for-byte unchanged  | |  src/, counts in region,  |  |  formance(11 golds  |  | bat mirror NOT     |
+ | red: flip the exemption    ||  tested via parity leg)   |  |  + hostile frames)  |  |  touched (debt)    |
+ |  off, script install       || fast leg wire-parity:     |  | -> lifecycle        |  +--------------------+
+ |  must fail loudly; restore ||  goldens byte-diff +      |  |  + FIDELITY         |
+ +--------------------------+  |  ledger<->const cross +   |  |  + BUS ROUNDTRIP    |
+ Ledger row: exemption lands    |  --self-test              |  |  + liar typed-error |
+ in wire.h header comment       | ledger gains section E    |  |  + orphan /proc     |
+ (legs 11->12->13 prose sync,   | (next letter; W rejected  |  |  + sabotage; SKIP   |
+ 4-site sweep incl check.sh     |  - sequence grammar)      |  |  policy stated      |
+ header - see batch 2)          +---------------------------+  +---------------------+
 ```
 
-## 2. Batch 1 - the ledger (contract before any consumer)
+## 2. Batch 0 - the door amendment (A1 ruling)
 
-- **T1.1 `contracts/modukit_wire.h`** - frame vocabulary ORIGINAL in C-header
-  grammar (the house contract style): TL header layout (len u32-LE? - NO: copy
-  the shipped truth: header = [u8 len? or u16?] EXACT bytes as write_frame
-  emits - the implementer MUST read write_frame/read_frame and transcribe, then
-  pin with golden vectors), WIRE_VERSION, all 11 MSG_ constants, 3 FWD subs,
-  2 HELLO cap bits, pstr convention, per-kind payload grammar lines
-  (field:width:endianness), FRAME_MAX. Header is documentation + machine table;
-  nothing compiles from it (stated in the header comment, like fdsets are
-  decoder inputs not code).
-- **T1.2 `wire-golden` bin** (crates/modukit-codegen, second bin): for every
-  message kind, encode one canonical example payload via proc_wire's own
-  payload_ functions and dump `contracts/golden/wire-v1/<kind>.frame` raw
-  bytes + an index .txt (kind, constant value, payload description). Uses
-  proc_wire ONLY (no parser duplicates - drift would poison the vectors).
-- **T1.3 check.sh new fast leg `wire-parity`**: re-run the bin into a temp dir,
-  byte-compare against checked-in goldens (regen-diff grammar, drift = FAIL
-  naming the file), AND cross-check `contracts/modukit_wire.h` numeric values
-  against proc_wire.rs `pub const` values (embedded-parity grammar; the ledger
-  lying is as fatal as the goldens drifting); ships a `--self-test` mode
-  (plants a bumped constant in a scratch copy; must be caught).
-- **T1.4 capability-ledger extension**: a new "W. Plugin wire v1" table (11
-  kinds + subs + caps as rows); the ledger leg's coverage rule gains the W
-  section (its --self-test updated to plant a missing W row too).
-- **Acceptance:** full check.sh green; goldens present for all 11 kinds;
-  leg observed RED once via --self-test AND once via a hand-bumped constant in
-  the scratch copy (never in the repo), restored green.
-- Commits (each C3-shaped + tree-verified): `feat(contracts): wire v1 ledger +
-  golden vectors` / `feat(scripts): wire-parity leg with self-test` /
-  `feat(ledger): plugin-wire W section + coverage rows` + docs(memory) close.
+- **T0.1** bundle.rs cross_check: `if manifest.entry.runner.is_some()` ->
+  skip the dlopen probe (member hashing, grammar, id/version cross-check stay);
+  else current behavior bit-for-bit. One branch, comment cites D106-amendment.
+- **T0.2** proc_wire: add `ack_payload(status i32) -> Vec<u8>` (mirror of
+  parse_ack), so goldens never hand-roll framing. Pure addition.
+- **Tests:** runner-bearing .py-ish artifact installs end-to-end (scratch
+  bundle, fake runner script); tampered member STILL refused (envelope holds);
+  runner-free bundle behaves as before (regression); ack round-trip.
+- **Reds (C0):** plant: exemption flipped off -> script bundle refused loudly
+  (observe, restore); plant: corrupt a [[files]] member post-staging -> install
+  fails even WITH the exemption (the envelope is not the casualty).
+- Commit: `feat(core): runner-bearing entries skip the dlopen probe`.
 
-## 3. Batch 2 - the python door
+## 3. Batch 1 - the ledger (corrected facts, structure as v1)
 
-- **T2.1 `bindings/py/plugin_runtime.py`** (hand-written, stdlib-only):
-  frame read/write over a socket made from the inherited fd
-  (socket.fromfd + duplicate so fd 0 stays intact), HELLO self-report
-  (parse_hello_caps mirror - abi u32 + 3 pstrs + caps u32), ACK wait, then
-  a dispatcher loop: MSG_START -> user start hook; MSG_REGISTER push -> answer
-  with local callable registry; MSG_CALL -> decode (pstr method + bytes), call,
-  RESULT with seq echo; STOP -> bye; unknown kinds -> ignore (wire rule) +
-  count. User-facing API ~6 functions:
-  `serve(plugin_id, version, name, services={...}, on_start=..., on_call=...)`
-  and a `log()` passthrough to stderr for debug; DELIVER/DUE rides in a later
-  milestone only if legs need it - batch 2 scope = HELLO/ACK/START/STOP/
-  REGISTER/CALL/RESULT + DIAL refused-cleanly path.
-- **T2.2 fixtures**: `test-plugins/py/py-echo/` (manifest entry kind=exe,
-  runner="python3", artifact echo_plugin.py - a service "echo" returning input
-  bytes verbatim + one service "caps" returning its HELLO caps; installs as a
-  bundle with [[files]] listing the script) and `py-liar` (declares a service
-  but answers CALL with garbage - negative path for RESULT error mapping).
-  Scripts must run on python 3.8 (no walrus in the runtime, no 3.9+-only APIs;
-  state it in the header).
-- **T2.3 `scripts/demo-wave2-plugin-py.sh`** (the leg): [0] RUNNER line per
-  T3.1 census grammar; [1] conformance stage: encode/decode each of the 11
-  golden vectors via the SKIN's own framing (skin reads
-  contracts/golden/wire-v1/, byte-roundtrip; drift = RED before anything
-  launches); [2] lifecycle stage: a python driver (embed skin, rung-0) installs
-  the py-echo bundle as exe placement, start, service_call "echo" with the
-  cross-volume fidelity constant (same "sup-fidelity-payload" bytes), expect
-  verbatim bytes back; call "caps"; stop; PASS line; [3] orphan census stage:
-  SIGKILL the driver mid-flight, poll until zero py processes survive (EOF on
-  fd 0 is the runner's self-kill signal - same physics the C++ sup leg proved);
-  [4] sabotage: `DEMO_PLUGIN_PY_SABOTAGE=1` flips the skin's ACK step (documented
-  named point) - leg must go RED with no PASS line; observed once, in the log.
-- **T2.4 wiring**: check.sh eleven-leg zone gains this as leg twelve (RUNNER
-  census applies); the "ELEVEN demo legs" prose synced to TWELVE in
-  AGENTS/status/README same commit (three-site rule; the sweep row in the
-  close note).
-- **Acceptance:** leg green + observed RED via sabotage + ledger untouched
-  (zero verb growth - the door rides v1 tables); full gate green.
-- Commits: `feat(bindings): python plugin runtime skin` / `feat(plugins): py-echo
-  + py-liar exe fixtures` / `feat(scripts): plugin-door python leg w/ orphan census`
-  / `docs(memory): prose twelve-leg sync + batch 2 close`.
+- **T1.1** `contracts/modukit_wire.h`: 11 kinds with values (HELLO=1 START=2
+  STOP=3 ACK=4 REGISTER=5 CALL=6 RESULT=7 DIAL=8 DUE=9 FORWARD=10 DELIVER=11),
+  FWD_PUB/SUB/UNSUB=0/1/2, HELLO_CAP bits BUS_V2=1 TIMER_V2=2, header layout
+  (§0 verbatim), pstr u8, FRAME_MAX two-way ceiling, RESULT status i32 (D27
+  author codes), per-kind payload grammar lines, and the EXTENSIBILITY column
+  (HELLO tolerates the caps tail ONLY; all other parses are strict
+  trailing-bytes-reject; amendments ride NEW kinds - runner steady loop ignores
+  unknown kinds, the START-exchange pump does NOT, documented per direction -
+  or new cap bits). Nothing compiles from it (stated in-file).
+- **T1.2** wire-golden bin in crates/modukit-codegen **src/** (deliberate: it
+  counts inside the codegen coverage region and is exercised by the parity leg;
+  the bin/ escape is refused explicitly), emitting
+  contracts/golden/wire-v1/<kind>.frame + index .txt (per-frame hex, the
+  "implementation-derived regression lock" provenance line, regen command).
+- **T1.3** check.sh fast leg `wire-parity`: regenerate into temp, byte-compare
+  goldens; ledger numeric columns <-> proc_wire pub consts; --self-test plants
+  (golden drift + bumped constant). check.sh header enumeration grows.
+- **T1.4** capability ledger: new section **E. Plugin wire v1** - rows = 11
+  kinds + 3 subs + 2 caps; evidence cells: Rust(impl) / python(batch 2) /
+  node(batch 3) / conformance-leg. Its --self-test gains the missing-E-row plant.
+- Commits: 3 (ledger+goldens / parity leg / E-table), C3 + tree-verify.
 
-## 4. Batch 3 - the node door
+## 4. Batch 2 - the python door (full hearing scope, A2 ruling)
 
-- **T3.1 `bindings/js/plugin_runtime.mjs`** - same lifecycle as the python
-  skin, node 22 stdlib only (net.Socket({fd:0}) wrap - read-only usage; Buffer
-  framing; no deps, no npm); same golden-vector conformance stage; dispatcher
-  as an async loop with an `onCall(method, inputBytes): Promise<Buffer>` map.
-- **T3.2 fixtures**: `test-plugins/js/js-echo/` (runner="node", artifact
-  echo_plugin.mjs; same two services; byte-exact echo - no toString() -
-  fidelity constant must survive as Buffer).
-- **T3.3 `scripts/demo-wave2-plugin-js.sh`** - the four-stage mirror of T2.3
-  (RUNNER line, conformance, lifecycle w/ fidelity constant, orphan census,
-  sabotage lever `DEMO_PLUGIN_JS_SABOTAGE=1`). Leg becomes thirteen.
-- **T3.4 ledger W-section**: no new rows expected (same wire); capability
-  ledger gains the two runner fixtures as evidence cells if its rows ask for
-  plugin-side implementors (implement-time call, one-line note either way).
-- **Acceptance:** full gate green, prose synced to THIRTEEN legs (same
-  three-site sweep), both doors keep the shared fidelity constant byte-identical
-  across cpp/py/js - now on BOTH sides of the wall.
-- Commits: mirror batch 2's four.
+- **T2.1** bindings/py/plugin_runtime.py, stdlib-only, python 3.8 floor
+  (header states it). Scope = ALL 11 kinds: frame loop pre-checks length vs
+  FRAME_MAX before ANY alloc; HELLO caps self-report (id/version/name MUST
+  equal the manifest - strict cross-check); START -> ack(0) -> push REGISTER
+  per declared service; CALL -> on_call -> RESULT(seq,status,bytes); bus
+  marshalling FORWARD(SUB/UNSUB/PUB) + DELIVER -> on_bus(topic,payload) +
+  publish outbound; DIAL -> DUE(status=REFUSED_REAL) clean refusal (no timer
+  claims this volume); STOP -> ack(0) -> exit; unknown kinds ignored + counted;
+  EOF anywhere = cooperative exit (residuals named §7). No log() (stdio null).
+  API: serve(id,version,name,services=..., on_call=..., on_bus=..., topics=[...]).
+- **T2.2** fixtures test-plugins/py/py-echo (echo + caps services + a bus-topic
+  listener) and py-liar (declared service answers RESULT status=-1): THE LEG
+  CONSUMES THE LIAR - that CALL must surface a typed error host-side while the
+  plugin stays alive (proves the i32 channel is a contract, not decoration).
+  Bundle built by the leg with the absolute runner path templated in.
+- **T2.3** scripts/demo-wave2-plugin-py.sh stages: [0] RUNNER line; [1]
+  conformance BEFORE launching anything: replay all 11 goldens both directions
+  through the skin + hostile plants (length > FRAME_MAX refused pre-alloc;
+  trailing bytes refused); [2] lifecycle: install -> start -> CALL echo with
+  the shared fidelity constant (bytes verbatim) -> caps -> BUS ROUNDTRIP
+  (driver publishes, plugin receives + re-publishes, driver receives) -> liar
+  CALL expects typed error + plugin still answering -> STOP; [3] orphan census
+  via /proc scan (NEVER pgrep -f - house law): SIGKILL driver, poll zero
+  strays; [4] sabotage DEMO_PLUGIN_PY_SABOTAGE=1 at one named skin point ->
+  leg red. Auto-SKIP without python3/toolchain/fixture (existing grammar).
+- **T2.4** wiring: gitignore carve-out for the tracked skin file (plant-and-
+  observe: remove the !-line -> skin untracked; restore -> green); check.sh leg
+  block copied from the census template INCLUDING the PASS-without-RUNNER FAIL
+  arm (v1's ambiguous "T3.1" label renamed D104-census - no id collision);
+  4-SITE prose sweep at landing (AGENTS two lines, status verification row,
+  check.sh header) + history-archive entry; status donor trimmed IN THE SAME
+  commit (headroom pre-balanced, §7).
+- Acceptance: leg green + sabotage red observed + carve-out proven both ways +
+  full gate green. Commits: 2 (skin+fixtures / leg+wiring).
 
-## 5. Verification ledger (red before trusted, every row)
+## 5. Batch 3 - the node door (mirror)
 
-| Check | Planted defect (scratch or lever, never repo) | Expected |
+- **T3.1** bindings/js/plugin_runtime.mjs (node 22 stdlib; net.Socket({fd:0})
+  FULL duplex - v1's "read-only use" wording was wrong and is fixed here;
+  frames flow both directions on the one socket), async on_call/on_bus, same
+  11-kind scope, same conformance + hostile-frame stage, same DIAL clean-
+  refusal, ESM only (no CommonJS dual-path until asked).
+- **T3.2** fixtures test-plugins/js/js-echo + js-liar (byte-exact Buffer echo -
+  no toString() - fidelity constant survives as bytes; liar = status=-1 path).
+- **T3.3** scripts/demo-wave2-plugin-js.sh = the five-stage mirror (RUNNER,
+  conformance, lifecycle+FIDELITY+BUS ROUNDTRIP+liar, /proc orphan census,
+  DEMO_PLUGIN_JS_SABOTAGE=1). Leg thirteen; 4-site sweep again; ledger E rows
+  gain node cells; close notes land (history + plan §9 + stage-5 lane row +
+  architecture §11 pointer if acceptance moves - mint stays at D107).
+- Acceptance: full gate green; both doors keep the fidelity constant
+  byte-identical across cpp/py/js on BOTH sides of the wall (embed legs already
+  pin it host-side; these two pin it plugin-side).
+
+## 6. Verification ledger (planted-red before trusted, every row)
+
+| Row | Plant | Expect |
 |---|---|---|
-| wire-parity golden compare | regenerate after touching a payload fn | drift named, RED |
-| wire-parity ledger cross-check | bump one ledger number in scratch | RED |
-| wire-parity --self-test | its own built-in plant | catches, prints OK |
-| ledger W coverage | drop a W row in scratch ledger | RED |
-| py leg conformance stage | corrupt one golden vector copy in scratch | RED before launch |
-| py leg sabotage lever | env flag | no PASS line, exit 1 |
-| py leg orphan census | SIGKILL driver | zero stray python |
-| js trio | same three plants | same three verdicts |
+| exemption off (batch 0) | flip the T0.1 branch off | script bundle refused loudly; restore green |
+| envelope holds | corrupt a [[files]] member, exemption ON | install still FAILS (hash) - exemption is narrow |
+| no-runner regression | run existing exe-bundle suite | byte-for-byte unchanged verdicts |
+| ack symmetry | mutate ack_payload byte | parity leg red |
+| goldens drift | edit one checked-in vector | wire-parity red naming the file |
+| ledger lie | bump a wire.h number in scratch | parity red; --self-test catches its own |
+| E-table gap | drop one E row in scratch ledger | ledger leg red |
+| skin framing | corrupt one scratch golden per skin | conformance red BEFORE any launch |
+| hostile frame | len 0xFFFFFFFF / trailing bytes | refused pre-alloc + counted (expected pass of the plant) |
+| fidelity | flip one byte in fixture echo | FIDELITY stanza red |
+| liar | make liar hang instead of status=-1 | typed-error assertion red (proves the check checks) |
+| sabotage duo | each leg env lever | no PASS line, exit 1 |
+| carve-out | remove !-line, git add skin | skin untracked (red); restore -> green |
 
-Full check.sh at every batch end; C3 + tree-verify per commit (house law now).
+Full check.sh at every batch end; per-commit C3 (hook has caught its own author
+6x - single-physical-line bullets only) + post-commit tree-verify.
 
-## 6. Non-goals (stated so nobody re-litigates)
+## 7. Deviations + named residuals (explicit, nothing swallowed)
 
-- dl-position script plugins (embedded interpreters) - armed, named blockers.
-- Plugin-skin codegen/emitters - ledger first needs a real-world hammer.
-- DELIVER/DUE inside script skins - deferred until a bus roundtrip leg wants it
-  (batch 2 may add the DELIVER handler if the lifecycle demo proves cheap).
-- res://, CLI day, compression, wasm - each keeps its own trigger (D30/D97-B).
-- Windows: nothing in this volume runs on Windows; legs skip (POSIX sockets).
+- A1 makes this volume "3-line kernel amendment", NOT "zero kernel change" -
+  D106 carries the amendment; v1's claim archived as superseded here.
+- Orphan census claims only well-behaved single-process skins; blocking user
+  handlers / grandchildren / node open handles are the cooperative-exit
+  residual (same family as the deferred cgroup/rlimit layer - not solved here).
+- The runner binary is outside the hash envelope by nature (it names a HOST
+  interpreter); authenticity stays a hosting-operator duty (wasm/sandbox tier
+  un-started, whitepaper line untouched).
+- Small-file post-install rehash remains a family-wide hole (native included);
+  armed, not this volume's.
+- Skin codegen/emitters stay armed until the wire ledger survives a real
+  amendment (rule-of-two before abstraction).
+- DIAL refusal means script plugins get NO clock timers this volume (the DUE
+  frame is emitted only as the refusal); the claim path arms with the embed
+  road or a follow-up round of its own hearing.
+- status.md byte discipline: headroom is thin - every batch landing carries its
+  own donor trim in the same commit, verification-table rows are the valve.
+- Windows: this volume adds no .bat surface (legs are POSIX; the existing bat
+  first-run debt unchanged).
 
-## 7. Deviation + debt ledger (inherits style)
+## 8. Non-goals (v1 list, none crept in)
 
-- Skins are hand-written: conformance to golden vectors is the leash; if the
-  ledger grows past 2 amendments, revisit the emitter (armed).
-- pstr/caps grammar duplicated in 3 languages (Rust truth + 2 skins) - the
-  golden-vector leg is the single anti-drift lock; note kept in wire ledger.
-- python 3.8 floor (system interpreter) - skins must not use 3.9+ syntax; the
-  conformance stage will run under 3.8 in CI-less boxes, so the floor is honest.
-- Node-only ESM (.mjs) - no CommonJS dual-path until a consumer asks.
+dl-position script plugins (embed road armed); res:// cross-bundle; CLI day
+(modukit-cli); compression; wasm; C#; UI tier. Each keeps its own trigger.
 
-## 8. Review trail
+## 9. Review trail
 
-- [ ] Momus review of this plan (fresh session, prompt = file path only)
-- [ ] Maintainer approval word
+- [x] Team review of v1 2026-10-23 (4 lanes: facts/completeness/safety/ops;
+  45 raw -> blockers + 17 corrections; blockers adjudicated A1/A2 same day).
+- [ ] Re-review of this v2 (fresh reviewer, delta-scoped: fact-base re-check vs
+  tree + the two rulings honored + correction list absorbed).
+- [ ] Momus plan review (house flow, fresh session, prompt = file path only).
+- [ ] Maintainer approval word.
