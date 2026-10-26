@@ -34,8 +34,8 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── bindings/cpp/             # C++ wrapper shelf: generated faces + live probe (Visia-grammar)
 ├── CMakeLists.txt + cmake/   # PolyOrch-driven graph: pixi translation, cargo lanes, ctest bridges, demo lanes
 ├── pixi.toml / mise.toml     # build envs (tools/rust/cov; vendor-test task) / host tooling pins
-├── scripts/                  # check.sh (D50 local gate incl ALL ELEVEN demo legs + commit-shape),
-│                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh + demo-stage5-n2.sh + demo-wave2-{reader,clock,py,py-sup,js,js-sup}.sh, regen-fdset/golden.sh,
+├── scripts/                  # check.sh (D50 local gate incl ALL TWELVE demo legs + commit-shape),
+│                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh + demo-stage5-n2.sh + demo-wave2-{reader,clock,py,py-sup,js,js-sup,plugin-py}.sh, regen-fdset/golden.sh,
 │                             #   check-embed-parity/capability-ledger.sh, skill-lint.py
 ├── .agents/                  # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
 └── .vscode/ .opencode/ .omo/ # IDE cmake pin (PIT-7) / agent config / OMO state
@@ -83,7 +83,7 @@ grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
   AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ bindings/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
   && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
 
-# full local gate - fast checks incl ALL ELEVEN demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader + T2 clock + D100 python x2 + D102 js x2
+# full local gate - fast checks incl ALL TWELVE demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader + T2 clock + D100 python x2 + D102 js x2 + D106 plugin-py x1
 #   + D104 lane-table/deny legs + RUNNER census + ctest per-name census)
 bash scripts/check.sh
 

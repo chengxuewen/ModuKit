@@ -231,6 +231,10 @@ Full check.sh at every batch end; per-commit C3 (hook has caught its own author
   armed, not this volume's.
 - Skin codegen/emitters stay armed until the wire ledger survives a real
   amendment (rule-of-two before abstraction).
+- ctest-stage4 cold flake, 2nd occurrence (plugin-door batch 2; first run after
+  lane rebuilds, warm reruns 5/5 green): the leg now SELF-REPORTS - ctest runs
+  --output-on-failure and reds archive LastTest.log to /tmp/ctest-lasttest.log.
+  Next red carries its own evidence; still unresolved, no suspect confirmed.
 - DIAL refusal means script plugins get NO clock timers this volume (the DUE
   frame is emitted only as the refusal); the claim path arms with the embed
   road or a follow-up round of its own hearing.

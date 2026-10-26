@@ -155,6 +155,17 @@ predates the openings - see the rows
   ACCEPTED 2026-10-23 (D105; fresh boundary green + same-day doc-audit swept);
   debts on plan §7 ledger (egress switches, Windows first-run, mirror slot).
 
+- **Plugin door (D106) batches 0-2 LANDED 2026-10-23 - PYTHON PLUGIN DOOR LANDED
+  (leg twelve)**: batch 0 the install-door exemption (runner-bearing non-.so entries
+  skip the dlopen probe, identity defers to the spawn-time HELLO cross-check -
+  script_door.rs); batch 1 the wire ledger `contracts/modukit_wire.h` + 14 golden
+  frames + the fast `wire-parity` leg; batch 2 the hand-written python skin
+  `bindings/py/plugin_runtime.py` (all 11 kinds, 3.8 floor, stdlib) with fixtures
+  `test-plugins/py/py_echo.py` / `py_liar.py` and leg twelve
+  `scripts/demo-wave2-plugin-py.sh` (conformance-before-launch, FIDELITY +
+  BUS ROUNDTRIP + liar typed error + orphan census, lever red-proved inline).
+  Node door (batch 3) next. Plan: docs/wave-2-plugin-door-plan.md.
+
 ## 3. What this file deliberately does NOT decide
 
 - Parent->child live-push for ORDINARY publishes (named by the D99 CLOCK

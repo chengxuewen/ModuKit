@@ -1,5 +1,28 @@
 # ModuKit — History Archive
 
+## 2026-10-23 - plugin door batches 0-2: exemption, ledger+goldens, python leg
+- Batch 0 (A1): the install door exempts runner-bearing non-.so entries from the
+  dlopen probe (envelope + grammar stay; identity defers to the spawn-time HELLO
+  strict cross-check); proc_wire gains ack_payload; script_door.rs carries the
+  script-install / tampered-member / HELLO-lie planted reds.
+- Batch 1: contracts/modukit_wire.h (11 kinds, 3 FWD ops, 2 HELLO cap bits, the
+  EXTENSIBILITY posture) + contracts/golden/wire-v1 (14 frames + index) + the
+  wire-parity fast leg + the capability-ledger E-table (16 rows).
+- Batch 2 (python door): bindings/py/plugin_runtime.py - hand-written, 3.8 floor,
+  stdlib, all 11 kinds; REGISTER pushed BEFORE the START ack (the runner's
+  choreography in code wins over the plan's inverted prose); fixtures py_echo
+  (echo/caps/seen + bus topic org.modukit.demo.wire-echo, start-window
+  seed/self-echo roundtrip - the embed face has NO bus verbs on the sup rung, so
+  the driver seeds through the spawn env) and py_liar (typed -1 twice, stays
+  ACTIVE); leg twelve scripts/demo-wave2-plugin-py.sh (conformance 14+2 before
+  any launch, FIDELITY + BUS ROUNDTRIP + DIAL clean refusal -27 + liar -25 +
+  cooperative STOP, /proc census, DEMO_PLUGIN_PY_SABOTAGE=1 red-proved inline
+  every green run); gitignore carve-out bindings/py/* + !plugin_runtime.py,
+  proven both ways by check-ignore; the wall is transparent in the START window
+  only (stage-5-plan section 3 law, honored not hidden).
+- status.md valve: the "M1-M8.6 milestone gates" verification row retired here
+  (its evidence lives in docs/stage-1-plan.md's evidence rows).
+
 ## 2026-10-23 - clock T2 to benchmark volume, one sweep (doc-audit H1 backfill)
 - Clock T2 crossing LANDED 2026-10-22 (bell demo crosses the wall; the T1 door
   commit is also 10-22 - dates unified at today's doc-audit, sub-ruling a).
