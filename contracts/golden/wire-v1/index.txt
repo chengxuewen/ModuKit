@@ -1,0 +1,102 @@
+# wire-v1 golden index - 14 canonical frames (D106 batch 1, plan T1.2)
+# Deterministic: fixed constants only, no timestamps, no randomness.
+# Prose ledger: contracts/modukit_wire.h; implementation:
+# crates/modukit-core/src/proc_wire.rs.
+
+== HELLO_plain ==
+kind: MSG_HELLO = 1
+size: 58
+hex: 34 00 00 00 01 01 01 00 00 00 1a 6f 72 67 2e 6d 6f 64 75 6b 69 74 2e 77 69 72 65 2e 63 61 6e 6f 6e 69 63 61 6c 05 31 2e 30 2e 30 0e 77 69 72 65 20 63 61 6e 6f 6e 69 63 61 6c
+grammar: u32 LE abi | pstr id | pstr version | pstr name - legacy tail-less HELLO
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== HELLO_caps ==
+kind: MSG_HELLO = 1
+size: 62
+hex: 38 00 00 00 01 01 01 00 00 00 1a 6f 72 67 2e 6d 6f 64 75 6b 69 74 2e 77 69 72 65 2e 63 61 6e 6f 6e 69 63 61 6c 05 31 2e 30 2e 30 0e 77 69 72 65 20 63 61 6e 6f 6e 69 63 61 6c 03 00 00 00
+grammar: u32 LE abi | pstr x3 | u32 LE caps = BUS_V2|TIMER_V2 (parse_hello_caps tail)
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== START ==
+kind: MSG_START = 2
+size: 6
+hex: 00 00 00 00 01 02
+grammar: EMPTY payload - host -> child lifecycle start
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== STOP ==
+kind: MSG_STOP = 3
+size: 6
+hex: 00 00 00 00 01 03
+grammar: EMPTY payload - host -> child cooperative stop
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== ACK ==
+kind: MSG_ACK = 4
+size: 10
+hex: 04 00 00 00 01 04 00 00 00 00
+grammar: one i32 LE status = 0 (ack_payload - batch-0 T0.2 twin)
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== REGISTER ==
+kind: MSG_REGISTER = 5
+size: 42
+hex: 24 00 00 00 01 05 0e 77 69 72 65 2e 63 61 6e 6f 6e 69 63 61 6c 02 0e 77 69 72 65 2e 63 61 6e 6f 6e 69 63 61 6c 04 63 61 70 73
+grammar: pstr service_id | u8 count = 2 | pstr method x count
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== CALL ==
+kind: MSG_CALL = 6
+size: 33
+hex: 1b 00 00 00 01 06 07 00 00 00 0e 77 69 72 65 2e 63 61 6e 6f 6e 69 63 61 6c 04 00 00 00 70 69 6e 67
+grammar: u32 LE seq = 7 | pstr method | u32 LE len = 4 | ascii input
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== RESULT ==
+kind: MSG_RESULT = 7
+size: 22
+hex: 10 00 00 00 01 07 07 00 00 00 00 00 00 00 04 00 00 00 70 6f 6e 67
+grammar: u32 LE seq = 7 | i32 LE status = 0 | u32 LE len = 4 | ascii output
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== DIAL ==
+kind: MSG_DIAL = 8
+size: 14
+hex: 08 00 00 00 01 08 f0 49 02 00 00 00 00 00
+grammar: one u64 LE delta_micros = 150000 (150 ms)
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== DUE ==
+kind: MSG_DUE = 9
+size: 20
+hex: 0e 00 00 00 01 09 fe ff ff ff 00 00 00 00 00 00 00 00 00 00
+grammar: i32 LE status = DIAL_STATUS_REFUSED_REAL (-2) | u64 ns = 0 | u16 count = 0
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== FORWARD_PUB ==
+kind: MSG_FORWARD = 10
+size: 55
+hex: 31 00 00 00 01 0a 00 1e 6f 72 67 2e 6d 6f 64 75 6b 69 74 2e 77 69 72 65 2e 63 61 6e 6f 6e 69 63 61 6c 2e 62 75 73 00 00 00 00 09 00 00 00 68 65 6c 6c 6f 20 62 75 73
+grammar: u8 op = 0 FWD_PUB | pstr topic | i32 qos = 0 | u32 len = 9 | ascii value
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== FORWARD_SUB ==
+kind: MSG_FORWARD = 10
+size: 46
+hex: 28 00 00 00 01 0a 01 1e 6f 72 67 2e 6d 6f 64 75 6b 69 74 2e 77 69 72 65 2e 63 61 6e 6f 6e 69 63 61 6c 2e 62 75 73 00 00 00 00 00 00 00 00
+grammar: u8 op = 1 FWD_SUB | pstr topic | i32 LE qos = 0 | u32 LE len = 0 (empty)
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== FORWARD_UNSUB ==
+kind: MSG_FORWARD = 10
+size: 46
+hex: 28 00 00 00 01 0a 02 1e 6f 72 67 2e 6d 6f 64 75 6b 69 74 2e 77 69 72 65 2e 63 61 6e 6f 6e 69 63 61 6c 2e 62 75 73 00 00 00 00 00 00 00 00
+grammar: u8 op = 2 FWD_UNSUB | pstr topic | i32 LE qos = 0 | u32 LE len = 0 (empty)
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update
+
+== DELIVER ==
+kind: MSG_DELIVER = 11
+size: 59
+hex: 35 00 00 00 01 0b 1e 6f 72 67 2e 6d 6f 64 75 6b 69 74 2e 77 69 72 65 2e 63 61 6e 6f 6e 69 63 61 6c 2e 62 75 73 00 00 00 00 0e 00 00 00 68 65 6c 6c 6f 20 66 72 6f 6d 20 62 75 73
+grammar: pstr topic | i32 LE qos = 0 | u32 LE len = 14 | ascii value
+provenance: implementation-derived regression lock - regenerate via `cargo run -q -p modukit-codegen --bin wire-golden -- --out contracts/golden/wire-v1`, sanctioned change = hearing + same-commit golden+ledger update

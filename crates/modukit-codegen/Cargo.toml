@@ -13,10 +13,14 @@ path = "src/lib.rs"
 name = "protoc-gen-modukit"
 path = "src/main.rs"
 
+[[bin]]
+name = "wire-golden"
+path = "src/wire_golden.rs"
+
 [dependencies]
+modukit-core = { path = "../modukit-core" }
 
 [dev-dependencies]
-modukit-core = { path = "../modukit-core" }
 
 [lints]
 workspace = true
