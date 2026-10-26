@@ -61,15 +61,17 @@ git log -1 --format=%b | grep -vE '^$|^ - .{1,99}$' | grep -q . \
 
 
 
-## C4: "No circled-number glyphs; enumerate as 1) 2) 3); option labels A/B/C - never 甲乙丙丁 - in replies and artifacts"
+## C4: "No circled-number glyphs; enumerate as 1) 2) 3); option labels A/B/C - never the Classical numerals - in replies and artifacts"
 
 Maintainer readability ruling 2026-10-23 (chat is the primary surface; artifacts
 carry the same duty so the style never re-invades the repo). Circled numbers
 (U+2460..U+2473) are banned; plain numbering "1)" "2)" is the replacement. The
 existing corpus was swept the same day (9 files, plain glyph->number replacements).
 Amended same day (maintainer ruling 2): option labels are A/B/C - the Classical
-numerals 甲乙丙丁 are banned as option names in replies and artifacts alike (the
-artifact tree was born clean of them; the scan pattern carries them as prevention).
+numerals (jia/yi/bing/ding, U+7532/U+4E59/U+4E19/U+4E01) are banned as option
+names in replies and artifacts alike. The rule text names them by codepoint, not
+by glyph - a prohibition that spells its own banned characters trips its own
+scan (caught by the negative proof the same day; C0 working as intended).
 
 ```bash
 # Check (artifacts; the chat half is reply-discipline, enforced at authoring):
