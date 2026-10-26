@@ -1,4 +1,4 @@
-# Wave-2 Plugin-Door Volume Plan (v2) - language plugins via the wire
+# Wave-2 Plugin-Door Volume Plan (v3) - language plugins via the wire
 
 > Date: 2026-10-23. Contract basis: D106 (rulings C,A,A,A) + post-hearing amendment
 > round (maintainer-adjudicated one by one: A1 = install-door probe exemption for
@@ -7,7 +7,8 @@
 > plan was team-reviewed (4 lanes, 45 raw -> 2 blockers + 17 corrections, all
 > folded here; delta re-review #2 (v2) REJECTED on 2 must-fix - both verified by the
 > author and fixed below as v3 (narrowed exemption + gitignore line rewrite), plus its
-> F4-F9 minors. Status: FINAL DELTA RE-CHECK RUNNING.
+> F2 + F4-F9 minors. Status: APPROVED by the final delta re-check (2/2,
+> APPROVE-WITH-NITS; all folded nits below in this revision).
 
 ## 0. Corrected fact base (v1 errors fixed at team review)
 
@@ -57,14 +58,14 @@
  BATCH 0 - THE DOOR AMENDMENT   BATCH 1 - THE LEDGER           BATCH 2 - PYTHON DOOR   BATCH 3 - NODE DOOR
  (kernel, tests first)          (contract before consumers)    (full-11-kind skin)     (mirror)
  +--------------------------+  +---------------------------+  +---------------------+  +--------------------+
- | cross_check: runner =>   |  | contracts/modukit_wire.h  |  | bindings/py/        |  | bindings/js/       |
+ | cross_check:runner&&!so  |  | contracts/modukit_wire.h  |  | bindings/py/        |  | bindings/js/       |
  |   skip dlopen probe,     |  |  11 kinds + FWD subs +    |  |   plugin_runtime.py |  |  plugin_runtime.mjs|
  |   envelope intact        |  |  caps + TL header bytes + |  | gitignore carve-out |  |  ESM net.Socket    |
  | proc_wire: +ack_payload  |  |  EXTENSIBILITY column     |  | fixtures test-      |  |  js-echo + js-liar |
  | tests: runner-exempt      | |  (which kinds tolerate    |  | plugins/py/:        |  | leg thirteen;      |
  |  install OK; tampered     | |   tail fields / new kinds  |  |  py-echo, py-liar   |  |  ledger E rows     |
  |  script STILL refused;    | |  / unknown-kind posture)  |  | leg twelve:         |  |  gain js cells     |
- |  no-runner bundles        | | wire-golden bin (codegen  |  |  RUNNER -> con-     |  | 5-site sweep 13;   |
+ |  remaining bundles       | | wire-golden bin (codegen  |  |  RUNNER -> con-     |  | 5-site sweep 13;   |
  |  byte-for-byte unchanged  | |  src/, counts in region,  |  |  formance(11 golds  |  | bat mirror NOT     |
  | red: flip the exemption    ||  tested via parity leg)   |  |  + hostile frames)  |  |  touched (debt)    |
  |  off, script install       || fast leg wire-parity:     |  | -> lifecycle        |  +--------------------+
@@ -108,7 +109,10 @@
   trailing-bytes-reject; amendments ride NEW kinds - runner steady loop ignores
   unknown kinds, the START-exchange pump does NOT, documented per direction -
   or new cap bits). Nothing compiles from it (stated in-file).
-- **T1.2** wire-golden bin in crates/modukit-codegen **src/** (deliberate: it
+- **T1.2** wire-golden bin in crates/modukit-codegen **src/** as file
+  **wire_golden.rs** (underscore mandatory - the region glob at
+  coverage-boundary.sh:45 is [a-z0-9_]+; a dashed name would silently leave the
+  region), deliberate: it
   counts inside the codegen coverage region - coverage-boundary.sh:45 - and MUST
   be exercised under instrumentation: a codegen integration test runs the bin
   via CARGO_BIN_EXE and asserts its emitted bytes (the shell parity leg alone
@@ -165,8 +169,8 @@
   block copied from the census template INCLUDING the PASS-without-RUNNER FAIL
   arm (v1's ambiguous "T3.1" label renamed D104-census - no id collision);
   5-SITE prose sweep at landing (README sentence + gallery rows, AGENTS two
-  lines, status verification row, check.sh header - fifth site per house
-  precedent, wave-2-js-volume-plan:100) + history-archive entry; status donor trimmed IN THE SAME
+  lines, status verification row, check.sh header; fifth site = stage-5
+  lane row, per house precedent (wave-2-js-volume-plan:100)) + history-archive entry; status donor trimmed IN THE SAME
   commit (headroom pre-balanced, §7).
 - Acceptance: leg green + sabotage red observed + carve-out proven both ways +
   full gate green. Commits: 2 (skin+fixtures / leg+wiring).
@@ -178,8 +182,10 @@
   frames flow both directions on the one socket), async on_call/on_bus, same
   11-kind scope, same conformance + hostile-frame stage, same DIAL clean-
   refusal, ESM only (no CommonJS dual-path until asked).
-- **T3.2** fixtures test-plugins/js/js-echo + js-liar (byte-exact Buffer echo -
-  no toString() - fidelity constant survives as bytes; liar = status=-1 path).
+- **T3.2** fixtures test-plugins/js/js-echo + js-liar; js-echo mirrors
+  py-echo's shape exactly (services echo + caps + ONE bus topic - so REGISTER
+  and SUB both flow); byte-exact Buffer echo - no toString() - fidelity constant
+  survives as bytes; liar = status=-1 path.
 - **T3.3** scripts/demo-wave2-plugin-js.sh = the five-stage mirror (RUNNER,
   conformance, lifecycle+FIDELITY+BUS ROUNDTRIP+liar, /proc orphan census,
   DEMO_PLUGIN_JS_SABOTAGE=1). Leg thirteen; 5-site sweep again; ledger E rows
@@ -248,6 +254,8 @@ dl-position script plugins (embed road armed); res:// cross-bundle; CLI day
   self-verified both must-fixes against the tree (cross_check internals; git
   scratch-repo experiment 0/1) and folded all nine into this v3.
 - [x] Momus plan review of v2: OKAY (citation pass; two non-blocking notes).
-- [ ] FINAL delta re-check (v3, nine folded fixes only - budget 2/2).
+- [x] FINAL delta re-check (v3, 2/2): APPROVE-WITH-NITS - nine folds all
+  verified against the tree; label nits + named nits folded here (title,
+  minor-count, diagram shape, filename pin, fifth site, js fixture parity).
 - [ ] Momus plan review (house flow, fresh session, prompt = file path only).
 - [ ] Maintainer approval word.
