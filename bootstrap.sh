@@ -69,9 +69,35 @@ fi
 bash PolyOrch/scripts/pixi-init.sh --manifest-path "$ROOT/pixi.toml" \
     || { echo "[bootstrap] ERROR: pixi bootstrap delegation failed (PolyOrch/scripts/pixi-init.sh)" >&2; exit 1; }
 
-# Reserved host policy slot - China cargo mirror (rsproxy) goes here if the
-# maintainer opts in; deliberately not the supplier's job (its scope note
-# leaves mirror/registry policy with the host).
+# 5b. host policy (opt-in) - China cargo mirror. Default OFF: writing the user's
+# cargo config is a network-policy decision, deliberately NOT the supplier's job
+# (its scope note says so); the grammar and the measured quirk come from the
+# twin project's live stage - sparse protocol needs the /index/ path (the git
+# address 404s under sparse); ustc-sparse is the documented fallback carrier.
+if [ "${MODUKIT_CN_MIRROR:-0}" = "1" ]; then
+    CARGO_CONFIG="${CARGO_HOME:-$HOME/.cargo}/config.toml"
+    mkdir -p "$(dirname "$CARGO_CONFIG")"
+    if grep -q "rsproxy" "$CARGO_CONFIG" 2>/dev/null; then
+        echo "[bootstrap] cargo mirror already configured (rsproxy.cn)"
+    else
+        cat >> "$CARGO_CONFIG" <<'CARGO_EOF'
+
+# ModuKit host policy (opt-in): crates.io mirror for China (rsproxy.cn)
+# sparse needs the /index/ path - the git-protocol address 404s under sparse
+[source.crates-io]
+replace-with = 'rsproxy-sparse'
+
+[source.rsproxy-sparse]
+registry = "sparse+https://rsproxy.cn/index/"
+# fallback if rsproxy.cn is down: point replace-with at ustc-sparse
+# [source.ustc-sparse]
+# registry = "sparse+https://mirrors.ustc.edu.cn/crates.io-index/"
+CARGO_EOF
+        echo "[bootstrap] cargo mirror configured: $CARGO_CONFIG"
+    fi
+else
+    echo "[bootstrap] cargo mirror off (opt in: MODUKIT_CN_MIRROR=1)"
+fi
 
 # 6. repo-local git hooks: C3 commit-shape pre-flight (commit-msg reads the
 #    prepared message; conventions.md C3). Idempotent; --no-verify stays the escape hatch.

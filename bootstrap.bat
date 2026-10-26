@@ -63,8 +63,10 @@ if errorlevel 1 (
 
 echo [bootstrap] step 5/5: repo-local git hooks (C3 pre-flight) ...
 git config core.hooksPath scripts/hooks
-rem reserved host-policy slot: China cargo mirror (rsproxy) would go here -
-rem maintainer network-policy call (D104); deliberately not the supplier job.
+rem reserved host-policy slot: China cargo mirror (rsproxy) - the sh twin
+rem carries the real stage (bootstrap.sh 5b, opt-in MODUKIT_CN_MIRROR=1);
+rem the Windows mirror stage stays unbuilt deliberately: no unexecuted
+rem config-writer ships (D104 debt; settle at first-run verification).
 
 echo.
 echo [bootstrap] done. Open a NEW terminal, then verify:  node -v  (expect v22.x pin),  pixi --version
