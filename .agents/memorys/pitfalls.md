@@ -197,6 +197,7 @@
 
 - **Recurrence 5 (2026-10-23)**: the MediaServo-benchmark scope adjudication was first shipped as a term-stack (configure/CTEST keyword/version-floor/--self-test/diff as body sentences, file:line dump inside Sources). Same fix as recurrences 3-4 applies with prejudice: before sending ANY walkthrough message, replace every word a non-builder stumbles on, anchors live only in trailing parentheses. The skill states this rule; a third re-learn of a stated rule is the violation itself.
 
+- **Recurrence 7 (2026-10-23)**: the A/B/C relabel of the same door adjudication STILL led with insider shorthand (runner/identity check/landing wording/amendment) - the correction landed instantly. Hard habit now mechanical, not stylistic: BEFORE sending any walkthrough message, paste its plainest sentence first and delete every word a neighbor would ask about; anchors move to a trailing Sources block only.
 - **Recurrence 6 (2026-10-23)**: adjudication 3 of the benchmark-caliber walk again read as legalese-builder-mix (verdict conditions, gate semantics, class-names as body text); corrected same session. Standing pre-send ritual now mandatory: every walkthrough message must pass a literal read-aloud pass with the test "would a neighbor outside programming understand this?", replacing terms like gate/verdict/lever/class with household words BEFORE sending.
 
 ## PIT-27: a resumed critic session stalls silently twice a day; a fresh session completes the same grill in minutes (2026-10-21)
