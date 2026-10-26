@@ -252,6 +252,15 @@ pub fn parse_ack(payload: &[u8]) -> Option<i32> {
     Some(i32::from_le_bytes(payload.try_into().ok()?))
 }
 
+/// Encode an `ACK` payload — the exact mirror of `parse_ack`: exactly
+/// one `i32 LE` status (the D27 author code space). Goldens and runner
+/// replacements frame ACK through here instead of hand-rolling the
+/// bytes (D106 batch-0 T0.2).
+#[must_use]
+pub fn ack_payload(status: i32) -> Vec<u8> {
+    status.to_le_bytes().to_vec()
+}
+
 fn read_pstr(rest: &mut &[u8]) -> Option<String> {
     let (&n, tail) = rest.split_first()?;
     if tail.len() < usize::from(n) {

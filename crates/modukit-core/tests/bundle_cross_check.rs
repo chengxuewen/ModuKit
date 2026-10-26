@@ -238,3 +238,139 @@ fn install_refuses_grammar_violations_before_anything_else() {
     assert_eq!(err.code(), "MANIFEST_INVALID");
     let _ = std::fs::remove_dir_all(&root);
 }
+
+/// Stage a script-shaped bundle: kind=exe + runner + an arbitrary-text
+/// artifact. Same [[files]] envelope idiom as stage() (hash + size over
+/// the one staged member); the runner path stays OUTSIDE the bundle dir
+/// — it names a host interpreter, not a member (plan §0). Returns the
+/// staged dir so a test can tamper the member after staging.
+fn stage_runner(
+    staging: &Path,
+    name: &str,
+    id: &str,
+    version: &str,
+    runner: &Path,
+    artifact: &str,
+    bytes: &[u8],
+) -> PathBuf {
+    use modukit_core::sha256::{hash_file, to_hex};
+    let dir = staging.join(name);
+    std::fs::create_dir_all(&dir).expect("bundle dir");
+    std::fs::write(dir.join(artifact), bytes).expect("write member");
+    let hash = to_hex(&hash_file(&dir.join(artifact)).expect("hash member"));
+    let size = bytes.len();
+    std::fs::write(
+        dir.join("modukit.toml"),
+        format!(
+            "id = \"{id}\"\nversion = \"{version}\"\n[entry]\nkind = \"exe\"\n\
+             artifact = \"{artifact}\"\nrunner = \"{}\"\n\
+             [[files]]\npath = \"{artifact}\"\nsha256 = \"{hash}\"\nsize = {size}\n",
+            runner.display()
+        ),
+    )
+    .expect("write toml");
+    dir
+}
+
+fn dummy_interpreter(root: &Path) -> PathBuf {
+    let p = root.join("interpreter");
+    std::fs::write(&p, b"#!/bin/sh\nexit 0\n").expect("dummy runner");
+    p
+}
+
+/// D106 amendment A1 (t1): a runner-bearing, non-".so" entry skips the
+/// dlopen probe and installs green — and the exemption costs the
+/// [[files]] envelope nothing: a tampered member still dies at install.
+#[test]
+fn runner_script_entry_skips_probe_and_envelope_still_refuses_tampering() {
+    use modukit_core::bundle::BundleError;
+    let root = scratch("script-green");
+    let runner = dummy_interpreter(&root);
+    stage_runner(
+        &root.join("staging"),
+        "scripted",
+        EXAMPLE_ID,
+        "0.1.0",
+        &runner,
+        "entry.py",
+        b"print('ok')\n",
+    );
+    let inst = BundleInstaller::open(&root, None).expect("installer");
+    let installed = inst
+        .install("scripted")
+        .expect("runner + .py skips the probe (D106 A1)");
+    assert_eq!(installed.id.as_str(), EXAMPLE_ID);
+    assert!(
+        root.join("bundles")
+            .join(EXAMPLE_ID)
+            .join("0.1.0")
+            .join("entry.py")
+            .is_file(),
+        "the script member landed through the D28 rename"
+    );
+    let _ = std::fs::remove_dir_all(&root);
+
+    let root2 = scratch("script-tamper");
+    let runner2 = dummy_interpreter(&root2);
+    let dir = stage_runner(
+        &root2.join("staging"),
+        "scripted",
+        EXAMPLE_ID,
+        "0.1.0",
+        &runner2,
+        "entry.py",
+        b"print('ok')\n",
+    );
+    // same-length tamper so the hash leg (not the size leg) is what bites
+    std::fs::write(dir.join("entry.py"), b"print('XX')\n").expect("tamper member");
+    let inst2 = BundleInstaller::open(&root2, None).expect("installer");
+    let err = inst2
+        .install("scripted")
+        .expect_err("the envelope still covers exempted script bundles");
+    assert!(
+        matches!(err, BundleError::HashMismatch { .. }),
+        "expected HashMismatch, got {err:?}"
+    );
+    assert_eq!(
+        err.code(),
+        "INTEGRITY_FAILED",
+        "refused at the hash leg, not the probe"
+    );
+    assert!(
+        !root2.join("bundles").join(EXAMPLE_ID).exists(),
+        "install root untouched"
+    );
+    let _ = std::fs::remove_dir_all(&root2);
+}
+
+/// Delta-review F1 guard (t2): the narrowed condition bites — a runner
+/// that DOES end ".so" (the stage2/m2 gate shape) stays behind the
+/// dlopen probe. Garbage ".so" bytes have no descriptor, so the probe
+/// runs and refuses through the kernel door; BundleError::Kernel is
+/// only reachable on the probed path (a skipped probe would install
+/// green).
+#[test]
+fn runner_plus_so_bundle_is_still_probed_at_install() {
+    use modukit_core::bundle::BundleError;
+    let root = scratch("runner-so");
+    let runner = dummy_interpreter(&root);
+    stage_runner(
+        &root.join("staging"),
+        "fakenative",
+        EXAMPLE_ID,
+        "0.1.0",
+        &runner,
+        "fake.so",
+        b"not a real cdylib at all",
+    );
+    let inst = BundleInstaller::open(&root, None).expect("installer");
+    let err = inst
+        .install("fakenative")
+        .expect_err("runner + .so must still ride the probe (F1)");
+    assert!(matches!(err, BundleError::Kernel(_)), "got {err:?}");
+    assert!(
+        !root.join("bundles").join(EXAMPLE_ID).exists(),
+        "install root untouched"
+    );
+    let _ = std::fs::remove_dir_all(&root);
+}

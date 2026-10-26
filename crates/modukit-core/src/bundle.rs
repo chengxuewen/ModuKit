@@ -335,6 +335,21 @@ impl BundleInstaller {
 /// id/version strings) is disagreement: the strict v0 side of the liar
 /// family.
 fn cross_check(manifest: &Manifest, staged: &Path) -> Result<(), BundleError> {
+    // D106 amendment A1 (wave-2-plugin-door plan v3 §2, delta-review F1
+    // narrowing): a runner-bearing entry whose artifact does NOT end ".so"
+    // is a script door — dlopen has no descriptor to read there, so
+    // install-time identity DEFERS to the spawn-time HELLO cross-check
+    // (executor_proc read_hello + the strict self-report, same liar
+    // family). The [[files]] hash envelope and the manifest grammar ran
+    // BEFORE this call inside install() (grammar :229, member hashing
+    // :243-248), so only the probe is skipped here. Everything else —
+    // runner-free, or runner + ".so" (the stage2/m2 gate shape) — keeps
+    // the probe bit-for-bit; widening this branch to drop the ".so" test
+    // would silently retire install-time identity for native runner
+    // bundles (the F1 regression).
+    if manifest.entry.runner.is_some() && !manifest.entry.artifact.ends_with(".so") {
+        return Ok(());
+    }
     let mut probe = manifest.clone();
     probe.entry.artifact = staged
         .join(&manifest.entry.artifact)
