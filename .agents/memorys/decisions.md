@@ -900,3 +900,36 @@
   the bat twin, China-mirror slot - maintainer register items 9/10); incremental-fmt
   decline re-opens if the team or repo outgrows the solo line; the floor bump-note
   rule binds every future PolyOrch bump (body bullet or the gate floor is stale).
+
+## D106: Plugin-door hearing adjudicated one-by-one (C,A,A,A) - wire-native language plugins; embed road armed (2026-10-23)
+- **Decision**: four adjudications walked one by one (record:
+  docs/wave-2-plugin-door-hearing.md). (1) DOOR = wire-native: Python/Node plugins
+  are language processes speaking the EXISTING process wire through the inherited
+  control fd - zero new deps, zero kernel change (exe arm always ate arbitrary
+  executables; manifest.runner already plumbed; HELLO = the plugin's own
+  self-report per modukit-run's header). The embedded-interpreter road (.so
+  hosting CPython/QuickJS) is armed with named offline blockers (no Python.h,
+  no JS engine crate cached; pyo3 family in cache is moot without headers).
+  (2) WIRE PROMOTED to published contract: frame ledger + golden frame vectors
+  into contracts/ (fdset grammar); Rust-side parity leg in check.sh's FAST
+  section (never interpreter-skippable) with built-in --self-test; both skins'
+  conformance tests read the SAME vectors; amendment rides D83 (WIRE_VERSION byte
+  per frame, tail-append, break = hearing). (3) SKIN = bindings/py + bindings/js
+  plugin-side runtimes, HAND-WRITTEN (event loop is the substance; generator
+  armed until the ledger is hammered); plugin artifact = executable script
+  (shebang); test-plugins bands complete: rs cpp py js. (4) ACCEPTANCE = two
+  layers: env-free frame-parity leg + two demo legs (wave2-plugin-py/js:
+  conformance stage → lifecycle end-to-end with the SAME fidelity constant →
+  embedded orphan census; sabotage levers), capability ledger gains its
+  plugin-direction table, leg-count prose syncs at landing.
+- **Rationale**: the whitepaper's polyglot claim ships 3 embed languages but only
+  Rust+C++ plugin sides; the process wire is the only door this offline box can
+  build today with zero kernel surface growth - and promotion to golden-vector
+  contract is what makes three-party shaking-on-one-stone auditable.
+- **Reference**: hearing doc (roster, options, verified sources incl. the
+  stand-in-executable precedent modules/01 §2 and manifest.rs:49).
+- **Re-review triggers**: egress lands (headers/engine crates) or a real
+  same-process fast-lane need -> open the embed-road hearing; frame ledger churn
+  after the first real plugin -> skin emitter proposal; first cross-bundle
+  resource desire -> res:// + share-resources hearing (D30); plan doc pending:
+  docs/wave-2-plugin-door-plan.md (Momus review before code).
