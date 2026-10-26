@@ -933,3 +933,11 @@
   after the first real plugin -> skin emitter proposal; first cross-bundle
   resource desire -> res:// + share-resources hearing (D30); plan doc pending:
   docs/wave-2-plugin-door-plan.md (Momus review before code).
+- **Amendments (2026-10-23, post-review round, maintainer-adjudicated one by
+  one)**: A1 - the bundle door's unconditional dlopen probe made "zero kernel
+  change" false for script artifacts; ruled: runner-bearing entries skip the
+  probe only (hash envelope, grammar, id cross-check stay) - 3-line amendment +
+  tests + reds, batch 0 of the plan. A2 - plan v1's silent scope cut (bus
+  roundtrip dropped from the legs) reversed: hearing acceptance sentence is
+  contract, both skins carry the full 11-kind scope; clock = clean DIAL refusal
+  only. Full text: hearing doc "Post-hearing amendments" + plan v2.

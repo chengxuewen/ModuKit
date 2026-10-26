@@ -47,7 +47,23 @@
 - Whitepaper naming: modukit-script-* are language-axis RUNNER PACKAGES, not core
   mechanisms (D2/§9) - ruling 1's door matches the adjudicated taxonomy.
 
+## Post-hearing amendments (plan-review round, 2026-10-23, maintainer-adjudicated one by one)
+
+1. **A1 - install-door amendment.** The bundle door's unconditional dlopen probe
+   (bundle.rs:260/:347) made script artifacts unloadable by design; the hearing's
+   "zero kernel change" was false at that door. Ruled: entries that declare a
+   runner skip ONLY the probe - hash envelope, grammar and id cross-checks stay -
+   a 3-line amendment + tests (batch 0 of the plan). The bare-manifest door
+   (embed install verb) exists but was ruled OUT for the fixtures: no integrity
+   envelope, second-class entry.
+2. **A2 - scope restored.** The hearing's acceptance sentence (register/call/bus
+   roundtrip, bus/clock marshalling in the skins) is CONTRACT: plan v1's silent
+   reduction to call-only was caught at team review and reversed. Both doors ship
+   the full 11-kind scope incl. bus roundtrip; the clock rides only as the
+   clean DIAL refusal (no timer claims - that arms with the embed road).
+
 ## Review trail
 
-- [ ] plan document (docs/wave-2-plugin-door-plan.md) - to be drafted, Momus review pending
+- [x] plan drafted; team-reviewed 2026-10-23 (4 lanes, 2 blockers -> amended above);
+  v2 absorbs 17 corrections. Momus review pending on v2.
 - [ ] Maintainer approval word
