@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # D50 local check gate: fast legs + ELEVEN demo legs + ctest per-name census +
-# lane-table + loud cargo-deny + commit-shape + doc-liveness (D104 additions named);
+# lane-table + wire-parity + loud cargo-deny + commit-shape + doc-liveness (D104/D106 named);
 # each leg skips cleanly when its target is absent. CI at the revival trigger runs
 # THIS SAME script - zero drift between local and CI.
 set -uo pipefail
@@ -236,6 +236,14 @@ bash scripts/check-doc-refs.sh || { note "FAIL doc-liveness"; status=1; }
 # cargo workspace members must agree - ghost lanes and unregistered crates/*
 # members are red. Always-on like embed-parity; the gate ships in-repo.
 bash scripts/check-lane-table.sh || { note "FAIL lane-table"; status=1; }
+
+# leg: wire parity (wave-2 plugin door batch 1, D106 plan T1.3): goldens regeneration
+# byte-diff + wire.h <-> proc_wire.rs constant cross-check; the --self-test ships
+# inside the script (both plants, C0). Skips cleanly when the batch-1 shelf or
+# pixi (cargo owner, D65) is absent; the script itself never touches repo files.
+if [ -f contracts/modukit_wire.h ] && command -v pixi >/dev/null 2>&1; then
+  bash scripts/check-wire-parity.sh || { note "FAIL wire-parity"; status=1; }
+else note "skip wire-parity (no wire ledger header or no pixi)"; fi
 
 if [ "$status" -eq 0 ]; then note "check.sh: all green"; else note "check.sh: RED"; fi
 exit "$status"
