@@ -61,6 +61,23 @@ git log -1 --format=%b | grep -vE '^$|^ - .{1,99}$' | grep -q . \
 
 
 
+## C4: "No circled-number glyphs; enumerate as 1) 2) 3) - in replies and artifacts"
+
+Maintainer readability ruling 2026-10-23 (chat is the primary surface; artifacts
+carry the same duty so the style never re-invades the repo). Circled numbers
+(U+2460..U+2473) are banned; plain numbering "1)" "2)" is the replacement. The
+existing corpus was swept the same day (9 files, plain glyph->number replacements).
+
+```bash
+# Check (artifacts; the chat half is reply-discipline, enforced at authoring):
+grep -rIlP '[\x{2460}-\x{2473}]' AGENTS.md SKILL.md README.md mise.toml bootstrap.sh bootstrap.bat \
+  pixi.toml CMakeLists.txt cmake/ contracts/ examples/ bindings/ docs/ \
+  .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ crates/ \
+  && echo "C4 VIOLATION (files above)" || echo "C4 OK"
+```
+# negative proof observed 2026-10-23: planted circled glyph under docs/, RED shown,
+# removed, GREEN (C0).
+
 ## Adding conventions
 
 Add `C2`, `C3`, … here as project decisions harden (C0/C1 are live above). Each entry needs: one quoted constraint line + a runnable check block, and must be recorded the moment the decision is made (see `.agents/rules/common/lesson-memory.md`).

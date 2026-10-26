@@ -32,7 +32,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | cheap verifications | re-run by the doc-audit lead inline | pass (2026-10-23) |
 | C1 English-artifacts check | command block in conventions.md C1 (scope grown with artifact classes: +M1 build files, +contracts/, +examples/, +bindings/ - each extension red/green proved) | pass (2026-10-16) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
-| numbering discipline | `grep -rnE '^## (C[4-9][0-9]?|D[1-9][0-9]{3,})' .agents/memorys/` must be empty — allows D1-D105 / C0-C3 (pattern spans D1-D999 since D100; prose re-synced at each mint) | pass (2026-10-22) |
+| numbering discipline | `grep -rnE '^## (C[5-9][0-9]?|D[1-9][0-9]{3,})' .agents/memorys/` must be empty — allows D1-D105 / C0-C4 (pattern spans D1-D999 since D100; prose re-synced at each mint) | pass (2026-10-22) |
 | local check gate (D50) | `bash scripts/check.sh` - ELEVEN demo legs + D104 lane-table/deny/RUNNER legs, pixi per D65 | pass (2026-10-23) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
 | M1-M8.6 milestone gates | per `docs/stage-1-plan.md` evidence rows; orchestrator re-ran independently | pass (2026-10-16) |
