@@ -173,3 +173,39 @@ chain: `test-plugins/rs/timerv3-plugin` +
 | `bus_unsubscribe` (HostAbiV3 slot) | header | generated | native | planned | planned |
 | `timer_schedule` (HostAbiV3 verb) | header | generated | native | planned | planned |
 | `clock_now` (HostAbiV3 verb) | header | generated | native | planned | planned |
+
+## E. Plugin wire v1 (D106)
+
+The `exe` control-channel frame ledger (wave-2 plugin door, batch 1, plan
+T1.4). Row names + decimal values mirror the "NAME = value" constant
+table of `contracts/modukit_wire.h`; `scripts/check-capability-ledger.sh`
+requires one row per E-scope wire.h constant both ways (name AND value);
+`scripts/check-wire-parity.sh` pins every wire.h constant against the
+`pub const` items of `crates/modukit-core/src/proc_wire.rs` and byte-diffs
+the goldens shelf `contracts/golden/wire-v1/`. ROWS ARE NOT FRAMES:
+16 rows (11 kinds + 3 FORWARD sub-ops + 2 HELLO cap bits) vs 14 emitted
+frames - the caps pair rides the single HELLO_caps frame and START/STOP
+are two frames of one EMPTY-payload grammar (plan T1.2 kills the count
+ambiguity). `Rust(impl)` = the shipped framer + runner + executor pumps;
+the `armed (batch 2/3)` cells name this volume's batches and flip to
+`generated` as the Python (batch 2) and Node (batch 3) skins land -
+never a red condition meanwhile (same duty as the `planned` token above).
+
+| Name | Value | Grammar | Rust(impl) | Python | Node | Conformance |
+|---|---|---|---|---|---|---|
+| `MSG_HELLO` | 1 | u32 abi + pstr id + pstr version + pstr name + optional u32 caps tail | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `MSG_START` | 2 | EMPTY payload (host -> child lifecycle start) | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `MSG_STOP` | 3 | EMPTY payload (host -> child cooperative stop) | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `MSG_ACK` | 4 | one i32 status (ack_payload, batch-0 twin) | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `MSG_REGISTER` | 5 | pstr service_id + u8 count + pstr x count (pushed by child) | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `MSG_CALL` | 6 | u32 seq + pstr method + u32 len + bytes | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `MSG_RESULT` | 7 | u32 seq + i32 status (D27 codes) + u32 len + bytes | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `MSG_DIAL` | 8 | one u64 delta_micros | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `MSG_DUE` | 9 | i32 status + u64 fired_at_ns + u16 count + (u64 token + pstr job) x count | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `MSG_FORWARD` | 10 | u8 op + pstr topic + i32 qos + u32 len + bytes (child -> host bus talker) | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `MSG_DELIVER` | 11 | pstr topic + i32 qos + u32 len + bytes (host -> child fan-out) | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `FWD_PUB` | 0 | FORWARD op: publish topic + qos + value | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `FWD_SUB` | 1 | FORWARD op: subscribe (qos 0, empty value by convention) | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `FWD_UNSUB` | 2 | FORWARD op: unsubscribe (child's last queue gone) | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `HELLO_CAP_BUS_V2` | 1 | HELLO caps bit: bus talkers spoken to (D96 ruling 4) | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |
+| `HELLO_CAP_TIMER_V2` | 2 | HELLO caps bit: timer bells cross the wall (D99 R5-A) | native | armed (batch 2/3) | armed (batch 2/3) | wire-parity leg |

@@ -19,16 +19,19 @@ SELF=$(realpath "$0") # absolute for the self-test re-exec below
 cd "$(dirname "$0")/.."
 IN="${MODUKIT_GATE_INPUT_DIR:-}"; [ -n "$IN" ] && IN="${IN%/}/"
 
-# ---- self-test (benchmark plan T2.2) ----
-# Copy the ledger and the verb mirror to a scratch dir, delete one
-# `| `verb` |` row from the scratch ledger, re-run against the scratch
-# copy: the covering-row check MUST go red. Repo files are never touched.
+# ---- self-test (benchmark plan T2.2; E-row plant D106 batch 1) ----
+# Copy the ledger, the verb mirror and the wire.h ledger to a scratch
+# dir, delete one `| `verb` |` row from the scratch ledger, re-run
+# against the scratch copy: the covering-row check MUST go red. Restore
+# the ledger, drop one section-E row, re-run: the E gap MUST go red too.
+# Repo files are never touched.
 if [ "${1:-}" = "--self-test" ]; then
   s=$(mktemp -d)
   trap 'rm -rf "$s"' EXIT
-  mkdir -p "$s/docs" "$s/crates/modukit-core/src"
+  mkdir -p "$s/docs" "$s/crates/modukit-core/src" "$s/contracts"
   cp docs/capability-ledger.md "$s/docs/"
   cp crates/modukit-core/src/embed_abi.rs "$s/crates/modukit-core/src/"
+  cp contracts/modukit_wire.h "$s/contracts/"
   verb=$(sed -n '/^pub const EMBED_VERBS:/,/^\];/p' "$s/crates/modukit-core/src/embed_abi.rs" \
     | grep -oE '"modukit_[a-z_0-9]+"' | tr -d '"' | head -1)
   grep -v "^| \`$verb\`" "$s/docs/capability-ledger.md" > "$s/ledger.tmp" && mv "$s/ledger.tmp" "$s/docs/capability-ledger.md"
@@ -36,7 +39,14 @@ if [ "${1:-}" = "--self-test" ]; then
     echo "self-test FAIL (check-capability-ledger.sh): planted defect NOT caught"
     exit 1
   fi
-  echo "self-test OK (check-capability-ledger.sh): planted defect caught"
+  # E-row plant: restore the ledger, drop one section-E row, re-run.
+  cp docs/capability-ledger.md "$s/docs/"
+  grep -v '^| `MSG_DUE`' "$s/docs/capability-ledger.md" > "$s/ledger.tmp" && mv "$s/ledger.tmp" "$s/docs/capability-ledger.md"
+  if MODUKIT_GATE_INPUT_DIR="$s" bash "$SELF" > /dev/null 2>&1; then
+    echo "self-test FAIL (check-capability-ledger.sh): E-row gap NOT caught"
+    exit 1
+  fi
+  echo "self-test OK (check-capability-ledger.sh): both planted defects caught"
   exit 0
 fi
 
@@ -102,5 +112,48 @@ done < "$tmp/host3.txt"
 
 if [ "$missing" -eq 0 ]; then
   echo "check-capability-ledger: ok ($(wc -l < "$tmp/host3.txt") rows cover HOST3_ABI_FIELDS)"
+fi
+# Section E (wave-2 plugin door batch 1, D106 plan T1.4): every E-table row
+# mirrors a "NAME = value" constant line in contracts/modukit_wire.h - row
+# name AND decimal value pinned, checked BOTH directions (a row without its
+# ledger constant and a ledger constant without its row are both red).
+# E-scope = the MSG_*/FWD_*/HELLO_CAP_* wire.h constants; WIRE_VERSION,
+# FRAME_MAX and DIAL_STATUS_REFUSED_REAL are envelope grammar, not rows -
+# the pin of EVERY wire.h constant against the proc_wire.rs pub consts
+# lives in scripts/check-wire-parity.sh. The `armed` token is this
+# section's only addition to the cell vocabulary (this volume's batches
+# 2/3 own the skins; cell values are never a red condition - the
+# existence rule is unchanged).
+WIRE="${IN}contracts/modukit_wire.h"
+if grep -q '^## E\.' "$LEDGER" || [ -f "$WIRE" ]; then
+  if [ ! -f "$WIRE" ]; then
+    echo "check-capability-ledger: RED (section E rows but no $WIRE)"; missing=1
+  elif ! grep -q '^## E\.' "$LEDGER"; then
+    echo "check-capability-ledger: RED (wire ledger present but no section E rows)"; missing=1
+  else
+    sed -n '/^## E\./,$p' "$LEDGER" \
+      | grep -oE '^\| `[A-Z0-9_]+` \| [0-9]+ ' | sed 's/^| `//; s/` | / /; s/ $//' | sort > "$tmp/e_rows.txt"
+    grep -oE '^ \* (MSG_|FWD_|HELLO_CAP_)[A-Z0-9_]+ = [0-9]+' "$WIRE" \
+      | sed 's/^ \* //; s/ = / /' | sort > "$tmp/e_ledger.txt"
+    if [ ! -s "$tmp/e_rows.txt" ] || [ ! -s "$tmp/e_ledger.txt" ]; then
+      echo "check-capability-ledger: RED (section E extraction empty - grammar drift?)"
+      missing=1
+    fi
+    while IFS=' ' read -r name value; do
+      lval=$(awk -v n="$name" '$1 == n { print $2 }' "$tmp/e_ledger.txt")
+      if [ -z "$lval" ]; then
+        echo "check-capability-ledger: RED (E row has no wire.h constant: $name)"; missing=1
+      elif [ "$lval" != "$value" ]; then
+        echo "check-capability-ledger: RED (E row value mismatch: $name row=$value wire.h=$lval)"; missing=1
+      fi
+    done < "$tmp/e_rows.txt"
+    while IFS=' ' read -r name value; do
+      grep -q "^$name " "$tmp/e_rows.txt" || {
+        echo "check-capability-ledger: RED (wire.h constant has no E row: $name)"; missing=1; }
+    done < "$tmp/e_ledger.txt"
+    if [ "$missing" -eq 0 ]; then
+      echo "check-capability-ledger: ok ($(wc -l < "$tmp/e_rows.txt") rows cover the wire E-scope)"
+    fi
+  fi
 fi
 exit "$missing"
