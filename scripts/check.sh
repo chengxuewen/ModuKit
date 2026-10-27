@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# D50 local check gate: fast legs + TWELVE demo legs (newest leg twelve:
-# wave2-plugin-py, D106 batch 2) + ctest per-name census +
+# D50 local check gate: fast legs + THIRTEEN demo legs (newest leg thirteen:
+# wave2-plugin-js, D106 batch 3; leg twelve = wave2-plugin-py, D106 batch 2)
+# + ctest per-name census +
 # lane-table + wire-parity + loud cargo-deny + commit-shape + doc-liveness (D104/D106 named);
 # each leg skips cleanly when its target is absent. CI at the revival trigger runs
 # THIS SAME script - zero drift between local and CI.
@@ -179,6 +180,19 @@ if [ -f scripts/demo-wave2-plugin-py.sh ]; then
   elif echo "$w2pp" | grep -q "demo-wave2-plugin-py: SKIP"; then note "skip demo-wave2-plugin-py (no python3/toolchain/fixture)";
   else note "FAIL demo-wave2-plugin-py (gate did not print PASS)"; status=1; fi
 else note "skip demo-wave2-plugin-py (no script)"; fi
+
+# Wave-2 plugin-door node leg (D106 batch 3, the thirteenth demo leg): the
+# hand-written ESM skin walks all 11 wire kinds across the exe wall (same
+# conformance + lifecycle + FIDELITY + BUS ROUNDTRIP + liar + census grammar
+# as leg twelve, sabotage lever DEMO_PLUGIN_JS_SABOTAGE=1). PASS-without-RUNNER
+# arm copied from the D104-census template, like its python twin above.
+if [ -f scripts/demo-wave2-plugin-js.sh ]; then
+  w2pj=$(bash scripts/demo-wave2-plugin-js.sh 2>/dev/null)
+  if echo "$w2pj" | grep -q "demo-wave2-plugin-js: PASS" && echo "$w2pj" | grep -q "^RUNNER: "; then note "ok demo-wave2-plugin-js";
+  elif echo "$w2pj" | grep -q "demo-wave2-plugin-js: PASS"; then note "FAIL demo-wave2-plugin-js (PASS without RUNNER line - D104-census)"; status=1;
+  elif echo "$w2pj" | grep -q "demo-wave2-plugin-js: SKIP"; then note "skip demo-wave2-plugin-js (no node/toolchain/fixture)";
+  else note "FAIL demo-wave2-plugin-js (gate did not print PASS)"; status=1; fi
+else note "skip demo-wave2-plugin-js (no script)"; fi
 # leg: cargo-deny (wave-2 benchmark plan T3.4): license+bans audit against
 # deny.toml. Tool present -> run it; absent (this offline box cannot install
 # it) -> loud skip, never a silent one.
