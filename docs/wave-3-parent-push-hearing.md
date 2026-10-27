@@ -62,6 +62,7 @@ what keeps this "a mutex of one socket".
 | A3 | Slow or dead child discipline (blocking vs non-blocking drop) | **A - non-blocking writes, drop and count** (2026-10-27) |
 | A4 | DELIVER QoS code carried down | **A - the publish's own code, mirror of on_publish** (2026-10-27) |
 | A5 | Verification shape (legs, planted reds, acceptance rows) | **A - HOST PUSH stanza on both plugin legs + single-point lever** (2026-10-27) |
+| A6 | A3's mechanism vs the SHARED child fd (amendment) | **C - bounded write, remainder-retaining outbox, no O_NONBLOCK** (2026-10-27) |
 
 ## 3. Rulings (filled as the walkthrough proceeds)
 
@@ -125,9 +126,28 @@ stanzas stay green (precise attribution). Three unit tests ride beside: the
 hook fires outside the topics lock (no deadlock), a filled socket yields a
 prompt return plus one counted shed, and a deferred topic pumps nothing.
 
+### A6 (2026-10-27) - user-adjudicated: C (amends A3's mechanism, keeps its intent)
+
+The review pass found A3's mechanism collides with a fact the hearing did not
+see: the child's control socket is SHARED - `executor_proc` reads and writes
+it (STOP/ACK/CALL/DIAL at :449/:574/:723/:795, reads at :359/:468/:585) and
+`write_frame` is two `write_all` calls (`proc_wire.rs:123-134`).
+`O_NONBLOCK` is per file description, so setting it would break every blocking
+read/write on that channel.
+
+Ruling C: the fd stays blocking. `deliver` writes through a per-child outbox
+that retains a partial-write remainder and finishes it on the next flush; a
+write timeout (`SO_SNDTIMEO`, set once at registration, writes only - reads
+untouched) bounds the stall; a timeout keeps the remainder and counts a
+STALL; a hard error deregisters and counts; an over-cap outbox drops WHOLE
+frames and counts. No `set_nonblocking` anywhere. The bus commandment reads
+"a publish stalls at most WALL_WRITE_TIMEOUT per stuck child" on the wall
+side - named in the plan, not swallowed.
+
 ## 4. Hearing closed 2026-10-27
 
-Five adjudications, all A, walked one by one on the user's rulings:
+Six adjudications (five A + one C amendment), walked one by one on the user's
+rulings:
 bus-level hook; bell gate retired; non-blocking shed-and-count; the publish's
 own qos code; HOST PUSH on both twin legs with a single-point lever.
 Minted as D108 (decisions.md); plan drafting is the next step.
