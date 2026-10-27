@@ -33,7 +33,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | C1 English-artifacts check | command block in conventions.md C1 (scope grown with artifact classes: +M1 build files, +contracts/, +examples/, +bindings/ - each extension red/green proved) | pass (2026-10-16) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
 | numbering discipline | `grep -rnE '^## (C[5-9][0-9]?|D[1-9][0-9]{3,})' .agents/memorys/` must be empty — allows D1-D106 / C0-C4 (pattern spans D1-D999 since D100; prose re-synced at each mint) | pass (2026-10-22) |
-| local check gate (D50) | `bash scripts/check.sh` - TWELVE demo legs (D106 plugin-py leg landed) + D104 lane-table/deny/RUNNER legs, pixi per D65 | pass (2026-10-23) |
+| local check gate (D50) | `bash scripts/check.sh` - THIRTEEN demo legs (D106 plugin-js leg landed) + D104 lane-table/deny/RUNNER legs, pixi per D65 | pass (2026-10-27) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
 | C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN) | pass (2026-10-15) |
 | doc-audit full | 2026-10-23: 45 raw -> 26 merged, swept (git-date/bat-hooks/C1-red/D83) | this entry IS the record |

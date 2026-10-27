@@ -191,6 +191,9 @@
   DEMO_PLUGIN_JS_SABOTAGE=1). Leg thirteen; 5-site sweep again; ledger E rows
   gain node cells; close notes land (history + plan §9 + stage-5 lane row +
   architecture §11 pointer if acceptance moves - mint stays at D107).
+  LANDED 2026-10-27: all three tasks; deviations logged in §7 (host face =
+  generated ctypes floor as in leg twelve; driver env names js-flavored;
+  readlink -f on the node runner to dodge the mise-shim class).
 - Acceptance: full gate green; both doors keep the fidelity constant
   byte-identical across cpp/py/js on BOTH sides of the wall (embed legs already
   pin it host-side; these two pin it plugin-side).
@@ -242,6 +245,28 @@ Full check.sh at every batch end; per-commit C3 (hook has caught its own author
   own donor trim in the same commit, verification-table rows are the valve.
 - Windows: this volume adds no .bat surface (legs are POSIX; the existing bat
   first-run debt unchanged).
+
+### Batch 3 deviations (2026-10-27, all named)
+
+- Host face of the js leg's driver = the generated ctypes floor (bindings/py/
+  modukit_embed.py), identical to leg twelve - the door under test is the
+  kernel<->plugin-child wire (node child); the napi bridge route would drag
+  the modukit-js build + LD_PRELOAD pin into a leg that tests none of it.
+  "modukit-run driver" in the goal text is read as "the embed-driver
+  lifecycle" (what leg twelve actually drives); no napi face was promised
+  for plugin children by any ruling.
+- Node runner resolution: command -v node THEN readlink -f to the real
+  binary - the kernel's spawn shape requires an existing plain executable,
+  and the mise-shim class on this box (PIT-7 lineage) makes a resolved path
+  safer than a shim path. Deviation from leg twelve's plain absolutize,
+  one line, justified by host reality.
+- Fixture filenames use underscores (js_echo.mjs / js_liar.mjs) matching the
+  py band on disk (py_echo.py), not the plan's js-echo/js-liar hyphens;
+  census needle updated to /js_ accordingly.
+- E-table flip batch: the Python column was still `armed (batch 2/3)` after
+  batch 2 landed (residual found and cleared in batch 3 alongside the node
+  flip; ledger leg stayed green throughout - cell state was prose-only duty,
+  now flipped per the table's own rule).
 
 ## 8. Non-goals (v1 list, none crept in)
 

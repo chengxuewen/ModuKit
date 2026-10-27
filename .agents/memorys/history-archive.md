@@ -1,5 +1,29 @@
 # ModuKit — History Archive
 
+## 2026-10-27 - plugin door batch 3: node leg thirteen, wire volume closed
+
+- Batch 3 (node door): bindings/js/plugin_runtime.mjs - hand-written ESM twin
+  of the python skin (node 22 stdlib only: net.Socket({fd:0}) full duplex,
+  Buffer framing with BigInt u64, all 11 kinds, child-pushed REGISTER,
+  DIAL -> DUE(-2) clean refusal, EOF = cooperative exit 0, no console.log).
+- Fixtures test-plugins/js/js_echo.mjs (echo/caps/seen + one bus topic,
+  MODUKIT_JS_SEED) + js_liar.mjs (status=-1, stays ACTIVE) - behaviorally
+  identical twins of the py fixtures so the leg assertions mirror line-for-line.
+- Leg thirteen scripts/demo-wave2-plugin-js.sh: the python leg's five-stage
+  mirror (RUNNER banner -> conformance 14 goldens + 2 hostile through the ESM
+  codecs -> lifecycle FIDELITY/BUS ROUNDTRIP/DIAL -27/STOP/liar/NEXT ECHO ->
+  /proc orphan census -> inline sabotage lever DEMO_PLUGIN_JS_SABOTAGE=1
+  red-proved). Orchestrator battery: leg green, external lever red with zero
+  PASS lines, node --check x3 clean, python leg re-run green, py lever re-red.
+- Ledger E table: all 32 skin cells flipped armed->generated (both columns,
+  prose updated to past tense); no bindings/js ignore rule existed so no
+  .gitignore change (check-ignore proven invisible=trackable). TWELVE->THIRTEEN
+  prose sweep: README legs sentence + gallery row, AGENTS x3 (structure line,
+  brace list, command header), status verification row, stage-5 lane row,
+  check.sh header + new leg block. Plan §6 rows recorded with planted-red notes.
+- ctest-stage4 capture hardening (from batch 2) carried: --output-on-failure +
+  LastTest archive on reds.
+
 ## 2026-10-23 - plugin door batches 0-2: exemption, ledger+goldens, python leg
 - Batch 0 (A1): the install door exempts runner-bearing non-.so entries from the
   dlopen probe (envelope + grammar stay; identity defers to the spawn-time HELLO

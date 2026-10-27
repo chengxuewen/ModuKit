@@ -155,16 +155,20 @@ predates the openings - see the rows
   ACCEPTED 2026-10-23 (D105; fresh boundary green + same-day doc-audit swept);
   debts on plan §7 ledger (egress switches, Windows first-run, mirror slot).
 
-- **Plugin door (D106) batches 0-2 LANDED 2026-10-23 - PYTHON PLUGIN DOOR LANDED
-  (leg twelve)**: batch 0 the install-door exemption (runner-bearing non-.so entries
+- **Plugin door (D106) batches 0-3 LANDED (2026-10-23 python leg twelve; 2026-10-27
+  node leg thirteen)**: batch 0 the install-door exemption (runner-bearing non-.so entries
   skip the dlopen probe, identity defers to the spawn-time HELLO cross-check -
   script_door.rs); batch 1 the wire ledger `contracts/modukit_wire.h` + 14 golden
   frames + the fast `wire-parity` leg; batch 2 the hand-written python skin
   `bindings/py/plugin_runtime.py` (all 11 kinds, 3.8 floor, stdlib) with fixtures
   `test-plugins/py/py_echo.py` / `py_liar.py` and leg twelve
   `scripts/demo-wave2-plugin-py.sh` (conformance-before-launch, FIDELITY +
-  BUS ROUNDTRIP + liar typed error + orphan census, lever red-proved inline).
-  Node door (batch 3) next. Plan: docs/wave-2-plugin-door-plan.md.
+  BUS ROUNDTRIP + liar typed error + orphan census, lever red-proved inline);
+  batch 3 the hand-written ESM node skin `bindings/js/plugin_runtime.mjs`
+  (BigInt u64, net.Socket fd-0 full duplex, pure stdlib) with fixtures
+  `test-plugins/js/js_echo.mjs` / `js_liar.mjs` and leg thirteen
+  `scripts/demo-wave2-plugin-js.sh` (the python leg's five-stage mirror, lever
+  red-proved inline). Plan: docs/wave-2-plugin-door-plan.md.
 
 ## 3. What this file deliberately does NOT decide
 
