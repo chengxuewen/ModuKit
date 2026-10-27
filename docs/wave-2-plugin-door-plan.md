@@ -296,5 +296,9 @@ dl-position script plugins (embed road armed); res:// cross-bundle; CLI day
 - [x] FINAL delta re-check (v3, 2/2): APPROVE-WITH-NITS - nine folds all
   verified against the tree; label nits + named nits folded here (title,
   minor-count, diagram shape, filename pin, fifth site, js fixture parity).
-- [ ] Momus plan review (house flow, fresh session, prompt = file path only).
-- [ ] Maintainer approval word.
+- [x] Momus plan review (house flow, fresh session, prompt = file path only):
+  OKAY 2026-10-27 (bg_47d1a900) - all references verified against the live
+  tree, batches/executability confirmed; two non-blocking nits = line drifts
+  from landing (.gitignore:128 -> now 130-132; fdpass.rs:328 is in
+  crates/modukit-transport/tests/, content matches). Trail closed by this row;
+  maintainer approval word remains the standing gate (D107 recorded it).
