@@ -965,3 +965,31 @@
 - **Reference**: docs/wave-2-plugin-door-plan.md v3 (§5-§7, §9); history
   2026-10-23 + 2026-10-27 entries; D106 hearing + A1/A2 amendments.
 
+## D108: Parent-push hearing adjudicated (A,A,A,A,A) - bus-level pump hook; bell gate retired (2026-10-27)
+- **Decision**: five adjudications walked one by one (record
+  docs/wave-3-parent-push-hearing.md; the gap was NAMED at stage-5-plan
+  section 3). (1) The drain hook lives INSIDE `Bus::publish`, after the
+  fan-out and outside the topics lock - one doorway for every origin, and
+  `kernel.bus().publish()` stops being a silent bypass (the freeze makes the
+  kernel-door alternative's bypass permanent). `on_publish`'s explicit drain
+  loop is deleted. (2) The bell-only pump (`pump_local_bell`) and its
+  TIMER_V2 DELIVERY gate retire: bell topics follow ordinary subscription
+  law; D99 R5-A's delivery clause is SUPERSEDED by this record; the
+  capability bit keeps its DIAL-eligibility job and the wire contract is
+  untouched. (3) Child control sockets go non-blocking; would-block is a
+  COUNTED SHED for that child (registration kept), hard errors deregister -
+  commandment 3 holds for every publisher. (4) DELIVER carries the publish's
+  own `qos_to_i32` code (the `on_publish` mirror); deferred topics are a
+  no-op (subscribe already refused them with -26). (5) Verification: a HOST
+  PUSH stanza on legs twelve and thirteen (host-side driver publishes through
+  the in-process trampoline; the child must receive via `seen`) plus the
+  single-point lever `MODUKIT_HOST_PUSH_OFF=1` at the hook-install site, and
+  three unit tests (outside-lock firing, counted shed on a filled socket,
+  deferred no-op).
+- **Surfaces**: crates/modukit-core/src/bus.rs (hook field + install), bus_wire.rs
+  (drain consolidation, `pump_local_bell`/timer set/`note_timer_child` deleted),
+  kernel/supervisor wiring at the existing attach seam, counters (wall-shed),
+  scripts/demo-wave2-plugin-py.sh + -js.sh, docs/modules/06.
+- **Reference**: docs/wave-3-parent-push-hearing.md (five rulings + closure);
+  stage-5-plan section 3; enforcement rules D87 (surfaces stay additive).
+

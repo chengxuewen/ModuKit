@@ -1,5 +1,15 @@
 # ModuKit — History Archive
 
+## 2026-10-27 - parent-push hearing drawn (D108, five-A)
+
+- Five adjudications walked one by one: bus-level publish hook (single
+  doorway), bell-only pump + TIMER_V2 delivery gate retired (D99 R5-A
+  delivery clause superseded; cap keeps DIAL; wire untouched), non-blocking
+  shed-and-count, publish's own qos code, HOST PUSH on legs 12+13 with
+  MODUKIT_HOST_PUSH_OFF single-point lever + three unit tests.
+- Fact base verified against the tree: in-process and host publishes fill
+  proxy Receiver queues with no drain (the gap is wider than "host only").
+
 ## 2026-10-27 - lesson-review sweep (plugin-door volume tail)
 
 - PIT-32 (fdpass dead-lane cold-window flake family, first capture worked)
