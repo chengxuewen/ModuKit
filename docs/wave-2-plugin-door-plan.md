@@ -238,6 +238,16 @@ Full check.sh at every batch end; per-commit C3 (hook has caught its own author
   lane rebuilds, warm reruns 5/5 green): the leg now SELF-REPORTS - ctest runs
   --output-on-failure and reds archive LastTest.log to /tmp/ctest-lasttest.log.
   Next red carries its own evidence; still unresolved, no suspect confirmed.
+- 3rd occurrence + FIRST CAPTURE (plugin-door batch 3 full gate, 2026-10-27):
+  modukit-transport fdpass `sendmsg_on_a_dead_lane_surfaces_the_typed_backend_
+  error` panicked "a dead lane must refuse within three sends" (fdpass.rs:328)
+  inside the gate's loaded window; isolated rerun green, then 8/8 green. A
+  load-window timing flake in the transport dead-lane assertion, three cold
+  hits across three separate batches, zero hits warm - recorded as a family
+  trait of the gate's cold window, NOT a batch regression (js door never
+  touches transport). The capture hardening worked: evidence without a rerun.
+  Test untouched - a timing-load assertion, not a product bug; candidates if
+  it keeps firing: widen the 3-send bound or mark it ignore under load.
 - DIAL refusal means script plugins get NO clock timers this volume (the DUE
   frame is emitted only as the refusal); the claim path arms with the embed
   road or a follow-up round of its own hearing.
