@@ -1,6 +1,8 @@
-# Wave-3 Parent-to-Child Bus Push - Plan (v2)
+# Wave-3 Parent-to-Child Bus Push - Plan (v3)
 
-> Status: v2, 2026-10-27. v1 -> v2 folds the four-lane review (run as an
+> Status: v3, 2026-10-27. v2 -> v3 folds the final delta self-check (C8/C9:
+> the Momus lane died on API quota, so the terminal check ran by hand).
+> v1 -> v2 folded the four-lane review (run as an
 > orchestrator self-review: all subagent lanes were killed by API quota, so the
 > same four lanes were executed by hand - facts / completeness / safety / ops)
 > and the A6 amendment to the hearing. Hearing:
@@ -57,6 +59,19 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
   the hook takes `subs`/`children`/`outbox`. The hook must fire after the
   topics guard drops; no hook-side path may publish (deliver only encodes and
   writes).
+- **C8 - a partial frame forbids every direct writer** (delta check): once
+  the outbox holds a half-written frame for a child, a direct `write_frame`
+  from `executor_proc` would append a new frame behind the remainder and
+  misalign the stream. Law: ALL writes to a REGISTERED child go through the
+  fan-out's outbox (`fan.send(child, kind, payload)`); the executor paths
+  (STOP :574, CALL :449, DIAL :723/:795) already hold the `fan` reference
+  (`:518` uses it), so the change is local. Pre-registration writes (START
+  before the child's first FORWARD) stay direct - no outbox exists yet.
+- **C9 - the bell path is now a regression surface** (delta check): A2 retires
+  the bell-only pump, so bell crossing depends on the GENERAL pump. The clock
+  demo leg (`scripts/demo-wave2-clock.sh`) and the `clock_crossing` /
+  `abi_v3_door` suites must ride batch 1's regression list, or a landed T2
+  capability silently breaks.
 - **C7 - tests that pin today's loop**: `bus_wire.rs:516`
   (snapshot-on-subscribe), `:539` (self-echo), `:627` (the timer-only pin
   that A2 retires).
@@ -121,6 +136,11 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
   echo test (`:539`) and the snapshot test (`:516`) must stay green through
   the hook (they are the no-regression proof that the doorway swap is
   behavior-preserving).
+- **T1.7** Single-writer law (C8): `ParentFanout` exposes
+  `send(child, kind, payload)` (encode + outbox + flush); `executor_proc`'s
+  registered-child writes (STOP/CALL/DIAL) route through it; START keeps its
+  direct write (pre-registration). Regression list (C9): the clock demo leg
+  plus `clock_crossing` and `abi_v3_door` suites green.
 
 ## 4. Batch 2 - the HOST PUSH stanza
 
@@ -164,6 +184,8 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
 | hook coverage (positive) | lever OFF | HOST PUSH stanza green on BOTH legs |
 | deferred no-op | publish `KeepAll` | hook fires, zero frames |
 | no double delivery | reinstate `on_publish`'s loop beside the hook | a child-origin publish yields two DELIVERs; echo test reds |
+| C8 single writer | send a STOP directly while a partial frame is parked (scratch) | stream-alignment test reds; restore green |
+| C9 bell regression | run the clock leg + suites with the general pump disabled | bell assertions red (proves they ride the new pump) |
 | bell retirement | dial a timer | the timer child receives via the general pump; `grep -c pump_local_bell crates/` = 0 |
 | frozen surface | diff `contracts/` over the volume | empty |
 | gate | full `scripts/check.sh` at every batch end | exit 0 (fdpass cold family per PIT-32: capture first, never edit the test) |
@@ -199,5 +221,10 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
   by the orchestrator because all four subagent lanes were killed by API quota
   (rps exhausted + stale timeout): findings C1-C7 and the A6 amendment folded
   into v2.
-- [ ] Momus plan review (house flow, fresh session, prompt = file path only).
+- [x] Final delta self-check (v2 -> v3): C8 (single-writer law for registered
+  children) and C9 (bell path is now a general-pump regression surface) folded.
+- [ ] Momus plan review (house flow, fresh session, prompt = file path only):
+  ATTEMPTED twice (bg_d3f78f78 on v2) - both runs killed by API quota
+  ("rps exhausted"); no verdict produced. The self-review above stands in for
+  it this session; re-run Momus when quota recovers, before acceptance.
 - [ ] Maintainer approval word (batch 0 opens on it).
