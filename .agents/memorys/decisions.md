@@ -941,3 +941,27 @@
   roundtrip dropped from the legs) reversed: hearing acceptance sentence is
   contract, both skins carry the full 11-kind scope; clock = clean DIAL refusal
   only. Full text: hearing doc "Post-hearing amendments" + plan v2.
+## D107: Plugin-door volume ACCEPTED - script plugins speak the published wire in python and node (2026-10-27)
+- **Decision**: the plugin-door volume (D106, batches 0-3) accepted on the
+  four-step battery. (1) Gate: full check.sh green twice over the volume tail
+  (THIRTEEN demo legs; the second run after the fdpass cold-flake family hit).
+  (2) Frozen surface: contracts/ grew ONLY additions - modukit_wire.h + 14
+  golden vectors + index (planned promotion per D106 ruling A); existing
+  contracts byte-untouched (diff name-status = 16 adds, 0 modifications);
+  embed/wire/ledger parity legs all green. (3) Coverage boundary re-measured
+  with wire_golden.rs in the codegen region: core 84.28 / transport 88.76 /
+  codegen 84.75 - all >= 80 (bins + fixtures excluded per D84/D103).
+  (4) Plan §6 ledger: every row evidenced in-batch (double-red batch 0, parity
+  self-tests batch 1, leg levers both doors) + two gap plants run at
+  acceptance: E-table row drop -> ledger leg RED; golden byte corrupt ->
+  conformance RED before any launch; both restored green, tree clean.
+- **Surfaces**: skins bindings/py/plugin_runtime.py + bindings/js/plugin_runtime.mjs
+  (hand-written, stdlib-only, all 11 kinds each); fixtures py/js echo+liar;
+  legs demo-wave2-plugin-py.sh / demo-wave2-plugin-js.sh (twelve + thirteen);
+  contracts/modukit_wire.h published; E table 32 cells generated.
+- **Deviations recorded**: batch-3 §7 (ctypes host face, readlink runner
+  resolution, underscore fixture names, E-table flip residue); ctest-stage4
+  cold flake family 3 hits / capture hardening worked on the 3rd.
+- **Reference**: docs/wave-2-plugin-door-plan.md v3 (§5-§7, §9); history
+  2026-10-23 + 2026-10-27 entries; D106 hearing + A1/A2 amendments.
+

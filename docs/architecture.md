@@ -313,6 +313,7 @@ them. Re-review trigger recorded in D5.
 | D104 | benchmark hearing | MediaServo discipline tier adopted (E/B/B/A): private-use retirement, reconciler+pin files, interpreter authority, bootstrap wrapper; delivery plane stays trigger-gated |
 | D105 | benchmark volume accepted | four-point DoD green 2026-10-23 (fresh boundary; contracts zero-touch); same-day doc-audit 26 findings swept; debts on plan §7 |
 | D106 | plugin door hearing | wire-native language plugins (C,A,A,A): exe-door via published process wire + golden-vector contract promotion; bindings skins hand-written; two demo legs + env-free frame-parity leg; embed road armed with named blockers |
+| D107 | plugin-door volume ACCEPTED | batches 0-3 landed and accepted on the four-step battery: gate green x2 (thirteen legs), contracts additions-only, boundary 84.28/88.76/84.75, §6 ledger evidenced + two acceptance plants (E-row drop, golden byte) red-proven; py+js skins, echo/liar fixtures, legs twelve+thirteen |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
