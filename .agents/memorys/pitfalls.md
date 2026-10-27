@@ -240,3 +240,24 @@
 - **The real rule**: on a file whose banner says generated, fixes belong in the EMITTER (crates/modukit-codegen/src/js.rs), then scripts/regen-golden.sh, then the skin copies from the golden (leg grammar). Head -5 before any repair edit; if it says Generated, you do not edit it by hand.
 - **Verification**: after the emitter fix + regen + skin-copy, full gate ran (legs re-emit) and lib.rs stayed byte-identical to the golden, forced-fresh clippy green (Compiling modukit-js present). That is the root-cured state.
 - **Salvaged from the wrong entry**: the post-commit tree-verification discipline stays (it caught the content drift immediately - it just blamed the wrong defendant).
+
+## PIT-32: gate cold window times out transport's dead-lane assertion (2026-10-27)
+- **Symptom**: full-gate ctest leg reds intermittently on a cold start;
+  modukit-transport fdpass `sendmsg_on_a_dead_lane_surfaces_the_typed_backend_
+  error` panics "a dead lane must refuse within three sends" (tests/fdpass.rs
+  :328). Isolated + warm reruns green (8/8). Three hits across three batches,
+  cold-window only.
+- **Root cause**: the assertion bounds refusal latency by SEND COUNT (3), but
+  under the gate's loaded cold window (parallel lane builds just finished, page
+  cache cold) the OS can take longer than the test's implicit deadline to
+  surface the error, so 3 sends complete with no refusal observed yet.
+- **Solution**: capture, don't guess - the batch-2 hardening (--output-on-
+  failure + LastTest.log archive to /tmp/ctest-lasttest.log) produced the
+  exact panic text on hit #3 with no rerun needed. Recorded as a gate
+  cold-window family trait (plan §7); test left untouched (a timing-load
+  assertion, not a product bug).
+- **Verification**: `bash scripts/check.sh` twice - the leg is green on warm
+  starts; a red run must leave /tmp/ctest-lasttest.log with the panic text.
+- **Forbidden**: reverting, skipping, or "fixing" the test on a cold-window
+  red before reading the archived LastTest evidence; quoting the flake as a
+  product regression without an isolated warm rerun.

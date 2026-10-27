@@ -1,5 +1,11 @@
 # ModuKit — History Archive
 
+## 2026-10-27 - lesson-review sweep (plugin-door volume tail)
+
+- PIT-32 (fdpass dead-lane cold-window flake family, first capture worked)
+  + edit-safety #30 (capture-first discipline) + C3 catch tally 9. Momus OKAY
+  row landed; D107 trail fully closed.
+
 ## 2026-10-27 - plugin door batch 3: node leg thirteen, wire volume closed
 
 - Batch 3 (node door): bindings/js/plugin_runtime.mjs - hand-written ESM twin
