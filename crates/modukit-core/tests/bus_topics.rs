@@ -247,3 +247,66 @@ fn bus_is_send_and_shared_state_flows_across_threads() {
         .expect("publisher thread finished");
     assert_eq!(rx.try_recv().as_deref(), Some(&b"across"[..]));
 }
+
+/// D108 A1: the hook fires AFTER the fan-out and outside the topics lock.
+/// The hook publishes on a second topic re-entrantly - under `lock_topics`
+/// that inner publish would deadlock (std mutex is not re-entrant). The
+/// deadline poll is the fail-fast witness: a deadlock reds in 2s, no hang.
+#[test]
+fn publish_hook_fires_outside_the_topics_lock() {
+    let bus = Arc::new(Bus::new());
+    let outer = TopicId::try_new("com.example.hook.outer".to_string()).expect("grammar");
+    let inner = TopicId::try_new("com.example.hook.inner".to_string()).expect("grammar");
+    let fired = Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let hook_bus = Arc::clone(&bus);
+    let hook_inner = inner.clone();
+    let hook_fired = Arc::clone(&fired);
+    let reentered = Arc::new(std::sync::atomic::AtomicBool::new(false));
+    let hook_reentered = Arc::clone(&reentered);
+    bus.set_publish_hook(Arc::new(move |_t, _q, _v| {
+        // Re-publish ONCE - the hook sees EVERY publish, so a second pass
+        // would recurse forever; the single success is the lock-release
+        // witness (a hook fired under `lock_topics` would deadlock here).
+        if !hook_reentered.swap(true, std::sync::atomic::Ordering::AcqRel) {
+            hook_bus.publish(&hook_inner, QoS::LatestValue, vec![2]);
+        }
+        hook_fired.store(true, std::sync::atomic::Ordering::Release);
+    }));
+    let worker = {
+        let bus = Arc::clone(&bus);
+        let outer = outer.clone();
+        thread::spawn(move || bus.publish(&outer, QoS::LatestValue, vec![1]))
+    };
+    let deadline = std::time::Instant::now() + Duration::from_secs(2);
+    while !fired.load(std::sync::atomic::Ordering::Acquire) {
+        assert!(
+            std::time::Instant::now() < deadline,
+            "the hook must fire outside the topics lock (re-entrant publish deadlocked)"
+        );
+        thread::sleep(Duration::from_millis(5));
+    }
+    worker.join().expect("publisher thread");
+}
+
+/// D108 A1/A4: a deferred-QoS publish still fires the hook (the pump itself
+/// is a no-op there - subscribe refuses, so no proxy receiver can exist), and
+/// the hook sees the exact triple the publish carried.
+#[test]
+fn publish_hook_fires_for_deferred_qos_too() {
+    let bus = Arc::new(Bus::new());
+    let topic = TopicId::try_new("com.example.hook.deferred".to_string()).expect("grammar");
+    let seen = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let seen_hook = Arc::clone(&seen);
+    bus.set_publish_hook(Arc::new(move |t, q, v| {
+        assert_eq!(t.as_str(), "com.example.hook.deferred");
+        assert_eq!(q, QoS::KeepAll);
+        assert_eq!(v, b"keep");
+        seen_hook.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    }));
+    bus.publish(&topic, QoS::KeepAll, b"keep".to_vec());
+    assert_eq!(seen.load(std::sync::atomic::Ordering::Relaxed), 1);
+    assert!(
+        bus.subscribe(&topic).is_err(),
+        "deferred topics refuse subscribe (no proxy receiver can exist)"
+    );
+}

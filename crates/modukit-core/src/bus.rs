@@ -156,11 +156,22 @@ struct TopicState {
     queue_high_water: usize,
 }
 
+/// The post-fan-out publish hook (D108 A1): installed once at boot by the
+/// supervisor that owns a wall fan-out. Fires AFTER the fan-out, outside the
+/// topics lock, for EVERY publish origin - one doorway for the wall.
+///
+/// The hook must NOT publish: it observes every publish, so a publish inside
+/// the hook re-enters it (the wall pump only encodes and writes child
+/// sockets).
+pub type PublishHook = Arc<dyn Fn(&TopicId, QoS, &[u8]) + Send + Sync>;
+
 /// The in-process bus. Cheap to clone (one shared table); reachable from the
 /// kernel via `Kernel::bus()`.
 #[derive(Default)]
 pub struct Bus {
     topics: Mutex<HashMap<TopicId, TopicState>>,
+    /// `None` on a standalone kernel; installed by the supervisor (D108).
+    publish_hook: Mutex<Option<PublishHook>>,
     // A `Weak` upgrade only happens under the table lock; no queue is ever
     // locked across a topic lookup, so publish holds the table briefly.
 }
@@ -256,6 +267,29 @@ impl Bus {
         state.delivered += delivered;
         state.sub_dropped += shed;
         state.queue_high_water = state.queue_high_water.max(high);
+        // D108 A1: the hook fires after the fan-out AND after the table lock
+        // drops - the drain takes its own locks and writes child sockets, so
+        // firing under `topics` would deadlock the first re-entrant publish.
+        drop(topics);
+        let hook = self
+            .publish_hook
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .clone();
+        if let Some(hook) = hook {
+            hook(topic, qos, &value);
+        }
+    }
+
+    /// Install the one post-fan-out publish hook (D108 A1). Boot-time setter:
+    /// the supervisor that owns a wall fan-out calls this once; a standalone
+    /// kernel never does and keeps `None`. A second install replaces the
+    /// first - the caller owns the single-point discipline.
+    pub fn set_publish_hook(&self, hook: PublishHook) {
+        *self
+            .publish_hook
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner) = Some(hook);
     }
 
     /// Subscribe to `topic`, obtaining a `Receiver`.

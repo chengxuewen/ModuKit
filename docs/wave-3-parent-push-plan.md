@@ -93,7 +93,10 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
   AFTER `drop(topics)` (C6), passing `(topic, qos, value)` unchanged.
 - **T0.2** Install at BOTH seams (C4): `proc_supervisor.rs:119-126` and the
   test wiring `wiring.rs:305-318` install `fan.pump_topic` as the hook.
-  A kernel without supervised children installs nothing.
+  A kernel without supervised children installs nothing. SEQUENCING (found at
+  batch 0): the INSTALL lands in batch 1 together with `pump_topic` and the
+  retirements - installing a live hook while `on_publish`'s loop and the bell
+  pump still exist would double-deliver. Batch 0 ships the plumbing inert.
 - **T0.3** Lever: `MODUKIT_HOST_PUSH_OFF` read at EXACTLY the install site
   (both seams share one helper so the read stays single, C5 discipline);
   set = skip the install. Comment names the demo lever and the single-site
@@ -172,6 +175,11 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
 
 ## 6. Verification ledger (planted red before trusted)
 
+Batch 0 closed 2026-10-27: hook field + setter + lock-release witness; the
+lock plant (hook moved under `topics`) reds the witness in 2s, restored green;
+clippy fresh-check clean; full gate green.
+
+
 | Row | Plant | Expect |
 |---|---|---|
 | C6 lock order | move the hook call inside `lock_topics` (scratch) | the re-entrant-hook test fails on its join timeout (never hangs); restore green |
@@ -202,6 +210,14 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
   latency.
 - **Withdrawn v1 residual**: the `Bus` clone question - `Bus` is not `Clone`
   (C3), verified.
+- **Batch 0 scope note**: the plan's original T0.2 (install in batch 0) moved
+  to batch 1 - see the sequencing note at T0.2. Batch 0 landed the hook field,
+  the setter and the lock-release witness only; the tree is behavior-identical
+  (hook `None` everywhere) and the gate stayed green.
+- **Hook contract** (batch 0 finding): the hook must NOT publish - it observes
+  every publish, so a publish inside the hook re-enters it (found by a stack
+  overflow in the first draft of the witness test; the constraint is now in
+  the type's doc).
 - **Known environment**: the ctest cold-window flake family (PIT-32) -
   capture first, isolate second.
 
