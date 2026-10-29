@@ -211,8 +211,9 @@ Deliverables:
   its target is enabled), `scripts/agents-cli.py`, `scripts/memory-aggregate.py`,
   `scripts/skills-index.py`, `scripts/mcp-links.py`, `scripts/mcp-file-guard.py`.
 - `scripts/agent-targets.json`: extend the B0 file to per-surface status
-  (adjudication 12): opencode `rules: true`, `mcp: true`; qoder `rules: probe`,
-  `mcp: probe`; codebuddy / trae / claude / cursor all false. Skills are a native
+  (adjudication 12): opencode `rules: true`, `mcp: true`; qoder `rules: true`
+  (native `.agents/rules`, observed 2026-10-29), `mcp: probe`; codebuddy / trae /
+  claude / cursor all false. Skills are a native
   read from `.agents/skills` for both hosts (observed for opencode and qoder), so
   they are not a target surface here; `skills-targets.json` stays a B8 concern for
   link-based hosts. A single host boolean would let a failed MCP probe block the
@@ -257,13 +258,13 @@ Duplicate an END marker -> exit 2 (guard), nothing written (VE PIT-84).
 Add a 100-heading file to `.agents/memorys/` without a WINDOW entry -> hub budget
 red.
 
-Qoder probe (per-surface, adjudication 12): skills are native - this session's
-available-skill list contains all 12 project skills - so no skills target is needed.
-Probe the remaining two surfaces with one unique token each: a rule under the path
-declared for qoder, and an MCP entry (project-level `.mcp.json` or qoder's own file).
-Enable each surface that passes; if project-level MCP is not read, record "qoder MCP
-is user-level only" and leave that surface disabled. A wrong path is a dead file (VE
-D35); VE itself has not verified qoder's rules path.
+Qoder probe (per-surface, adjudication 12): skills are native (this session lists all
+12 project skills), and rules are native too - both `.agents/rules` and
+`.qoder/rules` echoed their probe tokens on 2026-10-29; prefer `.agents/rules` as the
+single source and generate no qoder rules layer. The only remaining probe is MCP:
+after B1 creates root `.mcp.json`, check whether qoder reads the project-level file.
+If it is user-level only, record "qoder MCP is user-level only" and leave that surface
+disabled.
 
 ### B3 - Root documents, CONSTRAINTS, and doc gates
 
@@ -579,7 +580,7 @@ when its trigger fires.
 | Item | Probe | Recorded in |
 |---|---|---|
 | MSRV number | 1.88.0 (probe 2026-10-29: 1.85 red on `libloading 0.9.0` + `napi-build 2.5.0`; 1.88 green in 9.81 s) | B4 result, `Cargo.toml`, msrv pin |
-| qoder rules path | one token rule under the declared path | B2 result, `agent-targets.json` |
+| qoder rules path | native reader: both `.agents/rules` and `.qoder/rules` echoed their tokens (2026-10-29); prefer `.agents/rules`, no generator | B2 result, `agent-targets.json` |
 | qoder MCP path | one token entry in project `.mcp.json` / qoder's file | B2 result; user-level only = surface disabled |
 
 ### 5.2 Execution tasks (already decided)
@@ -670,6 +671,9 @@ ModuKit anchors:
 - 2026-10-29 revision 7: review fix - SKILL.md marker moved to B2 (before the first
   sync), LSP wrapper made probe-conditional, `cargo deny` offline semantics fixed,
   env gate contract, llms missing-source skip, cmake-smoke negative paths named.
+- 2026-10-29 probe results: MSRV 1.88.0 (1.85 red on libloading/napi-build); qoder
+  rules are native on both `.agents/rules` and `.qoder/rules`; qoder MCP stays
+  pending until B1 creates the root `.mcp.json`.
 
 ## Appendix A - Skill triage (37 VE directories + 2 ModuKit-only)
 
