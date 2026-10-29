@@ -359,15 +359,15 @@ Deliverables:
    (VE `bootstrap.sh:61-67`).
 3. pixi: replace `rust = "*"` with `>=1.99,<2` (the lock resolves rust 1.99.0,
    measured 2026-10-29); add an `msrv` environment in its own solve group. MSRV is
-   a promise, not a lock echo (adjudication 11): run `cargo check --workspace` on the
-   ladder 1.85 -> 1.90 -> 1.95 -> 1.99, record the lowest that passes and the
-   dependency or API that set it, then add `rust-version` to `[workspace.package]`
-   and pin the same version in the msrv feature. Between candidates, revert the lock
-   with `git checkout -- pixi.lock`; only the final passing pin is committed, so the
-   ladder leaves no throwaway lock trail. Add a check leg: `Cargo.toml`'s
-   `rust-version` must equal the msrv pin, mismatch = red. Without that field the
-   msrv leg has nothing to verify. Finally wire `msrv` into `check.sh`'s leg list in
-   the same batch.
+   a promise, not a lock echo (adjudication 11). Probe result 2026-10-29: 1.85 red
+   (`libloading 0.9.0` and `napi-build 2.5.0` both require 1.88), 1.88.0 green
+   (`cargo check --workspace`, 9.81 s warm). Record `rust-version = "1.88.0"` and
+   pin `=1.88.0` in the msrv feature; the wider ladder (1.90 / 1.95 / 1.99) is
+   evidence, not a second promise. Between candidates, revert the manifest and lock
+   with `git checkout -- pixi.toml pixi.lock`; only the final passing pin is
+   committed. Add a check leg: `Cargo.toml`'s `rust-version` must equal the msrv
+   pin, mismatch = red. Without that field the msrv leg has nothing to verify.
+   Finally wire `msrv` into `check.sh`'s leg list in the same batch.
 4. `CMakePresets.json`: add `release`, `debug`, `prebuilt`, `ci-strict`; keep
    `out/` (adjudication 6) and the one-tree-per-preset rule.
 5. `cmake/ModuKitSDK.cmake`, `cmake/ModuKitFfi.cmake`,
@@ -578,7 +578,7 @@ when its trigger fires.
 
 | Item | Probe | Recorded in |
 |---|---|---|
-| MSRV number | 1.85 -> 1.90 -> 1.95 -> 1.99, `cargo check --workspace` | B4 result, `Cargo.toml`, msrv pin |
+| MSRV number | 1.88.0 (probe 2026-10-29: 1.85 red on `libloading 0.9.0` + `napi-build 2.5.0`; 1.88 green in 9.81 s) | B4 result, `Cargo.toml`, msrv pin |
 | qoder rules path | one token rule under the declared path | B2 result, `agent-targets.json` |
 | qoder MCP path | one token entry in project `.mcp.json` / qoder's file | B2 result; user-level only = surface disabled |
 
@@ -746,4 +746,6 @@ Record these at B0 and compare at each batch close:
 - `.agents/memorys/status.md`: 7,944 bytes against the 8,000-byte cap (56 bytes of
   headroom; B1 must offload a paragraph to `history-archive.md` before adding lines).
 - `git ls-files -ci --exclude-standard`: empty (after the `.omo` negation fix).
-- MSRV / qoder / node baselines are pending the B2/B4 probes.
+- MSRV probe: 1.88.0 (1.85 red: `libloading 0.9.0` and `napi-build 2.5.0` require
+  1.88; 1.88 green, `cargo check --workspace` 9.81 s).
+- qoder / node baselines are pending the B2/B4 probes.
