@@ -1,0 +1,40 @@
+{
+  "rules_root": ".agents/rules",
+  "memorys_root": ".agents/memorys",
+  "mcp_source": ".agents/mcp.json",
+  "mcp_local": ".agents/mcp.local.json",
+  "memory_hub": "AGENTS.md",
+  "skills_root": ".agents/skills",
+  "skills_registry": "SKILL.md",
+  "constraints_hub": "CONSTRAINTS.md",
+  "mcp_file_guard": ".mcp.json",
+  "generated_tracked": [
+    "AGENTS.md",
+    "CONSTRAINTS.md",
+    ".mcp.json",
+    ".opencode/opencode.json",
+    "SKILL.md"
+  ],
+  "targets": [
+    {
+      "label": "opencode",
+      "enabled": true,
+      "rules": true,
+      "mcp": true,
+      "opencode_file": ".opencode/opencode.json",
+      "mcp_shape": "named",
+      "notes": "Native rules/skills reader; only MCP is merged into its config."
+    },
+    {
+      "label": "project",
+      "enabled": true,
+      "rules": false,
+      "skills": false,
+      "mcp": true,
+      "mcp_file": ".mcp.json",
+      "mcp_shape": "mcpServers",
+      "mcp_launcher": true,
+      "notes": "MCP-only project-scope target; no rules or skills layer."
+    }
+  ]
+}

@@ -993,3 +993,24 @@
 - **Reference**: docs/wave-3-parent-push-hearing.md (five rulings + closure);
   stage-5-plan section 3; enforcement rules D87 (surfaces stay additive).
 
+## D109: Non-functional surface adopts the VisiaEngine shape (2026-10-29)
+
+- **Decision**: the non-functional surface - root config, build assembly, pixi, script
+  framework, agent config, docs skeleton, directory layout, CI, hooks, IDE adapters,
+  and gitignore - follows VisiaEngine (VE). Functional code, contracts, binding
+  implementations, demo assertions, and project memory entries stay ModuKit-owned.
+  Sixteen adjudications were walked one by one: ten at the hearing, two follow-ups
+  (MSRV method = measured-lowest; qoder = per-surface probe), and four P0 review
+  rulings (bootstrap agent-sync = advisory + B4 after B2; AGENTS single-source section
+  in B2; gate-abi in B3 + cmake-smoke in B4; CONSTRAINTS source = check.sh only,
+  `ci` is an alias).
+- **Rationale**: maintainer ruling 2026-10-29 ("everything non-functional follows
+  VE"); VE's no-dead-file and no-dangling-reference disciplines bound the copy.
+- **Impact**: B0-B7 batches in `docs/ve-parity-plan.md`; B8 deferred; pixi becomes
+  single-track (mise/rust-toolchain retired after pixi node lands); MCP has one
+  canonical source generating root `.mcp.json` plus the opencode `mcp{}` merge.
+- **Reference**: `docs/ve-parity-plan.md` (plan of record); `.refinfo/VisiaEngine`
+  (read-only donor).
+- **Re-review triggers**: MSRV lands at 1.99 only; qoder project-level MCP
+  unreadable; install-tree milestone opens.
+

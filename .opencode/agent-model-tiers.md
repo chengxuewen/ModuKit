@@ -1,16 +1,16 @@
-# PolyOrch Model Tier System
+# ModuKit Model Tier System
 
 > Five-tier model mapping: premium-max / premium / fast / vision / lite
 > Dual-provider architecture: DeepSeek official direct + New API gateway aggregation
 
 ## Architecture
 
-PolyOrch integrates LLMs through two independent paths:
+ModuKit integrates LLMs through two independent paths:
 
 | Provider | Integration | Characteristics |
 |--------|----------|------|
 | **DeepSeek official** | Direct API (`api.deepseek.com`) | Low latency, high stability, officially controlled model versions |
-| **New API gateway** | Alias proxy (`192.168.100.47:3000`) | Multi-provider aggregation, automatic fallback, dynamic model switching |
+| **New API gateway** | Alias proxy (`<internal-gateway-host:port>`) | Multi-provider aggregation, automatic fallback, dynamic model switching |
 
 The New API gateway internally aggregates providers such as DeepSeek / Qwen / Kimi / Doubao / GLM / MiniMax,
 enabling per-provider multi-model fallback. Changing the alias mapping on the gateway side switches models globally with zero project config changes.
@@ -129,7 +129,7 @@ lite-1            → qwen3-8b                   # Fallback
 |------|------|------|
 | visual-engineering | premium | Visual engineering |
 | ultrabrain | premium-max | Ultra-deep thinking tasks |
-| deep | premium | Deep analysis |
+| deep-low | premium | Deep analysis (ModuKit's split category) |
 | unspecified-high | premium | High-complexity uncategorized |
 | artistry | fast | Creative/document writing |
 | quick | fast | Simple tasks |

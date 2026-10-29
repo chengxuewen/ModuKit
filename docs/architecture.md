@@ -1,6 +1,6 @@
 # ModuKit Architecture
 
-**Status**: adjudicated engineering baseline (2026-10-10; D56-D63 added 2026-10-13; D64-D73 added 2026-10-15; D74-D104 added through 2026-10-23). Where this document differs from the
+**Status**: adjudicated engineering baseline (2026-10-10; D56-D63 added 2026-10-13; D64-D73 added 2026-10-15; D74-D109 added through 2026-10-29). Where this document differs from the
 [whitepaper](whitepaper.md) v1.0 vision text, the delta table in §9 is authoritative and the
 whitepaper remains canon for naming (§2.3) and principles (§3) not amended here.
 **Provenance**: architecture questions were adjudicated one-by-one with the maintainer
@@ -315,6 +315,7 @@ them. Re-review trigger recorded in D5.
 | D106 | plugin door hearing | wire-native language plugins (C,A,A,A): exe-door via published process wire + golden-vector contract promotion; bindings skins hand-written; two demo legs + env-free frame-parity leg; embed road armed with named blockers |
 | D107 | plugin-door volume ACCEPTED | batches 0-3 landed and accepted on the four-step battery: gate green x2 (thirteen legs), contracts additions-only, boundary 84.28/88.76/84.75, §6 ledger evidenced + two acceptance plants (E-row drop, golden byte) red-proven; py+js skins, echo/liar fixtures, legs twelve+thirteen |
 | D108 | parent-push hearing | five-A: drain hook inside Bus::publish (single doorway, raw bus() no longer bypasses); bell-only pump + TIMER_V2 delivery gate retired (D99 R5-A delivery clause superseded, cap keeps DIAL); non-blocking shed-and-count; publish's own qos code; HOST PUSH stanza on legs 12+13 with a single-point lever |
+| D109 | VE-parity plan | non-functional surface adopts the VisiaEngine shape: 16 adjudications (10 hearing + 2 follow-up + 4 P0 review); B0-B8 batches, deviations and triggers in docs/ve-parity-plan.md |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 

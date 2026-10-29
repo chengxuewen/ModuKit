@@ -261,6 +261,13 @@ else note "ok commit-shape (pending range)"; fi
 # landed: it is a gate of this repo, not an optional tool - no skip-when-absent branch.
 bash scripts/check-doc-refs.sh || { note "FAIL doc-liveness"; status=1; }
 
+# leg: numbering (B0, D109) - the ledger's max D is the only high-water source;
+# every D1-D<n> claim and the architecture section-11 row must match it. The
+# script's --self-test plants D<max+1> and expects red (C0).
+if [ -f scripts/check-numbering.sh ]; then
+  bash scripts/check-numbering.sh || { note "FAIL numbering"; status=1; }
+else note "skip numbering (no script)"; fi
+
 # leg: lane-table reconciliation (benchmark plan T2.3): the cmake lane rows and the
 # cargo workspace members must agree - ghost lanes and unregistered crates/*
 # members are red. Always-on like embed-parity; the gate ships in-repo.

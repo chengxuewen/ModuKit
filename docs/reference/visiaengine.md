@@ -149,3 +149,30 @@ patterns-only adoption).
   tables were kept in `/tmp/opencode/visiaengine-r1-pool.md` and
   `visiaengine-r2-pool.md` (scratch, ephemeral — the distilled verdicts
   above are the durable form).
+
+## Adoption ledger (VE-parity, D109, 2026-10-29)
+
+> Skeleton created in B0; rows are filled by the batch that copies the file.
+> The plan of record is `docs/ve-parity-plan.md`.
+
+### Adopted surface
+
+Non-functional only: root config, build assembly, pixi, script framework, agent
+config, docs skeleton, directory layout, CI, hooks, IDE adapters, gitignore.
+Functional code, contracts, binding implementations, demo assertions, and project
+memory entries are not adopted.
+
+### Not adopted
+
+- Functional code and contracts (`crates/`, `contracts/`, `bindings/` implementations).
+- VE's SDD clause text, capability numbers, and memory entries.
+- Book/SDD content beyond the skeleton.
+
+### Provenance
+
+| Source (VE) | Destination (ModuKit) | Mode | Batch |
+|---|---|---|---|
+| (filled per batch) | | | |
+
+The root `NOTICE` carries VE's copyright line; commit bodies name
+`VE <path> @ <commit>`.

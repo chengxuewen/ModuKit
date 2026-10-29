@@ -1,0 +1,10 @@
+ModuKit
+Copyright (c) 2026 ModuKit contributors
+
+This product includes software copied or adapted from VisiaEngine
+(https://gitee.com/chengxuewen/VisiaEngine), Copyright (c) 2026
+VisiaEngine contributors, licensed under MIT OR Apache-2.0.
+
+The per-file ledger (source, destination, mode, batch) lives in
+docs/reference/visiaengine.md. Files marked "verbatim" retain their
+original structure; files marked "adapt" were modified for ModuKit.
