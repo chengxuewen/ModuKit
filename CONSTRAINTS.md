@@ -48,11 +48,13 @@ Single source of truth for the local quality gate. Two parts:
 25. `gate-abi`
 26. `capability-ledger`
 27. `gate-agents`
-28. `commit-shape`
-29. `gate-docs`
-30. `check-promises`
-31. `numbering`
-32. `lane-table`
-33. `wire-parity`
-34. `gate-mcp`
+28. `gate-rules`
+29. `spec-trace`
+30. `commit-shape`
+31. `gate-docs`
+32. `check-promises`
+33. `numbering`
+34. `lane-table`
+35. `wire-parity`
+36. `gate-mcp`
 <!-- END:ci-gates -->

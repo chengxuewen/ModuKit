@@ -182,6 +182,7 @@ pixi run cmake --preset default && pixi run cmake --build --preset default
 | `rust-testing` | Rust testing patterns including unit tests... |
 | `security-hardening` | Security audit and hardening: OWASP Top 10... |
 | `shipping-and-launch` | Release and launch checklist for this engi... |
+| `skill-authoring` | Add, revise, or retire a project skill in... |
 | `skill-router` | Analyze user intent and output a recommend... |
 | `source-driven-development` | Ground every external dependency decision... |
 | `subagent-orchestration` | Orchestrate subagents for this repo: decid... |

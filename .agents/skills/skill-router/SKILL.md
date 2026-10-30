@@ -28,6 +28,7 @@ Read the user message and classify as:
 | **Test** | "test" / "E2E" / "coverage" | `/test-driven-development` + `/playwright` |
 | **Adjudication** | "裁决逐项过" / "一个个来" / "decide between options" / "walk the options" | `/adjudication-walkthrough` |
 | **Audit** | "audit" / "review repo" / "docs drift" / "scan ecosystem" | `/doc-audit` for docs/decisions; `/repo-audit` for whole-repo engineering |
+| **Authoring** | "new skill" / "add a skill" / "skill registry" | `/skill-authoring` |
 | **Docs** | "docs" / "README" / "documentation" | `/doc-audit` |
 | **Security** | "security" / "permissions" / "auth" | `/security-review` |
 | **Exploration** | "research" / "compare" / "what options" | `/repo-audit` + librarian agent |

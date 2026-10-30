@@ -8,6 +8,16 @@
   "skills_registry": "SKILL.md",
   "constraints_hub": "CONSTRAINTS.md",
   "mcp_file_guard": ".mcp.json",
+  "forbidden_paths": [
+    "CODEBUDDY.md",
+    ".codebuddy/mcp.json",
+    ".trae/skills",
+    ".cursor/skills",
+    ".claude/skills"
+  ],
+  "host_owned_dirs": [
+    ".codebuddy/teams"
+  ],
   "generated_tracked": [
     "AGENTS.md",
     "CONSTRAINTS.md",
@@ -20,7 +30,9 @@
       "label": "opencode",
       "enabled": true,
       "rules": true,
+      "skills": true,
       "mcp": true,
+      "skills_delivery": "native",
       "opencode_file": ".opencode/opencode.json",
       "mcp_shape": "named",
       "notes": "Native rules/skills reader; only MCP is merged into its config."
@@ -35,6 +47,47 @@
       "mcp_shape": "mcpServers",
       "mcp_launcher": true,
       "notes": "MCP-only project-scope target; no rules or skills layer."
+    },
+    {
+      "label": "codebuddy",
+      "enabled": true,
+      "optional": true,
+      "rules": true,
+      "skills": true,
+      "mcp": false,
+      "rules_dir": ".codebuddy/rules",
+      "rules_mode": "mdc",
+      "skills_dir": ".codebuddy/skills",
+      "skills_delivery": "link",
+      "langs": [
+        "common",
+        "rust"
+      ],
+      "always_on_rules": [
+        "common-constraints",
+        "common-security"
+      ],
+      "rule_descriptions": {
+        "common-agents": "Use when coordinating agents or subagent work in this repository.",
+        "common-code-review": "Use when reviewing a diff, PR, or proposed change.",
+        "common-coding-style": "Use when writing or reviewing code in any language.",
+        "common-constraints": "Always apply: project constraints, frozen surfaces, and gate rules.",
+        "common-development-workflow": "Use when planning, sequencing, or landing a change.",
+        "common-docker": "Use when editing container, network, or deployment configuration.",
+        "common-edit-safety": "Use before editing files or running destructive shell or git commands.",
+        "common-hooks": "Use when editing hooks or lifecycle callbacks.",
+        "common-lesson-memory": "Use when recording a decision, pitfall, or lesson.",
+        "common-patterns": "Use when choosing implementation patterns or abstractions.",
+        "common-performance": "Use when a change touches hot paths, allocations, or performance.",
+        "common-security": "Always apply: security boundaries, unsafe or FFI code, and untrusted input.",
+        "common-testing": "Use when adding or changing tests, or when behavior has no regression guard.",
+        "rust-coding-style": "Use when writing or reviewing Rust code.",
+        "rust-hooks": "Use when editing Rust lifecycle hooks or callbacks.",
+        "rust-patterns": "Use when selecting Rust ownership, error, or iterator patterns.",
+        "rust-security": "Use when Rust code touches unsafe, FFI, or untrusted input.",
+        "rust-testing": "Use when adding or changing Rust tests."
+      },
+      "notes": "CodeBuddy pilot: generated RULE.mdc rules and skills links; MCP reuses the root .mcp.json produced by the project target."
     }
   ]
 }

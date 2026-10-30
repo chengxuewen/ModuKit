@@ -46,6 +46,7 @@ ModuKit-specific skills, located in `.agents/skills/`:
 | `rust-testing` | vendored | unit/integration/property-based/mocking/coverage patterns — vendored from affaan-m/ECC @b92f181b3b74 (MIT, fetched 2026-10-14, re-pull manually) |
 | `security-hardening` | tooling | security audit and hardening |
 | `shipping-and-launch` | process | release and launch checklist |
+| `skill-authoring` | process | project skill authoring contract |
 | `skill-router` | meta | analyze user intent → recommended skill list |
 | `source-driven-development` | process | source-first implementation |
 | `subagent-orchestration` | process | split work across subagents |

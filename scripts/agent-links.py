@@ -72,11 +72,11 @@ def main(argv):
             worst = max(worst, ac.EXIT_FINDINGS)
     if command == "check":
         if worst == ac.EXIT_OK:
-            print("GATE-AGENTS ✓ all layers clean")
+            print("GATE-AGENT-LAYERS ✓ all layers clean")
         elif worst == ac.EXIT_GUARD:
-            print("GATE-AGENTS ✗ guard violation -- nothing written")
+            print("GATE-AGENT-LAYERS ✗ guard violation -- nothing written")
         else:
-            print("GATE-AGENTS ✗ findings -- run: pixi run agent-sync")
+            print("GATE-AGENT-LAYERS ✗ findings -- run: pixi run agent-sync")
     return worst
 
 

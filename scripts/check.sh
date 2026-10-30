@@ -41,6 +41,8 @@ embed-parity
 gate-abi
 capability-ledger
 gate-agents
+gate-rules
+spec-trace
 commit-shape
 gate-docs
 check-promises
@@ -308,6 +310,18 @@ if [ -f scripts/agents-cli.py ]; then
     python3 scripts/agents-cli.py check || { note "FAIL gate-agents"; status=1; }
   fi
 else note "skip gate-agents (no script)"; fi
+
+# leg: gate-rules (B5b): every C/D/PIT citation in .agents/rules resolves to a
+# local entry or the named external allowlist. Always-on when the script exists.
+if [ -f scripts/rule-ref-lint.py ]; then
+  python3 scripts/rule-ref-lint.py || { note "FAIL gate-rules"; status=1; }
+else note "skip gate-rules (no script)"; fi
+
+# leg: spec-trace (B6): every SDD clause has a matching spec: tag on a test, and
+# no tag points outside the five-prefix whitelist. Always-on when the script exists.
+if [ -f scripts/spec-trace.sh ]; then
+  bash scripts/spec-trace.sh || { note "FAIL spec-trace"; status=1; }
+else note "skip spec-trace (no script)"; fi
 
 # leg: C3 commit-shape over the pending (unpushed) range (machine gate, PIT-8)
 # scope note: the 56 pushed legacy subjects (48 pre-C3 + 8 Oct-16 gap; recounted 2026-10-19) subjects stay RED in any wider window by design
