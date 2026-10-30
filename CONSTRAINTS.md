@@ -24,7 +24,7 @@ Single source of truth for the local quality gate. Two parts:
 1. `fmt`
 2. `clippy`
 3. `test`
-4. `c1`
+4. `gate-i18n`
 5. `skill-lint`
 6. `regen-fdset`
 7. `demo-stage1`
@@ -43,10 +43,14 @@ Single source of truth for the local quality gate. Two parts:
 20. `cargo-deny`
 21. `ctest-stage4`
 22. `embed-parity`
-23. `capability-ledger`
-24. `commit-shape`
-25. `doc-liveness`
-26. `numbering`
-27. `lane-table`
-28. `wire-parity`
+23. `gate-abi`
+24. `capability-ledger`
+25. `gate-agents`
+26. `commit-shape`
+27. `gate-docs`
+28. `check-promises`
+29. `numbering`
+30. `lane-table`
+31. `wire-parity`
+32. `gate-mcp`
 <!-- END:ci-gates -->

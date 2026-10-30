@@ -680,6 +680,13 @@ ModuKit anchors:
 - 2026-10-29 probe results: MSRV 1.88.0 (1.85 red on libloading/napi-build); qoder
   rules are native on both `.agents/rules` and `.qoder/rules`; qoder MCP stays
   pending until B1 creates the root `.mcp.json`.
+- 2026-10-30 B3 landed: `check.sh --list` = 32 legs (gate-i18n replaces the C1
+  hand-list; gate-docs absorbs doc-liveness; gate-abi exact 24-symbol set;
+  check-promises narrow phrase lint; gate-mcp/gate-agents wired; ci green 86.59 s).
+  Deviations: gate-docs does not duplicate check-embed-parity (that leg owns the
+  verb list) and omits the prototype-name/package-count/llms-number checks (no
+  claim, or superseded by the exact gate-abi set); gate-abi's C++ demo stays the
+  existing demo-stage4-m1; gate-i18n also scans untracked non-ignored files.
 
 ## Appendix A - Skill triage (37 VE directories + 2 ModuKit-only)
 

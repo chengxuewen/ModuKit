@@ -17,7 +17,7 @@ if [ "${1:-}" = "--list" ]; then
 fmt
 clippy
 test
-c1
+gate-i18n
 skill-lint
 regen-fdset
 demo-stage1
@@ -36,12 +36,16 @@ demo-wave2-plugin-js
 cargo-deny
 ctest-stage4
 embed-parity
+gate-abi
 capability-ledger
+gate-agents
 commit-shape
-doc-liveness
+gate-docs
+check-promises
 numbering
 lane-table
 wire-parity
+gate-mcp
 EOF
   exit 0
 fi
@@ -73,14 +77,10 @@ if [ "$HAS_WS" -eq 1 ]; then
   "${CARGO[@]}" test --workspace || { note "FAIL test"; status=1; }
 else note "skip test (no crates/ workspace)"; fi
 
-# 4. C1 English-artifact gate (canonical pattern+scope verbatim from .agents/memorys/conventions.md;
-#    verdict echo intentionally wrapped into note() helpers - semantics identical; audit F14 note)
-if grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ bindings/ \
-  docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ \
-  $(test -d crates/ && echo crates/); then
-  note "FAIL C1 (violations listed above)"; status=1
-else note "ok C1"; fi
+# 4. artifact-language gate (C1: tracked + untracked, whitelist in the script)
+if [ -f scripts/gate-i18n.sh ]; then
+  bash scripts/gate-i18n.sh || { note "FAIL gate-i18n"; status=1; }
+else note "skip gate-i18n (no script)"; fi
 
 # 5. skill-tree lint
 if command -v python3 >/dev/null 2>&1 && [ -f scripts/skill-lint.py ]; then
@@ -274,11 +274,27 @@ else note "skip ctest-stage4 (no out/build-stage4 tree or no pixi)"; fi
 # per D50; present, it is always-on like doc-liveness.
 bash scripts/check-embed-parity.sh || { note "FAIL embed-parity"; status=1; }
 
+# leg: gate-abi (B3): the core cdylib's exported modukit_* set equals
+# contracts/modukit_embed.h (exact set; the C++ demo run is demo-stage4-m1).
+if [ -f scripts/gate-abi.sh ]; then
+  bash scripts/gate-abi.sh || { note "FAIL gate-abi"; status=1; }
+else note "skip gate-abi (no script)"; fi
+
 # leg: capability ledger (Stage-4 M1 lane #7, plan §4 gate adoption note):
 # every EMBED_VERBS verb has a row in docs/capability-ledger.md; unshipped
 # languages ride the planned column, never a red condition. Always-on like
 # embed-parity; row-grammar contract documented in both files.
 bash scripts/check-capability-ledger.sh || { note "FAIL capability-ledger"; status=1; }
+
+# leg: gate-agents (B2/B3): generated layers match .agents (markers, hub,
+# MCP, CONSTRAINTS). Uses the pixi task when available; plain python3 otherwise.
+if [ -f scripts/agents-cli.py ]; then
+  if command -v pixi >/dev/null 2>&1; then
+    pixi run gate-agents || { note "FAIL gate-agents"; status=1; }
+  else
+    python3 scripts/agents-cli.py check || { note "FAIL gate-agents"; status=1; }
+  fi
+else note "skip gate-agents (no script)"; fi
 
 # leg: C3 commit-shape over the pending (unpushed) range (machine gate, PIT-8)
 # scope note: the 56 pushed legacy subjects (48 pre-C3 + 8 Oct-16 gap; recounted 2026-10-19) subjects stay RED in any wider window by design
@@ -293,9 +309,16 @@ c3_shape=$(git log origin/master..HEAD --format='Subject: %s%nBody: %b%n_END_' 2
 if [ -n "$c3_shape" ]; then printf '%s\n' "$c3_shape" | while IFS= read -r l; do note "FAIL commit-shape: $l"; done; status=1
 else note "ok commit-shape (pending range)"; fi
 
-# leg: doc-liveness (M3S-1 c1 - PORT_NOW survivor, D-ruling 2026-10-19). Always-on once
-# landed: it is a gate of this repo, not an optional tool - no skip-when-absent branch.
-bash scripts/check-doc-refs.sh || { note "FAIL doc-liveness"; status=1; }
+# leg: gate-docs (B3): root CMake purity, PolyOrch gitlink, CLI task names,
+# relative links (delegated to check-doc-refs.sh), book SUMMARY when built.
+if [ -f scripts/gate-docs.sh ]; then
+  bash scripts/gate-docs.sh || { note "FAIL gate-docs"; status=1; }
+else note "skip gate-docs (no script)"; fi
+
+# leg: check-promises (B3): narrow future-tense overclaim lint on user docs.
+if [ -f scripts/check-promises.sh ]; then
+  bash scripts/check-promises.sh || { note "FAIL check-promises"; status=1; }
+else note "skip check-promises (no script)"; fi
 
 # leg: numbering (B0, D109) - the ledger's max D is the only high-water source;
 # every D1-D<n> claim and the architecture section-11 row must match it. The
@@ -316,6 +339,11 @@ bash scripts/check-lane-table.sh || { note "FAIL lane-table"; status=1; }
 if [ -f contracts/modukit_wire.h ] && command -v pixi >/dev/null 2>&1; then
   bash scripts/check-wire-parity.sh || { note "FAIL wire-parity"; status=1; }
 else note "skip wire-parity (no wire ledger header or no pixi)"; fi
+
+# leg: gate-mcp (B1/B3): probe the pinned servers without installing anything.
+if command -v pixi >/dev/null 2>&1; then
+  pixi run gate-mcp || { note "FAIL gate-mcp"; status=1; }
+else note "skip gate-mcp (no pixi)"; fi
 
 if [ "$status" -eq 0 ]; then note "check.sh: all green"; else note "check.sh: RED"; fi
 exit "$status"

@@ -21,14 +21,11 @@ Every file this project produces — code, comments, memory files, markdown docs
 Exception: functional CJK literals that must stay verbatim (trigger keywords in `adjudication-walkthrough`, Chinese chapter-numbering parse data in `book-to-skill`, routing phrases in `skill-router`). `.agents/skills/**` is excluded from the scan; new skills follow the same rule — English prose, verbatim functional literals only.
 
 ```bash
-# Check: no CJK (incl. CJK/full-width punctuation) in scanned artifacts
-grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ bindings/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
-  && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
+# Check: no CJK (incl. CJK/full-width punctuation) in tracked or untracked
+# non-ignored artifacts; .agents/skills/** and dependency trees are skipped.
+bash scripts/gate-i18n.sh
 ```
-# check scope grew with artifact classes: +M1 build files, +contracts/, +examples/,
-# +bindings/ (2026-10-23 doc-audit closed the unguarded Stage-4 shelf; plant-and-
-# observe red with a CJK scratch file under bindings/, removed, re-green - C0).
+# Red/green observed: plant a CJK comment in README.md -> red; remove -> green.
 
 ## C2: "Submodule branch discipline: PolyOrch edits happen on its dev-modukit branch; ModuKit works on master and pins the dev-modukit tip, kept fresh"
 

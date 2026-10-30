@@ -94,9 +94,7 @@ servers). Host layers are GENERATED; never hand-edit them.
 
 ```bash
 # C1 English-artifact gate (canonical copy lives in .agents/memorys/conventions.md - keep synced)
-grep -rInP '[\x{4E00}-\x{9FFF}\x{3000}-\x{303F}\x{FF01}-\x{FF60}]' \
-  AGENTS.md SKILL.md README.md LICENSE-MIT LICENSE-APACHE mise.toml bootstrap.sh bootstrap.bat pixi.toml CMakeLists.txt cmake/ contracts/ examples/ bindings/ docs/ .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ $(test -d crates/ && echo crates/) \
-  && echo "C1 VIOLATION (lines above)" || echo "C1 OK"
+bash scripts/gate-i18n.sh
 
 # full local gate - fast checks incl ALL THIRTEEN demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader + T2 clock + D100 python x2 + D102 js x2 + D106 plugin-py x1 + plugin-js x1
 #   + D104 lane-table/deny legs + RUNNER census + ctest per-name census)
