@@ -10,6 +10,7 @@
 - [modules](docs/modules/00-overview.md) — reading order for the 00-11 deep dives
 - [capability ledger](docs/capability-ledger.md) — embed/plugin verb map
 - [VE-parity plan](docs/ve-parity-plan.md) — non-functional port, B0-B8
+- [agent host plan](docs/agent-host-parity-plan.md) — host links, skill surface
 - [reference roster](docs/reference/README.md) — external project profiles
 - [environment guide](docs/env.md) — pixi, tasks, MCP lifecycle
 - [rustdoc reference](target/doc/modukit_core/index.html) — generated API documentation (pixi run docs-gen)

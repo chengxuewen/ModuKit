@@ -58,6 +58,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | v1 frozen surface (what may NOT break) | architecture §11 D87 row + `docs/stage-2-plan.md` §9 | amendment policy = D83 (tail-add by record, break by hearing) |
 | Dev toolchain | `bootstrap.sh`/`.bat` + `pixi.toml` | ALL cargo/rustfmt/node via `pixi run` (single track since B4; MSRV 1.88) |
 | Environment / tasks / book / MCP | `docs/env.md` | pixi single-track, gate contract, MCP lifecycle, English-only book |
+| Agent host / skill portability | `docs/agent-host-parity-plan.md` | proposed host links and project-skill repairs |
 | SDD clauses / trace | `docs/sdd/` + `scripts/spec-trace.sh` | five index clauses; existing tests are the authority |
 
 ## CODE MAP

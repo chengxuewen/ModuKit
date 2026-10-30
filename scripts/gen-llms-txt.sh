@@ -33,6 +33,7 @@ doc() {
   doc docs/modules/00-overview.md "modules" "reading order for the 00-11 deep dives"
   doc docs/capability-ledger.md "capability ledger" "embed/plugin verb map"
   doc docs/ve-parity-plan.md "VE-parity plan" "non-functional port, B0-B8"
+  doc docs/agent-host-parity-plan.md "agent host plan" "host links, skill surface"
   doc docs/reference/README.md "reference roster" "external project profiles"
   doc docs/env.md "environment guide" "pixi, tasks, MCP lifecycle"
   doc target/doc/modukit_core/index.html "rustdoc reference" "generated API documentation (pixi run docs-gen)"

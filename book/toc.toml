@@ -39,6 +39,12 @@ source = "docs/ve-parity-plan.md"
 type = "explanation"
 visibility = "internal"
 
+[[chapter]]
+title = "Agent Host Plan"
+source = "docs/agent-host-parity-plan.md"
+type = "explanation"
+visibility = "internal"
+
 [[group]]
 title = "Modules"
 type = "explanation"

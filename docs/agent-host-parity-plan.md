@@ -188,8 +188,8 @@ pixi run gate-agents
 ### H4 - Closeout (0.5 day)
 
 - Update `docs/ve-parity-plan.md` B8 status and `docs/env.md` host matrix.
-- Keep this plan internal: add `docs/agent-host-parity-plan.md` to
-  `book-build.INTERNAL_PREFIXES` (or a `visibility = "internal"` toc entry).
+- Keep this plan internal: the `visibility = "internal"` toc entry and llms.txt
+  line landed with this plan (2026-10-30).
 - Record the C5 memory disposition at batch close.
 - Run `pixi run ci`, `agents check`, `skill-lint`, and `gate-docs`.
 - Add a short "how to add a host" section to `skill-authoring` or `docs/env.md`.

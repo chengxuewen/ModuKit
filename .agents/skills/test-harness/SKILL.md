@@ -1,13 +1,13 @@
 ---
 name: test-harness
-description: "Multi-language automated test harness. Generates test skeletons from SDD specs (Rust/TS/Python/C++/C), enforces the AAA pattern, reverse-traces tests to specs, produces coverage reports. Interactive menu-driven. Phase-aware (skips not-yet-ready modules). Use when a module needs a test skeleton from its spec, or coverage must be reported."
+description: "Multi-language automated test harness. Generates test skeletons from ModuKit SDD clauses (Rust/TS/Python/C++/C), enforces the AAA pattern, reverse-traces tests to clauses, produces coverage reports. Interactive menu-driven. Stage-aware (skips not-yet-landed clauses). Use when a module needs a test skeleton from its clause, or coverage must be reported."
 type: tooling
 notes: "SDD to tests harness"
 ---
 
 # Test Harness
 
-Automated test generation and verification for multi-language projects. Test code comes straight out of the SDD specs, with AAA pattern, Phase alignment, and language-idiom consistency guaranteed.
+Automated test generation and verification for multi-language projects. Test code comes straight out of the ModuKit SDD clauses, with AAA pattern, stage alignment, and language-idiom consistency guaranteed.
 
 **Philosophy**: tests are not an afterthought bolted onto finished code — they grow directly from the spec. A good test file = the executable copy of the spec.
 
@@ -19,7 +19,7 @@ Automated test generation and verification for multi-language projects. Test cod
 Pops up the task-type menu:
 
 ```
-[1] SDD→tests — generate test files from specs (stubs / AAA skeletons / fully filled)
+[1] SDD→tests — generate test files from clauses (stubs / AAA skeletons / fully filled)
 [2] tests→spec — reverse tracing (coverage verification / missing scenarios)
 [3] run cases — execute tests and fix failing ones
 [4] incremental tests — produce incremental tests from the current git diff
@@ -136,42 +136,45 @@ Detect the target language automatically from project structure:
 
 #### Step 1: identify spec sources
 
-Scan the `openspec/specs/` directory automatically:
+Scan the `docs/sdd/` directory automatically:
 ```
-openspec/specs/
-├── hal-type-system-spec.md       → 30 items (S-TYPE-*)
-├── hal-qos-spec.md               → 30 items (S-QOS-*)
-├── config-barrier-spec.md        → 24 items (S-CB-*)
-└── hal-protocol-spec.md          → 37 items (S-PROTO-*)
+docs/sdd/
+├── kernel.md       → KERNEL-01 lifecycle states/edges
+├── embed.md        → EMBED-01 24-verb ordered parity
+├── wire.md         → WIRE-01 frame header + wire version
+├── bus.md          → BUS-01 MSG_FORWARD/MSG_DELIVER
+└── transport.md    → TRANSPORT-01 SCM_RIGHTS/CTRUNC
 ```
 
-Let the user choose spec files (single or multi-select).
+Let the user choose clause files (single or multi-select).
 
-#### Step 2: Phase-aware filtering
+#### Step 2: Stage-aware filtering
 
-Read `docs/plans/p0-milestone-roadmap.md` and determine the current Phase:
+Read `status.md`'s `## Phase` paragraph and the landed `docs/stage-*.md` plans.
+The five clauses above are the only current SDD surface; `scripts/spec-trace.sh`
+proves each has a test tag.
 
-| Phase | Usable specs |
+| Stage / volume | Usable clauses |
 |-------|---------|
-| Phase 0 (CI) | type system (S-TYPE) — pure logic, no trait dependencies |
-| Phase 1 (hal-core) | S-TYPE + S-QOS + S-CB + S-PROTO — traits ready |
-| Phase 2+ | everything |
+| Stage 1-3 | KERNEL-01 |
+| Stage 4 / wave-2 | KERNEL-01 + EMBED-01 + WIRE-01 + BUS-01 + TRANSPORT-01, as landed |
+| Future clause | not landed — emit a stub and mark it |
 
-Filter spec items automatically:
-- specs whose Phase isn't ready → mark ⏭️ skipped, emit an explanatory comment
-- priority A (P0) → generate first, fully filled
-- priority B/B+/C → stubs or AAA skeleton
+Filter clause items automatically:
+- clause has a `// spec:` tag (or `# spec:` in a non-Rust test) → generate first, fully filled
+- contract exists but no test tag → AAA skeleton; recommend `spec-trace`
+- future/unlisted clause → stub placeholder with a stage note
 
 #### Step 3: generate test files
 
 For each spec item, generate a test function in the target language:
 
 ```
-input: S-TYPE-001
-  - preconditions: Bool = true / false
-  - operation: encode → decode
-  - expected: true ↔ true, false ↔ false
-  - test mapping: test_type_01_bool_roundtrip
+input: KERNEL-01
+  - preconditions: initial state
+  - operation: spawn → stop
+  - expected: legal state edges only
+  - test mapping: test_kernel_01_lifecycle
 
 output (Rust):
   #[test]
@@ -203,23 +206,24 @@ output (Rust):
 /test-harness trace
 ```
 
-Check existing test coverage, cross-referenced against the SDD specs:
+Check existing test coverage, cross-referenced against the SDD clauses:
 
-1. scan all test files
-2. extract test function names → map to spec IDs (e.g. `test_type_01_*` → S-TYPE-001)
+1. run `bash scripts/spec-trace.sh` to confirm clause→tag pairs
+2. scan all test files; extract clause tags (`// spec: KERNEL-01`, etc.)
 3. produce a coverage matrix:
 
 ```
-Spec ID     | Test function                       | Status
+Clause     | Test function                       | Status
 -----------|------------------------------------|------
-S-TYPE-001 | test_type_01_bool_roundtrip        | ✅
-S-TYPE-002 | test_type_02_s8_roundtrip          | ✅
-S-TYPE-003 | —                                  | ❌ missing
-S-CB-007   | test_cb_07_partial_failure          | ⚠️ incomplete
+KERNEL-01  | exe_spawn_green_walks_full_...      | ✅
+EMBED-01   | plugin_table_field_lists...         | ✅
+WIRE-01    | frame_codec_stamps_the_wire_...     | ✅
+BUS-01     | wall_out_runs_the_same_walk...      | ✅
+TRANSPORT-01 | the_fdpass_shim_round_trips...    | ✅
 ```
 
 4. mark:
-   - ❌ missing → recommend generating from the SDD
+   - ❌ missing → recommend generating from the clause and adding a `// spec:` tag
    - ⚠️ incomplete → boundary conditions uncovered
    - ✅ complete
 
@@ -258,8 +262,8 @@ S-CB-007   | test_cb_07_partial_failure          | ⚠️ incomplete
 Identify changes from `git diff` → generate matching tests:
 
 1. `git diff --name-only` to list changed files
-2. reverse-map files to SDD specs (file path → module → spec ID)
-3. generate incremental tests only for specs related to the changes
+2. reverse-map files to SDD clauses (file path → module → clause ID)
+3. generate incremental tests only for clauses related to the changes
 4. if a changed file has no tests yet → initialize a test file
 (note: Mode 7 runs affected tests; Mode 4 generates incremental tests)
 
@@ -308,17 +312,17 @@ Create test infrastructure for new modules:
 2. aggregate and display per module:
 
 ```
-Module              | Line cov   | Branch cov | Spec coverage
+Module              | Line cov   | Branch cov | Clause coverage
 -------------------|----------|----------|----------
-hal-type-system    | 92%      | 85%      | 28/30
-hal-qos            | 78%      | 71%      | 22/30
-config-barrier     | 65%      | 58%      | 18/24
-hal-protocol       | 88%      | 82%      | 34/37
+modukit-core       | ...      | ...      | KERNEL-01 / EMBED-01 / BUS-01
+modukit-transport  | ...      | ...      | TRANSPORT-01
+modukit-codegen    | ...      | ...      | WIRE-01
+modukit-js         | ...      | ...      | cross-cutting
 ───────────────────|──────────|──────────|────────
-TOTAL              | 81%      | 74%      | 102/121
+TOTAL              | ...      | ...      | 5 clauses
 ```
 
-3. rank the gaps: uncovered spec items / low-branch-coverage functions
+3. rank the gaps: uncovered clause items / low-branch-coverage functions
 4. recommend: the N tests to fill first
 
 ---
@@ -329,7 +333,7 @@ TOTAL              | 81%      | 74%      | 102/121
 /test-harness selective
 ```
 
-> Note: early-Phase crates may still be stubs with no real test targets yet. Mode 7 uses `cargo metadata` to check crate existence before suggesting test commands.
+> Note: early-stage crates may still be stubs with no real test targets yet. Mode 7 uses `cargo metadata` to check crate existence before suggesting test commands.
 Identify changes from `git diff` → run only the affected tests (not a gate; a scheduling tool):
 
 1. `git diff --name-only HEAD` to list changed files
@@ -339,7 +343,7 @@ Identify changes from `git diff` → run only the affected tests (not a gate; a 
 |---|---|
 | `crates/<name>/` | `cargo test -p <name>` |
 | `Cargo.toml` or `Cargo.lock` | `cargo test --workspace` |
-| cross-crate (3+ crates) | `./scripts/qa-fast.sh` |
+| cross-crate (3+ crates) | `bash scripts/check.sh` |
 
 3. run tests (one layer at a time, avoiding cargo lock contention)
 4. report: layer / command / test count / passed / failed / duration
@@ -365,18 +369,18 @@ Execute? [Y/n]
 
 ---
 
-## Phase-aware rules
+## Stage-aware rules
 
-Read `docs/plans/p0-milestone-roadmap.md` automatically to confirm the current milestone.
+Read `status.md`'s `## Phase` paragraph and the current `docs/stage-*.md` plan.
 
 | Checkpoint | Behavior |
 |--------|------|
-| a spec-required trait isn't defined yet | generate a stub or skip; annotate "⏭️ Phase 2" |
-| priority A (P0 must-have) | full fill + assertions |
-| priority B/B+ | AAA skeleton |
-| priority C | stub placeholder |
+| a clause-required trait isn't landed yet | generate a stub or skip; annotate "⏭️ not landed" |
+| clause has a test tag | full fill + assertions |
+| clause exists without a tag | AAA skeleton; recommend `spec-trace` |
+| future/unlisted clause | stub placeholder |
 
-When the Phase changes, re-run `generate` → previously skipped tests get filled automatically.
+When a new clause lands, re-run `generate` → previously skipped tests get filled automatically.
 
 ---
 
@@ -386,9 +390,9 @@ When the Phase changes, re-run `generate` → previously skipped tests get fille
 2. **AAA comments must be explicit** — `// Arrange` / `// Act` / `// Assert` never omitted
 3. **never edit tests to let an implementation pass** — spec > test > implementation (priority order)
 4. **no unwrap/expect** — avoid even in tests; use `assert!(result.is_ok())`
-5. **boundary conditions first** — every entry in the spec's boundary-conditions field → its own test
-6. **traceable naming** — test function name includes the spec ID (e.g. `test_type_01_*`)
-7. **Phase alignment** — never generate tests the current Phase cannot run
+5. **boundary conditions first** — every entry in the clause's boundary-conditions field → its own test
+6. **traceable naming** — test function name includes the clause ID (e.g. `test_kernel_01_*`)
+7. **Stage alignment** — never generate tests the current stage cannot run
 
 ---
 
