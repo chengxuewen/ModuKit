@@ -22,16 +22,16 @@ Read the user message and classify as:
 | Category | Keywords | Default Recommendation |
 |------|--------|---------|
 | **Implementation** | "add" / "implement" / "create" / "modify" | `/think-before-act` + `/test-driven-development` |
-| **Fix** | "fix" / "bug" / "error" / "not working" | `/systematic-debugging` |
-| **Refactor** | "refactor" / "optimize" / "simplify" / "clean up" | `/think-before-act` + `/remove-ai-slops` |
-| **Design** | "design" / "architecture" / "approach" / "how to" | `/brainstorming` + `/openspec-propose` |
-| **Test** | "test" / "E2E" / "coverage" | `/test-driven-development` + `/playwright` |
+| **Fix** | "fix" / "bug" / "error" / "not working" | `/debugging-and-error-recovery` |
+| **Refactor** | "refactor" / "optimize" / "simplify" / "clean up" | `/think-before-act` + `/ai-slop-cleanup` |
+| **Design** | "design" / "architecture" / "approach" / "how to" | `/think-before-act` + `/api-interface-design` |
+| **Test** | "test" / "E2E" / "coverage" | `/test-driven-development` + `/test-harness` |
 | **Adjudication** | "裁决逐项过" / "一个个来" / "decide between options" / "walk the options" | `/adjudication-walkthrough` |
 | **Audit** | "audit" / "review repo" / "docs drift" / "scan ecosystem" | `/doc-audit` for docs/decisions; `/repo-audit` for whole-repo engineering |
 | **Authoring** | "new skill" / "add a skill" / "skill registry" | `/skill-authoring` |
 | **Docs** | "docs" / "README" / "documentation" | `/doc-audit` |
-| **Security** | "security" / "permissions" / "auth" | `/security-review` |
-| **Exploration** | "research" / "compare" / "what options" | `/repo-audit` + librarian agent |
+| **Security** | "security" / "permissions" / "auth" | `/security-hardening` |
+| **Exploration** | "research" / "compare" / "what options" | `/repo-audit` + `/doc-audit` |
 | **Ambiguous** | No clear keywords | Propose 2-3 possible directions, let user choose |
 
 ### Step 2: Context Check
@@ -81,7 +81,6 @@ Confirmed: loading /think-before-act skill...
 - **skill-router**: explicit invocation (when the user asks "how should I do this" or intent is ambiguous, performs deep analysis and recommendation)
 
 - **context-engineering**: passive trigger (auto-recommends when scenarios are detected, via the AGENTS.md directory table)
-- **skill-router**: active invocation (when user asks "how should I do this" or intent is ambiguous, performs deep analysis and recommendation)
 
 Complementary: passive matching handles clear scenario hits, skill-router handles ambiguous intent and multi-skill combinations. The full inventory lives in the root `SKILL.md` registry.
 

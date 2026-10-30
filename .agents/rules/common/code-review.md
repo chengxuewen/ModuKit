@@ -31,14 +31,14 @@ Before marking code complete:
 - [ ] Files &lt;800 lines: verify with `wc -l` on changed files
 - [ ] No deep nesting (&gt;4 levels): check indent depth in diff
 - [ ] Errors handled explicitly: `grep -c 'unwrap()'` must be 0 in changed .rs
-- [ ] No hardcoded secrets: run the secret grep from `security.md` Runnable Check, or `/security-review`
+- [ ] No hardcoded secrets: run the secret grep from `security.md` Runnable Check, or `/security-hardening`
 - [ ] No dbg!/console.log: `grep -r 'dbg!(' crates/` must return 0
 - [ ] Tests exist: `cargo test --workspace`
 - [ ] Coverage against the current gate (D79/D90): `pixi run -e cov cargo llvm-cov` - 80% hard at stage boundaries, D84 boundary-exclusions apply
 
 ## Security Review Triggers
 
-**STOP and use security-reviewer agent when:**
+**STOP and use the security-hardening skill when:**
 
 - Authentication or authorization code
 - User input handling
@@ -59,15 +59,13 @@ Before marking code complete:
 
 ## Agent Usage
 
-Use these agents for code review:
+Use these project skills for code review:
 
-| Agent | Purpose |
+| Skill | Purpose |
 |-------|---------|
-| **code-reviewer** | General code quality, patterns, best practices |
-| **security-reviewer** | Security vulnerabilities, OWASP Top 10 |
-| **typescript-reviewer** | TypeScript/JavaScript specific issues |
-| **python-reviewer** | Python specific issues |
-| **go-reviewer** | Go specific issues |
+| **code-review-and-quality** | General code quality, patterns, best practices |
+| **security-hardening** | Security vulnerabilities, OWASP Top 10 |
+| **rust-engineering** | Rust-specific review, ownership, and unsafe boundaries |
 | **rust-reviewer** | Rust specific issues |
 
 ## Review Workflow

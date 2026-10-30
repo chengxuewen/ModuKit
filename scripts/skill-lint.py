@@ -26,6 +26,9 @@ MAX_DESC = 1024
 MAX_LINES = 800
 SKILL_REL = "SKILL.md"
 REF_RE = re.compile(r"@((?:\./)?[A-Za-z0-9_][A-Za-z0-9_./-]*\.(?:md|py|sh|json|toml|yaml|yml|cjs|mjs|js|ts|txt))")
+SKILL_REF_RE = re.compile(r"See skill:\s*`([a-z0-9-]+)`")
+CMD_REF_RE = re.compile(r"`(/[a-z0-9-]+)`")
+EXTERNAL_COMMANDS = {"brainstorming", "systematic-debugging"}
 
 findings = []  # (severity, skill, message)
 
@@ -94,6 +97,31 @@ def check_skill(skill_dir):
     return name
 
 
+def check_references(names):
+    """Mounted rules and skill-router must only name real skills/commands."""
+    for pack in ("common", "rust"):
+        base = os.path.join(".agents", "rules", pack)
+        if not os.path.isdir(base):
+            continue
+        for dirpath, _dirnames, filenames in os.walk(base):
+            for filename in sorted(filenames):
+                if not filename.endswith(".md"):
+                    continue
+                path = os.path.join(dirpath, filename)
+                for lineno, line in enumerate(open(path, encoding="utf-8", errors="replace").read().split("\n"), 1):
+                    for ref in SKILL_REF_RE.findall(line):
+                        if ref not in names:
+                            rel = os.path.relpath(path)
+                            findings.append(("FAIL", "refs", f"{rel}:{lineno}: See skill `{ref}` unresolved"))
+    router = os.path.join(".agents", "skills", "skill-router", "SKILL.md")
+    if os.path.isfile(router):
+        for lineno, line in enumerate(open(router, encoding="utf-8", errors="replace").read().split("\n"), 1):
+            for ref in CMD_REF_RE.findall(line):
+                name = ref[1:]
+                if name not in names and name not in EXTERNAL_COMMANDS:
+                    findings.append(("FAIL", "refs", f"{router}:{lineno}: command `{ref}` unresolved"))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--skills", default=".agents/skills")
@@ -116,6 +144,8 @@ def main():
         for n in names:
             if n not in reg:
                 findings.append(("FAIL", n, f"not mentioned in registry {args.registry}"))
+
+    check_references(set(names))
 
     fails = [f for f in findings if f[0] == "FAIL"]
     for sev, skill, msg in findings:

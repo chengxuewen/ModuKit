@@ -9,6 +9,7 @@ Rules are part of the `.agents/` directory, organized into a **common** layer pl
 │   ├── code-review.md
 │   ├── coding-style.md
 │   ├── constraints.md
+│   ├── docker.md          # on-demand; excluded from opencode instructions[]
 │   ├── development-workflow.md
 │   ├── edit-safety.md
 │   ├── hooks.md
@@ -40,7 +41,7 @@ Rules are project-local and read directly by the AI assistant from `.agents/rule
 ## Rules vs Skills
 
 - **Rules** define standards, conventions, and checklists that apply broadly (e.g., the staged coverage gate D50, "no hardcoded secrets").
-- **Skills** (`skills/` directory) provide deep, actionable reference material for specific tasks (e.g., `python-patterns`, `golang-testing`).
+- **Skills** (`skills/` directory) provide deep, actionable reference material for specific tasks (e.g., `rust-patterns`, `rust-testing`). Unmounted language packs may name skills that are not installed; those references are inactive.
 
 Language-specific rule files reference relevant skills where appropriate. Rules tell you *what* to do; skills tell you *how* to do it.
 

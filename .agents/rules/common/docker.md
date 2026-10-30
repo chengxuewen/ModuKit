@@ -5,7 +5,7 @@ paths:
 
 # Docker & Network Constraints
 
-> Topic file, loaded on demand (not in opencode.json instructions). Docker, network, and container-specific constraints for VisiaEngine development.
+> Topic file, loaded on demand (not in opencode.json instructions). Docker, network, and container-specific constraints for ModuKit development.
 
 > **Rust→C delivery note (2026-09-11 FFI research)**: musl/embedded targets default to `crt-static` → no cdylib can be produced; `-C target-feature=-crt-static` is required (evidenced in cargo-c troubleshooting); takes effect on the RK3588/Jetson cross rounds.
 

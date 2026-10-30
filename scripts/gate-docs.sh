@@ -4,6 +4,7 @@
 #   2 PolyOrch gitlink three-way (pin == HEAD, branch not detached, pin published)
 #   3 CLI task names referenced by ./modukit.sh exist in pixi.toml
 #   3c front-door book output claim matches the B6 build root (build/book/en)
+#   3d opencode plugin URLs are not the malformed https:/ shape
 #   4 relative links (delegated to check-doc-refs.sh)
 #   5 book SUMMARY entries resolve when build/book-src exists
 # Owned elsewhere: header-vs-extern (check-embed-parity.sh); package/llms counts
@@ -79,6 +80,11 @@ if [ -f pixi.toml ]; then
   done
   if grep -q 'output in www/' pixi.toml 2>/dev/null; then
     echo "GATE-DOCS ✗ pixi.toml book comment still says www/"
+    fail=1
+  fi
+  # 3d) plugin specs must not contain the malformed https:/ URL shape.
+  if grep -qE 'https:/[^/]' .opencode/opencode.json 2>/dev/null; then
+    echo "GATE-DOCS ✗ .opencode/opencode.json has a malformed https:/ plugin URL"
     fail=1
   fi
 fi
