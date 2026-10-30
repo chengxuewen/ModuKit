@@ -59,6 +59,14 @@ if [ -f pixi.toml ]; then
     echo "GATE-DOCS ✗ './modukit.sh $name' is neither a pixi.toml task nor a known env executable"
     fail=1
   done
+  # 3b) the shell and batch front doors must advertise the same task set.
+  sh_adv=$(grep -ohE '\./modukit\.sh[[:space:]]+[a-z0-9-]+' modukit.sh 2>/dev/null | awk '{print $2}' | grep -v '^-' | sort -u)
+  bat_adv=$(grep -ohE 'modukit\.bat[[:space:]]+[a-z0-9-]+' modukit.bat 2>/dev/null | awk '{print $2}' | grep -v '^-' | sort -u)
+  if [ -n "$sh_adv" ] && [ -n "$bat_adv" ] && ! diff -q <(printf '%s\n' "$sh_adv") <(printf '%s\n' "$bat_adv") >/dev/null; then
+    echo "GATE-DOCS ✗ modukit.sh/.bat advertised task sets differ"
+    diff <(printf '%s\n' "$sh_adv") <(printf '%s\n' "$bat_adv") || true
+    fail=1
+  fi
 fi
 
 # 4 relative links (one owner: check-doc-refs.sh)
@@ -71,7 +79,7 @@ if [ -f build/book-src/SUMMARY.md ]; then
   while IFS= read -r dest; do
     chapters=$((chapters + 1))
     [ -e "build/book-src/$dest" ] || { echo "GATE-DOCS ✗ SUMMARY points at a missing file: $dest"; fail=1; }
-  done < <(grep -oE '^- \[[^]]*\]\([^)]+\)' build/book-src/SUMMARY.md | sed -E 's/.*\]\(([^)]+)\)$/\1/')
+  done < <(grep -oE '^[[:space:]]*- \[[^]]*\]\([^)]+\)' build/book-src/SUMMARY.md | sed -E 's/.*\]\(([^)]+)\)$/\1/')
   if [ -f build/book-src/web/graph.md ]; then
     grep -q 'src="graph-view.html"' build/book-src/web/graph.md \
       || { echo "GATE-DOCS ✗ graph chapter no longer embeds graph-view.html"; fail=1; }
