@@ -66,7 +66,8 @@ it by `scripts/constraints-index.py` (do not hand-edit that region).
 The named gates:
 
 - `gate-docs`: root CMake purity, PolyOrch gitlink three-way, CLI task names,
-  relative links (delegated to `check-doc-refs.sh`), book SUMMARY when built.
+  front-door book output path (`build/book/en`), relative links (delegated to
+  `check-doc-refs.sh`), book SUMMARY when built.
 - `gate-rules`: every C/D/PIT citation in `.agents/rules` resolves to a local
   entry or the external allowlist.
 - `spec-trace`: every SDD clause has a matching `spec:` test tag, and every tag

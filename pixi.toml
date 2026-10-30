@@ -89,7 +89,7 @@ serena-agent = "==2.1.0"
 [feature.serena.tasks]
 mcp-serena = "serena start-mcp-server --transport stdio --context claude-code --language-backend LSP --project \"$PIXI_PROJECT_ROOT\""
 
-# Book toolchain for the human-facing docs site (book/, output in www/).
+# Book toolchain for the human-facing docs site (book/, output in build/).
 [feature.book.dependencies]
 markdownlint-cli = ">=0.45,<1"
 mdbook = ">=0.5,<0.6"

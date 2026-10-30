@@ -26,7 +26,7 @@ common:
   ./modukit.sh gate-agents     single-source consistency gate
   ./modukit.sh ci              the whole local gate
 
-docs (the book, output in www/book/en):
+docs (the book, output in build/book/en):
   ./modukit.sh book-build      build the site (--public drops internal pages)
   ./modukit.sh book-serve      serve it on :3000 and rebuild on change
   ./modukit.sh book-check      static checks on the built site

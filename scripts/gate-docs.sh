@@ -3,6 +3,7 @@
 #   1 root CMake purity (<= 120 lines; no compile rules except ALIAS)
 #   2 PolyOrch gitlink three-way (pin == HEAD, branch not detached, pin published)
 #   3 CLI task names referenced by ./modukit.sh exist in pixi.toml
+#   3c front-door book output claim matches the B6 build root (build/book/en)
 #   4 relative links (delegated to check-doc-refs.sh)
 #   5 book SUMMARY entries resolve when build/book-src exists
 # Owned elsewhere: header-vs-extern (check-embed-parity.sh); package/llms counts
@@ -65,6 +66,19 @@ if [ -f pixi.toml ]; then
   if [ -n "$sh_adv" ] && [ -n "$bat_adv" ] && ! diff -q <(printf '%s\n' "$sh_adv") <(printf '%s\n' "$bat_adv") >/dev/null; then
     echo "GATE-DOCS ✗ modukit.sh/.bat advertised task sets differ"
     diff <(printf '%s\n' "$sh_adv") <(printf '%s\n' "$bat_adv") || true
+    fail=1
+  fi
+  # 3c) the front-door book output claim must match the B6 build root.
+  for front in modukit.sh modukit.bat; do
+    if grep -q 'www/book' "$front" 2>/dev/null; then
+      echo "GATE-DOCS ✗ $front still advertises www/book; B6 writes build/book"
+      fail=1
+    fi
+    grep -q 'build/book/en' "$front" 2>/dev/null \
+      || { echo "GATE-DOCS ✗ $front does not advertise build/book/en"; fail=1; }
+  done
+  if grep -q 'output in www/' pixi.toml 2>/dev/null; then
+    echo "GATE-DOCS ✗ pixi.toml book comment still says www/"
     fail=1
   fi
 fi

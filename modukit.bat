@@ -40,7 +40,7 @@ echo   modukit.bat agents check    verify every generated layer ^(non-zero on dr
 echo   modukit.bat gate-agents     single-source consistency gate
 echo   modukit.bat ci              the whole local gate
 echo.
-echo docs (the book, output in www/book/en):
+echo docs (the book, output in build/book/en):
 echo   modukit.bat book-build      build the site ^(--public drops internal pages^)
 echo   modukit.bat book-serve      serve it on :3000 and rebuild on change
 echo   modukit.bat book-check      static checks on the built site

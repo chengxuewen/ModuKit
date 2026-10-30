@@ -44,8 +44,9 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 ## Repo Audit
 
 - 2026-10-30 Quick (post-B8): 10/10 local checks; scripts syntax clean, no
-  case/EOL findings; 36 gates, 41 skills, book 74. One MEDIUM: `www/book/en`
-  stale in `modukit.sh`/`.bat` and `pixi.toml` (actual `build/book/en`). B8 layer
+  case/EOL findings; 36 gates, 41 skills, book 74. One MEDIUM fixed: www/book/en
+  was stale in `modukit.sh`/`.bat` and `pixi.toml` (actual `build/book/en`);
+  `gate-docs` 3c now asserts the front-door claim. B8 layer
   generated (18 rules / 41 skills); H3 restart probe pending. Full 2026-10-30
   record: HIGH fixed (shipping-pack-check, test-harness, README); gate-mcp O5 WARN.
 
