@@ -168,6 +168,11 @@ pre-existing ModuKit skills were kept local and not re-copied. `book-to-skill`
 stays ModuKit's richer version; `rust-patterns` / `rust-testing` stay
 ModuKit-only; `review-hardcode` is a deprecated alias.
 
+Rules: the B5 three-way review (PolyOrch ancestor / ModuKit / VE) found VE's net
+additions either already present as generic lessons or VE-specific (testing
+tiers, model table, CodeBuddy/Trae host layers). Only `common/docker.md` was
+copied (verbatim, unmounted) and the dangling VE `PIT-98` citation was stripped.
+
 ### Not adopted
 
 - Functional code and contracts (`crates/`, `contracts/`, `bindings/` implementations).
@@ -205,6 +210,9 @@ ModuKit-only; `review-hardcode` is a deprecated alias.
 | `.agents/skills/subagent-orchestration/` | same | adapt (frontmatter metadata) | B5 |
 | `.agents/skills/test-driven-development/` | same | adapt (frontmatter metadata) | B5 |
 | `.agents/skills/test-harness/` | same | adapt (SDD namespaces) | B5 |
+| `.agents/rules/common/docker.md` | same | verbatim (unmounted) | B5 |
+| `.agents/rules/common/edit-safety.md` | same | three-way review (PIT-98 stripped) | B5 |
+| `.agents/rules/common/constraints.md` | same | adapt (docker pointer) | B5 |
 
 The root `NOTICE` carries VE's copyright line; commit bodies name
 `VE <path> @ <commit>`.

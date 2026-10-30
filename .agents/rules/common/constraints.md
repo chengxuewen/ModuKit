@@ -1,5 +1,8 @@
 # Development Constraints
 
+> Docker/network constraints are on demand: [docker.md](docker.md). This file is
+> not mounted in `instructions[]`; load it only when a container workflow is in play.
+
 
 ## Git Commit Rules
 

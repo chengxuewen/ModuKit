@@ -719,6 +719,12 @@ ModuKit anchors:
   alias; the five `openspec-*` are inoperative. `type`/`notes` frontmatter is the
   registry source (39 rows); `gate-skills` added; AGENTS.md 20.7 KB; ci green in
   89.38 s. B5b owns the three-way rules diff and rule-ref-lint.
+- 2026-10-30 B5b: three-way rules review (PolyOrch ancestor / ModuKit / VE) found
+  VE's net additions already present as generic lessons or VE-specific (testing
+  tiers, model table, CodeBuddy/Trae host layers); only `common/docker.md` was
+  copied (verbatim, unmounted), the dangling VE `PIT-98` was stripped, and the
+  constraints file gained the docker pointer. `rule-ref-allowlist.txt` records 12
+  external anchors; `rule-ref-lint.py` self-test red/green and `gate-rules` added.
 - 2026-10-30 B3 landed: `check.sh --list` = 32 legs (gate-i18n replaces the C1
   hand-list; gate-docs absorbs doc-liveness; gate-abi exact 24-symbol set;
   check-promises narrow phrase lint; gate-mcp/gate-agents wired; ci green 86.59 s).

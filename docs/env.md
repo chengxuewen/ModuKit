@@ -42,6 +42,7 @@ source pixi.sh         # daily shell activation
 | `ci` | Alias for `bash scripts/check.sh` (the same script CI runs). |
 | `agents` / `agent-sync` | Regenerate every agent layer from `.agents/`. |
 | `gate-agents` | Verify the generated layers (markers, hub budget, MCP, constraints). |
+| `gate-rules` | C/D/PIT citation liveness (local entries + the external allowlist). |
 | `mcp setup/status/index/sync` | Install/verify pins, show versions, rebuild indexes. |
 | `docs-gen` | Regenerate the committed `llms.txt`. |
 | `cmake-smoke` | Full cold configure/build/ctest + two negative paths (`ci` runs configure-only). |

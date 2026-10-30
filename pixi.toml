@@ -93,6 +93,7 @@ agents = "python scripts/agents-cli.py"
 agent-sync = "python scripts/agents-cli.py sync"
 gate-agents = "python scripts/agents-cli.py check"
 gate-skills = "python scripts/skills-index.py check"
+gate-rules = "python scripts/rule-ref-lint.py"                     # C/D/PIT citations resolve or are allowlisted
 
 [environments]
 default = { features = ["tools", "rust", "mcp", "agents"], solve-group = "base" }

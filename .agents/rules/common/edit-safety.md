@@ -208,9 +208,9 @@ grep -c "duplicate-pattern" <file>    # expect 1; >1 = edit inserted duplicates
 
 **Blocking condition**: Retrying by splicing partial tags from error output without re-read; not doing syntax validation after JSON replacement.
 
-### 14. Repo-level renames/batch edits are agent concurrency no-go zones (PIT-98)
+### 14. Repo-level renames/batch edits are agent concurrency no-go zones (VE edit-safety batch-edit round)
 
-**Rule**: When subagents are running (background task hasn't received completion notification), **forbidden** to execute repo-level renames, cross-file batch replacements, or `git checkout/restore` directory-level operations. Subagents may: (1) later commits overwrite/restore working tree (git checkout restoring "contamination" wipes out the orchestrator's uncommitted changes — PIT-98 proved 10 file renames wiped out entirely); (2) continue coding on stale content producing conflict merges.
+**Rule**: When subagents are running (background task hasn't received completion notification), **forbidden** to execute repo-level renames, cross-file batch replacements, or `git checkout/restore` directory-level operations. Subagents may: (1) later commits overwrite/restore working tree (git checkout restoring "contamination" wipes out the orchestrator's uncommitted changes — the VE batch-edit round proved 10 file renames wiped out entirely); (2) continue coding on stale content producing conflict merges.
 
 **Verification**: After rename/batch replacement, `grep -rc "<old pattern>" <scope>` must be 0 + binary-level verification (`readelf --dyn-syms` symbol names); before redo, confirm `git log` is still + no background tasks.
 
