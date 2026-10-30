@@ -1,5 +1,12 @@
 # ModuKit — History Archive
 
+## 2026-10-30 - status Phase offload (B2 housekeeping)
+
+- The Phase paragraph below was moved verbatim from status.md to keep it under
+  the 8,000-byte cap. status.md now carries a summary pointing here.
+
+> Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-29: D1-D109 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`, all walked one by one; queue EMPTY, remainder trigger-gated. **STAGE-1 COMPLETE 2026-10-16**: M1-M8 + M8.5 lanes + M8.6 shelves all landed (shelves per rulings F+B) - evidence per-milestone in `docs/stage-1-plan.md`. C2 + PIN POLICY live in conventions.md (pin `f8f85db`; IDE pixi-cmake via .vscode, PIT-7). **STAGE-2 ACCEPTED AND CLOSED 2026-10-18**; **STAGE-3 ACCEPTED 2026-10-19 (D91)**: plan `docs/stage-2-plan.md` (Momus OKAY; kickoff A1-A7 -> D74-D81; M1-M5 landed incl. wire dial, vendor-shm, modukit-host, dual demo); freeze hearing 8 rulings -> D82-D88: **v1 surfaces STABLE (D87)**, v2 verbs PLANNED (D82); amendment policy live (D83). **STAGE-3 CLOSED 2026-10-19 (D91)**; **STAGE-4 INFRA volume: C/C++ bindings M1+M2 CLOSED 2026-10-20, ruled in as D93; volume ACCEPTED AND CLOSED 2026-10-21 (D95)** — plan `docs/stage-4-plan.md`; wave-2 OPENED 2026-10-21 (D94, rulings A/A/A): **M3 door LANDED same day** (fidelity now gated); §12 APPLIED at D95. Wave-2 since: v2 bus LANDED (D96 N1+N2) + debug-reader face LANDED (D97) + closeout LANDED (D98) + CLOCK HEARING DRAWN (D99 six rulings; T1 door + T2 crossing LANDED 2026-10-22) + PYTHON VOLUME ACCEPTED (D100/D101; boundary all >= 80) + JS VOLUME ACCEPTED (D102/D103) + BENCHMARK VOLUME ACCEPTED (D104/D105; debts plan §7) + PLUGIN-DOOR VOLUME ACCEPTED (D107) + WAVE-3 PARENT-PUSH HEARING DRAWN (D108 2026-10-27: five-A; plan next) + VE-PARITY PLAN DRAWN (D109 2026-10-29: 16 adjudications; B0-B8). Kernel v0 parked.
+
 ## 2026-10-27 - parent-push hearing drawn (D108, five-A)
 
 - Five adjudications walked one by one: bus-level publish hook (single

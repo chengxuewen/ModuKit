@@ -77,8 +77,13 @@ serena-agent = "==2.1.0"
 [feature.serena.tasks]
 mcp-serena = "serena start-mcp-server --transport stdio --context claude-code --language-backend LSP --project \"$PIXI_PROJECT_ROOT\""
 
+[feature.agents.tasks]
+agents = "python scripts/agents-cli.py"
+agent-sync = "python scripts/agents-cli.py sync"
+gate-agents = "python scripts/agents-cli.py check"
+
 [environments]
-default = { features = ["tools", "rust", "mcp"], solve-group = "base" }
+default = { features = ["tools", "rust", "mcp", "agents"], solve-group = "base" }
 # cov rides its own solve group: the default build env resolution stays untouched.
 cov = { features = ["rust", "cov"] }
 serena = { features = ["serena"] }

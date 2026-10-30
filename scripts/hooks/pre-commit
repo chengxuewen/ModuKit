@@ -1,0 +1,22 @@
+#!/bin/sh
+# Pre-commit: keep generated host-config layers in sync with the .agents/ single source.
+# Regenerates .codebuddy/* (gitignored), .opencode/opencode.json and the AGENTS.md memory
+# region (both tracked); re-stages the tracked generated files so the commit carries the
+# regenerated version; then verifies with gate-agents (blocks the commit on drift/guard).
+set -e
+cd "$(git rev-parse --show-toplevel)"
+export PATH="$HOME/.pixi/bin:$PATH"
+if ! command -v pixi >/dev/null 2>&1; then
+  echo "pre-commit: pixi not found on PATH; skipping agent-sync (commit proceeds un-synced)"
+  exit 0
+fi
+pixi run agents sync
+# Stage every tracked generated artefact from the ONE list in agent-targets.json.
+# A hand-written add-list drifted once: .mcp.json / CONSTRAINTS.md were rewritten
+# by the generators but never staged, so the commit carried the stale shape.
+generated=$(python3 -c 'import json; print("\n".join(json.load(open("scripts/agent-targets.json"))["generated_tracked"]))' 2>/dev/null || true)
+printf '%s\n' "$generated" | while IFS= read -r path; do
+  [ -n "$path" ] || continue
+  git add -- "$path" 2>/dev/null || true
+done
+pixi run agents check

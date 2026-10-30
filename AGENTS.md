@@ -67,6 +67,21 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 - **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
 - `Cargo.lock` commits with `Cargo.toml`.
 
+## AGENT CONFIG (single source)
+
+Agent configuration has ONE source: `.agents/` (rules, skills, memory files, MCP
+servers). Host layers are GENERATED; never hand-edit them.
+
+- Edit `.agents/rules/`, `.agents/skills/`, `.agents/memorys/`, `.agents/mcp.json`.
+- Regenerate with `pixi run agents sync`; verify with `pixi run agents check`
+  (`gate-agents`).
+- Generated tracked files: the `AGENTS.md` skills/memory regions, `CONSTRAINTS.md`,
+  `.mcp.json`, `.opencode/opencode.json` `mcp{}`, `SKILL.md` registry.
+- A new host enters through `scripts/agent-targets.json` only after a discovery
+  probe; never copy the trees.
+- The pre-commit hook runs sync + gate; `--no-verify` is not allowed for config
+  changes.
+
 ## ANTI-PATTERNS (THIS PROJECT)
 
 - Treating `compositor` / unshipped crate names as existing code — D87 froze what exists; v2 verbs are SIGNAGE (D82).
@@ -121,3 +136,109 @@ pixi run cmake --preset default && pixi run cmake --build --preset default
 - Dangling-refs family: full list re-hung to Stage-3 M3S-1 via backlog dispositions 2026-10-19; rust-patterns vendored, python/golang-testing pointers still open.
 - plugins/ shelf: grammar-reserved, NOT created empty (ruling F+B); first production plugin opens it with its landing.
 - License decided (D1: MIT OR Apache-2.0); domain guidance `modukit.dev` / `modukit.rs`.
+
+<!-- BEGIN:skills-directory -->
+
+## SKILL DIRECTORY (generated -- edit .agents/skills/*, not this block)
+
+| Skill | Purpose |
+|-------|---------|
+| `adjudication-walkthrough` | one-at-a-time adjudication protocol. |
+| `book-to-skill` | Converts books and documents (PDF, EPUB, D... |
+| `doc-audit` | Audit this repository's documentation and... |
+| `ecosystem-scan` | Audit the .agents/ system and scan the com... |
+| `lesson-review` | Batch session review: systematically extra... |
+| `openspec-apply-change` | Implement tasks from an OpenSpec change. |
+| `openspec-archive-change` | Archive a completed change in the experime... |
+| `openspec-sync-specs` | Sync delta specs from a change to main specs. |
+| `rust-patterns` | Idiomatic Rust patterns, ownership, error... |
+| `rust-testing` | Rust testing patterns including unit tests... |
+| `skill-router` | Analyze user intent and output a recommend... |
+| `think-before-act` | Meta-constraint: investigate before acting... |
+<!-- END:skills-directory -->
+
+<!-- BEGIN:agents-memory -->
+
+## AGENT MEMORY (generated digest -- full text in `.agents/memorys/*.md`, read on demand)
+
+This region is a NAVIGABLE DIGEST: one bullet per entry plus a pointer to the full
+file. Read the source file before acting on a rule you are unsure about.
+
+### backlog
+- full text: `.agents/memorys/backlog.md`
+- Done (anchor, so future sessions do not re-propose)
+- Pending
+- Not this track (cross-reference only — Stage-1 triggers)
+- Maintenance
+- Doc-audit 2026-10-19 dispositions (ruled one by one, clusters D+F)
+
+### conventions
+- full text: `.agents/memorys/conventions.md`
+- C0: "Constraints must be executable"
+- C1: "All artifacts English; chat follows the user"
+- C2: "Submodule branch discipline: PolyOrch edits happen on its dev-modukit branch; ModuKit works on master and pins the dev-modukit tip, kept fresh"
+- C3: "Commit shape: subject under 60 chars, details as wrapped bullets in the body"
+- C4: "No circled-number glyphs; enumerate as 1) 2) 3); option labels A/B/C - never the Classical numerals - in replies and artifacts"
+- Adding conventions
+
+### decisions
+- full text: `.agents/memorys/decisions.md`
+- ... 84 older entries omitted (read the full file)
+- D85: dictionary amendment - supervision domain, tags 23-27 (2026-10-18)
+- D86: door-front cleanup - hint() paid, probe posture promoted to rule (2026-10-18)
+- D87: freeze declaration - v1 STABLE, v2 PLANNED (2026-10-18)
+- D88: Stage-2 accepted and closed (2026-10-18)
+- D89: Stage-3 kickoff adjudicated one by one - K1-K7 (2026-10-18)
+- D90: the D84 hook is LIFTED - both debt crates cleared at re-measurement (2026-10-18)
+- D91: Stage-3 ACCEPTED and closed (2026-10-19)
+- D92: Static-placement blueprint adjudicated one by one - armed as roadmap candidate, trigger-gated (2026-10-19)
+- D93: Stage-4 INFRA volume adjudicated and shipped through M2 - in-ledger at audit time, not at minting time (2026-10-21)
+- D94: Wave-2 opened by maintainer word - the service-call door on the sup face, walked three-by-A (2026-10-21)
+- D95: Stage-4 INFRA volume ACCEPTED AND CLOSED - DoD four-for-four, §12 amendment applied (2026-10-21)
+- D96: v2 bus hearing held - signatures drawn six-by-A; mailbox door, transparent wall (2026-10-21)
+- D97: wave-2 debug-reader door adjudicated one-by-one (A,A,A,A,B) - minimal face LANDED same day (2026-10-21)
+- D98: wave-2 closeout - reader leg promoted into check.sh (red observed) + cold-census coverage canon, core debt CLEARED (2026-10-21)
+- D99: CLOCK hearing held - six rulings (B,A,A,A,A,A) drawn; v3 door, schedule+now, bell-on-bus, wall asymmetry named (2026-10-21)
+- D100: Python bindings hearing held - four rulings (A,A,A,A) drawn; generated-ctypes floor, full 24-verb scope, five-gate parity, core cdylib (2026-10-22)
+- D101: Python bindings volume ACCEPTED - four-point DoD green; first boundary run on the pinned recipe (2026-10-23)
+- D102: JS bindings hearing held - four rulings (A,A,A,A) drawn; face-2 scope, generated napi bridge behind a probe, six gates, workspace crate (2026-10-23)
+- D103: JS bindings volume ACCEPTED - four-point DoD green; modukit-js classified bin-like metric-exempt (2026-10-23)
+- D104: MediaServo benchmark - discipline tier adopted wholesale; delivery plane stays trigger-gated (2026-10-23)
+- D105: Benchmark volume ACCEPTED - discipline tier landed, same-day audit swept (2026-10-23)
+- D106: Plugin-door hearing adjudicated one-by-one (C,A,A,A) - wire-native language plugins; embed road armed (2026-10-23)
+- D107: Plugin-door volume ACCEPTED - script plugins speak the published wire in python and node (2026-10-27)
+- D108: Parent-push hearing adjudicated (A,A,A,A,A) - bus-level pump hook; bell gate retired (2026-10-27)
+- D109: Non-functional surface adopts the VisiaEngine shape (2026-10-29)
+
+### history-archive
+- full text: `.agents/memorys/history-archive.md`
+- ... 24 entries omitted (read the full file)
+
+### pitfalls
+- full text: `.agents/memorys/pitfalls.md`
+- ... 17 older entries omitted (read the full file)
+- PIT-18: the first consumer's dialect becomes the universal law in disguise (2026-10-20, protobuf landmine)
+- PIT-19 (trivial): probe printed its success line unconditionally over four FAILs (2026-10-20)
+- PIT-20 (trivial) - out/build is the IDE's tree; orchestrator scratch builds go to dedicated dirs (2026-10-20)
+- PIT-21 (trivial): adjudication walkthrough body in ledger-dense register got a plain-speech demand (2026-10-21)
+- PIT-22 (trivial): an assertion whose output the harness never reads is an assertion that never ran (2026-10-21)
+- PIT-23: an instrumented coverage rerun can silently execute fewer suites than the tree has - a false-HIGH percent (2026-10-21)
+- PIT-24: an outbound artifact can be falsified by your own same-day work (2026-10-21)
+- PIT-25: a malformed replace op "succeeds" and inserts while the consumed region survives (2026-10-21)
+- PIT-26: ledger-voice answers (walkthrough AND status reports) draw "say it plainly" corrections - three occurrences
+- PIT-27: a resumed critic session stalls silently twice a day; a fresh session completes the same grill in minutes (2026-10-21)
+- PIT-28: an adjudicated hearing text shipped a capacity constant the tree never had (2026-10-21)
+- PIT-29: a worker session reports "complete" while its transcript reader errors - the tree is the deliverable (2026-10-23)
+- PIT-30: warm clippy fingerprint serves false green to re-verification (2026-10-23)
+- PIT-31: worktree edits can vanish between green verification and commit under parallel agents (2026-10-23)
+- PIT-32: gate cold window times out transport's dead-lane assertion (2026-10-27)
+
+### status
+- full text: `.agents/memorys/status.md`
+- Project
+- Phase
+- Modules
+- Verification
+- Open Items
+- History
+<!-- END:agents-memory -->
