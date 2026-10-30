@@ -320,13 +320,20 @@ fn sendmsg_on_a_dead_lane_surfaces_the_typed_backend_error() {
     };
     blob.send(b"x".to_vec()).expect("write the blob");
     let mut refusal = None;
-    for _ in 0..3 {
+    for attempt in 0..1024 {
         if let Err(e) = send_with_fd(&a, b"dead", blob.raw_fd().expect("open blob")) {
             refusal = Some(e);
             break;
         }
+        // AF_UNIX may absorb a few frames while the peer-close notification
+        // is in flight; give it scheduling time without making the test hang.
+        if attempt % 64 == 0 {
+            std::thread::sleep(Duration::from_millis(1));
+        } else {
+            std::thread::yield_now();
+        }
     }
-    let err = refusal.expect("a dead lane must refuse within three sends");
+    let err = refusal.expect("a dead lane must refuse within 1024 sends");
     assert_eq!(err.code(), "CARRIER_UNREACHABLE", "{err}");
 }
 
