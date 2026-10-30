@@ -41,6 +41,16 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | doc-audit full | 2026-10-23: 45 raw -> 26 merged, swept (git-date/bat-hooks/C1-red/D83) | this entry IS the record |
 | gate escalations live | check.sh ctest-stage4 leg (incremental rebuild THEN ctest; planted red observed); scripts/hooks/commit-msg via core.hooksPath (2 bad msgs blocked, good passed) | live (2026-10-21) |
 
+## Repo Audit
+
+- 2026-10-30 Full (10 domains): 34 gates green, skill-lint 40/0, book 73,
+  scripts syntax clean, no case/EOL findings. HIGH: shipping-and-launch stale
+  (16 gates + pack-check), test-harness stale (openspec/specs + docs/plans).
+  MEDIUM: B8 host links absent (plan docs/agent-host-parity-plan.md), plan not in
+  book internal prefixes, gate-mcp O5 WARN. Adjudicated 2026-10-30: one pilot
+  host + Qoder native, symlink default, partial test-harness repair, skill-authoring
+  only. NEXT: H0 pick pilot, H1 links, H2 repairs; gate-prose deferred.
+
 ## Open Items
 
 - [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger D1-D109 in `.agents/memorys/decisions.md`)

@@ -248,14 +248,13 @@ Deliverables:
 - `scripts/agent-links.py` (dispatcher; loads a layer only when its script exists and
   its target is enabled), `scripts/agents-cli.py`, `scripts/memory-aggregate.py`,
   `scripts/skills-index.py`, `scripts/mcp-links.py`, `scripts/mcp-file-guard.py`.
-- `scripts/agent-targets.json`: extend the B0 file to per-surface status
-  (adjudication 12): opencode `rules: true`, `mcp: true`; qoder `rules: true`
-  (native `.agents/rules`, observed 2026-10-29), `mcp: probe`; codebuddy / trae /
-  claude / cursor all false. Skills are a native
-  read from `.agents/skills` for both hosts (observed for opencode and qoder), so
-  they are not a target surface here; `skills-targets.json` stays a B8 concern for
-  link-based hosts. A single host boolean would let a failed MCP probe block the
-  already-proven skills surface, so the schema carries per-surface state.
+- `scripts/agent-targets.json`: per-surface status; opencode `rules: true`,
+  `mcp: true`; project MCP only; Qoder is a native `.agents` reader (no generated
+  target); codebuddy / trae / claude / cursor all false. Skills are a native read
+  from `.agents/skills` for opencode and Qoder; B8 extends `agent-targets.json`
+  with `skills_dir` / `rules_dir` for link-based hosts (no second
+  `skills-targets.json`). A single host boolean would let a failed MCP probe block
+  the already-proven skills surface, so the schema carries per-surface state.
   `generated_tracked` is exactly `AGENTS.md`, `CONSTRAINTS.md`, `.mcp.json`,
   `.opencode/opencode.json`, `SKILL.md` - the only list the pre-commit hook stages.
   The list is complete from day one; a file whose batch has not landed yet is skipped
@@ -581,10 +580,13 @@ PolyOrch gitlink is absent).
 
 ### B8 - Host link layer (deferred)
 
-Lands only when a link-based host is enabled (CodeBuddy / Trae / Claude):
-`rules-links.py`, `skills-links.py`, `skills-targets.json`, the `.codebuddy` /
-`.trae` link layers, Windows `--copy` plus the hashed map, and the forbidden-dir
-guard. Not on the current critical path; recorded so the deferral is visible rather
+Detailed plan: `docs/agent-host-parity-plan.md` (proposed 2026-10-30; the
+cross-agent IDE trigger is real, but B8 stays deferred until the proposal and
+host list are accepted). Lands only when a link-based host is enabled
+(CodeBuddy / Trae / Claude / Cursor): `rules-links.py`, `skills-links.py`, an
+extended `agent-targets.json` (no second target file), the `.codebuddy` / `.trae`
+link layers, Windows `--copy` plus the hashed map, and the forbidden-dir guard.
+Not on the current critical path; recorded so the deferral is visible rather
 than forgotten.
 
 ### 3.9 Done when

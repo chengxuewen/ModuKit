@@ -268,10 +268,11 @@ file. Read the source file before acting on a rule you are unsure about.
 
 ### status
 - full text: `.agents/memorys/status.md`
-- Project
+- ... 1 older entry omitted (read the full file)
 - Phase
 - Modules
 - Verification
+- Repo Audit
 - Open Items
 - History
 <!-- END:agents-memory -->
