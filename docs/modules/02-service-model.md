@@ -13,7 +13,7 @@ call sites.**
 
 
 
-```
+```text
 Registry::register::<S>(Arc<S>, props) -> RegistrationId
 Registry::acquire::<S>() -> Option<ServiceRef<S>>
 Registry::release(&ServiceRef<S>)
@@ -83,7 +83,7 @@ repeated `acquire()` loops are a review smell.
 
 Boundary calls are synchronous by contract (04 §2). Long-running work is modeled explicitly:
 
-```
+```text
 trait RenderService { fn submit(&self, req: Frame) -> Result<JobToken>; }
 // completion: a JobToken result arrives on the registry event stream as
 // { token, progress | done(result) | failed(error) }

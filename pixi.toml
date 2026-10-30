@@ -8,6 +8,7 @@ channels = ["conda-forge"]
 platforms = ["linux-64", "win-64"]
 
 [feature.tools.dependencies]
+ast-grep = "==0.51.0"      # conda-forge name; the ast-grep-rewrites skill's CLI
 cmake = ">=3.25"           # embed floor (D66); system cmake 3.16 is deliberately NOT trusted
 ninja = "*"
 libprotobuf = ">=4"         # ships bin/protoc on conda-forge (the `protobuf` package is python bindings only); M4 ledger toolchain (D12/D13), pinned env - never the system one
@@ -98,6 +99,7 @@ book-build = "python scripts/book-build.py"
 book-check = "python scripts/book-check.py"
 book-serve = "python scripts/book-serve.py"
 book-graph = "python scripts/book-build.py --graph-only"
+markdownlint = "markdownlint 'docs/**/*.md' 'book/**/*.md' README.md AGENTS.md SKILL.md"
 spec-trace = "bash scripts/spec-trace.sh"
 
 [feature.agents.tasks]

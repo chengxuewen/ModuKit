@@ -32,7 +32,7 @@ All load-bearing anchors were re-read by the orchestrator on 2026-10-23:
 
 ## 1. Shape of the volume (diagram)
 
-```
+```text
             BATCH 1 - THE WALL          BATCH 2 - RECONCILE+PINS     BATCH 3 - ENVIRONMENT
            (kill private reads)        (proof the checks can bite)  (authority + wrapper)
           +---------------------+     +------------------------+   +-----------------------+

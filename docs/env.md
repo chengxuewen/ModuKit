@@ -45,7 +45,8 @@ source pixi.sh         # daily shell activation
 | `gate-rules` | C/D/PIT citation liveness (local entries + the external allowlist). |
 | `gate-memory` | Batch-close memory disposition (`<base>..HEAD`; not in fast ci). |
 | `mcp setup/status/index/sync` | Install/verify pins, show versions, rebuild indexes. |
-| `docs-gen` | Regenerate the committed `llms.txt`. |
+| `docs-gen` | `cargo doc` + regenerate the committed `llms.txt` (book merges `target/doc`). |
+| `markdownlint` | Manual Markdown check using `.markdownlint.json` (not in fast ci). |
 | `book-build` / `book-check` | Assemble `build/book-src` and build/check `www/book/en`. |
 | `book-serve` | Foreground LAN server with a rebuild watcher. |
 | `book-graph` | Refresh `graph.json`/`meta.json` only (no mdbook build). |

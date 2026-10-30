@@ -83,7 +83,7 @@ never the message shape** — shape divergence is what would make 01's switchabi
 
 At resolve the host reads, without executing plugin code:
 
-```
+```text
 modukit_plugin_init -> *const PluginAbiV1 { abi_version, size, name, start, stop, ... }
 ```
 

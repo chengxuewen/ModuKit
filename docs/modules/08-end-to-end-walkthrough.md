@@ -53,7 +53,7 @@ is the waybill, never the crate (07 §3-4, D15).
 
 ## 3. What codegen emits (one `protoc` run + our plugin; fdset is the only input)
 
-```
+```text
 cabin_video.proto ─┬─ fdset (ledger, checked in; CI regen-diff gate)
                    ├─ Rust:  VideoFrameMeta + FrameView<'a> + trait stubs + SERVICE_ID consts
                    ├─ C:     plain structs + encode/decode decls + vtable entries
@@ -64,7 +64,7 @@ cabin_video.proto ─┬─ fdset (ledger, checked in; CI regen-diff gate)
 
 ## 4. The cargo `oneof` — two shapes, one accessor
 
-```
+```text
 Frame arrives                    f.plane(i) internally:
 ┌───────────────────────┐        match cargo:
 │ local ticket (same    │  ───►   Local(t) → addr = pool_base + t.slot×cell + t.planes[i].offset
@@ -89,7 +89,7 @@ LOSSY — slow consumers fast-forward, never hold the camera (06 §2 commandment
 
 ## 5. Runtime anatomy (same-host leg, one cell)
 
-```
+```text
 ┌ cell #57 ─────────────────────────────────────────────────────────┐
 │ [header 16B: epoch=9 | refcount=0 | flags]                         │
 │ [waybill ~90B: seq=1042 ts w h encoding=RAW_I420                   │
@@ -122,7 +122,7 @@ while (auto f = sub.next()) {
 
 ## 6. Cargo routing decision tree (automatic; user code never picks)
 
-```
+```text
 size ≤ ~1KB ─────────────► envelope only (control lane; any carrier carries it free)
 >1KB, same-host consumer ─► pool cell + ticket (zero copy — the default)
 >1KB, off-host only ──────► [waybill][tail] frame (+ optional compress per route)
@@ -132,7 +132,7 @@ media/codec cargo ─────────► producer declares encoding=H264
 
 ## 7. Contrast cargo: ImuBatch (why the same machine serves tables and pixels)
 
-```
+```text
 proto row:  message ImuSample { float gx=1; float gy=2; float gz=3; int64 ts=4; }
             option (modukit.topic) = { cargo: ARROW, qos: BOUNDED(256) }
 compile:    rows→columns mapping (mechanical; 14-type whitelist ∩ protobuf ∩ Arrow)

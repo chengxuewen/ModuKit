@@ -13,7 +13,7 @@ thread/in-process/cross-process backends; `docs/reference/iceoryx2.md:37`).
 
 ## 2. The seam (sketch)
 
-```
+```text
 trait TransportBackend {            // ~10 methods, not a middleware spec
     fn open_channel(...)   // rendezvous incl. descriptor negotiation
     fn send(&Frame) / fn poll(...) / fn close(...)

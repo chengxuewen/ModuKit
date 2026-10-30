@@ -1,0 +1,4 @@
+# C/C++ style baseline (LLVM + 4-space indent, column limit 100); config only, no CI gate yet.
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 100

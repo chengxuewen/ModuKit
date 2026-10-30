@@ -25,7 +25,7 @@ The only correct hook for a serialized `check → install → init → serve` se
 
 ### Runtime sequence (both launchers share this flow)
 
-```
+```text
 opencode session start
   spawn mcp.local-codegraph.command      (stdio = the MCP channel; its exit = session teardown)
   launcher = init-mcp-codegraph.sh  [Linux/macOS]  |  init-mcp-codegraph.bat  [Windows native,
@@ -53,7 +53,7 @@ opencode session start
 
 ### File layout: committed vs per-machine
 
-```
+```text
 COMMITTED (this repo)                       PER-MACHINE (all gitignored)
 |-- .opencode/opencode.json                 |-- .opencode/codegraph/   store: self-contained
 |-- .opencode/init-mcp-codegraph.sh         |        CLI bundle (~286 MB unpacked)

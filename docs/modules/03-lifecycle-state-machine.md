@@ -6,7 +6,7 @@ hard real-time and no functional-safety surface.
 
 ## 1. States
 
-```
+```text
 UNINSTALLED -> INSTALLED -> RESOLVING -> STARTING -> ACTIVE -> STOPPING -> RESOLVED/UNINSTALLED
                                   |           |          ^
                                   v           v          | restart (policy, backoff)
@@ -98,7 +98,7 @@ completion by event.
 
 One water source for time: the built-in `org.modukit.clock` service —
 
-```
+```text
 trait Clock { fn now(&self) -> Timestamp; }      // domains: real | sim | step
 fn timer(clock, deadline) -> JobToken            // fires as a `done` JobEvent (02 §4)
 ```

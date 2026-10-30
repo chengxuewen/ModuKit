@@ -17,7 +17,7 @@ New placements are added as executors, never as new plugin concepts.
 `exe` placement does not require a separate executable per plugin. The host spawns a generic
 runner, hands it the artifact path and an inherited fd:
 
-```
+```text
 modukit-run <plugin.so> --fd=N
 ```
 

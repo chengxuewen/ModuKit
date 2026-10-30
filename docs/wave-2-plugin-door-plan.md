@@ -54,7 +54,7 @@
 
 ## 1. Shape (v2: four batches)
 
-```
+```text
  BATCH 0 - THE DOOR AMENDMENT   BATCH 1 - THE LEDGER           BATCH 2 - PYTHON DOOR   BATCH 3 - NODE DOOR
  (kernel, tests first)          (contract before consumers)    (full-11-kind skin)     (mirror)
  +--------------------------+  +---------------------------+  +---------------------+  +--------------------+

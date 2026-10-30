@@ -6,6 +6,10 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 OUT=llms.txt
 
+# Rust API reference (VE docs-gen parity): target/doc is merged into the book
+# by book-build when present. No doc warnings are promoted here.
+cargo doc --workspace --no-deps --quiet
+
 line() { printf '%s\n' "$*"; }
 doc() {
   local path="$1" label="$2" note="$3"
@@ -31,6 +35,7 @@ doc() {
   doc docs/ve-parity-plan.md "VE-parity plan" "non-functional port, B0-B8"
   doc docs/reference/README.md "reference roster" "external project profiles"
   doc docs/env.md "environment guide" "pixi, tasks, MCP lifecycle"
+  doc target/doc/modukit_core/index.html "rustdoc reference" "generated API documentation (pixi run docs-gen)"
   doc book/toc.toml "book" "mdBook chapter order (B6)"
   doc docs/sdd/ "SDD contracts" "clause/test trace (B6)"
   line ""

@@ -19,7 +19,7 @@ trust review. Overriding is config; the plugin never rebuilds to change placemen
 
 ## 2. Placement and supervision fields
 
-```
+```text
 placement:  floor = dl              # host may raise (01 §5, 07 in architecture)
 start_level: 30                      # boot tiers (03 §3)
 start_timeout: 5s
@@ -70,7 +70,7 @@ word, forms verified at the D7 cross-check).
 
 ## 3. Dependency and capability declarations
 
-```
+```text
 requires: [
   { service = "com.yourco.hmi.CanBus",    required = true,  policy = wait(10s) },
   { service = "com.yourco.hmi.Telemetry", required = false, policy = fallback, on_down = block },
@@ -114,7 +114,7 @@ export = []                          # bridged planes see NOTHING unless listed 
 
 The kernel defines **what a bundle is, not what it looks like**:
 
-```
+```text
 logical bundle = manifest (this doc) + artifact(s) + ledger refs + content-hash
 install:       staging dir -> cross-check (D7 three tiers + hash integrity)
                -> atomic rename into INSTALLED (03 §1 semantics)
@@ -215,7 +215,7 @@ specification is recorded here and implemented when the first `config_live` plug
 File layout (per host tree; directory IS the instance boundary - one host_id, one tree,
 configs never shared across hosts in writing):
 
-```
+```text
 runtime.toml    host itself: host_id, carrier endpoints, log sinks, shutdown budget
 deploy.toml     plugin instance values ([plugin-id] sections, D29)
 overlay.toml    optional field overrides, deployment-floor hand edits (last word)
