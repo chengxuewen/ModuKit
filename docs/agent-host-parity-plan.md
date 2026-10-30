@@ -1,12 +1,12 @@
 # Agent Host & Skill Surface Plan
 
-> STATUS: IN EXECUTION, 2026-10-30 (revision 6). Maintainer word given
-> 2026-10-30; H0a / H0b / H1 / H2a are landed, H3 needs a host restart, and
-> H2b / H4 remain. This plan elaborates VE-parity B8 and the project-level
-> skill repairs. Revision 4 recorded the execution findings; revision 5 folded
-> the facts / host / plan review; revision 6 records the implementation.
-> Rulings #1-#4 are unchanged. Functional code, contracts, ABI, and packaging
-> are OUT.
+> STATUS: IN EXECUTION, 2026-10-30 (revision 7). Maintainer word given
+> 2026-10-30; H0a / H0b / H1 / H2a / H3 / H2b are landed; H4 closeout remains.
+> This plan elaborates VE-parity B8 and the project-level skill repairs.
+> Revision 4 recorded the execution findings; revision 5 folded the facts /
+> host / plan review; revision 6 recorded the implementation; revision 7 records
+> the H3 host pass and the full-41 H2b decision. Rulings #1-#4 are unchanged.
+> Functional code, contracts, ABI, and packaging are OUT.
 
 ## 0. Why now
 
@@ -89,7 +89,7 @@ and adding a skill or a host follows one documented path.
 | Inactive | 5 `openspec-*` + `browser-testing` |
 | Aliases | `ecosystem-scan`, `review-hardcode` |
 | Repaired | `shipping-and-launch` + `test-harness` (B5a import + `d8e1212` audit) |
-| Missing | H3 host restart probe; H2b activation budget; H4 closeout |
+| Missing | H4 closeout only |
 | Gate wiring | `gate-rules` + `spec-trace` are `check.sh` legs (36 total) |
 | Env doc | Host matrix + probe log added 2026-10-30; activation policy pending H2b |
 
@@ -342,10 +342,11 @@ pixi run gate-agents
   owner is `skills-links.py` (H1.1); unlisted host entries become
   stale/pruned, not "missing".
 - Record the decision and the measured host context cost in `docs/env.md`.
-- H2b decision (2026-10-30, user-adjudicated one by one): **C - keep the full
-  41-skill inventory provisional; do not choose `skills_allowlist` until the H3
-  CodeBuddy restart measurement.** Record the measured cost, then make the
-  final full-vs-subset decision. H2b stays open until then.
+- H2b decision (2026-10-30, user-adjudicated one by one): **final - full
+  41-skill activation.** The earlier C (defer) was superseded by the H3 result:
+  the user-confirmed CodeBuddy session showed the skills, always-on rules, and
+  MCP tools working with acceptable cost. No `skills_allowlist` for now; H2b is
+  closed and the policy is recorded in `docs/env.md`.
 - The hub ceiling is real: `HUB_LIMIT = 30000`, `WARN = 28500`, `AGENTS.md`
   21,557 B today. H2.3 adds a registry row and H4 adds host prose; keep host
   prose in `docs/env.md`, not `AGENTS.md`.
@@ -524,6 +525,8 @@ target file.
 
 ## 10. Change log
 
+- 2026-10-30 revision 7: H3 CodeBuddy host pass accepted; H2b finalised as
+  full 41-skill activation; H4 closeout remains.
 - 2026-10-30 revision 6: IN EXECUTION. H0a added `gate-rules` + `spec-trace`
   (36 legs) and swept the count prose; H0b added the optional `codebuddy`
   target, 18 mdc rules, 41 skill links, and forbidden paths; H1 landed

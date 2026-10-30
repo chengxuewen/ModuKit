@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-29: D1-D109 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`; queue EMPTY, remainder trigger-gated. Stages 1-3 COMPLETE/ACCEPTED (D91; v1 STABLE D87; amendment D83); Stage-4 INFRA volume ACCEPTED/CLOSED (D95); wave-2 volumes ACCEPTED through D107; wave-3 parent-push hearing D108; VE-parity plan D109 (B0-B7 landed, B8 IN EXECUTION, revision 12; gap-closure #20-22, VE-new #23-26; host plan rev 6: H0a/H0b/H1/H2a landed, H3 restart pending, H2b/H4 open). Full narrative: `history-archive.md` (2026-10-30 entry). Kernel v0 parked.
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-29: D1-D109 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`; queue EMPTY, remainder trigger-gated. Stages 1-3 COMPLETE/ACCEPTED (D91; v1 STABLE D87; amendment D83); Stage-4 INFRA volume ACCEPTED/CLOSED (D95); wave-2 volumes ACCEPTED through D107; wave-3 parent-push hearing D108; VE-parity plan D109 (B0-B7 landed, B8 IN EXECUTION, revision 13; gap-closure #20-22, VE-new #23-26; host plan rev 7: H0a-H3 landed, H2b full 41, H4 closeout open). Full narrative: `history-archive.md` (2026-10-30 entry). Kernel v0 parked.
 
 ## Modules
 

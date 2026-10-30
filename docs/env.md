@@ -99,7 +99,7 @@ The named gates:
 
 | Host | Discovery | Generated layer | Status |
 |---|---|---|---|
-| CodeBuddy | Root `AGENTS.md` when `CODEBUDDY.md` is absent; `.codebuddy/rules/<name>/RULE.mdc`; `.codebuddy/skills/<name>`; root `.mcp.json` | `rules-links.py` (`mdc`) + `skills-links.py` (link, `--copy` on Windows) | `AGENTS.md` fallback verified in the 2026-10-30 session; 18 rules + 41 skill links generated; host restart pending for the rules/skills/MCP probe |
+| CodeBuddy | Root `AGENTS.md` when `CODEBUDDY.md` is absent; `.codebuddy/rules/<name>/RULE.mdc`; `.codebuddy/skills/<name>`; root `.mcp.json` | `rules-links.py` (`mdc`) + `skills-links.py` (link, `--copy` on Windows) | H3 pass 2026-10-30: `AGENTS.md` fallback, 18 rules, 41 skills, and MCP tools confirmed in a fresh session |
 | Qoder | Native reader of `.agents/rules` and `.agents/skills`; project `.mcp.json` | none | Native reader; no generated layer |
 | opencode | Native rules/skills; `.opencode/opencode.json` `mcp{}` merge | `mcp-links.py` | Green |
 | project | Root `.mcp.json` (`mcpServers`, launcher) | `mcp-links.py` | Green; the only writer of `.mcp.json` |
@@ -118,9 +118,9 @@ Generation rules:
 - Forbidden paths (`CODEBUDDY.md`, `.codebuddy/mcp.json`, shadow host skill
   directories) are checked by `gate-agents`; one red observation is recorded in
   the plan review trail.
-- Activation policy: full inventory (41 skills) for the pilot. The H3 host
-  restart measures the actual context cost; H2b records the final policy (full
-  or `skills_allowlist`) here.
+- Activation policy: **full inventory (41 skills) final** (H2b, 2026-10-30).
+  H3 confirmed the host cost is acceptable; no `skills_allowlist` is active.
+  Revisit only if the skill surface grows or routing noise appears.
 - Repository-side check: `python3 scripts/verify-codebuddy-host.py` verifies the
   AGENTS.md fallback, 18 RULE.mdc files, 41 skill links, root `.mcp.json`, and
   `agents-cli.py check`. It cannot see an already-running IDE session.
@@ -136,10 +136,11 @@ Generation rules:
   pruned the other links; removing the key and syncing restored all 41. The
   config was restored to full activation; the final policy waits for the host
   measurement.
-- CodeBuddy host restart: PENDING. The current session started before the
-  `.codebuddy` layer existed, so the rules/skills/MCP visibility must be
-  re-probed in a fresh session. Record the host skill list, one rule, one MCP
-  call, and whether `provider` is required in `RULE.mdc`.
+- 2026-10-30 H3 host probe: PASS (user-confirmed fresh CodeBuddy session).
+  The 41 project skills, always-on `common-constraints`/`common-security`
+  rules, and `codegraph`/`serena` MCP tools were visible and usable; the
+  four-key `RULE.mdc` frontmatter was accepted without a `provider` change.
+  Startup/routing cost was acceptable, so H2b chose full activation.
 
 ## Book
 

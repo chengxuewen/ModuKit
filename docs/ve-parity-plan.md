@@ -1,8 +1,8 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-10-30 (revision 12). B0-B7 landed; B8 is IN
-> EXECUTION (H0a/H0b/H1/H2a landed; H3 host restart pending). Its execution
-> plan is `docs/agent-host-parity-plan.md` (revision 6).
+> STATUS: PLAN OF RECORD, 2026-10-30 (revision 13). B0-B7 landed; B8 is IN
+> EXECUTION (H0a-H3 landed; H2b full 41; H4 closeout open). Its execution
+> plan is `docs/agent-host-parity-plan.md` (revision 7).
 > Gap-closure #20-22 are in section 2.4; VE-new-commit #23-26 are in section 2.5.
 > B6 follows VE D46 (English-only book, reader-side browser translation). Twelve adjudications walked one by one with the maintainer (ten in
 > section 2: A / A / C / A / A / B / A / A / A / B; two follow-ups in section 2.1:
@@ -584,12 +584,12 @@ PolyOrch gitlink is absent).
 
 ### B8 - Host link layer (IN EXECUTION)
 
-Detailed plan: `docs/agent-host-parity-plan.md` (revision 6, 2026-10-30).
+Detailed plan: `docs/agent-host-parity-plan.md` (revision 7, 2026-10-30).
 Maintainer word opened B8 on 2026-10-30. H0a shipped the P0 gate wiring
 (`gate-rules` + `spec-trace` are `check.sh` legs; 36 legs), H0b registered the
-optional CodeBuddy target, H1 landed `rules-links.py` / `skills-links.py`, and
-H2a added `skill-authoring`. H3 needs a CodeBuddy restart for the real host
-probe; H2b/H4 remain.
+optional CodeBuddy target, H1 landed `rules-links.py` / `skills-links.py`,
+H2a added `skill-authoring`, H3 passed the fresh CodeBuddy host probe, and H2b
+chose full 41-skill activation. H4 closeout remains.
 The execution plan records: CodeBuddy is the pilot; rules require
 `.codebuddy/rules/<name>/RULE.mdc` with frontmatter (flat `.md` symlinks are
 dead, VE D35); skills use `.codebuddy/skills` links with a Windows `--copy`
@@ -599,7 +599,7 @@ fallback; MCP reuses the root `.mcp.json` (no `.codebuddy/mcp.json`); host-owned
 ### 3.9 Done when
 
 B0-B7 are green; B8 execution items are landed or explicitly deferred with an owner
-(H3 restart, H2b budget, H4 closeout open); Appendix C is intact; D109 is written and
+(H4 closeout open only); Appendix C is intact; D109 is written and
 the high-water sites agree; a clean clone can run `bash bootstrap.sh` then
 `pixi run ci` green.
 
@@ -712,6 +712,8 @@ ModuKit anchors:
 
 ## 8. Change log
 
+- 2026-10-30 revision 13: H3 CodeBuddy host probe passed; H2b finalised as
+  full 41-skill activation. H4 closeout remains.
 - 2026-10-30 revision 12: B8 opened on the maintainer word. H0a added
   `gate-rules` / `spec-trace` (36 legs); H0b registered the optional CodeBuddy
   target; H1 landed `rules-links.py` / `skills-links.py`; H2a added
