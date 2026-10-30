@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-29: D1-D109 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`; queue EMPTY, remainder trigger-gated. Stages 1-3 COMPLETE/ACCEPTED (D91; v1 STABLE D87; amendment D83); Stage-4 INFRA volume ACCEPTED/CLOSED (D95); wave-2 volumes ACCEPTED through D107; wave-3 parent-push hearing D108; VE-parity plan D109 (B0-B8). Full narrative: `history-archive.md` (2026-10-30 entry). Kernel v0 parked.
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-29: D1-D109 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`; queue EMPTY, remainder trigger-gated. Stages 1-3 COMPLETE/ACCEPTED (D91; v1 STABLE D87; amendment D83); Stage-4 INFRA volume ACCEPTED/CLOSED (D95); wave-2 volumes ACCEPTED through D107; wave-3 parent-push hearing D108; VE-parity plan D109 (B0-B7 landed, B8 deferred, revision 8). Full narrative: `history-archive.md` (2026-10-30 entry). Kernel v0 parked.
 
 ## Modules
 
@@ -33,6 +33,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | C1 English-artifacts check | command block in conventions.md C1 (scope grown with artifact classes: +M1 build files, +contracts/, +examples/, +bindings/ - each extension red/green proved) | pass (2026-10-16) |
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
 | numbering discipline | `bash scripts/check-numbering.sh` — derives the max D from decisions.md and asserts every D1-D<n> claim plus the AGENTS high-water matches; `--self-test` plants D110 and expects red | pass (2026-10-29; self-test red observed) |
+| memory disposition (C5) | `bash scripts/check-memory.sh <base>..HEAD` (batch close only) | pass (2026-10-30; B7 red, B2 green observed) |
 | local check gate (D50) | `bash scripts/check.sh` - THIRTEEN demo legs + D104 lane-table/deny/RUNNER legs, pixi per D65 | pass (2026-10-27) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
 | C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN) | pass (2026-10-15) |

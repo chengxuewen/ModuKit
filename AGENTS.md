@@ -68,7 +68,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 - **C1**: all artifacts English; chat follows user. (CJK scan is the canonical block below — keep it synced with conventions.md verbatim.)
 - **C0**: every constraint carries a runnable check, observed red once before trusted.
-- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D109/C4/PIT-32; the prose re-sync at every mint covers high-water AND index ranges (doc-audit 2026-10-23 fixed three missed sites); numbering gate in status.md guards bounds.
+- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D109/C5/PIT-36; the prose re-sync at every mint covers high-water AND index ranges (doc-audit 2026-10-23 fixed three missed sites); numbering gate in status.md guards bounds.
 - **C2**: ModuKit lands on master; PolyOrch edits on dev-modukit, tests blessed on main; pin = fresh dev-modukit tip via standalone bumps.
 - **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
 - `Cargo.lock` commits with `Cargo.toml`.
@@ -210,6 +210,7 @@ file. Read the source file before acting on a rule you are unsure about.
 - C2: "Submodule branch discipline: PolyOrch edits happen on its dev-modukit branch; ModuKit works on master and pins the dev-modukit tip, kept fresh"
 - C3: "Commit shape: subject under 60 chars, details as wrapped bullets in the body"
 - C4: "No circled-number glyphs; enumerate as 1) 2) 3); option labels A/B/C - never the Classical numerals - in replies and artifacts"
+- C5: "Every batch-close range carries a memory disposition"
 - Adding conventions
 
 ### decisions
@@ -247,11 +248,7 @@ file. Read the source file before acting on a rule you are unsure about.
 
 ### pitfalls
 - full text: `.agents/memorys/pitfalls.md`
-- ... 17 older entries omitted (read the full file)
-- PIT-18: the first consumer's dialect becomes the universal law in disguise (2026-10-20, protobuf landmine)
-- PIT-19 (trivial): probe printed its success line unconditionally over four FAILs (2026-10-20)
-- PIT-20 (trivial) - out/build is the IDE's tree; orchestrator scratch builds go to dedicated dirs (2026-10-20)
-- PIT-21 (trivial): adjudication walkthrough body in ledger-dense register got a plain-speech demand (2026-10-21)
+- ... 21 older entries omitted (read the full file)
 - PIT-22 (trivial): an assertion whose output the harness never reads is an assertion that never ran (2026-10-21)
 - PIT-23: an instrumented coverage rerun can silently execute fewer suites than the tree has - a false-HIGH percent (2026-10-21)
 - PIT-24: an outbound artifact can be falsified by your own same-day work (2026-10-21)
@@ -263,6 +260,10 @@ file. Read the source file before acting on a rule you are unsure about.
 - PIT-30: warm clippy fingerprint serves false green to re-verification (2026-10-23)
 - PIT-31: worktree edits can vanish between green verification and commit under parallel agents (2026-10-23)
 - PIT-32: gate cold window times out transport's dead-lane assertion (2026-10-27)
+- PIT-33: a warm CMake tree hides the cold compiler/include/link contract (2026-10-30)
+- PIT-34: hardcoded /tmp scratch turns a green gate red on read-only /tmp (2026-10-30)
+- PIT-35: .refinfo is a moving donor clone, not a frozen snapshot (2026-10-30)
+- PIT-36: registry meta keys must strip label suffixes, or sync/check never agree (2026-10-30)
 
 ### status
 - full text: `.agents/memorys/status.md`

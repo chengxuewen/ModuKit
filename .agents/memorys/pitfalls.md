@@ -252,12 +252,40 @@
   cache cold) the OS can take longer than the test's implicit deadline to
   surface the error, so 3 sends complete with no refusal observed yet.
 - **Solution**: capture, don't guess - the batch-2 hardening (--output-on-
-  failure + LastTest.log archive to /tmp/ctest-lasttest.log) produced the
+  failure + LastTest.log archive to out/ctest-lasttest.log) produced the
   exact panic text on hit #3 with no rerun needed. Recorded as a gate
   cold-window family trait (plan §7); test left untouched (a timing-load
   assertion, not a product bug).
 - **Verification**: `bash scripts/check.sh` twice - the leg is green on warm
-  starts; a red run must leave /tmp/ctest-lasttest.log with the panic text.
+  starts; a red run must leave out/ctest-lasttest.log with the panic text.
 - **Forbidden**: reverting, skipping, or "fixing" the test on a cold-window
   red before reading the archived LastTest evidence; quoting the flake as a
   product regression without an isolated warm rerun.
+
+## PIT-33: a warm CMake tree hides the cold compiler/include/link contract (2026-10-30)
+- **Symptom**: `cmake-smoke` cold build first failed on `google/protobuf/runtime_version.h`, then on `absl` DSOs; a fresh `ci-strict` release link also failed when `CC/CXX` were not the conda pair. The warm `out/build-stage4` tree stayed green throughout.
+- **Root cause**: `bindings/cpp` linked `${MODUKIT_CPP_PROTOBUF}` by absolute `.so` path but added only the generated include dir; a full-path link does not add `${_prefix}/include`, and protobuf 7.x lists absl under pkg-config `Requires`, not `Libs`. A warm tree had the compiler/include/link state baked in; the cold tree used system g++/headers.
+- **Solution**: cold gates must mirror pixi activation: export the conda `CC/CXX`, add `${_prefix}/include`, and link the conda `libabsl_*` set (or the pkg-config Requires set). `scripts/cmake-smoke.sh` now does this.
+- **Verification**: `pixi run cmake-smoke` green; `grep -n "_prefix}/include" bindings/cpp/CMakeLists.txt`; `grep -n "absl" bindings/cpp/CMakeLists.txt`; `TMPDIR="$PWD/out/tmp" pixi run cmake --preset ci-strict && TMPDIR="$PWD/out/tmp" pixi run cmake --build --preset ci-strict`.
+- **Forbidden**: treating a warm `out/build-stage4` result as cold-build proof; adding `--copy-dt-needed-entries` as a substitute for declaring the absl link deps.
+
+## PIT-34: hardcoded /tmp scratch turns a green gate red on read-only /tmp (2026-10-30)
+- **Symptom**: `pixi run ci` red at ctest-stage4 with `/tmp/ctest-build.log: read-only filesystem`; `pixi install/run` also failed activation until `TMPDIR` moved under `out/`.
+- **Root cause**: `scripts/check.sh` wrote ctest logs to fixed `/tmp/...`; `TMPDIR` only redirects tools that honor it, not literal paths. The sandbox/CI can mount /tmp read-only.
+- **Solution**: route gate logs/temps to `out/` (ignored), set `TMPDIR="$PWD/out/tmp"` when invoking pixi/cargo; do not use `/tmp` for build evidence.
+- **Verification**: `grep -n "/tmp/ctest" scripts/check.sh` empty; `TMPDIR="$PWD/out/tmp" pixi run ci` green; red runs leave `out/ctest-lasttest.log`.
+- **Forbidden**: writing gate logs to `/tmp`; assuming `TMPDIR` fixes hardcoded `/tmp` paths.
+
+## PIT-35: .refinfo is a moving donor clone, not a frozen snapshot (2026-10-30)
+- **Symptom**: B6 first implemented VE's PO/gettext book from an earlier reading; VE HEAD `de005b0` (D46) had already replaced it with an English-only book + reader-side browser translation, forcing a plan revision and a B6 rewrite before commit.
+- **Root cause**: `.refinfo/VisiaEngine` is a live git clone updated between sessions; copying scripts/assets without re-checking HEAD or the latest decisions used stale design.
+- **Solution**: before every donor-copy batch, record `git -C .refinfo/VisiaEngine rev-parse --short HEAD` and read the last few commits/decisions; put that SHA in the plan/provenance ledger; re-check immediately before copying.
+- **Verification**: `git -C .refinfo/VisiaEngine log -1 --oneline`; the B6 note names `de005b0`; `grep -n "de005b0" docs/reference/visiaengine.md`.
+- **Forbidden**: treating `.refinfo` as immutable; copying a donor file without a recorded donor SHA.
+
+## PIT-36: registry meta keys must strip label suffixes, or sync/check never agree (2026-10-30)
+- **Symptom**: `pixi run agents sync` rewrote the skill registry, then `pixi run gate-skills` immediately reported content drift for `openspec-*`/`review-hardcode`.
+- **Root cause**: `skills-index._existing_meta` keyed the table by the full first cell (`` `name` (inoperative) ``) while the builder looked up `name`; the type/notes meta was lost on the second read. Label suffixes are display text, not identity.
+- **Solution**: extract the name between the first pair of backticks before the meta lookup; keep suffixes only in the rendered label. Re-run sync twice and require the second check green.
+- **Verification**: `pixi run agents sync && pixi run gate-skills` twice; the second run must be `OK` with no `[ FIX ]`; `python3 scripts/skill-lint.py` stays 0 fail.
+- **Forbidden**: hand-editing generated registry rows to silence drift; keying generated metadata by a display label.

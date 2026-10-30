@@ -72,13 +72,29 @@ scan (caught by the negative proof the same day; C0 working as intended).
 
 ```bash
 # Check (artifacts; the chat half is reply-discipline, enforced at authoring):
-grep -rIlP '[\x{2460}-\x{2473}\x{7532}\x{4e59}\x{4e19}\x{4e01}]' AGENTS.md SKILL.md README.md mise.toml bootstrap.sh bootstrap.bat \
+grep -rIlP '[\x{2460}-\x{2473}\x{7532}\x{4e59}\x{4e19}\x{4e01}]' AGENTS.md SKILL.md README.md bootstrap.sh bootstrap.bat \
   pixi.toml CMakeLists.txt cmake/ contracts/ examples/ bindings/ docs/ \
+  book/book.toml book/toc.toml book/web/*.js book/web/*.html book/web/graph.md \
   .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ crates/ \
   && echo "C4 VIOLATION (files above)" || echo "C4 OK"
 ```
 # negative proof observed 2026-10-23: planted circled glyph under docs/, RED shown,
 # removed, GREEN (C0).
+
+## C5: "Every batch-close range carries a memory disposition"
+
+Per-commit memory churn is not required: `status.md` is capped at 8 KB and most
+commits are mechanical. A batch/PR close must instead do one of:
+
+- change `.agents/memorys/` (decision, convention, pitfall, status, backlog), or
+- carry a ` - Memory: none (<reason>)` bullet in the range's commit bodies.
+
+```bash
+# Check (batch close only; NOT in the fast ci gate):
+bash scripts/check-memory.sh <base>..HEAD
+```
+# Red/green observed 2026-10-30: `39d9fd2^..39d9fd2` (B7, no memory) -> RED;
+# `c61a20e^..c61a20e` (B2, status/history changed) -> GREEN.
 
 ## Adding conventions
 

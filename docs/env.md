@@ -43,6 +43,7 @@ source pixi.sh         # daily shell activation
 | `agents` / `agent-sync` | Regenerate every agent layer from `.agents/`. |
 | `gate-agents` | Verify the generated layers (markers, hub budget, MCP, constraints). |
 | `gate-rules` | C/D/PIT citation liveness (local entries + the external allowlist). |
+| `gate-memory` | Batch-close memory disposition (`<base>..HEAD`; not in fast ci). |
 | `mcp setup/status/index/sync` | Install/verify pins, show versions, rebuild indexes. |
 | `docs-gen` | Regenerate the committed `llms.txt`. |
 | `book-build` / `book-check` | Assemble `build/book-src` and build/check `www/book/en`. |

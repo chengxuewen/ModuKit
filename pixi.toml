@@ -106,6 +106,7 @@ agent-sync = "python scripts/agents-cli.py sync"
 gate-agents = "python scripts/agents-cli.py check"
 gate-skills = "python scripts/skills-index.py check"
 gate-rules = "python scripts/rule-ref-lint.py"                     # C/D/PIT citations resolve or are allowlisted
+gate-memory = "bash scripts/check-memory.sh"                     # C5 batch-close memory disposition
 
 [environments]
 default = { features = ["tools", "rust", "mcp", "agents", "book"], solve-group = "base" }

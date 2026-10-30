@@ -173,7 +173,7 @@ additions either already present as generic lessons or VE-specific (testing
 tiers, model table, CodeBuddy/Trae host layers). Only `common/docker.md` was
 copied (verbatim, unmounted) and the dangling VE `PIT-98` citation was stripped.
 
-Book: VE D46 (2026-10-30) makes the book English-only and moves other languages
+Book: VE D46 (`de005b0`, 2026-10-30) makes the book English-only and moves other languages
 to reader-side browser translation (Edge/Chrome built-in, Immersive Translate).
 ModuKit follows: no PO/gettext/book-i18n; the mdBook site, graph, lazy mermaid,
 provenance footer, book-serve and book-graph are adopted; gate-prose is deferred.

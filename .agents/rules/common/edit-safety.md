@@ -337,12 +337,12 @@ user interrupted both times asking why the session kept blocking).
 **Rule**: a gate leg that reds on cold starts but greens warm is a timing-load
 flake until proven otherwise. Do not revert, skip, or "fix" the test on the
 red itself - first read the leg's own capture (ctest LastTest archive,
-/tmp/ctest-lasttest.log; --output-on-failure must stay in the ctest leg), then
+out/ctest-lasttest.log; --output-on-failure must stay in the ctest leg), then
 re-run the failing test in isolation twice warm. Only a captured panic +
 warm-green pair licenses the "family trait" verdict; the record goes to the
 plan's deviations section, and the test stays untouched.
 **Verification**: `grep -c "output-on-failure" scripts/check.sh` must be >= 1;
-a red ctest leg leaves /tmp/ctest-lasttest.log with the panic text; two warm
+a red ctest leg leaves out/ctest-lasttest.log with the panic text; two warm
 isolated reruns of the named test are green.
 **Blocking condition**: editing or disabling a timing-sensitive test on the
 strength of one cold-window red; quoting a flake as a batch regression without
