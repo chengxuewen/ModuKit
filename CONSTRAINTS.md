@@ -43,15 +43,16 @@ Single source of truth for the local quality gate. Two parts:
 20. `demo-wave2-plugin-js`
 21. `cargo-deny`
 22. `ctest-stage4`
-23. `embed-parity`
-24. `gate-abi`
-25. `capability-ledger`
-26. `gate-agents`
-27. `commit-shape`
-28. `gate-docs`
-29. `check-promises`
-30. `numbering`
-31. `lane-table`
-32. `wire-parity`
-33. `gate-mcp`
+23. `cmake-smoke`
+24. `embed-parity`
+25. `gate-abi`
+26. `capability-ledger`
+27. `gate-agents`
+28. `commit-shape`
+29. `gate-docs`
+30. `check-promises`
+31. `numbering`
+32. `lane-table`
+33. `wire-parity`
+34. `gate-mcp`
 <!-- END:ci-gates -->

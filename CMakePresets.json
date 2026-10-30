@@ -22,6 +22,42 @@
       "description": "Mirrors scripts/demo-stage4-m1.sh/m2.sh: cmake -S . -B out/build-stage4 -G Ninja, no -D flags.",
       "inherits": ["default"],
       "binaryDir": "${sourceDir}/out/build-stage4"
+    },
+    {
+      "name": "release",
+      "displayName": "Release (out/build-release)",
+      "description": "One tree per preset; Release build with compile commands.",
+      "inherits": ["default"],
+      "binaryDir": "${sourceDir}/out/build-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug (out/build-debug)",
+      "description": "One tree per preset; Debug build with compile commands.",
+      "inherits": ["default"],
+      "binaryDir": "${sourceDir}/out/build-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "ci-strict",
+      "displayName": "CI strict (out/build-ci)",
+      "description": "Release, all lanes explicit, warnings are errors (cmake-smoke owns the cold tree).",
+      "inherits": ["default"],
+      "binaryDir": "${sourceDir}/out/build-ci",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "MODUKIT_USE_PIXI": "ON",
+        "MODUKIT_POLYORCH_CRATES": "ON",
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON"
+      }
     }
   ],
   "buildPresets": [
@@ -32,6 +68,18 @@
     {
       "name": "stage4",
       "configurePreset": "stage4"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "ci-strict",
+      "configurePreset": "ci-strict"
     }
   ],
   "testPresets": [
@@ -45,6 +93,27 @@
     {
       "name": "stage4",
       "configurePreset": "stage4",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "ci-strict",
+      "configurePreset": "ci-strict",
       "output": {
         "outputOnFailure": true
       }

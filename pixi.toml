@@ -24,6 +24,7 @@ build = { cmd = "cmake --build out/build", depends-on = ["configure"] }
 ci = "bash scripts/check.sh"                                   # the local gate; CONSTRAINTS is generated from --list
 docs-gen = "bash scripts/gen-llms-txt.sh"                        # regenerate llms.txt (committed)
 gate-abi = "bash scripts/gate-abi.sh"                            # exported symbol set vs contracts/modukit_embed.h
+cmake-smoke = "bash scripts/cmake-smoke.sh"                      # full cold configure/build/ctest + negative paths
 regen-fdset = "bash scripts/regen-fdset.sh"                     # regenerate contracts/*.fdset in place (D12 ledger)
 regen-golden = "bash scripts/regen-golden.sh"                    # rewrite crates/modukit-codegen/testdata/golden (review the diff!)
 codegen = "bash scripts/regen-golden.sh"                         # alias for the golden regeneration workflow

@@ -84,8 +84,11 @@ set_target_properties(modukit-demo-gencode PROPERTIES
     CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON
     POSITION_INDEPENDENT_CODE ON
     FOLDER "bindings/cpp")
-target_include_directories(modukit-demo-gencode PUBLIC "${_gen}")
-target_link_libraries(modukit-demo-gencode PUBLIC "${MODUKIT_CPP_PROTOBUF}")
+target_include_directories(modukit-demo-gencode PUBLIC "${_gen}" "${_prefix}/include")
+# protobuf 7.x headers call absl inline; protobuf.pc lists absl under Requires,
+# not Libs, so the direct link line must carry the conda absl set too.
+file(GLOB _absl_libs "${_prefix}/lib/libabsl_*.so" "${_prefix}/lib/libabsl_*.dylib" "${_prefix}/lib/absl_*.lib")
+target_link_libraries(modukit-demo-gencode PUBLIC "${MODUKIT_CPP_PROTOBUF}" ${_absl_libs})
 
 # modukit_cpp: the header-only C++ face (shelf grammar: an INTERFACE target
 # over generated include/ + the contract originals it includes).

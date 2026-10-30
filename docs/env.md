@@ -44,6 +44,7 @@ source pixi.sh         # daily shell activation
 | `gate-agents` | Verify the generated layers (markers, hub budget, MCP, constraints). |
 | `mcp setup/status/index/sync` | Install/verify pins, show versions, rebuild indexes. |
 | `docs-gen` | Regenerate the committed `llms.txt`. |
+| `cmake-smoke` | Full cold configure/build/ctest + two negative paths (`ci` runs configure-only). |
 | `msrv` | `cargo check --workspace` in the 1.88 env (`pixi run -e msrv msrv`). |
 | `vendor-test` | Vendor-shm lane (cold, not in the fast gate). |
 | `deny` | `cargo deny check licenses bans` when the tool resolves. |
@@ -68,6 +69,8 @@ The named gates:
 - `gate-mcp`: probes the pinned MCP servers without installing anything.
 - `msrv`: `Cargo.toml` `rust-version` equals the pixi msrv pin, then
   `cargo check --workspace` in the 1.88 env (SKIP when the env is absent).
+- `cmake-smoke`: cold configure plus two negative paths in `ci`; the full cold
+  build/ctest is `pixi run cmake-smoke` at acceptance.
 - `gate-agents`: verifies the generated layers.
 
 ## Output territory

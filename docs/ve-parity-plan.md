@@ -61,6 +61,20 @@ outputs of the probe, not assumptions.
 | 15 | `gate-abi` / `cmake-smoke` | **A** | gate-abi in B3, cmake-smoke in B4 |
 | 16 | CONSTRAINTS source | **C** | `check.sh` is the only source; `ci` is an alias for `check` |
 
+### 2.3 B4b-2 execution adjudications (2026-10-30, user-adjudicated one by one)
+
+| # | Decision | Ruling | Key note |
+|---|---|---|---|
+| 17 | `prebuilt` preset | **A: defer** | No prebuilt consumer/artifact contract exists; revisit on a real consumer |
+| 18 | SDK/Ffi/Bindings modules | **A: keep the current three** | Ownership map below; split only when a real lane appears |
+| 19 | `cmake-smoke` in `ci` | **A: configure-only in ci** | Full cold build/ctest via `pixi run cmake-smoke` at acceptance |
+
+Ownership map for #18: `ModuKitPolyOrch.cmake` owns the SDK/toolchain face;
+`ModuKitPolyOrchCrates.cmake` owns the lane/ctest face; `ModuKitGates.cmake` owns the
+codemodel probe; `bindings/cpp` + `test-plugins/cpp` + `examples/cpp` own the binding
+targets through root `add_subdirectory`. No empty `ModuKitSDK/Ffi/Bindings.cmake`
+shells are created. Trigger to split: a real SDK packaging or prebuilt-consumer lane.
+
 ## 3. Work breakdown
 
 Each batch is independently acceptable. Every gate named here must be observed red
@@ -692,6 +706,13 @@ ModuKit anchors:
   `cargo check --workspace`; `--list` = 33 legs; ci green in 89.36 s. B4b-2 owns
   cmake-smoke, the extra presets (release/debug/prebuilt/ci-strict) and the
   SDK/Ffi/Bindings modules.
+- 2026-10-30 B4b-2: release/debug/ci-strict presets added (configure green;
+  ci-strict build green with `TMPDIR` under `out/` because the sandbox `/tmp` is
+  read-only); `prebuilt` deferred and SDK/Ffi/Bindings kept per section 2.3.
+  `cmake-smoke` has a configure-only ci leg and a full cold build/ctest task
+  (82 s). The cold tree exposed and fixed two real build defects: the gencode
+  target lacked the conda include dir, and protobuf 7.x absl deps were missing
+  from the link line. `--list` = 34 legs; ci green in 139.46 s.
 - 2026-10-30 B3 landed: `check.sh --list` = 32 legs (gate-i18n replaces the C1
   hand-list; gate-docs absorbs doc-liveness; gate-abi exact 24-symbol set;
   check-promises narrow phrase lint; gate-mcp/gate-agents wired; ci green 86.59 s).

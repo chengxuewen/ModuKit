@@ -36,6 +36,7 @@ demo-wave2-plugin-py
 demo-wave2-plugin-js
 cargo-deny
 ctest-stage4
+cmake-smoke
 embed-parity
 gate-abi
 capability-ledger
@@ -274,6 +275,12 @@ if [ -d out/build-stage4 ] && command -v pixi >/dev/null 2>&1; then
     fi
   fi
 else note "skip ctest-stage4 (no out/build-stage4 tree or no pixi)"; fi
+
+# leg: cmake-smoke (B4b-2): configure + two negative paths in ci; the full cold
+# build/ctest is the `pixi run cmake-smoke` acceptance task.
+if [ -f scripts/cmake-smoke.sh ]; then
+  bash scripts/cmake-smoke.sh --configure-only || { note "FAIL cmake-smoke"; status=1; }
+else note "skip cmake-smoke (no script)"; fi
 
 # leg: embed-contract parity (Stage-4 M1 lane #2, C++-3): the header IS the
 # contract; the Rust mirror must list its verbs exactly. Skip-when-absent
