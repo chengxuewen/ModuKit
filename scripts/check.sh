@@ -17,6 +17,7 @@ if [ "${1:-}" = "--list" ]; then
 fmt
 clippy
 test
+msrv
 gate-i18n
 skill-lint
 regen-fdset
@@ -77,7 +78,12 @@ if [ "$HAS_WS" -eq 1 ]; then
   "${CARGO[@]}" test --workspace || { note "FAIL test"; status=1; }
 else note "skip test (no crates/ workspace)"; fi
 
-# 4. artifact-language gate (C1: tracked + untracked, whitelist in the script)
+# 4. MSRV (B4): Cargo.toml rust-version == pixi msrv pin; cargo check in 1.88.
+if [ -f scripts/check-msrv.sh ]; then
+  bash scripts/check-msrv.sh || { note "FAIL msrv"; status=1; }
+else note "skip msrv (no script)"; fi
+
+# 5. artifact-language gate (C1: tracked + untracked, whitelist in the script)
 if [ -f scripts/gate-i18n.sh ]; then
   bash scripts/gate-i18n.sh || { note "FAIL gate-i18n"; status=1; }
 else note "skip gate-i18n (no script)"; fi

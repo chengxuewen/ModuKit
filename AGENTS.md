@@ -52,7 +52,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Which skills exist / when they fire | `SKILL.md` | registry incl. inoperative flags |
 | Conventions & gates | `.agents/memorys/conventions.md` | C0 executable-checks, C1 English, C2 branch/pin, C3 commit-shape |
 | v1 frozen surface (what may NOT break) | architecture §11 D87 row + `docs/stage-2-plan.md` §9 | amendment policy = D83 (tail-add by record, break by hearing) |
-| Dev toolchain | `bootstrap.sh`/`.bat` + `pixi.toml` | ALL cargo/rustfmt/node via `pixi run` (single track since B4) |
+| Dev toolchain | `bootstrap.sh`/`.bat` + `pixi.toml` | ALL cargo/rustfmt/node via `pixi run` (single track since B4; MSRV 1.88) |
 
 ## CODE MAP
 

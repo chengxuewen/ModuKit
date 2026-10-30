@@ -684,7 +684,14 @@ ModuKit anchors:
   `bootstrap.sh/.bat` are pixi-only (submodule guard, pixi-init, PATH line, hooks,
   advisory agents sync); JS legs report `RUNNER: node v22.23.4 (pixi-env)`;
   CMake presets already mirrored the pixi routes; `cargo metadata --locked` OK;
-  full gate green in 86.57 s. B4b owns MSRV + cmake-smoke.
+  full gate green in 86.57 s. `pixi.sh/.bat/.ps1` stay tracked: PolyOrch's
+  pixi-init only prints `source pixi.sh` and does not regenerate the wrappers.
+  B4b owns MSRV + cmake-smoke.
+- 2026-10-30 B4b-1: MSRV 1.88.0 pinned in `Cargo.toml` and the pixi `msrv` env
+  (`=1.88.0`); `scripts/check-msrv.sh` asserts field == pin and runs
+  `cargo check --workspace`; `--list` = 33 legs; ci green in 89.36 s. B4b-2 owns
+  cmake-smoke, the extra presets (release/debug/prebuilt/ci-strict) and the
+  SDK/Ffi/Bindings modules.
 - 2026-10-30 B3 landed: `check.sh --list` = 32 legs (gate-i18n replaces the C1
   hand-list; gate-docs absorbs doc-liveness; gate-abi exact 24-symbol set;
   check-promises narrow phrase lint; gate-mcp/gate-agents wired; ci green 86.59 s).

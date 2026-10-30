@@ -49,7 +49,15 @@ mcp-playwright = "node scripts/mcp-serve.mjs --from scripts/mcp-servers.json --n
 gate-mcp = "python scripts/gate-mcp.py"
 
 [feature.rust.dependencies]
-rust = "*"
+rust = ">=1.99,<2"
+
+# MSRV is a promise, not a lock echo: the Cargo.toml rust-version and this pin
+# must agree (scripts/check-msrv.sh). 1.88 is the measured floor (B4 probe).
+[feature.msrv.dependencies]
+rust = "=1.88.0"
+
+[feature.msrv.tasks]
+msrv = "cargo check --workspace"
 
 [feature.cov.dependencies]
 # M8 coverage run (D50 soft gate): conda-forge ships the tool itself - no workspace
@@ -89,3 +97,4 @@ default = { features = ["tools", "rust", "mcp", "agents"], solve-group = "base" 
 # cov rides its own solve group: the default build env resolution stays untouched.
 cov = { features = ["rust", "cov"] }
 serena = { features = ["serena"] }
+msrv = { features = ["msrv"] }

@@ -27,6 +27,7 @@ source pixi.sh         # daily shell activation
 | `default` | `tools`, `rust`, `mcp`, `agents` | Build, tests, MCP servers, agent layers. |
 | `cov` | `rust`, `cov` | `cargo llvm-cov` boundary runs. |
 | `serena` | `serena` | Isolated Python 3.13 + `serena-agent`; never the default env. |
+| `msrv` | `msrv` | Rust 1.88 only: the MSRV promise check (not a build env). |
 
 - `tools`: CMake >= 3.25, Ninja, libprotobuf (`protoc`), and the Linux/Windows compiler shim.
 - `rust`: the workspace toolchain; cargo/rustfmt/clippy always run through pixi.
@@ -43,6 +44,7 @@ source pixi.sh         # daily shell activation
 | `gate-agents` | Verify the generated layers (markers, hub budget, MCP, constraints). |
 | `mcp setup/status/index/sync` | Install/verify pins, show versions, rebuild indexes. |
 | `docs-gen` | Regenerate the committed `llms.txt`. |
+| `msrv` | `cargo check --workspace` in the 1.88 env (`pixi run -e msrv msrv`). |
 | `vendor-test` | Vendor-shm lane (cold, not in the fast gate). |
 | `deny` | `cargo deny check licenses bans` when the tool resolves. |
 | `configure` / `build` | CMake/IDE surface under `out/build`. |
@@ -64,6 +66,8 @@ The named gates:
 - `gate-abi`: the core cdylib's exported `modukit_*` set equals
   `contracts/modukit_embed.h` (the C++ demo run is `demo-stage4-m1`).
 - `gate-mcp`: probes the pinned MCP servers without installing anything.
+- `msrv`: `Cargo.toml` `rust-version` equals the pixi msrv pin, then
+  `cargo check --workspace` in the 1.88 env (SKIP when the env is absent).
 - `gate-agents`: verifies the generated layers.
 
 ## Output territory
