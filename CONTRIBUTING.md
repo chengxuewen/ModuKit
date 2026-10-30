@@ -3,7 +3,7 @@
 ## Setup
 
 ```bash
-bash bootstrap.sh     # first time: mise + pixi envs + git hooks (idempotent)
+bash bootstrap.sh     # first time: pixi envs + git hooks (idempotent)
 source pixi.sh        # daily activation; or prefix every command with `pixi run`
 pixi run cargo --version   # toolchain smoke
 ```

@@ -91,7 +91,7 @@ Five stages per the whitepaper implementation path:
 
 As-built: five shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen`, `crates/modukit-js` (v1 API surface frozen STABLE per `docs/architecture.md` §11, D87; test totals are volatile and live in the plans of record) — plus the Stage-4/wave-2 bindings line: `contracts/modukit_embed.h` (HostEmbedV1, 24 verbs over two rungs incl. the sup service-call door), `contracts/modukit_plugin.h`, the generated C++ faces and the `bindings/cpp` shelf (M1/M2/M3 closed; the volume was accepted and closed 2026-10-21, D95), the generated Python ctypes floor `bindings/py` (D100/D101) and the generated napi bridge `crates/modukit-js` (D102/D103). Stages 1-4 are closed (D88, D91, D95); wave-2 volumes accepted through D103. Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
 
-First-time machine setup for dev toolchains (user-level, via mise; idempotent): `./bootstrap.sh` (Linux/macOS) or `bootstrap.bat` (Windows native). Pins live in `mise.toml`.
+First-time machine setup (user-level, pixi only; idempotent): `./bootstrap.sh` (Linux/macOS) or `bootstrap.bat` (Windows native). Pins live in `pixi.toml` + `pixi.lock`; mise is retired.
 
 ## Runnable examples
 

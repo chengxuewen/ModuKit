@@ -97,16 +97,16 @@ and the `.gitignore` treat these as the only writer classes.
 
 ## Toolchain boundary
 
-pixi owns build environments and the committed `pixi.lock`; mise still provides
-host tools until B4 deletes `mise.toml`/`rust-toolchain.toml`. Node 22 already
-lives in the `mcp` feature because B1 cannot work without it; B4 verifies the JS
-legs and removes the mise stages.
+pixi is the single toolchain (B4): `bootstrap.sh` provisions pixi and the default
+env; `mise.toml` and `rust-toolchain.toml` are deleted. Node 22 lives in the `mcp`
+feature, and cargo/rustfmt/clippy run through `pixi run`. The MSRV floor is 1.88
+(B4b); the default env still resolves the newest locked rust.
 
 ## Troubleshooting
 
 | Symptom | Fix |
 |---|---|
-| `cargo: command not found` | Use `pixi run cargo ...`; do not rely on the mise shim. |
+| `cargo: command not found` | Use `pixi run cargo ...`; there is no mise shim. |
 | `pixi` missing in a GUI MCP host | Add the O5 symlink; rerun `pixi run gate-mcp`. |
 | `pin drift` from `mcp-serve.mjs` | `pixi run mcp setup`; never hand-edit `node_modules`. |
 | `agents check` marker error | Run `pixi run agents sync`; if it still reds, fix the duplicate/missing marker by hand once. |

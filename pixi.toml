@@ -1,6 +1,5 @@
-# pixi.toml - build-time environments for ModuKit (D65 boundary: pixi owns BUILD envs;
-# mise.toml owns host/agent tooling and carries no reproducibility promise; pixi.lock
-# committed = the reproducibility pin. Channels stay single (conda-forge), following the
+# pixi.toml - the single toolchain for ModuKit (B4: mise/rust-toolchain retired).
+# pixi.lock is the reproducibility pin; channels stay single (conda-forge), following the
 # VisiaEngine measured route (conda-forge rust via pixi, their D5; D57 deploy-side mirror).
 [workspace]
 name = "modukit"
@@ -37,8 +36,8 @@ vendor-test = "cargo test -p modukit-transport --features vendor-shm"
 deny = "cargo deny check licenses bans"
 
 # MCP single source (B1): node runs the pinned npm launchers; python runs the CLI/gate.
-# B4 later verifies the node pin and deletes mise; the dependency lands here because B1
-# cannot work without it.
+# Node lives here because B1 cannot work without it; B4 keeps it as the single node
+# (mise is retired).
 [feature.mcp.dependencies]
 nodejs = ">=22,<23"
 python = ">=3.11,<4"

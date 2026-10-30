@@ -51,7 +51,7 @@ EOF
 fi
 
 # Toolchain routing per D65: when pixi.toml exists the cargo legs run in the pixi
-# build env (mise's cargo shim is refused by design - mise owns host tools only).
+# build env (pixi is the single toolchain since B4).
 HAS_WS=0
 CARGO=(cargo)
 if [ -d crates ]; then

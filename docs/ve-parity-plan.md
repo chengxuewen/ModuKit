@@ -680,6 +680,11 @@ ModuKit anchors:
 - 2026-10-29 probe results: MSRV 1.88.0 (1.85 red on libloading/napi-build); qoder
   rules are native on both `.agents/rules` and `.qoder/rules`; qoder MCP stays
   pending until B1 creates the root `.mcp.json`.
+- 2026-10-30 B4a landed: `mise.toml` and `rust-toolchain.toml` deleted;
+  `bootstrap.sh/.bat` are pixi-only (submodule guard, pixi-init, PATH line, hooks,
+  advisory agents sync); JS legs report `RUNNER: node v22.23.4 (pixi-env)`;
+  CMake presets already mirrored the pixi routes; `cargo metadata --locked` OK;
+  full gate green in 86.57 s. B4b owns MSRV + cmake-smoke.
 - 2026-10-30 B3 landed: `check.sh --list` = 32 legs (gate-i18n replaces the C1
   hand-list; gate-docs absorbs doc-liveness; gate-abi exact 24-symbol set;
   check-promises narrow phrase lint; gate-mcp/gate-agents wired; ci green 86.59 s).

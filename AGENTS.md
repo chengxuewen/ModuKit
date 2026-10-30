@@ -33,7 +33,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 │                             #   plugins/ = reserved, NOT created
 ├── bindings/cpp/             # C++ wrapper shelf: generated faces + live probe (Visia-grammar)
 ├── CMakeLists.txt + cmake/   # PolyOrch-driven graph: pixi translation, cargo lanes, ctest bridges, demo lanes
-├── pixi.toml / mise.toml     # build envs (tools/rust/cov; vendor-test task) / host tooling pins
+├── pixi.toml                # single toolchain + tasks (mise/rust-toolchain retired, B4)
 ├── scripts/                  # check.sh (D50 local gate incl ALL THIRTEEN demo legs + commit-shape),
 │                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh + demo-stage5-n2.sh + demo-wave2-{reader,clock,py,py-sup,js,js-sup,plugin-py,plugin-js}.sh, regen-fdset/golden.sh,
 │                             #   check-embed-parity/capability-ledger.sh, skill-lint.py
@@ -52,7 +52,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Which skills exist / when they fire | `SKILL.md` | registry incl. inoperative flags |
 | Conventions & gates | `.agents/memorys/conventions.md` | C0 executable-checks, C1 English, C2 branch/pin, C3 commit-shape |
 | v1 frozen surface (what may NOT break) | architecture §11 D87 row + `docs/stage-2-plan.md` §9 | amendment policy = D83 (tail-add by record, break by hearing) |
-| Dev toolchain | `bootstrap.sh`/`.bat` + `mise.toml`/`pixi.toml` | ALL cargo/rustfmt via `pixi run` (mise shims broken, PIT-7 class) |
+| Dev toolchain | `bootstrap.sh`/`.bat` + `pixi.toml` | ALL cargo/rustfmt/node via `pixi run` (single track since B4) |
 
 ## CODE MAP
 
@@ -114,7 +114,7 @@ bash scripts/demo-wave2-js.sh      # demo-wave2-js: PASS (node walks the 16 rung
 bash scripts/demo-wave2-js-sup.sh  # demo-wave2-js-sup: PASS (js sup rung + tri-language FIDELITY + orphan census; two levers)
 bash scripts/coverage-boundary.sh  # D79 boundary run - all regions >= 80 (long; stage/acceptance edges only)
 
-# build/test via pixi ONLY (mise cargo/rustfmt shims are broken on this box)
+# build/test via pixi ONLY (pixi is the single toolchain since B4)
 export PATH="$HOME/.pixi/bin:$PATH"
 pixi run cargo test --workspace          # totals: parse from redirected file (PIT-9)
 pixi run cargo clippy --workspace --all-targets -- -D warnings

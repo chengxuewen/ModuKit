@@ -1,4 +1,0 @@
-# D104 T2.6: intent signage for rustup hosts; pixi remains the real toolchain
-# authority on this box (D65). No script reads this file.
-[toolchain]
-channel = "stable"

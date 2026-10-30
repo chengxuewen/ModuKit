@@ -1,79 +1,54 @@
 #!/usr/bin/env bash
-# bootstrap.sh — one-time dev-environment setup for ModuKit (user-level, no sudo).
+# bootstrap.sh — one-time dev setup (pixi only; user-level, no sudo).
 #
-#   ./bootstrap.sh
+# Steps:
+#   1. submodule guard for the PolyOrch pixi-init vendor
+#   2. pixi + repo envs via PolyOrch/scripts/pixi-init.sh
+#   3. add ~/.pixi/bin to PATH (idempotent rc line)
+#   4. opt-in China cargo mirror (MODUKIT_CN_MIRROR=1)
+#   5. repo git hooks (core.hooksPath=scripts/hooks)
+#   6. advisory agent-layer sync
+#   7. verification hints
 #
-# Idempotent. Steps:
-#   1. ensure mise        (official installer -> ~/.local/bin if missing)
-#   2. ensure shell activation (idempotent append to ~/.bashrc or ~/.zshrc)
-#   3. mise install       (toolchain pins from mise.toml; no-op when satisfied)
-#   4. ensure pixi        (delegated to PolyOrch/scripts/pixi-init.sh: pinned
-#                         auditable installer, already-satisfied no-op, lock-drift retry)
-#
-# After first run: open a NEW terminal (activation is read at shell start).
-# Windows native: use bootstrap.bat - stages mirrored (pixi delegation, git hooks,
-#   mirror slot; hooks+slot added 2026-10-23 doc-audit). WINDOWS FIRST-RUN DEBT stands:
-#   the bat has never been executed on Windows.
+# mise and rust-toolchain.toml are retired (B4): pixi is the single toolchain.
+# Windows native: bootstrap.bat mirrors this; its first-run debt stands.
 
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 ROOT="$PWD"
 
-# 1. locate or install mise ---------------------------------------------------
-MISE="$(command -v mise 2>/dev/null || true)"
-[ -n "$MISE" ] || [ ! -x "$HOME/.local/bin/mise" ] || MISE="$HOME/.local/bin/mise"
-if [ -z "$MISE" ]; then
-    echo "[bootstrap] mise not found — installing user-level via https://mise.run"
-    curl -fsSL https://mise.run | sh
-    MISE="$HOME/.local/bin/mise"
-    [ -x "$MISE" ] || { echo "[bootstrap] ERROR: installer finished but $MISE is missing" >&2; exit 1; }
-fi
-echo "[bootstrap] mise: $("$MISE" --version)"
-
-# 2. ensure activation in the user's shell rc ---------------------------------
-case "$(basename "${SHELL:-bash}")" in
-    zsh)  RC="$HOME/.zshrc";  SHELL_KIND=zsh ;;
-    *)    RC="$HOME/.bashrc"; SHELL_KIND=bash ;;
-esac
-if ! grep -qF 'mise activate' "$RC" 2>/dev/null; then
-    {
-        echo 'export PATH="$HOME/.local/bin:$PATH"  # mise bin'
-        echo "eval \"\$($MISE activate $SHELL_KIND)\"  # mise toolchain pins — repo pin: mise.toml"
-    } >> "$RC"
-    echo "[bootstrap] activation appended to $RC"
-else
-    echo "[bootstrap] activation already present in $RC"
-fi
-
-# 3. install the pinned toolchains --------------------------------------------
-echo "[bootstrap] applying mise.toml pins (no-op if satisfied) ..."
-"$MISE" install
-
-# 4. submodule guard ------------------------------------------------------
-#    The pixi bootstrap is supplied by PolyOrch's standard script; initialise
-#    the submodule if it is not checked out, fail loudly when the script is
-#    still missing (never a silent skip).
+# 1. submodule guard ----------------------------------------------------------
 if [ ! -f PolyOrch/scripts/pixi-init.sh ]; then
-    echo "[bootstrap] PolyOrch/scripts/pixi-init.sh missing - running git submodule update --init --recursive PolyOrch"
+    echo "[bootstrap] PolyOrch/scripts/pixi-init.sh missing - initialising the submodule"
     git submodule update --init --recursive PolyOrch \
         || { echo "[bootstrap] ERROR: submodule init failed - check network/git, clone PolyOrch manually and retry" >&2; exit 1; }
     [ -f PolyOrch/scripts/pixi-init.sh ] \
-        || { echo "[bootstrap] ERROR: PolyOrch/scripts/pixi-init.sh still missing after submodule init" >&2; exit 1; }
+        || { echo "[bootstrap] ERROR: PolyOrch/scripts/pixi-init.sh still missing after init" >&2; exit 1; }
 fi
 
-# 5. ensure pixi + install the repo envs - delegate to PolyOrch/scripts/pixi-init.sh
-#    (auditable pinned install, PIXI_VERSION default 0.78.0, already-satisfied
-#    no-op, lock-drift retry). D65 boundary: mise owns host/agent tools, pixi owns
-#    the build envs; pixi.lock stays the committed reproducibility pin.
+# 2. pixi + repo envs (auditable pinned install; already-satisfied no-op) ------
 bash PolyOrch/scripts/pixi-init.sh --manifest-path "$ROOT/pixi.toml" \
     || { echo "[bootstrap] ERROR: pixi bootstrap delegation failed (PolyOrch/scripts/pixi-init.sh)" >&2; exit 1; }
 
-# 5b. host policy (opt-in) - China cargo mirror. Default OFF: writing the user's
-# cargo config is a network-policy decision, deliberately NOT the supplier's job
-# (its scope note says so); the grammar and the measured quirk come from the
-# twin project's live stage - sparse protocol needs the /index/ path (the git
-# address 404s under sparse); ustc-sparse is the documented fallback carrier.
+# 3. PATH for the pixi binary (the envs are activated by pixi itself) ----------
+if ! command -v pixi >/dev/null 2>&1; then
+    case "$(basename "${SHELL:-bash}")" in
+        zsh) RC="$HOME/.zshrc" ;;
+        *)   RC="$HOME/.bashrc" ;;
+    esac
+    if ! grep -qF '# ModuKit pixi PATH' "$RC" 2>/dev/null; then
+        echo 'export PATH="$HOME/.pixi/bin:$PATH"  # ModuKit pixi PATH' >> "$RC"
+        echo "[bootstrap] pixi PATH line appended to $RC"
+    fi
+    export PATH="$HOME/.pixi/bin:$PATH"
+fi
+command -v pixi >/dev/null 2>&1 \
+    || { echo "[bootstrap] ERROR: pixi still not resolvable - re-run and check polyorch/scripts/pixi-init.sh output" >&2; exit 1; }
+echo "[bootstrap] pixi: $(pixi --version)"
+
+# 4. host policy (opt-in) - China cargo mirror. Default OFF: writing the user's
+# cargo config is a network-policy decision, deliberately NOT the supplier's job.
 if [ "${MODUKIT_CN_MIRROR:-0}" = "1" ]; then
     CARGO_CONFIG="${CARGO_HOME:-$HOME/.cargo}/config.toml"
     mkdir -p "$(dirname "$CARGO_CONFIG")"
@@ -99,15 +74,23 @@ else
     echo "[bootstrap] cargo mirror off (opt in: MODUKIT_CN_MIRROR=1)"
 fi
 
-# 6. repo-local git hooks: C3 commit-shape pre-flight (commit-msg reads the
-#    prepared message; conventions.md C3). Idempotent; --no-verify stays the escape hatch.
+# 5. repo-local git hooks (commit-msg C3 + pre-commit agent sync/gate) ---------
 if command -v git >/dev/null 2>&1 && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  git config core.hooksPath scripts/hooks
-  echo "[bootstrap] core.hooksPath -> scripts/hooks (C3 gate live)"
+    git config core.hooksPath scripts/hooks
+    echo "[bootstrap] core.hooksPath -> scripts/hooks"
 fi
 
+# 6. advisory: regenerate the agent layers (never fatal on a fresh clone) -----
+if pixi run agents sync; then
+    echo "[bootstrap] agent layers synced"
+else
+    echo "[bootstrap] WARN: agent sync failed; run: pixi run agents sync"
+fi
+
+# 7. verification hints --------------------------------------------------------
 echo ""
 echo "[bootstrap] done. Open a NEW terminal, then verify:"
-echo "    node -v        # expect the mise.toml pin (v22.x), not the system node"
-echo "    mise doctor"
-echo "    pixi --version # build-env manager (D65); repo envs: pixi run <task>"
+echo "    pixi --version"
+echo "    pixi run cargo --version"
+echo "    pixi run node --version   # v22.x from the mcp feature"
+echo "[bootstrap] NOTE: mise is retired; remove old 'mise activate' lines from your rc manually."
