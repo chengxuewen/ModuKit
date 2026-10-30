@@ -27,9 +27,10 @@ Read the user message and classify as:
 | **Design** | "design" / "architecture" / "approach" / "how to" | `/brainstorming` + `/openspec-propose` |
 | **Test** | "test" / "E2E" / "coverage" | `/test-driven-development` + `/playwright` |
 | **Adjudication** | "裁决逐项过" / "一个个来" / "decide between options" / "walk the options" | `/adjudication-walkthrough` |
+| **Audit** | "audit" / "review repo" / "docs drift" / "scan ecosystem" | `/doc-audit` for docs/decisions; `/repo-audit` for whole-repo engineering |
 | **Docs** | "docs" / "README" / "documentation" | `/doc-audit` |
 | **Security** | "security" / "permissions" / "auth" | `/security-review` |
-| **Exploration** | "research" / "compare" / "what options" | `/ecosystem-scan` + librarian agent |
+| **Exploration** | "research" / "compare" / "what options" | `/repo-audit` + librarian agent |
 | **Ambiguous** | No clear keywords | Propose 2-3 possible directions, let user choose |
 
 ### Step 2: Context Check

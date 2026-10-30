@@ -1,281 +1,228 @@
 ---
 name: doc-audit
-description: "Audit this repository's documentation and agent system for self-consistency: decision liveness, cross-document contradictions, gap coverage, and phase accuracy. Checks the whitepaper, the docs/reference series, the root documents, and the C/D/PIT memory numbering, and runs as a five-dimension parallel audit with interactive per-finding confirmation. Use when the user says 'audit the docs', 'doc-audit', 'check documentation consistency', 'are the decisions still live', 'find documentation gaps', or before a phase transition."
+description: "Project documentation and architecture audit. Checks self-consistency, completeness, gaps, and optimization opportunities across architecture docs, design docs, and decision records in parallel. Confirms every finding with the user interactively, item by item, listing details, options with pros/cons, sources, impact, recommendation. Supports team mode (large audits) and background-agent mode (lightweight checks). Use when docs drift from reality, a decision needs verification, or before a Phase transition."
 ---
 
 # Document & Architecture Audit
 
-> **Re-scoped for ModuKit (2026-10-09)**: audit targets are the ModuKit canon —
-> `docs/whitepaper.md` (verbatim canon), root `README.md` / `AGENTS.md` / `SKILL.md`,
-> `docs/reference/` (roster: its README.md index; `00-overview.md` decision matrix),
-> `docs/codegraph-bootstrap.md`, `.agents/memorys/` (C0-C3 / D ledger / PIT ledger — never hardcount; probe live high-water: `grep -E '^## D[0-9]+' .agents/memorys/decisions.md | tail -1`),
-> `.opencode/opencode.json`, `mise.toml` / `bootstrap.sh` / `bootstrap.bat`.
-> `docs/architecture.md` + `docs/modules/00-11` are primary targets (adjudicated baseline
-> since 2026-10-10; module range and self-claims refreshed at the 2026-10-15 full audit).
-> since 2026-10-10). **Targets grown 2026-10-21 (D93 era)**: plans of record now
-> `docs/stage-{1,2,3,4}-plan.md`; plus `docs/capability-ledger.md`, the contract originals
-> `contracts/modukit_embed.h` / `contracts/modukit_plugin.h`, and `bindings/`.
-> PolyOrch-era remnants NOT targets here: C2-C6 conventions, vendored xmake set.
+Full audit of the project documentation system: doc consistency, decision verification, agent infrastructure, reference benchmarking.
 
-A full audit of this repository's document system: cross-document consistency, decision
-validation, agent infrastructure, gap coverage, and phase accuracy.
+**Philosophy**: an audit is not nitpicking — it pays down debt. Documentation debt is as dangerous as code debt.
 
-**Philosophy**: an audit is not fault-finding, it is debt collection. Documentation debt is
-as dangerous as code debt — and in a repository whose only deliverable *is* documentation,
-it is the only debt there is.
+> **ModuKit scope (2026-10-30)**: audit the real canon: `docs/whitepaper.md`,
+> `docs/architecture.md` + `docs/modules/00-11`, root `README.md`/`AGENTS.md`/`SKILL.md`,
+> `docs/sdd/`, stage/wave plans, `docs/capability-ledger.md`, `docs/env.md`, contract
+> originals, bindings, and `.agents/memorys/` (C0-C5 / D / PIT — probe live high-water,
+> never hardcount). `docs/reference/` is excluded as frozen external evidence.
+> There is no rendering/UI surface; gate-prose is deferred, so use gate-docs/spec-trace.
 
 ---
 
-## Entry: audit types
+## Entry: audit type
 
 ### `/doc-audit` (no arguments)
-
-Present the audit-type menu:
+Pops up the audit-type menu:
 
 ```
-[1] Full audit      -- all five dimensions (default)
-[2] Decision check  -- is each D{n} in decisions.md still live and reflected?
-[3] Consistency     -- whitepaper <-> architecture <-> modules <-> root docs
-[4] Agent system    -- .agents/ rules, skills, memory, and config self-consistency
-[5] Gap scan        -- coverage of unresolved decisions, phases, and missing artifacts
-[6] Phase audit     -- status.md against the real state of the repository
+[1] Full audit — all 5 dimensions (default)
+[2] Decision verification — how well decisions.md landed
+[3] Doc consistency — arch ↔ modules ↔ sub-docs cross-check
+[4] Agent system — .agents/ rules/skills/memory self-consistency
+[5] Gap optimization — security/reliability/ops sweep
+[6] Phase audit — Phase progress vs reality
 ```
 
 ### `/doc-audit full`
-
-Start the full audit directly, skipping the menu. Equivalent to `[1]`.
+Starts the full audit directly, skipping the menu. Equivalent to `[1] Full audit`.
 
 ### `/doc-audit quick-fix`
-
-Check LOW and MEDIUM findings only, fix them automatically, and skip interactive review.
+Checks only LOW/MEDIUM issues and fixes them automatically, without entering interactive
+review. **Guard rails** (this is the only path that writes memorys without a human in
+the loop):
+- NEVER auto-edit `.agents/memorys/decisions.md` or the history paragraphs of
+  `status.md` -- append-only contract; report the needed change instead.
+- Auto-fix allowlist: docs/*.md wording, cross-reference text, numbering gaps.
+- After any auto-fix, re-run the owning gate (gate-docs / spec-trace; gate-prose is deferred) before reporting.
 
 ---
 
-## The five dimensions
+## Audit dimensions
 
-### 1. Decision validation
-
-Check that every `D{n}` in `decisions.md` is actually reflected in the whitepaper, the
-root README, the docs/reference series where applicable, and the status record.
+### 1. Decision verification
+Verify how decisions D1-Dx in `decisions.md` landed in the architecture docs, implementation code, and status records.
 
 **Core questions**:
+- Is each decision's conclusion correctly reflected in architecture.md and the module docs?
+- Any "decision says A, reality is B" contradictions?
+- Do stale references inside decisions need updating?
+- **Decision freshness check**: has a later decision superseded it? Are tech-stack versions outdated?
 
-- Is each decision's conclusion reflected in `docs/whitepaper.md`, the root `README.md`, and the `docs/reference/` series where applicable?
-- Is there anywhere that "the decision says A but the document says B"?
-- Do any decisions carry references that have gone stale (a moved file, a renumbered
-  section, a renamed skill)?
-- **Decision freshness**: has this decision been superseded by a later one without saying so?
-  Is a stated version, date, or external fact still true? (Precedent: the 2026-10-09 I420/Visia smuggled-residue check — a suspicion that proved
-  false but had to be run before the term was confirmed as own design vocabulary.)
+### 2. Doc consistency
+Verify concept-level consistency across the real doc set:
+`whitepaper.md ↔ architecture.md ↔ README (§Development Status) ↔ AGENTS.md`, with
+`docs/sdd/` as the contract layer and `docs/reference/` **excluded** (frozen external
+evidence snapshots -- their claims are dated on purpose).
 
-### 2. Document consistency
-
-Check cross-consistency across `docs/whitepaper.md` (canon), the root `README.md`,
-`AGENTS.md`, `SKILL.md`, `docs/reference/` (its `README.md` index and `00-overview.md`
-decision matrix), and `docs/codegraph-bootstrap.md`.
-
-**Core questions**:
-
-- Is the same concept described the same way everywhere? (file counts, the phase label, the
-  chosen stack, the count of skills)
-- Does a derived document restate whitepaper facts differently or introduce new facts?
-  New facts must be externally sourced and marked (the `docs/reference/` series is the
-  sanctioned carrier of whitepaper-external content).
-- **Is every file under `docs/` classified?** derived (whitepaper echo), design
-  (root design docs: codegraph-bootstrap.md, stage-1-plan.md; plus architecture.md,
-  modules/*), or external-sourced (reference series).
-  A new unclassified file is a HIGH finding.
-- Do the root documents (`README.md`, `SKILL.md`) agree with `docs/reference/README.md` (the series index) rather than
-  restating it differently?
-- Are the two READMEs still doing different jobs — the root one a repository front door, the
-  `docs/` one the documentation hub?
-- Is every local link resolving? (Mechanical probe: the dead-link scan from the 2026-10-09
-  Full-scan run; extending `scripts/check.sh` (D50, landed 2026-10-13) with a formal link check is a Stage-1 trigger item.)
-
-### 3. Agent system audit
-
-Check self-consistency across `.agents/rules/`, `.agents/memorys/`, `.agents/skills/`, and
-`.opencode/opencode.json`.
+**Scope note (gates-first)**: numeric and structural drift (clause counts, heading
+length, line-anchors) already has an enforcement owner -- gate-docs / spec-trace;
+gate-prose is deferred. This dimension only looks for CONCEPT-level contradictions: the
+same fact stated two different ways.
 
 **Core questions**:
+- Is the same fact described consistently across the set? (crate counts, band status,
+  tech-stack versions, compat rulings)
+- Do sub-docs duplicate the main doc?
+- Are crate names consistent with the `modukit-*` namespace and the C ABI boundary
+  rulings?
 
-- `conventions.md` — is the `C{n}` numbering contiguous, and does every `C{n}` cross-reference
-  resolve? Does every convention still carry a *runnable* check, as C0 demands?
-- `decisions.md` — is `D{n}` contiguous and in order, and does every `D{n}` reference resolve
-  to a file and section that still exist?
-- `pitfalls.md` — is `PIT-{n}` contiguous, and is every cross-reference complete?
-- **Does `SKILL.md` (the skills registry) match the actual inventory?** Count the directories
-  under `.agents/skills/` and compare against what the registry claims. A registry that has
-  drifted from reality is a HIGH finding.
-- Does every `.agents/skills/*/SKILL.md` carry complete frontmatter — a `name` and a
-  `description` — and does `name` equal its directory name? (The loader requires both.)
-- Does `.opencode/opencode.json` → `instructions[]` still resolve every entry?
-- **Mechanical first pass — run it before manual review:**
-  `python3 scripts/skill-lint.py` must exit 0 (frontmatter, name==dir, size, @path refs,
-  registry sync; fixture-negative-proved 2026-10-09).
-- Do inoperative skills carry explicit registry flags in `SKILL.md`? (openspec-* x3 as of
-  2026-10-09; re-verify any skill whose prerequisites appeared or vanished since.)
+### 3. Agent-system audit
+Verify self-consistency among the rules, skills, and memory under .agents/.
 
-### 4. Gap scan
-
-Scan for documents or design sections that should exist and do not.
+**Ownership split with repo-audit**: repo-audit owns inventory, the security gate,
+utilization and ecosystem comparison; THIS dimension owns numbering
+uniqueness/contiguity and cross-reference SEMANTICS. repo-audit's quick pass hands
+over here when it finds a semantic inconsistency.
 
 **Core questions**:
+- conventions.md numbering contiguous AND unique? C{n} cross-references valid?
+- decisions.md numbering contiguous AND unique? A duplicate D{n} is worse than a hole
+  (a duplicate pair occurred in the donor ledger -- supersede reasoning must key on
+  the number + date + title triple, never the number alone)
+- pitfalls.md numbering contiguous AND unique? PIT-{n} cross-references complete?
+- Does the skill directory table (AGENTS.md) match the actual skill list? (mechanical -- gate-skills already proves it; re-check only after a sync failure)
+- Does the `skill-router` skill classification match the actual skill list?
+- Do the host assembly points agree: `.opencode/opencode.json` `instructions`, `AGENTS.md`, and the `.agents/skills` entities (one source; host link layers are B8-deferred, never hand-written)?
+- Is every skill's SKILL.md frontmatter complete?
 
-- Do the open-decision registers — `docs/reference/00-overview.md` §4, `.agents/memorys/backlog.md`
-  Pending, `status.md` Open Items — list anything already decided but not closed, or items
-  with no owner/next step? Are the three registers mutually consistent (no item open in one,
-  done in another)?
-- Are there claims in `docs/whitepaper.md` with no supporting evidence, still unresolved?
-- Is anything marked `TBD` or "not yet" that has since been decided? (Precedents found
-  2026-10-09: `AGENTS.md` NOTES "License TBD" after D1 landed, and its generated header
-  "Commit: none yet" after real commits existed — both fixed same session.)
-- `scripts/` holds `skill-lint.py` + `check.sh` (D50, landed 2026-10-13); the C1 gate and env
-  probes now live there too; remaining Stage-1 triggers: formal dead-link check seed +
-  doc-liveness/D-record mechanics (PORT_NOW bundle, backlog) - not current-phase gaps.
-- Pin hygiene (ModuKit analogue of the build-reproducibility invariant): `mise.toml` pins
-  node; plugin versions pinned in `opencode.json` (2026-10-09; superpowers since ref-pinned
-  @v7.0.0 per commit 3e6baeb 2026-10-15 - "floats by design" retired). `Cargo.lock` rule
-  (constraints.md) activates with the Stage-1 workspace.
-- Is the phase's stated deliverable actually complete?
+### 4. Gap optimization
+Scan for missing key documents/design sections without re-litigating functional scope.
+
+**Core questions** (anchor on stage/wave plans, `docs/capability-ledger.md`, and the
+backlog; there is no rendering/UI surface):
+- Contract/docs gaps: missing SDD clauses, stale capability-ledger rows, or unowned
+  cross-references?
+- Security for THIS domain: untrusted manifest/plugin input, FFI boundary invariants,
+  panic strategy?
+- Ops/observability: reader/event coverage, health checks, log/metrics ownership?
+- Error model: ABI negotiation, proc-wire framing, plugin-crash containment?
+- Toolchain/upgrade: pixi pins, MSRV, CMake/PolyOrch floor, migration notes?
 
 ### 5. Phase audit
-
-Check the declared phase against the real state of the repository.
+Verify the roadmap state three ways: `status.md (## Phase paragraph) ↔ whitepaper §8 /
+architecture §12 ↔ git log / ctest reality`; the VE-parity plan status is a fourth
+check for B0-B8. (decisions.md carries no Phase tags -- checking there is a dead lookup.)
 
 **Core questions**:
-
-- Does the `Phase` line in `status.md` match what the repository actually contains?
-- Are the dated entries in the `status.md` Verification table still true when re-run today?
-- Are the `Open Items` accurate — is anything still listed as open that has been resolved, or
-  marked resolved that is not?
-- Does the memory's description of the git state match reality? Run `git log --oneline -3` and
-  `git status --short` and compare against what `AGENTS.md` and `status.md` claim. This repository has
-  already carried stale generated-header claims (an `AGENTS.md` "Commit: none yet" line that
-  survived the first real commits), so treat the git state as something to verify against
-  `git log` / `git status`, never to infer from memory.
-- Does a document claim a completion state that contradicts another document?
+- Does status.md's Phase paragraph match git log / test counts and the plan status?
+- Does the whitepaper/architecture roadmap match what status.md records as landed?
+- Does the code implementation match the completion state the docs claim?
 
 ---
 
 ## Audit modes
 
-### A. Team mode (recommended for a full audit)
-
-Three or more large documents → `team_create` with 4-6 parallel members (the lead conducts
-dimension 5 - phase audit - inline; a five-member fan-out is not required).
+### A. Team mode (recommended -- large audits)
+3+ large documents -> launch 3-4 parallel subagents through the host Task mechanism
+(self-contained briefs per `.agents/skills/subagent-orchestration/`: exact question,
+file list, read-only scope, output format). Do NOT invent tool APIs -- the host's
+subagent/Task facility is the only mechanism.
 
 ```
-team_create(inline_spec={
-  name: "doc-audit",
-  members: [
-    { name: "decision-validator",  category: "deep", prompt: "<dimension 1 core questions>" },
-    { name: "consistency-checker", category: "deep", prompt: "<dimension 2 core questions>" },
-    { name: "agent-auditor",       category: "deep", prompt: "<dimension 3 core questions>" },
-    { name: "gap-scanner",         category: "deep", prompt: "<dimension 4 core questions>" }
-  ]
-})
+brief 1: decision verification   (core questions of dimension 1)
+brief 2: doc consistency         (core questions of dimension 2)
+brief 3: agent-system + gaps     (core questions of dimensions 3-4)
 ```
 
-**Conductor rules**:
+**Conductor rules** (orchestrator behavior):
+- Right after launch, report to the user: "launched N parallel audit lanes, expect 3-5 minutes"
+- While waiting for all lanes, do only "non-overlapping work"
+- After all complete: **dedupe and merge** (same issue found by 2+ dimensions → merge into 1 item)
+- Sort by severity: CRITICAL → HIGH → MEDIUM → LOW
+- Timeout handling: any lane producing nothing for over 10 minutes → mark as "timed out"
+- Conflict handling: dimension A says X, dimension B says Y → flag for human review
 
-- On start, tell the user: "starting N parallel audits, roughly 3-5 minutes".
-- Until every member is done, do only non-overlapping work — never re-run a search a member
-  is already running.
-- When all are done: **deduplicate and merge**. The same problem found by two or more
-  dimensions becomes one finding.
-- Sort by severity: CRITICAL → HIGH → MEDIUM → LOW.
-- Timeout: a member producing nothing after 10 minutes is labelled "timed out", not silently
-  dropped.
-- Conflict: dimension A says X and dimension B says Y → mark it for human review rather than
-  picking a side.
-- Close the team when every task is terminal — do not leave members running.
-
-### B. Background-agent mode (light audit)
-
-Few documents → `task(category="deep", run_in_background=true)` × N in parallel.
+### B. Background-agent mode (lightweight audits)
+Few documents -> one background subagent per dimension, same brief discipline.
 
 ### C. Single-thread mode
-
-Very small scope → inspect directly with Read and Grep. Do not spawn subagents.
+Tiny scope → check directly with Read/Grep, no subagents.
 
 ---
 
 ## Interactive review: finding format
 
-**Review item by item**, presenting each with the `question()` tool.
+**Review item by item**, presenting each finding with the host's interactive-choice
+tool (CodeBuddy: `ask_followup_question`; other hosts: their equivalent). One finding
+per prompt -- the one-at-a-time cadence is the protocol; the tool name is incidental.
 
 ```markdown
-## [severity] [number]: [title]
+## 🔴/🟠/🟡/🔵 [number]: [title]
 
-### Detail
-| Source | Location | Content |
-|--------|----------|---------|
-| Document A | line X | ... |
-| Document B | line Y | ... |
+### Details
+| Source1 | Location | Content |
+|--------|------|------|
+| Doc A | line X | ... |
+| Doc B | line Y | ... |
 
 ### Options
-| Option | Pro | Con |
-|--------|-----|-----|
-| A. [name] | ... | ... |
-| B. [name] | ... | ... |
+| Option | Pros | Cons |
+|------|------|------|
+| A. [option name] | ... | ... |
+| B. [option name] | ... | ... |
 
 ### Recommendation
-[Option X]. [Reasoning.]
+[Option X]. [reason]
 ```
 
-Options: adopt the recommendation / choose another option / do not act / custom.
-Progress: `[item N of M]`.
+Choices: adopt the recommendation / pick another option / won't-fix / custom
+Progress: `[item N of M]`
 
 ---
 
 ## Workflow
 
-### Phase 1: Start
-1. Confirm the audit scope and type.
-2. Choose the mode (team / background / single-thread).
-3. Report: "starting N parallel audits".
+### Phase 1: Launch
+1. Confirm audit scope and type
+2. Choose the mode (team/background/single-thread)
+3. Report: "launched N parallel audit lanes"
 
 ### Phase 2: Merge
-1. Deduplicate — the same problem from several sources is merged and annotated.
-2. Sort — CRITICAL → HIGH → MEDIUM → LOW.
-3. Cross-corroborate — a finding two or more dimensions agree on is raised in priority.
+1. Dedupe: same issue from multiple sources → merged with annotations
+2. Sort: CRITICAL → HIGH → MEDIUM → LOW
+3. Cross-corroboration: issues agreed on by 2+ dimensions get priority raised
 
 ### Phase 3: Interactive review
-Item-by-item review, confirmed through `question()`.
+Review item by item with the host's interactive-choice tool, one finding per prompt.
 
 ### Phase 4: Fix
-1. Create a todo list.
-2. Work in dependency order: decisions first, then documents, then the status record.
-3. Verify after every edit — re-run the affected gate from `conventions.md`.
+1. Create the todo list
+2. In dependency order: fix decisions first → then docs → status last
+3. Verify after every edit
 
 ### Phase 5: Report
 ```
-Audit complete -- [date]
-Audit type: [full / decision / consistency / agent / gap / phase]
-Findings: N | fixed: M | not actioned: K
-Suggested next: [the area with the highest density of findings]
+Audit complete — [date]
+Audit type: [full/decisions/consistency/agent-system/gaps/phase]
+Findings: N | fixed: M | won't-fix: K
+Next suggestion: [issue-dense area]
 ```
 
 ---
 
-## Severity standard
+## Severity criteria
 
-| Severity | Trigger | Blocks? |
-|--------|---------|:---:|
-| CRITICAL | A document contradiction that would cause a wrong implementation, a reversed decision, or a missing core contract | yes |
-| HIGH | A stale reference, an ambiguous phase label, a duplicated document, a numbering gap, a drifted registry, or a modified vendored file | warn |
-| MEDIUM | A wording difference, a conflicting example, or a missing artifact that does not block the current phase | no |
-| LOW | A formatting inconsistency, a missing reference, or a `TBD` awaiting confirmation | no |
+| Severity | Review equivalent | Trigger | Blocking? |
+|--------|---------|------|:---:|
+| 🔴 CRITICAL | Blocking | doc contradiction that caused an implementation error / decision overturned / core API missing | ✅ |
+| 🟠 HIGH | Optional | stale reference / phase ambiguity / duplicated docs / numbering holes | ⚠️ |
+| 🟡 MEDIUM | Nit | wording divergence / conflicting examples / gap that doesn't block the current phase | ❌ |
+| 🔵 LOW | FYI | formatting inconsistency / missing citation / to-be-confirmed marker | ❌ |
 
----
-
-## Suggested audit frequency
-
-- After any `D{n}` decision changes: `/doc-audit decisions`
-- Before a phase transition: `/doc-audit full`
-- During a long working stretch: `/doc-audit full` weekly
-- After any large documentation change: `/doc-audit consistency`
+## Audit cadence
+- After every D# decision change: `/doc-audit decisions`
+- At a batch/band closure (the repo's working rhythm): `/doc-audit consistency`
+- Before a whitepaper Phase transition: `/doc-audit full`
+- Weekly during development: `/doc-audit full`
 
 ---
 
@@ -283,18 +230,43 @@ Suggested next: [the area with the highest density of findings]
 
 | Precedent | Pattern borrowed |
 |------|-----------|
-| [large-codebase-audit](https://github.com/MJWNA/large-codebase-audit-skill) | 9-surface AI-layer audit, aligned with Anthropic best practice |
-| [claude-ecosystem](https://github.com/melodic-software/claude-code-plugins) | Meta-skill architecture, 16 audit agents |
-| [agent-self-audit](https://github.com/Xxt-XN/agent-self-audit) | Two-tier design, 13 checks, automatic escalation |
+| [large-codebase-audit](https://github.com/MJWNA/large-codebase-audit-skill) | 9-surface AI-layer audit, aligned with Anthropic best practices |
+| [claude-ecosystem](https://github.com/melodic-software/claude-code-plugins) | meta-skill architecture, 16 audit agents |
+| [agent-self-audit](https://github.com/Xxt-XN/agent-self-audit) | two-tier design, 13 checks, auto-escalation |
 
 ---
 
-## Division of labour with `ecosystem-scan`
+## Division of labor with repo-audit (formerly ecosystem-scan)
 
-| Dimension | ecosystem-scan | doc-audit |
+| Dimension | repo-audit | doc-audit |
 |------|:---:|:---:|
-| Agent infrastructure (skills / rules / MCP) | specialist | dimension 3 |
-| External community comparison | core | no |
-| Internal document consistency | no | specialist |
-| Decision validation | no | specialist |
-| Security gate | full mode only | no |
+| Skills/rules/MCP inventory + security gate + ecosystem comparison | ✅ specialty | ❌ |
+| C/D/PIT numbering uniqueness + cross-reference semantics | mechanical hole detection only (hands over) | ✅ specialty |
+| Concept-level doc consistency | ❌ | ✅ specialty |
+| Decision verification (did it land / was it overturned cleanly) | ❌ | ✅ specialty |
+| Structure rules (heading/paragraph/anchors) | gate-prose deferred | gate-prose deferred |
+
+**Handoff rule**: repo-audit's quick pass flags semantic inconsistencies in .agents/ and
+hands them to dimension 3 here; doc-audit flags inventory/security needs and hands them
+to repo-audit.
+
+## Rationalizations (anti-excuse)
+
+| Excuse | Rebuttal |
+|--------|----------|
+| "the docs are roughly right" | Roughly right is how contradictions ship; check the exact claim. |
+| "skip the interactive review" | Batch-dumping findings hides the hard choices; go item by item. |
+| "one dimension is enough" | A contradiction needs two sources; run the cross-check. |
+| "fix the docs later" | Later means the next reader trusts a wrong doc. |
+
+## Red Flags
+
+- A "decision says A, reality is B" contradiction left unfixed.
+- Findings without file:line evidence.
+- Numbering holes (C/D/PIT) not flagged.
+- A stale reference to a moved/renamed file.
+
+## Verification (evidence)
+
+- Each finding cites the two sources (file + line) that conflict.
+- After fixes, the same grep/section re-check passes.
