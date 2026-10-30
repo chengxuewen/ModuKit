@@ -2,10 +2,10 @@
 """Assemble the mdBook source tree and build the docs site (plan §14, S1).
 
 docs/** + book/toc.toml  -->  build/book-src/ (SUMMARY generated)
-                          -->  mdbook build -d www/book/<lang>
-                          -->  rustdoc (target/doc) merged into www/book/api if present
+                          -->  mdbook build -d build/book/<lang>
+                          -->  rustdoc (target/doc) merged into build/book/api if present
 
-docs/ stays the single source of truth; build/ and www/ are fully derived.
+docs/ stays the single source of truth; everything under build/ is derived.
 Unlisted markdown files are appended under "Appendix" with a WARN (plan §9-1).
 """
 
@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import os
 import shutil
 import subprocess
@@ -22,7 +23,10 @@ import tomllib
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BOOK_DIR = os.path.join(ROOT, "book")
 SRC_DIR = os.path.join(ROOT, "build", "book-src")
-OUT_DIR = os.path.join(ROOT, "www", "book")
+# build/ is the single derived root: the assembled source and the built site
+# live side by side. Keep the site one level down; the stale-language prune
+# below deletes direct children of OUT_DIR that carry index.html.
+OUT_DIR = os.path.join(ROOT, "build", "book")
 
 
 def first_heading(path: str) -> str:
@@ -150,9 +154,19 @@ def main() -> int:
     covered: set[str] = set()
     lines: list[str] = ["# Summary", ""]
     current_group = None
+    current_parent = None
 
-    def emit(entry_src: str, entry_title: str, group: str | None) -> None:
-        nonlocal current_group
+    def emit(entry_src: str, entry_title: str, group: str | None, parent: str | None = None) -> None:
+        nonlocal current_group, current_parent
+        if parent:
+            # nested under a draft parent row: mdBook's fold collapses the children
+            if parent != current_parent:
+                lines.append(f"- [{parent}]()")
+                current_parent = parent
+            lines.append(f"  - [{entry_title}]({entry_src})")
+            covered.add(entry_src)
+            return
+        current_parent = None
         if group != current_group:
             lines.append(f"# {group}" if group else "")
             current_group = group
@@ -162,14 +176,26 @@ def main() -> int:
 
     for entry in chapters:
         title = entry.get("title") or first_heading(os.path.join(ROOT, entry["source"]))
-        emit(entry["source"], title, entry.get("group"))
+        emit(entry["source"], title, entry.get("group"), entry.get("parent"))
 
     import glob as globmod
     for group in toc.get("group", []):
         pattern = os.path.join(ROOT, group["glob"])
+        nested = group.get("nested", False)
+        parent = group["title"] if nested else None
+        if nested:
+            current_parent = None
         for match in sorted(globmod.glob(pattern, recursive=True)):
             rel = os.path.relpath(match, ROOT)
-            emit(rel, first_heading(match), group["title"])
+            title = first_heading(match)
+            if nested:
+                # sidebar navigation wants the short name; the page keeps the full h1
+                title = re.split(r"\s+[\u2014\u2013]\s+|:\s+", title, maxsplit=1)[0].strip()
+                if len(title) > 48:
+                    title = title[:48].rstrip(" ,;(") + "…"
+                emit(rel, title, None, parent)
+            else:
+                emit(rel, title, group["title"])
 
     # 5) Unlisted markdown -> Appendix, with a visible WARN (plan §9-1).
     #    Pages excluded by --public are not "unlisted": they are deliberately hidden.
@@ -206,9 +232,26 @@ def main() -> int:
     rustdoc = os.path.join(ROOT, "target", "doc")
     if os.path.isdir(rustdoc):
         shutil.copytree(rustdoc, os.path.join(OUT_DIR, "api"), dirs_exist_ok=True)
-        print("BOOK ✓ rustdoc merged -> www/book/api/")
+        print("BOOK ✓ rustdoc merged -> build/book/api/")
     else:
         print("BOOK - no target/doc yet (run: pixi run docs-gen) -- api/ skipped")
+
+    # D46 follow-up: prune stale language trees and keep a root redirect, so
+    # book-check stays green on old checkouts and the root URL lands somewhere.
+    for name in sorted(os.listdir(OUT_DIR)):
+        if name in ("en", "api"):
+            continue
+        stale = os.path.join(OUT_DIR, name)
+        if os.path.isdir(stale) and os.path.exists(os.path.join(stale, "index.html")):
+            shutil.rmtree(stale)
+            print(f"BOOK ✓ pruned stale language tree {name}/")
+    stale_langs = os.path.join(OUT_DIR, "langs.json")
+    if os.path.exists(stale_langs):
+        os.remove(stale_langs)
+    root_index = os.path.join(OUT_DIR, "index.html")
+    with open(root_index, "w", encoding="utf-8") as handle:
+        handle.write('<!doctype html>\n<meta http-equiv="refresh" content="0; url=./en/">\n'
+                     '<p>The book lives at <a href="./en/">./en/</a>.</p>\n')
 
     n = len(covered)
     print(f"BOOK ✓ built {n} chapter(s) -> {os.path.relpath(dest, ROOT)}")

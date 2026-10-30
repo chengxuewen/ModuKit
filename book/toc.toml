@@ -48,8 +48,10 @@ glob = "docs/modules/*.md"
 title = "Contracts (SDD)"
 type = "reference"
 glob = "docs/sdd/*.md"
+nested = true
 
 [[group]]
 title = "Reference Library"
 type = "reference"
 glob = "docs/reference/*.md"
+nested = true

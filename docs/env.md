@@ -47,7 +47,7 @@ source pixi.sh         # daily shell activation
 | `mcp setup/status/index/sync` | Install/verify pins, show versions, rebuild indexes. |
 | `docs-gen` | `cargo doc` + regenerate the committed `llms.txt` (book merges `target/doc`). |
 | `markdownlint` | Manual Markdown check using `.markdownlint.json` (not in fast ci). |
-| `book-build` / `book-check` | Assemble `build/book-src` and build/check `www/book/en`. |
+| `book-build` / `book-check` | Assemble `build/book-src` and build/check `build/book/en`. |
 | `book-serve` | Foreground LAN server with a rebuild watcher. |
 | `book-graph` | Refresh `graph.json`/`meta.json` only (no mdbook build). |
 | `spec-trace` | SDD clause numbers ↔ `spec:` test tags (5 pairs). |
@@ -95,7 +95,7 @@ The named gates:
 Book sources are English-only (VE D46, 2026-10-30). Other languages are covered by
 reader-side browser translation (Edge/Chrome built-in, Immersive Translate): there
 are no PO catalogs, no `BOOK_LANG` builds, no gettext preprocessor, and no
-per-release translation maintenance. `book-build` writes `www/book/en` only;
+per-release translation maintenance. `book-build` writes `build/book/en` only;
 `book-serve` is a foreground LAN server with a rebuild watcher; `book-graph`
 refreshes `graph.json`/`meta.json` without rebuilding the site. The SDD clauses
 under `docs/sdd/` are index entries; `scripts/spec-trace.sh` proves each one has a
@@ -114,7 +114,7 @@ The local equivalent is `pixi run ci`; the workflow adds no second gate definiti
 | Path | Owner |
 |---|---|
 | `out/build/` | CMake/Ninja IDE build. |
-| `build/book-src/` + `www/book/en/` | mdBook assembly and English site output (ignored). |
+| `build/book-src/` + `build/book/en/` | mdBook assembly and English site output (ignored). |
 | `out/build-<demo>/` | Demo-specific CMake builds. |
 | `target/` | Cargo build and coverage. |
 | `.pixi/envs/` | Pixi environments. |

@@ -97,8 +97,6 @@ node_modules
 # CodeGraph CLI + bin links (installed by init-mcp-codegraph.sh)
 .opencode/codegraph/
 .opencode/bin/
-# Book build artifacts (English-only site)
-/www/
 # Agent host layers (generated; never tracked)
 .qoder/
 .codebuddy/
