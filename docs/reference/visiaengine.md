@@ -173,6 +173,11 @@ additions either already present as generic lessons or VE-specific (testing
 tiers, model table, CodeBuddy/Trae host layers). Only `common/docker.md` was
 copied (verbatim, unmounted) and the dangling VE `PIT-98` citation was stripped.
 
+Book: VE D46 (2026-10-30) makes the book English-only and moves other languages
+to reader-side browser translation (Edge/Chrome built-in, Immersive Translate).
+ModuKit follows: no PO/gettext/book-i18n; the mdBook site, graph, lazy mermaid,
+provenance footer, book-serve and book-graph are adopted; gate-prose is deferred.
+
 ### Not adopted
 
 - Functional code and contracts (`crates/`, `contracts/`, `bindings/` implementations).
@@ -213,6 +218,14 @@ copied (verbatim, unmounted) and the dangling VE `PIT-98` citation was stripped.
 | `.agents/rules/common/docker.md` | same | verbatim (unmounted) | B5 |
 | `.agents/rules/common/edit-safety.md` | same | three-way review (PIT-98 stripped) | B5 |
 | `.agents/rules/common/constraints.md` | same | adapt (docker pointer) | B5 |
+| `book/book.toml` / `book/toc.toml` | same | adapt (ModuKit chapters, English-only) | B6 |
+| `book/web/*` | same | adapt (repo/title; footer) | B6 |
+| `scripts/book-build.py` | same | adapt (English-only + ModuKit paths) | B6 |
+| `scripts/book-check.py` | same | adapt (English-only checks) | B6 |
+| `scripts/book-serve.py` | same | adapt (English-only watcher) | B6 |
+| `scripts/export-graph.mjs` | same | verbatim | B6 |
+| `book/po/*` + `scripts/book-i18n.py` | not adopted | removed by VE D46 | B6 |
+| `scripts/gate-prose.py` + `docs/prose-banned.toml` | not adopted | deferred (prose policy batch) | B6 |
 
 The root `NOTICE` carries VE's copyright line; commit bodies name
 `VE <path> @ <commit>`.

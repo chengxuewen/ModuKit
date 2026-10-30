@@ -12,6 +12,7 @@
 - [VE-parity plan](docs/ve-parity-plan.md) — non-functional port, B0-B8
 - [reference roster](docs/reference/README.md) — external project profiles
 - [environment guide](docs/env.md) — pixi, tasks, MCP lifecycle
+- [book](book/toc.toml) — mdBook chapter order (B6)
 
 ## Crates
 - modukit-core — lifecycle state machine, registry, in-process bus, clock, observability

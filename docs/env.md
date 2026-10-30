@@ -24,7 +24,7 @@ source pixi.sh         # daily shell activation
 
 | Environment | Features | Use |
 |---|---|---|
-| `default` | `tools`, `rust`, `mcp`, `agents` | Build, tests, MCP servers, agent layers. |
+| `default` | `tools`, `rust`, `mcp`, `agents`, `book` | Build, tests, MCP servers, agent layers, docs book. |
 | `cov` | `rust`, `cov` | `cargo llvm-cov` boundary runs. |
 | `serena` | `serena` | Isolated Python 3.13 + `serena-agent`; never the default env. |
 | `msrv` | `msrv` | Rust 1.88 only: the MSRV promise check (not a build env). |
@@ -45,6 +45,9 @@ source pixi.sh         # daily shell activation
 | `gate-rules` | C/D/PIT citation liveness (local entries + the external allowlist). |
 | `mcp setup/status/index/sync` | Install/verify pins, show versions, rebuild indexes. |
 | `docs-gen` | Regenerate the committed `llms.txt`. |
+| `book-build` / `book-check` | Assemble `build/book-src` and build/check `www/book/en`. |
+| `book-serve` | Foreground LAN server with a rebuild watcher. |
+| `book-graph` | Refresh `graph.json`/`meta.json` only (no mdbook build). |
 | `cmake-smoke` | Full cold configure/build/ctest + two negative paths (`ci` runs configure-only). |
 | `msrv` | `cargo check --workspace` in the 1.88 env (`pixi run -e msrv msrv`). |
 | `vendor-test` | Vendor-shm lane (cold, not in the fast gate). |
@@ -84,11 +87,21 @@ The named gates:
   `pixi run gate-skills` verifies the registry and `python3 scripts/skill-lint.py`
   validates frontmatter, size, and `@path` references.
 
+## Book
+
+Book sources are English-only (VE D46, 2026-10-30). Other languages are covered by
+reader-side browser translation (Edge/Chrome built-in, Immersive Translate): there
+are no PO catalogs, no `BOOK_LANG` builds, no gettext preprocessor, and no
+per-release translation maintenance. `book-build` writes `www/book/en` only;
+`book-serve` is a foreground LAN server with a rebuild watcher; `book-graph`
+refreshes `graph.json`/`meta.json` without rebuilding the site.
+
 ## Output territory
 
 | Path | Owner |
 |---|---|
 | `out/build/` | CMake/Ninja IDE build. |
+| `build/book-src/` + `www/book/en/` | mdBook assembly and English site output (ignored). |
 | `out/build-<demo>/` | Demo-specific CMake builds. |
 | `target/` | Cargo build and coverage. |
 | `.pixi/envs/` | Pixi environments. |

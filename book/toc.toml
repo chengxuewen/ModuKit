@@ -1,0 +1,55 @@
+# Chapter order for the English-only ModuKit book (VE D46): source pages stay
+# English; readers use browser translation (Edge/Chrome built-in, Immersive
+# Translate). title = "" takes the first `# ` heading from the source.
+# visibility = "internal" is excluded by `book-build --public`.
+
+[[chapter]]
+title = "Overview"
+source = "README.md"
+type = "index"
+
+[[chapter]]
+title = "Architecture"
+source = "docs/architecture.md"
+type = "explanation"
+
+[[chapter]]
+title = "Environment"
+source = "docs/env.md"
+type = "how-to"
+
+[[chapter]]
+title = "Whitepaper"
+source = "docs/whitepaper.md"
+type = "explanation"
+
+[[chapter]]
+title = "Capability Ledger"
+source = "docs/capability-ledger.md"
+type = "reference"
+
+[[chapter]]
+title = "Call & Dependency Graph"
+source = "web/graph.md"
+type = "reference"
+
+[[chapter]]
+title = "VE-Parity Plan"
+source = "docs/ve-parity-plan.md"
+type = "explanation"
+visibility = "internal"
+
+[[group]]
+title = "Modules"
+type = "explanation"
+glob = "docs/modules/*.md"
+
+[[group]]
+title = "Contracts (SDD)"
+type = "reference"
+glob = "docs/sdd/*.md"
+
+[[group]]
+title = "Reference Library"
+type = "reference"
+glob = "docs/reference/*.md"

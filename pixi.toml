@@ -88,6 +88,17 @@ serena-agent = "==2.1.0"
 [feature.serena.tasks]
 mcp-serena = "serena start-mcp-server --transport stdio --context claude-code --language-backend LSP --project \"$PIXI_PROJECT_ROOT\""
 
+# Book toolchain for the human-facing docs site (book/, output in www/).
+[feature.book.dependencies]
+markdownlint-cli = ">=0.45,<1"
+mdbook = ">=0.5,<0.6"
+
+[feature.book.tasks]
+book-build = "python scripts/book-build.py"
+book-check = "python scripts/book-check.py"
+book-serve = "python scripts/book-serve.py"
+book-graph = "python scripts/book-build.py --graph-only"
+
 [feature.agents.tasks]
 agents = "python scripts/agents-cli.py"
 agent-sync = "python scripts/agents-cli.py sync"
@@ -96,7 +107,7 @@ gate-skills = "python scripts/skills-index.py check"
 gate-rules = "python scripts/rule-ref-lint.py"                     # C/D/PIT citations resolve or are allowlisted
 
 [environments]
-default = { features = ["tools", "rust", "mcp", "agents"], solve-group = "base" }
+default = { features = ["tools", "rust", "mcp", "agents", "book"], solve-group = "base" }
 # cov rides its own solve group: the default build env resolution stays untouched.
 cov = { features = ["rust", "cov"] }
 serena = { features = ["serena"] }

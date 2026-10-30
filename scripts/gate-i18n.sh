@@ -23,7 +23,7 @@ untracked = subprocess.run(
 ).stdout.split()
 candidates = sorted(set(tracked + untracked))
 SKIP_PARTS = {'.omo', '.pixi', 'node_modules', 'target', 'build', '.git', 'out', '.refinfo', '.qoder', '.serena'}
-SKIP_PATH_PREFIX = ('.agents/skills/', '.opencode/node_modules/')
+SKIP_PATH_PREFIX = ('.agents/skills/', '.opencode/node_modules/', 'book/web/vendor/')
 EXTS = {
     '.md', '.rst', '.txt', '.cmake', '.rs', '.c', '.cpp', '.h', '.hpp', '.toml',
     '.json', '.jsonc', '.sh', '.bat', '.mjs', '.js', '.py', '.yml', '.yaml',
