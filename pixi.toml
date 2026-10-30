@@ -22,6 +22,8 @@ clang_win-64 = "*"       # windows-side compiler shim (conda convention: activat
 [feature.tools.tasks]
 configure = "cmake -S . -B out/build -G Ninja"
 build = { cmd = "cmake --build out/build", depends-on = ["configure"] }
+ci = "bash scripts/check.sh"                                   # the local gate; CONSTRAINTS is generated from --list
+docs-gen = "bash scripts/gen-llms-txt.sh"                        # regenerate llms.txt (committed)
 regen-fdset = "bash scripts/regen-fdset.sh"                     # regenerate contracts/*.fdset in place (D12 ledger)
 regen-golden = "bash scripts/regen-golden.sh"                    # rewrite crates/modukit-codegen/testdata/golden (review the diff!)
 codegen = "bash scripts/regen-golden.sh"                         # alias for the golden regeneration workflow

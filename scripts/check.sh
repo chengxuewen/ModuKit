@@ -10,6 +10,42 @@ cd "$(dirname "$0")/.."
 status=0
 note() { printf '%s\n' "$*"; }
 
+# --list: the single source for CONSTRAINTS.md (one leg per line). Keep this list
+# in step with the legs below; the constraints gate compares counts only.
+if [ "${1:-}" = "--list" ]; then
+  cat <<'EOF'
+fmt
+clippy
+test
+c1
+skill-lint
+regen-fdset
+demo-stage1
+demo-stage2
+demo-stage4-m1
+demo-stage4-m2
+demo-stage5-n2
+demo-wave2-reader
+demo-wave2-clock
+demo-wave2-py
+demo-wave2-py-sup
+demo-wave2-js
+demo-wave2-js-sup
+demo-wave2-plugin-py
+demo-wave2-plugin-js
+cargo-deny
+ctest-stage4
+embed-parity
+capability-ledger
+commit-shape
+doc-liveness
+numbering
+lane-table
+wire-parity
+EOF
+  exit 0
+fi
+
 # Toolchain routing per D65: when pixi.toml exists the cargo legs run in the pixi
 # build env (mise's cargo shim is refused by design - mise owns host tools only).
 HAS_WS=0

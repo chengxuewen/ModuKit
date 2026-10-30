@@ -1,0 +1,27 @@
+# ModuKit
+
+> Modular plugin host framework & polyglot extension toolkit: Rust kernel,
+> C ABI as the only cross-language exit, generated bindings for C++/Python/JS.
+
+## Docs
+- [AGENTS.md](AGENTS.md) — project facts, conventions, commands, gates
+- [architecture](docs/architecture.md) — adjudicated baseline (section 11 = decision index)
+- [whitepaper](docs/whitepaper.md) — positioning and v1.0 canon
+- [modules](docs/modules/00-overview.md) — reading order for the 00-11 deep dives
+- [capability ledger](docs/capability-ledger.md) — embed/plugin verb map
+- [VE-parity plan](docs/ve-parity-plan.md) — non-functional port, B0-B8
+- [reference roster](docs/reference/README.md) — external project profiles
+
+## Crates
+- modukit-core — lifecycle state machine, registry, in-process bus, clock, observability
+- modukit-runtime — modukit-run / modukit-host / modukit-debug-reader binaries
+- modukit-transport — narrow transport seam, socketpair/memfd, SCM_RIGHTS fdpass, vendor-shm
+- modukit-codegen — protoc plugin, Rust/C ABI/C++/Py/JS faces, wire goldens
+- modukit-js — napi bridge over the C ABI
+
+## Contracts
+- [embed ABI](contracts/modukit_embed.h) — the C embedding surface
+- [plugin ABI](contracts/modukit_plugin.h) — modukit_plugin_init and HostAbi tables
+- [process wire](contracts/modukit_wire.h) — TL frame prefix + payload grammar
+- [kernel proto](contracts/modukit.proto) — proto2 ledger
+- [wire goldens](contracts/golden/wire-v1) — regression frames
