@@ -1,0 +1,26 @@
+{
+  "local-codegraph": {
+    "kind": "npm",
+    "pkg": "@colbymchenry/codegraph",
+    "version": "1.6.0",
+    "bin": "codegraph",
+    "args": ["serve", "--mcp"],
+    "probe_mode": "start"
+  },
+  "local-playwright": {
+    "kind": "npm",
+    "pkg": "@playwright/mcp",
+    "version": "0.0.82",
+    "bin": "playwright-mcp",
+    "args": [],
+    "probe_mode": "version"
+  },
+  "local-serena": {
+    "kind": "pixi",
+    "pixi_env": "serena",
+    "task": "mcp-serena",
+    "version": "2.1.0",
+    "probe": ["serena", "--version"],
+    "probe_mode": "version"
+  }
+}

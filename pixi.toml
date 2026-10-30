@@ -33,6 +33,19 @@ vendor-test = "cargo test -p modukit-transport --features vendor-shm"
 # check.sh runs it only when the tool resolves, else loud skip (offline box).
 deny = "cargo deny check licenses bans"
 
+# MCP single source (B1): node runs the pinned npm launchers; python runs the CLI/gate.
+# B4 later verifies the node pin and deletes mise; the dependency lands here because B1
+# cannot work without it.
+[feature.mcp.dependencies]
+nodejs = ">=22,<23"
+python = ">=3.11,<4"
+
+[feature.mcp.tasks]
+mcp = "python scripts/mcp-cli.py"
+mcp-codegraph = "node scripts/mcp-serve.mjs --from scripts/mcp-servers.json --name local-codegraph"
+mcp-playwright = "node scripts/mcp-serve.mjs --from scripts/mcp-servers.json --name local-playwright"
+gate-mcp = "python scripts/gate-mcp.py"
+
 [feature.rust.dependencies]
 rust = "*"
 
@@ -49,7 +62,23 @@ llvm-tools = "*"            # ships llvm-cov / llvm-profdata the wrapper drives
 # instrumented-run writer class is fully accounted for.
 env = { LLVM_PROFILE_FILE = "target/llvm-cov-target/cov-%p-%m.profraw" }
 
+# Serena MCP: isolated Python 3.13 + serena-agent; own environment (no base group).
+# clang-tools is deliberately absent until its availability is proven; the C++ backend
+# gap is recorded in docs/ve-parity-plan.md.
+[feature.serena.dependencies]
+python = "3.13.*"
+rust = ">=1.99,<2"
+rust-src = "*"
+rust-analyzer = "*"
+
+[feature.serena.pypi-dependencies]
+serena-agent = "==2.1.0"
+
+[feature.serena.tasks]
+mcp-serena = "serena start-mcp-server --transport stdio --context claude-code --language-backend LSP --project \"$PIXI_PROJECT_ROOT\""
+
 [environments]
-default = { features = ["tools", "rust"], solve-group = "base" }
+default = { features = ["tools", "rust", "mcp"], solve-group = "base" }
 # cov rides its own solve group: the default build env resolution stays untouched.
 cov = { features = ["rust", "cov"] }
+serena = { features = ["serena"] }

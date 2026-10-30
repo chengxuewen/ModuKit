@@ -164,11 +164,14 @@ Deliverables:
   in B2).
 - pixi tasks: `mcp`, `mcp-codegraph`, `mcp-playwright`, `mcp-serena`, `gate-mcp`;
   a serena feature with Python 3.13 + `serena-agent` in its own solve group.
-- Delete the dead `.opencode/serena/` shell.
-- `.serena/project.yml` adapted and tracked (language servers and backends trimmed to
-  ModuKit's Rust/C++/Python/JS surface; not a verbatim VE copy); `.serena/cache/` and
-  `.serena/memories/` stay ignored. Serena memories are not a second memory store
-  (VE D41); the single memory source stays `.agents/memorys/`.
+- Keep `.opencode/serena/` as a legacy local install (4,479 files, ignored by its
+  nested `.gitignore`); it is not a dead shell. The MCP path is the new pixi
+  `serena` env; retire the legacy tree only on an explicit user word.
+- `.serena/project.yml` adapted and tracked (only `rust` enabled today: rust-analyzer
+  ships in the serena env; the Python/JS/C++ language-server gap is recorded in the
+  risk table; not a verbatim VE copy); `.serena/cache/` and `.serena/memories/` stay
+  ignored. Serena memories are not a second memory store (VE D41); the single memory
+  source stays `.agents/memorys/`.
 - `.opencode/init-lsp-wrap.mjs` is conditional: probe opencode on a `.rs` file
   first. If LSP starts, record "wrapper not needed" in the copy ledger and do not
   copy it; if it fails, copy the wrapper and replace `"lsp": true` with explicit
@@ -192,10 +195,13 @@ backends only.
 Acceptance:
 
 ```bash
-pixi run gate-mcp                       # (target) green; missing credential is yellow, not red
-pixi run mcp status                     # (target) pin vs installed versions agree
-pixi run mcp index                      # (target) builds .codegraph from empty
-pixi run mcp-codegraph </dev/null       # (target) starts and exits 0 on EOF
+pixi run mcp setup                     # installs npm pins; serena env is separate
+pixi run gate-mcp                      # green; O5 WARN unless MODUKIT_GATE_MCP_STRICT=1
+pixi run mcp status                    # pin vs installed agree
+pixi run mcp index                     # codegraph + serena (rust) index
+pixi run mcp-codegraph </dev/null      # starts and exits 0 on EOF
+python3 scripts/mcp-links.py check     # hosts match the single source
+python3 scripts/mcp-file-guard.py check
 python3 -m json.tool .opencode/opencode.json >/dev/null
 ```
 
@@ -344,8 +350,8 @@ into a false green.
 
 Deliverables:
 
-1. Add `nodejs = ">=22,<23"` to pixi; install; run both JS legs and confirm the
-   `RUNNER: node ... (.pixi/...)` line.
+1. `nodejs = ">=22,<23"` was added in B1 (the MCP feature); B4 verifies both JS legs
+   and confirms the `RUNNER: node ... (.pixi/...)` line, then owns the mise deletion.
 2. Delete `mise.toml` and `rust-toolchain.toml`; rewrite `bootstrap.sh` **and**
    `bootstrap.bat` without the mise stages; `uv` retires with mise (arxiv is gone in
    B1); keep the PolyOrch pixi delegation; print the manual `~/.bashrc` / `~/.zshrc`
@@ -588,7 +594,7 @@ when its trigger fires.
 - D109 write-back + architecture section 11 + AGENTS + status high-water (B0).
 - Provenance/NOTICE fill (B0 skeleton; B1/B5 rows).
 - Immediate defects: IP redaction (B0), C1 scope drift (B3), numbering gate bounds
-  (B0), dead `.opencode/serena/` (B1).
+  (B0), legacy `.opencode/serena/` kept (B1).
 
 ### 5.3 Trigger-gated forks (adjudicate only when the trigger fires)
 
@@ -707,6 +713,11 @@ ModuKit anchors:
 |---|---|---|---|
 | `scripts/agent_common.py` | `scripts/agent_common.py` | verbatim | B1 |
 | `scripts/mcp-links.py` | `scripts/mcp-links.py` | adapt (target schema) | B1 |
+| `scripts/mcp-serve.mjs` | `scripts/mcp-serve.mjs` | verbatim | B1 |
+| `scripts/mcp-cli.py` | `scripts/mcp-cli.py` | adapt (serena env/index) | B1 |
+| `scripts/gate-mcp.py` | `scripts/gate-mcp.py` | adapt (`probe_mode` + O5 WARN) | B1 |
+| `scripts/mcp-file-guard.py` | `scripts/mcp-file-guard.py` | verbatim | B1 |
+| `scripts/mcp-launch.sh` / `.bat` | same | verbatim | B1 |
 | `scripts/memory-aggregate.py` | `scripts/memory-aggregate.py` | adapt (WINDOW map) | B2 |
 | `scripts/gate-i18n.sh` | `scripts/gate-i18n.sh` | adapt (EXTS/ALLOW) | B3 |
 | `scripts/gate-abi.sh` | `scripts/gate-abi.sh` | adapt (header-derived whitelist) | B3 |

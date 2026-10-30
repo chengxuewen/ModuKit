@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "local-codegraph": {
+      "type": "stdio",
+      "command": "pixi",
+      "args": ["run", "mcp-codegraph"]
+    },
+    "local-playwright": {
+      "type": "stdio",
+      "command": "pixi",
+      "args": ["run", "mcp-playwright"]
+    },
+    "local-serena": {
+      "type": "stdio",
+      "command": "pixi",
+      "args": ["run", "-e", "serena", "mcp-serena"]
+    }
+  }
+}
