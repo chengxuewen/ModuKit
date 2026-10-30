@@ -124,6 +124,7 @@ fn manifest(so: &Path, runner: &Path) -> Manifest {
 /// The wall-out column: the SAME fixture walk, now hosted inside the real
 /// runner. `start` returning Ok IS the assertion suite passing across the
 /// wall (any mailbox-law disagreement parks a distinct negative code there).
+// spec: BUS-01
 #[test]
 fn wall_out_runs_the_same_walk_and_the_parent_bus_sees_the_same_topic() {
     let _serial = serial();

@@ -48,6 +48,7 @@ source pixi.sh         # daily shell activation
 | `book-build` / `book-check` | Assemble `build/book-src` and build/check `www/book/en`. |
 | `book-serve` | Foreground LAN server with a rebuild watcher. |
 | `book-graph` | Refresh `graph.json`/`meta.json` only (no mdbook build). |
+| `spec-trace` | SDD clause numbers ↔ `spec:` test tags (5 pairs). |
 | `cmake-smoke` | Full cold configure/build/ctest + two negative paths (`ci` runs configure-only). |
 | `msrv` | `cargo check --workspace` in the 1.88 env (`pixi run -e msrv msrv`). |
 | `vendor-test` | Vendor-shm lane (cold, not in the fast gate). |
@@ -94,7 +95,9 @@ reader-side browser translation (Edge/Chrome built-in, Immersive Translate): the
 are no PO catalogs, no `BOOK_LANG` builds, no gettext preprocessor, and no
 per-release translation maintenance. `book-build` writes `www/book/en` only;
 `book-serve` is a foreground LAN server with a rebuild watcher; `book-graph`
-refreshes `graph.json`/`meta.json` without rebuilding the site.
+refreshes `graph.json`/`meta.json` without rebuilding the site. The SDD clauses
+under `docs/sdd/` are index entries; `scripts/spec-trace.sh` proves each one has a
+matching `spec:` tag on an existing test.
 
 ## Output territory
 

@@ -13,6 +13,7 @@
 - [reference roster](docs/reference/README.md) — external project profiles
 - [environment guide](docs/env.md) — pixi, tasks, MCP lifecycle
 - [book](book/toc.toml) — mdBook chapter order (B6)
+- [SDD contracts](docs/sdd/) — clause/test trace (B6)
 
 ## Crates
 - modukit-core — lifecycle state machine, registry, in-process bus, clock, observability

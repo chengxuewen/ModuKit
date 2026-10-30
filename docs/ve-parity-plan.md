@@ -1,8 +1,8 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-10-30 (revision 8). B0-B5 landed; B6 is in progress
-> under VE D46 (English-only book, reader-side browser translation); B7 pending;
-> B8 deferred. Twelve adjudications walked one by one with the maintainer (ten in
+> STATUS: PLAN OF RECORD, 2026-10-30 (revision 8). B0-B6 landed; B7 pending;
+> B8 deferred. B6 follows VE D46 (English-only book, reader-side browser
+> translation). Twelve adjudications walked one by one with the maintainer (ten in
 > section 2: A / A / C / A / A / B / A / A / A / B; two follow-ups in section 2.1:
 > C / A), plus the B4b-2 trio in section 2.3. Functional code, contracts, binding
 > implementations, demo assertions, and project memory entries are out of scope.
@@ -703,6 +703,10 @@ ModuKit anchors:
   plus the with-node omission, `probe_mode`, `SKILL.md` markers, toc
   type/visibility, book SUMMARY check 13, CONSTRAINTS anti-gaming half, llms source
   list, reference profile body, omo/tier branding, copy-ledger rows.
+- 2026-10-30 B6b: SDD skeleton landed: `docs/sdd/README.md` ownership plus the
+  five clauses (`KERNEL-01`, `EMBED-01`, `WIRE-01`, `BUS-01`, `TRANSPORT-01`),
+  tags on five existing tests, and `spec-trace` (5 pairs; a clause without a tag
+  was observed red). The book grows to 73 chapters; gate-prose stays deferred.
 - 2026-10-30 revision 8: VE D46 (English-only book; browser-side translation)
   applied to B6. Removed PO/gettext/book-i18n/BOOK_LANG/.tools/cargo-binstall;
   added meta.json/footer, book-serve, book-graph; gate-prose deferred. B0-B5 are

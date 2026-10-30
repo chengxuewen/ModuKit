@@ -98,6 +98,7 @@ book-build = "python scripts/book-build.py"
 book-check = "python scripts/book-check.py"
 book-serve = "python scripts/book-serve.py"
 book-graph = "python scripts/book-build.py --graph-only"
+spec-trace = "bash scripts/spec-trace.sh"
 
 [feature.agents.tasks]
 agents = "python scripts/agents-cli.py"

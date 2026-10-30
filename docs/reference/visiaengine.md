@@ -177,6 +177,8 @@ Book: VE D46 (2026-10-30) makes the book English-only and moves other languages
 to reader-side browser translation (Edge/Chrome built-in, Immersive Translate).
 ModuKit follows: no PO/gettext/book-i18n; the mdBook site, graph, lazy mermaid,
 provenance footer, book-serve and book-graph are adopted; gate-prose is deferred.
+The `docs/sdd` five-clause skeleton follows VE's bidirectional clause/tag pattern;
+the clause text is ModuKit-authored, not copied.
 
 ### Not adopted
 

@@ -71,6 +71,7 @@ fn handshake_abort_on_id_lie_is_rejected_by_strict_self_report() {
 /// byte, the reader reports a foreign version as data for the caller to
 /// type (parse, don't validate — the kernel doors answer with
 /// `KernelError::WireVersionMismatch`, the codec itself stays io-level).
+// spec: WIRE-01
 #[test]
 fn frame_codec_stamps_the_wire_version_and_surfaces_a_foreign_one() {
     use modukit_core::proc_wire;

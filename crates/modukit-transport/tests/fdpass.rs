@@ -60,6 +60,7 @@ fn read_blob(fd: OwnedFd) -> Vec<u8> {
     buf
 }
 
+// spec: TRANSPORT-01
 #[test]
 fn the_fdpass_shim_round_trips_a_memfd_blob_over_a_socketpair() {
     // In-process leg: proves both crate verbs (send and recv) carry one

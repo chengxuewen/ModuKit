@@ -117,6 +117,7 @@ mod tests {
         assert_eq!(EMBED_ABI_VERSION, 1);
     }
 
+    // spec: EMBED-01
     #[test]
     fn plugin_table_field_lists_are_populated_and_unique() {
         // Ordering truth against abi.rs and the header lives in the parity

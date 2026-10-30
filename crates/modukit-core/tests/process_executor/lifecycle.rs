@@ -2,6 +2,7 @@
 
 use super::*;
 
+// spec: KERNEL-01
 #[test]
 fn exe_spawn_green_walks_full_lifecycle_over_the_control_socket() {
     // Arrange

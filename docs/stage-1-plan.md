@@ -131,7 +131,7 @@ doc changes beyond milestone-sync (status.md/verification rows as gates land).
 
 Reference pattern = `.refinfo/VisiaEngine` measured 2026-10-16 (six takeaways carried:
 sentinel first-wins reuse; T-B1 pixi translation (option -> `polyorch_pixi_setup` +
-`polyorch_rust_setup(FROM pixi)`); crates lane with FOLDER = position-mirror ("crates/<c>";
+`polyorch_rust_setup(FROM pixi)`); crates lane with FOLDER = position-mirror ("crates/CRATE";
 action targets and tree-level aggregates deliberately FOLDER-less); R10 naming (real target =
 name = ctest entry, `-run`/`-test`/`-clean` button suffixes, LABELS route `-L/-LE`); ctest:
 `enable_testing()` BEFORE all add_subdirectory (measured silent-drop trap - already satisfied in
