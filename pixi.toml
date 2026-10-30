@@ -92,6 +92,7 @@ mcp-serena = "serena start-mcp-server --transport stdio --context claude-code --
 agents = "python scripts/agents-cli.py"
 agent-sync = "python scripts/agents-cli.py sync"
 gate-agents = "python scripts/agents-cli.py check"
+gate-skills = "python scripts/skills-index.py check"
 
 [environments]
 default = { features = ["tools", "rust", "mcp", "agents"], solve-group = "base" }

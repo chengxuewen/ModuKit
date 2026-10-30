@@ -142,16 +142,43 @@ pixi run cmake --preset default && pixi run cmake --build --preset default
 | Skill | Purpose |
 |-------|---------|
 | `adjudication-walkthrough` | one-at-a-time adjudication protocol. |
+| `ai-slop-cleanup` | Remove AI-generated noise from this repo's... |
+| `api-interface-design` | Contract-first interface design for polygl... |
+| `ast-grep-rewrites` | Structural search and rewrite with the ast... |
 | `book-to-skill` | Converts books and documents (PDF, EPUB, D... |
+| `browser-testing` (inoperative) | Browser-side verification workflow for a f... |
+| `ci-cd-automation` | Generic CI/CD pipeline management: Docker... |
+| `code-review-and-quality` | Code review and quality for this engine: f... |
+| `code-simplification` | Reduce complexity in Rust/TS code. |
+| `constraint-driven-development` | Constraint-driven development for this eng... |
+| `context-engineering` | Route language-specific rules to the right... |
+| `debugging-and-error-recovery` | Systematic debugging and error recovery fo... |
+| `deprecation-and-migration` | Deprecate and migrate safely in this repo:... |
 | `doc-audit` | Audit this repository's documentation and... |
+| `documentation-and-adrs` | Record architecture decisions and keep doc... |
 | `ecosystem-scan` | Audit the .agents/ system and scan the com... |
+| `incremental-implementation` | Thin vertical slice methodology — implemen... |
 | `lesson-review` | Batch session review: systematically extra... |
-| `openspec-apply-change` | Implement tasks from an OpenSpec change. |
-| `openspec-archive-change` | Archive a completed change in the experime... |
-| `openspec-sync-specs` | Sync delta specs from a change to main specs. |
+| `observability-and-instrumentation` | Observability and instrumentation for Modu... |
+| `openspec-apply-change` (inoperative) | Implement tasks from an OpenSpec change. |
+| `openspec-archive-change` (inoperative) | Archive a completed change in the experime... |
+| `openspec-explore` (inoperative) | Enter explore mode — a thinking partner fo... |
+| `openspec-propose` (inoperative) | Propose a new change with structured artif... |
+| `openspec-sync-specs` (inoperative) | Sync delta specs from a change to main specs. |
+| `performance-optimization` | Generic performance profiling and optimiza... |
+| `planning-and-task-breakdown` | Turn a spec or a vague ask into ordered, v... |
+| `repo-triage` | Layer triage for an ambiguous task in this... |
+| `review-hardcode` (deprecated alias) | Hardcoded secrets/ports/URLs scan. |
+| `rust-engineering` | Rust engineering workflow for the ModuKit... |
 | `rust-patterns` | Idiomatic Rust patterns, ownership, error... |
 | `rust-testing` | Rust testing patterns including unit tests... |
+| `security-hardening` | Security audit and hardening: OWASP Top 10... |
+| `shipping-and-launch` | Release and launch checklist for this engi... |
 | `skill-router` | Analyze user intent and output a recommend... |
+| `source-driven-development` | Ground every external dependency decision... |
+| `subagent-orchestration` | Orchestrate subagents for this repo: decid... |
+| `test-driven-development` | Red-green-refactor for this engine: write... |
+| `test-harness` | Multi-language automated test harness. |
 | `think-before-act` | Meta-constraint: investigate before acting... |
 <!-- END:skills-directory -->
 

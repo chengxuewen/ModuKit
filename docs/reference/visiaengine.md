@@ -120,9 +120,10 @@ without a rewrite.
 
 ## 8. Value for ModuKit
 
-**Verdict: BORROW-PATTERNS** (sibling method source; not a dependency —
-ModuKit does not render, so no code reuse; no license gate issue for
-patterns-only adoption).
+**Verdict: ADOPTED** (non-functional surface, 2026-10-29; sibling method
+source, not a dependency — ModuKit does not render, so no code reuse; the
+adopted surface is configuration, gates, docs, and skill workflows, not VE
+code).
 
 - **Adopt directly (now, docs-only)**: gate SKIP/RED/empty-set exit discipline
   (V1 — codifies our C0); doc-liveness link check (G1); D-record mechanics +
@@ -158,9 +159,14 @@ patterns-only adoption).
 ### Adopted surface
 
 Non-functional only: root config, build assembly, pixi, script framework, agent
-config, docs skeleton, directory layout, CI, hooks, IDE adapters, gitignore.
-Functional code, contracts, binding implementations, demo assertions, and project
-memory entries are not adopted.
+config, docs skeleton, directory layout, CI, hooks, IDE adapters, gitignore, and
+the skill/rules workflow surface (B5). Functional code, contracts, binding
+implementations, demo assertions, and project memory entries are not adopted.
+
+Skills: 27 VE directories copied in B5 (5 adapted to ModuKit seams); the 10
+pre-existing ModuKit skills were kept local and not re-copied. `book-to-skill`
+stays ModuKit's richer version; `rust-patterns` / `rust-testing` stay
+ModuKit-only; `review-hardcode` is a deprecated alias.
 
 ### Not adopted
 
@@ -172,7 +178,33 @@ memory entries are not adopted.
 
 | Source (VE) | Destination (ModuKit) | Mode | Batch |
 |---|---|---|---|
-| (filled per batch) | | | |
+| `.agents/skills/ai-slop-cleanup/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/api-interface-design/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/ast-grep-rewrites/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/browser-testing/` | same | adapt (inoperative stub) | B5 |
+| `.agents/skills/ci-cd-automation/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/code-review-and-quality/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/code-simplification/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/constraint-driven-development/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/context-engineering/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/debugging-and-error-recovery/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/deprecation-and-migration/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/documentation-and-adrs/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/incremental-implementation/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/observability-and-instrumentation/` | same | adapt (ModuKit kernel seams) | B5 |
+| `.agents/skills/openspec-explore/` | same | adapt (inoperative metadata) | B5 |
+| `.agents/skills/openspec-propose/` | same | adapt (inoperative metadata) | B5 |
+| `.agents/skills/performance-optimization/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/planning-and-task-breakdown/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/repo-triage/` | same | adapt (ModuKit layers) | B5 |
+| `.agents/skills/review-hardcode/` | same | verbatim (deprecated metadata) | B5 |
+| `.agents/skills/rust-engineering/` | same | adapt (ModuKit gates/MSRV) | B5 |
+| `.agents/skills/security-hardening/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/shipping-and-launch/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/source-driven-development/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/subagent-orchestration/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/test-driven-development/` | same | adapt (frontmatter metadata) | B5 |
+| `.agents/skills/test-harness/` | same | adapt (SDD namespaces) | B5 |
 
 The root `NOTICE` carries VE's copyright line; commit bodies name
 `VE <path> @ <commit>`.

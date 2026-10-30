@@ -70,7 +70,16 @@ def _skill_rows(skills_root):
         label = "`%s`" % (fm.get("name") or name)
         if fm.get("status") == "deprecated":
             label += " (deprecated alias)"
-        rows.append((label, _shorten(fm.get("description", ""), limit=45)))
+        elif fm.get("status") == "inoperative":
+            label += " (inoperative)"
+        rows.append(
+            (
+                label,
+                _shorten(fm.get("description", ""), limit=45),
+                fm.get("type", ""),
+                fm.get("notes", ""),
+            )
+        )
     return rows
 
 
@@ -88,16 +97,18 @@ def _existing_meta(path):
         cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
         if len(cells) < 3:
             continue
-        name = cells[0].strip("`").strip()
+        name = cells[0].split("`")[1] if "`" in cells[0] else cells[0]
         meta[name] = (cells[1], cells[2])
     return meta
 
 
 def _build_registry(rows, meta):
     parts = ["", "| Skill | Type | Notes |", "|-------|------|-------|"]
-    for label, purpose in rows:
+    for label, purpose, kind, notes in rows:
         name = label.split("`")[1] if "`" in label else label
-        kind, notes = meta.get(name, ("-", purpose))
+        fallback_kind, fallback_notes = meta.get(name, ("-", purpose))
+        kind = kind or fallback_kind
+        notes = notes or fallback_notes
         parts.append(
             "| %s | %s | %s |"
             % (label, kind.replace("|", "\\|"), notes.replace("|", "\\|"))
@@ -171,7 +182,7 @@ def _build_block(skills_root):
     parts = ["", "## SKILL DIRECTORY (generated -- edit .agents/skills/*, not this block)", ""]
     parts.append("| Skill | Purpose |")
     parts.append("|-------|---------|")
-    for label, purpose in rows:
+    for label, purpose, *_ in rows:
         parts.append("| %s | %s |" % (label, purpose.replace("|", "\\|")))
     return "\n".join(parts).rstrip("\n") + "\n"
 
@@ -264,5 +275,9 @@ def run(command, targets, cfg, dry_run):
 
 
 if __name__ == "__main__":
-    print(__doc__.strip())
-    sys.exit(0)
+    command = sys.argv[1] if len(sys.argv) > 1 else "check"
+    if command not in ("check", "sync", "dry-run", "list"):
+        print(__doc__.strip())
+        sys.exit(0)
+    cfg = ac.load_json(os.path.join(ac.ROOT, "scripts", "agent-targets.json"))
+    sys.exit(run(command, cfg["targets"], cfg, command == "dry-run"))

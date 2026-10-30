@@ -713,6 +713,12 @@ ModuKit anchors:
   (82 s). The cold tree exposed and fixed two real build defects: the gencode
   target lacked the conda include dir, and protobuf 7.x absl deps were missing
   from the link line. `--list` = 34 legs; ci green in 139.46 s.
+- 2026-10-30 B5a: 27 VE skill directories copied (the 10 ModuKit-local skills were
+  kept, not overwritten); 5 adapted (browser-testing inoperative, observability,
+  repo-triage, rust-engineering, test-harness); `review-hardcode` is a deprecated
+  alias; the five `openspec-*` are inoperative. `type`/`notes` frontmatter is the
+  registry source (39 rows); `gate-skills` added; AGENTS.md 20.7 KB; ci green in
+  89.38 s. B5b owns the three-way rules diff and rule-ref-lint.
 - 2026-10-30 B3 landed: `check.sh --list` = 32 legs (gate-i18n replaces the C1
   hand-list; gate-docs absorbs doc-liveness; gate-abi exact 24-symbol set;
   check-promises narrow phrase lint; gate-mcp/gate-agents wired; ci green 86.59 s).

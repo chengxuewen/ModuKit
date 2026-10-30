@@ -73,6 +73,16 @@ The named gates:
   build/ctest is `pixi run cmake-smoke` at acceptance.
 - `gate-agents`: verifies the generated layers.
 
+## Skills
+
+- One directory per skill, lower-kebab name; `SKILL.md` carries YAML frontmatter
+  (`name`, `description`, `type`, `notes`, and `status` when inoperative/deprecated).
+- `.agents/skills/**` is skipped by `gate-i18n`: routing triggers and keyword tables
+  are functional CJK, not prose.
+- `pixi run agents sync` regenerates the `SKILL.md` registry from the directories;
+  `pixi run gate-skills` verifies the registry and `python3 scripts/skill-lint.py`
+  validates frontmatter, size, and `@path` references.
+
 ## Output territory
 
 | Path | Owner |

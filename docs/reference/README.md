@@ -15,7 +15,7 @@ Series of profiles for open-source / sibling projects under `.refinfo/`
 
 | Project | Profile | Verdict | Why it matters to ModuKit |
 |---|---|---|---|
-| VisiaEngine | [visiaengine.md](visiaengine.md) | BORROW-PATTERNS | Completed sibling at our exact design point (Rust core + C ABI + staged delivery); source of the gate/trace/evidence discipline |
+| VisiaEngine | [visiaengine.md](visiaengine.md) | **ADOPTED (non-functional, 2026-10-29)** | Completed sibling at our exact design point (Rust core + C ABI + staged delivery); source of the gate/trace/evidence discipline and the B0-B7 agent/build surface |
 | iceoryx2 | [iceoryx2.md](iceoryx2.md) | DEPENDENCY-CANDIDATE (primary) + BORROW-PATTERNS | Stage-2 zero-copy local path; pre-1.0 but SHM-is-the-product; +100% ABI test ratio (v1 lesson); bindings/contract-layer lessons |
 | zenoh | [zenoh.md](zenoh.md) | BORROW-PATTERNS (conditional dependency only if cross-machine Stage-2) | zenoh-plugin-trait = most complete dynamic-plugin ABI found (Stage-1 shape); network-first, stable 1.x |
 | CppMicroServices | [cppmicroservices.md](cppmicroservices.md) | BORROW-PATTERNS (primary Stage-1 design mirror) | 6-state lifecycle + registry leases (reference!=instance) to port; C++-across-.so anti-pattern to avoid; Apache-2.0 green |

@@ -7,6 +7,7 @@ metadata:
   author: openspec
   version: "1.0"
   generatedBy: "1.4.1"
+status: inoperative
 ---
 
 Archive a completed change in the experimental workflow.
