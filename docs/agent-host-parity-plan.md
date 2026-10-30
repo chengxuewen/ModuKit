@@ -342,6 +342,10 @@ pixi run gate-agents
   owner is `skills-links.py` (H1.1); unlisted host entries become
   stale/pruned, not "missing".
 - Record the decision and the measured host context cost in `docs/env.md`.
+- H2b decision (2026-10-30, user-adjudicated one by one): **C - keep the full
+  41-skill inventory provisional; do not choose `skills_allowlist` until the H3
+  CodeBuddy restart measurement.** Record the measured cost, then make the
+  final full-vs-subset decision. H2b stays open until then.
 - The hub ceiling is real: `HUB_LIMIT = 30000`, `WARN = 28500`, `AGENTS.md`
   21,557 B today. H2.3 adds a registry row and H4 adds host prose; keep host
   prose in `docs/env.md`, not `AGENTS.md`.
