@@ -14,10 +14,13 @@ The repository already has a project-level skill surface in `.agents/skills/`
 (41 directories; `skill-lint` 41/0). The open gap is not inventory; it is
 portability and freshness:
 
-- `scripts/agent-targets.json` enables only `opencode` and a project MCP target;
-  no generated `.codebuddy` / `.trae` / `.claude` / `.cursor` rules or skills
-  layer exists. `.codebuddy/teams/` does exist as IDE session state (gitignored)
-  and is never generated, checked, or pruned by this plan.
+> Historical trigger snapshot (revision 4). Current state is section 2; the
+> bullets below are the proposal-time observations, not today's tree.
+
+- At proposal time, `scripts/agent-targets.json` enabled only `opencode` and a
+  project MCP target; no generated `.codebuddy` / `.trae` / `.claude` / `.cursor`
+  rules or skills layer existed. `.codebuddy/teams/` does exist as IDE session
+  state (gitignored) and is never generated, checked, or pruned by this plan.
 - Qoder is the current native reader; it is not a generated host target.
 - `skills-links.py` and `rules-links.py` are already expected optional layers in
   `agents-cli.py` / `agent-links.py`; the implementation must fit those contracts.
@@ -25,15 +28,15 @@ portability and freshness:
   import (`e5d5d28`) plus the 2026-10-30 audit (`d8e1212`): the release skill
   names the current gate count and no `pack-check`; the harness uses `docs/sdd`
   and no `openspec/specs`. H2.1/H2.2 are verification-only now.
-- `skill-authoring` is absent; the remaining skill work is that one
-  project-level authoring contract plus the activation-budget decision.
-- `gate-rules` and `spec-trace` exist and pass manually, but neither is a
-  `check.sh` leg today. Rule-citation liveness and the SDD trace therefore sit
-  outside the local `ci`; this is a P0 gate-wiring gap.
+- At proposal time, `skill-authoring` was absent; H2a landed it. The remaining
+  skill work was the activation-budget decision (H2b).
+- At proposal time, `gate-rules` and `spec-trace` existed and passed manually but
+  neither was a `check.sh` leg; H0a made both legs (36 total). Rule-citation
+  liveness and the SDD trace are now inside the local `ci`.
 - CodeBuddy is the daily host in the 2026-10-30 session: its `AGENTS.md` fallback
-  loads the project context, but none of the 40 project skills appear in the host
-  skill list and no project MCP tool is observed. The trigger for a host link
-  layer has fired.
+  loads the project context, but at proposal time none of the 40 project skills
+  appeared in the host skill list and no project MCP tool was observed. H1/H2a
+  generated the rules/skills layer; the H3 restart probe is pending.
 - `docs/env.md` now carries the host matrix added by H3; H2b records the final
   activation policy there.
 
@@ -77,18 +80,18 @@ and adding a skill or a host follows one documented path.
 
 | Surface | Current |
 |---|---|
-| Skill source | `.agents/skills/` (40 dirs) |
-| Registry | `SKILL.md` (40 rows) |
+| Skill source | `.agents/skills/` (41 dirs) |
+| Registry | `SKILL.md` (41 rows) |
 | Lint/gates | `skill-lint` 41/0; `gate-skills`; `gate-agents` |
-| Host targets | `opencode` (native skills/rules, MCP merge), `project` (MCP only) |
+| Host targets | `opencode` (native), `project` (MCP only), `codebuddy` (optional; rules+skills) |
 | Native reader | Qoder; CodeBuddy reads root `AGENTS.md` when `CODEBUDDY.md` is absent |
-| Host layers | no generated rules/skills layer; `.codebuddy/teams/` is IDE session state |
+| Host layers | `.codebuddy/rules` (18 `RULE.mdc`), `.codebuddy/skills` (41 links); `.codebuddy/teams/` is host-owned |
 | Inactive | 5 `openspec-*` + `browser-testing` |
 | Aliases | `ecosystem-scan`, `review-hardcode` |
 | Repaired | `shipping-and-launch` + `test-harness` (B5a import + `d8e1212` audit) |
-| Missing | `skill-authoring`; CodeBuddy rules/skills layer |
-| Gate wiring | `gate-rules` / `spec-trace` outside `check.sh` |
-| Env doc | Host matrix added 2026-10-30; activation policy pending H2b |
+| Missing | H3 host restart probe; H2b activation budget; H4 closeout |
+| Gate wiring | `gate-rules` + `spec-trace` are `check.sh` legs (36 total) |
+| Env doc | Host matrix + probe log added 2026-10-30; activation policy pending H2b |
 
 ## 3. Diagram
 

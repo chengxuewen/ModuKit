@@ -77,7 +77,8 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ## AGENT CONFIG (single source)
 
 Agent configuration has ONE source: `.agents/` (rules, skills, memory files, MCP
-servers). Host layers are GENERATED; never hand-edit them.
+servers). Host link layers and the MCP merge are GENERATED; `.opencode/opencode.json`
+`instructions[]` is a hand-maintained list. Never hand-edit generated regions.
 
 - Edit `.agents/rules/`, `.agents/skills/`, `.agents/memorys/`, `.agents/mcp.json`.
 - Regenerate with `pixi run agents sync`; verify with `pixi run agents check`

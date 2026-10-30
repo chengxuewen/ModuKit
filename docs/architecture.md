@@ -224,7 +224,7 @@ them. Re-review trigger recorded in D5.
 | D14 | descriptor access | self-sufficient tokens (slot/epoch/layout); attach-once pool transfer via UDS; borrows + EPOCH_EXPIRED liveness; two-stage retrieval (cheap meta, lazy data); carrier = deployment property, never type property |
 | D15 | cargo oneof | two mutually-exclusive arms (local ticket / off-host tail, tag 1000); bridge exchanges ticket->tail; three-sheet definition law (type/ticket/deployment); pixels never enter .proto |
 | D16 | recording & replay | recorder = ordinary export-gated subscriber (deep probe rejected); three-part self-describing header; gap stats as honest absence; replay = virtual publisher (content deterministic, timing not); mcap-first with own-format fallback |
-| D17 | observability & debugging | introspect trio (ledger/snapshot/eventstream, trust-filtered) + ModuleLoaded event; churn/replay/ledger equality acceptance tests; DAP = off-the-shelf adapters for native, runner hook for scripts (Stage 5); Foxglove compat as D16 acceptance; zero bespoke UI/protocol in kernel |
+| D17 | observability & debugging | introspect trio (ledger/snapshot/eventstream, trust-filtered) + ModuleLoaded event; churn/replay/ledger equality acceptance tests; DAP = off-the-shelf adapters for native, runner hook for scripts (wave-2 / post-Stage-4); Foxglove compat as D16 acceptance; zero bespoke UI/protocol in kernel |
 | D18 | edge ledger & analysis | live (caller,service,method) counts at the stub doorway + declared ledger => graph/callers/impact/orphans/diff as pure walks; undeclared use = warn by default, reject is a policy knob |
 | D19 | logger | kernel logger service acquired like any service; LogEvent joins the shared monotonic ring (identity/level/kv/seq) so sinks are subscribers, replay narrates, OTLP is a future sink — kernel never depends on OTel |
 | D20 | clock & timers | one time source (`now` + timer-as-job) across real/sim/step domains; kernel timers ride it; replay turns the dial; hot paths use message `capture_ts`; interception and test-mock alternatives rejected |
@@ -305,7 +305,7 @@ them. Re-review trigger recorded in D5.
 | D96 | v2 bus hearing | six-by-A: HostAbiV2 door (v1 byte-identical) / mailbox verbs mirror host face / two talkers on the existing wire + HELLO capability field / transparent wall; timer deferred; N1/N2 spec'd not open |
 | D97 | wave-2 debug-reader door | five rulings (A,A,A,A,B): smallest-door priority criterion -\> debug reader -\> reader-only no live attach -\> one runtime bin; minimal self-check face LANDED same day, plan docs/wave-2-debug-reader-plan.md; live-attach/dump-file remain armed |
 | D98 | wave-2 closeout | rulings A,A,C,A,A: reader face promoted to the sixth check.sh demo leg (sabotage red observed in the leg, D97 trigger closed); cold-census coverage rerun 50/50 suites - core 84.15 / transport 80.78 / codegen 84.25 region metric D84a, the named core debt CLEARED; plan docs/wave-2-closeout-plan.md |
-| D99 | CLOCK hearing | six rulings (B,A,A,A,A,A): schedule+now verbs on HostAbiV3 (V2 prefix byte-identical) / mirrored grammars / due = per-plugin bus topic Lossy(16) with replay pinned / local schedule + due routed existing frames (parent->child push absence NAMED, general pump deferred) / T1 door -> T2 crossing lanes spec'd not open |
+| D99 | CLOCK hearing | six rulings (B,A,A,A,A,A): schedule+now verbs on HostAbiV3 (V2 prefix byte-identical) / mirrored grammars / due = per-plugin bus topic Lossy(16) with replay pinned / local schedule + due routed existing frames (parent->child push absence NAMED; delivery clause SUPERSEDED by D108 batch 0, batches 1-2 pending) / T1 door -> T2 crossing lanes spec'd not open |
 | D100 | python bindings hearing | four rulings (A,A,A,A): full 24-verb embed scope two milestones / generated-ctypes floor + whitepaper PyO3 row superseded + pybind11 recorded not-adopted / five-gate parity stdlib instruments / one-line core cdylib (staticlib precedent b89f7b9) |
 | D101 | python volume accepted | four-point DoD green 2026-10-23; first boundary run on the pinned coverage-boundary.sh recipe (86.18/88.29/85.74 all >= 80) |
 | D102 | js bindings hearing | four rulings (A,A,A,A): face-2 only all 24 verbs two milestones / generated napi bridge + facade behind day-one probe / six-gate mirror incl node:test harness + ledger JS column / workspace crate modukit-js (name pre-registered) |
@@ -314,8 +314,8 @@ them. Re-review trigger recorded in D5.
 | D105 | benchmark volume accepted | four-point DoD green 2026-10-23 (fresh boundary; contracts zero-touch); same-day doc-audit 26 findings swept; debts on plan §7 |
 | D106 | plugin door hearing | wire-native language plugins (C,A,A,A): exe-door via published process wire + golden-vector contract promotion; bindings skins hand-written; two demo legs + env-free frame-parity leg; embed road armed with named blockers |
 | D107 | plugin-door volume ACCEPTED | batches 0-3 landed and accepted on the four-step battery: gate green x2 (thirteen legs), contracts additions-only, boundary 84.28/88.76/84.75, §6 ledger evidenced + two acceptance plants (E-row drop, golden byte) red-proven; py+js skins, echo/liar fixtures, legs twelve+thirteen |
-| D108 | parent-push hearing | five-A: drain hook inside Bus::publish (single doorway, raw bus() no longer bypasses); bell-only pump + TIMER_V2 delivery gate retired (D99 R5-A delivery clause superseded, cap keeps DIAL); non-blocking shed-and-count; publish's own qos code; HOST PUSH stanza on legs 12+13 with a single-point lever |
-| D109 | VE-parity plan | non-functional surface adopts the VisiaEngine shape: 16 adjudications (10 hearing + 2 follow-up + 4 P0 review); B0-B8 batches, deviations and triggers in docs/ve-parity-plan.md |
+| D108 | parent-push hearing | five-A adjudicated; batch 0 landed (hook field + fire-after-lock only). Pump deletion, production hook install, non-blocking shed-and-count, HOST PUSH stanza on legs 12+13, and the single-point lever are batches 1-2; D99 R5-A delivery clause is superseded. Current tree still has `pump_local_bell` / `note_timer_child` and no production hook install (doc-audit 2026-10-30). |
+| D109 | VE-parity plan | non-functional surface adopts the VisiaEngine shape: 16 adjudications (10 hearing + 2 follow-up + 4 P0 review); B0-B7 landed; B8 IN EXECUTION (H0a/H0b/H1/H2a landed; H3 restart, H2b/H4 open), deviations and triggers in docs/ve-parity-plan.md |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
@@ -349,6 +349,9 @@ per D11, only backend/vendor selection remains open).
    future). Trigger: first real consumer demand (single-file delivery, no-dlopen target,
    read-only rootfs, fixture-side pain); re-check the frozen surfaces (D87/D83) before any
    lane opens.
+7. **Non-functional parity track (D109)** — B0-B7 landed; B8 is IN EXECUTION (H0a/H0b/H1/H2a
+   landed; H3 restart, H2b/H4 open). This is a delivery track, not a new stage; the
+   authority remains `docs/ve-parity-plan.md` and `status.md`.
 
 ## 13. Module documentation index
 

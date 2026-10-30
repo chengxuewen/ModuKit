@@ -61,10 +61,8 @@ Citations (legend to keep rows short):
   documented in `embed.rs`/`embed_codec.rs`); `modukit_embed_abi_version`
   returns the bookkeeping const `EMBED_ABI_VERSION` (`embed_abi.rs`); the C++
   proof chain: `examples/cpp/host_demo.cc` + `scripts/demo-stage4-m1.sh`.
-- `planned` Python: wave-2 binding candidate (`docs/stage-4-plan.md` §6).
-
-Last verified: 2026-10-20 by `scripts/check-capability-ledger.sh`
-(check.sh leg "capability-ledger").
+Last verified: 2026-10-30 (Section A gate run; Section E last changed 2026-10-27)
+by `scripts/check-capability-ledger.sh` (check.sh leg "capability-ledger").
 
 ## A. HostEmbedV1 embed verbs (24 rows = EMBED_VERBS)
 
@@ -190,6 +188,10 @@ ambiguity). `Rust(impl)` = the shipped framer + runner + executor pumps;
 the `armed (batch 2/3)` cells named this volume's batches and flipped to
 `generated` as the Python (batch 2) and Node (batch 3) skins landed -
 never a red condition meanwhile (same duty as the `planned` token above).
+
+> Section E token note (2026-10-30): Python/Node here are hand-written stdlib
+> skins; `generated` in this section means the ledger-derived constants are
+> mirrored from the wire source, not that the skin itself is code-generated.
 
 | Name | Value | Grammar | Rust(impl) | Python | Node | Conformance |
 |---|---|---|---|---|---|---|

@@ -14,11 +14,11 @@ run with our plugin yields:
 | local dispatch (message enum + direct call) | `dl` placement | Stage 1 |
 | wire format (serde-framed messages + proxy/skeleton) | `exe` placement | Stage 2 |
 | C-ABI function table (`repr(C)` vtable) + C header | native plugin authors — generated from the same `service{}` (D13; whitepaper §3.2 finally literal) | Stage 1 (shape), frozen later |
-| per-language SDKs | Python/C#/JS/Lua... | authors read `.proto`+`fdset` day one; deeper SDKs Stage 5 |
+| per-language SDKs | Python/C#/JS/Lua... | authors read `.proto`+`fdset` day one; deeper SDKs wave-2 / post-Stage-4 |
 | `SERVICE_ID` consts (canonical reverse-DNS, D9) | typed lookup keys + cross-check | Stage 1 (emitted into generated Rust skeleton) |
 | topic schema types (D10) | recorder typing, bridges, late-join | Stage 1 in-proc; Stage 2 wire |
 | **contract registry (D12/D13)** | `.proto` = authored original (repo); `fdset` = protoc-native ledger (machine consumers, repo) | Stage 1 (no exporter; golden-file tested plugin) |
-| **typed data-plane view (D14)** | generated `meta` always-cheap + lazy `plane()/data()`; borrows = locality made honest | Stage 1 (Rust/C faces); SDK mirrors Stage 5 |
+| **typed data-plane view (D14)** | generated `meta` always-cheap + lazy `plane()/data()`; borrows = locality made honest | Stage 1 (Rust/C faces); SDK mirrors wave-2 / post-Stage-4 |
 
 **Pipeline boundaries (D13 doctrine):** 1) only cross-plugin contract types enter `.proto` —
 kernel-internal types (state enums, config structs) stay hand-written Rust and are never

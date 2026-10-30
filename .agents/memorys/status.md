@@ -34,7 +34,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | skill tree lint | `python3 scripts/skill-lint.py` (negative proof: fixture emits 3 FAIL, exit 1) | pass (2026-10-09) |
 | numbering discipline | `bash scripts/check-numbering.sh` — derives the max D from decisions.md and asserts every D1-D<n> claim plus the AGENTS high-water matches; `--self-test` plants D110 and expects red | pass (2026-10-29; self-test red observed) |
 | memory disposition (C5) | `bash scripts/check-memory.sh <base>..HEAD` (batch close only) | pass (2026-10-30; B7 red, B2 green observed) |
-| local check gate (D50) | `bash scripts/check.sh` - THIRTEEN demo legs + D104 lane-table/deny/RUNNER legs, pixi per D65 | pass (2026-10-27) |
+| local check gate (D50) | `bash scripts/check.sh` - 36 legs (13 demo + D104 + gate-rules/spec-trace), full list via `--list`, pixi per D65 | pass (2026-10-30) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
 | gitignore hygiene | `git ls-files -ci --exclude-standard` empty; expected `git check-ignore` hits for out/build/target/agent layers | pass (2026-10-30; VE ownership order) |
 | C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN) | pass (2026-10-15) |

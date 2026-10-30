@@ -107,9 +107,11 @@ and land with the batch that names them.
 - **Dependency graph**: B0 -> B1 -> B2 -> B3; B3 -> B5; B3 -> B6 (B1 also feeds
   B6's codegraph index); B4 depends on B2 (the `agent-sync` task must exist before
   bootstrap calls it) and may run in parallel with B3; B7 closes after B4/B5/B6. B8
-  (host link layer) is deferred until a link-based host is enabled.
-- **Authority**: D109 (to be written) is the binding decision record; this file is
-  the execution detail. A change here that alters a ruling re-opens the adjudication.
+  (host link layer) opened on 2026-10-30; H0a/H0b/H1/H2a landed, H3 restart and
+  H2b/H4 remain.
+- **Authority**: D109 (`.agents/memorys/decisions.md`) is the binding decision record;
+  this file is the execution detail. A change here that alters a ruling re-opens the
+  adjudication.
 - **Ownership**: every batch names an implementer and an independent verifier; the
   verifier re-runs the acceptance commands from a clean shell and records the output.
   Subagent artifacts are not trusted until re-measured. Plan edits happen between
@@ -278,10 +280,10 @@ Deliverables:
   inoperative flags stay in Notes (do not collapse to VE's two-column table).
 - pixi tasks: `agents`, `agent-sync`, `gate-agents`.
 
-`rules-links.py` and `skills-links.py` are **deferred to B8**: no enabled host reads
-a generated link layer today (opencode reads `.agents/` natively), so shipping them
-now would be dead code - the same rule that refused the lane-less CMake modules in
-adjudication 7.
+`rules-links.py` and `skills-links.py` were **deferred to B8** when no enabled host
+read a generated link layer (opencode reads `.agents/` natively). B8 opened on
+2026-10-30 and H1 landed both scripts; the CodeBuddy target now consumes them.
+This paragraph is the historical deferral rationale, not a current claim.
 
 Acceptance:
 
@@ -596,8 +598,9 @@ fallback; MCP reuses the root `.mcp.json` (no `.codebuddy/mcp.json`); host-owned
 
 ### 3.9 Done when
 
-B0-B7 are green, B8 is deferred by record, Appendix C is intact, D109 is written and
-the high-water sites agree, and a clean clone can run `bash bootstrap.sh` then
+B0-B7 are green; B8 execution items are landed or explicitly deferred with an owner
+(H3 restart, H2b budget, H4 closeout open); Appendix C is intact; D109 is written and
+the high-water sites agree; a clean clone can run `bash bootstrap.sh` then
 `pixi run ci` green.
 
 ## 4. Deliberate deviations from VE (recorded, not accidental)
@@ -669,7 +672,7 @@ when its trigger fires.
 - `demo-*` vs `smoke-*`: keep `demo-*`; aliases only if a VE-shaped task name is required.
 - Memory 7 vs 4: keep 7; copy the digest machinery, not the layout.
 - `resources/`: not created until a fixture class needs it.
-- B8 host link layer: land when a link-based host is enabled.
+- B8 host link layer: opened 2026-10-30; H0a/H0b/H1/H2a landed, H3/H2b/H4 open.
 
 ## 6. Non-goals
 
@@ -714,12 +717,13 @@ ModuKit anchors:
   target; H1 landed `rules-links.py` / `skills-links.py`; H2a added
   `skill-authoring` (41 skills). H3 host restart and H2b/H4 remain.
 - 2026-10-30 revision 11: execution-findings pass after the full-tree audit.
-  B0-B7 verified green (34 legs; 40 skills; 74 SUMMARY chapters; 5 SDD clauses).
+  B0-B7 verified green (34 legs; 40 skills; 74 SUMMARY chapters; 5 SDD clauses;
+  superseded: 36 legs / 41 skills after H0a/H2a).
   B8 execution plan revised (`docs/agent-host-parity-plan.md` revision 4):
   CodeBuddy pilot candidate, `RULE.mdc` rules dialect, skills link/copy, MCP
   root `.mcp.json`, 40-skill context budget. P0 gate wiring (`gate-rules`,
   `spec-trace`) and copy-residue sweep recorded in section 5.2. Counts corrected
-  to 40 skills and 6 memory files. The host plan was then review-hardened to
+  to 40 skills and 6 memory files (superseded: 41 skills after H2a). The host plan was then review-hardened to
   revision 5: optional target, single skills-target contract, host-owned state
   guard, ownership/rollback units, and H3/H4 acceptance blocks. No ruling
   changed.

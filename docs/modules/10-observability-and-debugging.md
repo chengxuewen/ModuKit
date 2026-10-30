@@ -65,7 +65,7 @@ dual-placement suite — this is the determinism layer, not the honesty layer.
     from introspect data. exe placement additionally gets fast restart-under-debugger
     (crash isolation is a debug feature) and **rr time-travel** for free (its DAP entry
     exists; pairs with D16 replay doctrine).
-  - *script runners (Stage 5)* — thin engine adapters (lua hooks, QuickJS debugger) behind
+  - *script runners (wave-2 / post-Stage-4)* — thin engine adapters (lua hooks, QuickJS debugger) behind
     the reserved `debug_adapter()` runner hook point; VS Code/Zed F5 for script authors.
   - *documented limits*: no cross-boundary stepping script<->native frames; DAP shows
     process state, never bus semantics (that is §1's job).

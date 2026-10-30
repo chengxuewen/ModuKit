@@ -8,7 +8,7 @@ D2. Placement is a deployment property; language is orthogonal.
 |---|---|---|---|---|
 | `dl` | host address space | `plugin.so` | local (in-proc call) | Stage 1 |
 | `exe` | supervised child process | same `plugin.so` | wire over socketpair/stdio | Stage 2 (interface in Stage 1) |
-| `wasm` | sandboxed instance | `plugin.wasm` | wasmtime host calls | Stage 5 |
+| `wasm` | sandboxed instance | `plugin.wasm` | wasmtime host calls | future (wave-3 candidate) |
 
 New placements are added as executors, never as new plugin concepts.
 

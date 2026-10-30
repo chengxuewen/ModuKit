@@ -98,4 +98,4 @@ bash scripts/check-memory.sh <base>..HEAD
 
 ## Adding conventions
 
-Add `C2`, `C3`, … here as project decisions harden (C0/C1 are live above). Each entry needs: one quoted constraint line + a runnable check block, and must be recorded the moment the decision is made (see `.agents/rules/common/lesson-memory.md`).
+Add `C6`, `C7`, … here as project decisions harden (C0-C5 are live above). Each entry needs: one quoted constraint line + a runnable check block, and must be recorded the moment the decision is made (see `.agents/rules/common/lesson-memory.md`).

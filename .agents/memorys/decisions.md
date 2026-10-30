@@ -739,6 +739,9 @@
    the general parent->child pump row (fires with a second ordinary-publish
    consumer); capability-ledger + plugin.h/codegen rows arrive WITH the T1
    landing, never before.
+ - **Amendment (2026-10-30 doc-audit)**: D99 R5-A's delivery clause is
+   SUPERSEDED by D108. D108 batch 0 landed only; the ordinary parent->child
+   pump remains deferred until D108 batches 1-2.
 
 ## D100: Python bindings hearing held - four rulings (A,A,A,A) drawn; generated-ctypes floor, full 24-verb scope, five-gate parity, core cdylib (2026-10-22)
 - **Decision**: the armed Python door opened on maintainer word 2026-10-22 (the D93
@@ -992,6 +995,12 @@
   scripts/demo-wave2-plugin-py.sh + -js.sh, docs/modules/06.
 - **Reference**: docs/wave-3-parent-push-hearing.md (five rulings + closure);
   stage-5-plan section 3; enforcement rules D87 (surfaces stay additive).
+- **Amendment (2026-10-30 doc-audit)**: only batch 0 landed (hook field +
+  fire-after-lock); the Surfaces text above is the intended end state, not the
+  current tree. `pump_local_bell` / `note_timer_child` remain in
+  `bus_wire.rs` and are called by `wiring.rs`; `set_publish_hook` is installed
+  only in tests. Production install, pump deletion, the HOST PUSH stanza, and
+  `MODUKIT_HOST_PUSH_OFF` are batches 1-2 in `docs/wave-3-parent-push-plan.md`.
 
 ## D109: Non-functional surface adopts the VisiaEngine shape (2026-10-29)
 
@@ -1013,4 +1022,9 @@
   (read-only donor).
 - **Re-review triggers**: MSRV lands at 1.99 only; qoder project-level MCP
   unreadable; install-tree milestone opens.
+- **Amendment (2026-10-30)**: B8 opened on maintainer word. H0a
+  (`gate-rules` / `spec-trace` legs), H0b (optional CodeBuddy target), H1
+  (`rules-links.py` / `skills-links.py`), and H2a (`skill-authoring`) landed;
+  H3 restart, H2b budget, and H4 closeout remain. The original "B8 deferred"
+  impact stays as the 2026-10-29 record.
 
