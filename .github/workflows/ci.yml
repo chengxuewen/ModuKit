@@ -1,0 +1,42 @@
+# ModuKit CI -- standby until the GitHub mirror is enabled (origin is gitee).
+# Every step below is the same command run locally by `pixi run ci`; the workflow is
+# the mirror, not a second gate definition. Pin both actions to a commit SHA before
+# enabling for real (tags can move): actions/checkout@v4 and setup-pixi@v0.8.1.
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  workspace:
+    name: local gate + MSRV + SDD trace
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # VE's standby file omits this and fails at configure; ModuKit needs the
+          # PolyOrch gitlink present.
+          submodules: recursive
+
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: v0.78.0
+          cache: true
+
+      - name: install the frozen envs
+        run: |
+          pixi install --frozen
+          pixi install -e msrv --frozen
+
+      - name: regenerate host layers
+        run: pixi run agents sync
+
+      - name: local gate
+        run: pixi run ci
+
+      - name: MSRV (rust 1.88.0)
+        run: pixi run -e msrv cargo check --workspace
+
+      - name: SDD<->test bidirectional trace
+        run: bash scripts/spec-trace.sh

@@ -252,26 +252,26 @@ else note "skip cargo-deny (no deny.toml or no workspace)"; fi
 # THEN full ctest every run, so changed sources cannot hide behind old binaries.
 # Skip-when-absent like the D50 legs: no tree (fresh clone) = green, no cost.
 if [ -d out/build-stage4 ] && command -v pixi >/dev/null 2>&1; then
-  if ! pixi run cmake --build out/build-stage4 > /tmp/ctest-build.log 2>&1; then
-    note "FAIL ctest-stage4 (build red; see /tmp/ctest-build.log)"; status=1
+  if ! pixi run cmake --build out/build-stage4 > out/ctest-build.log 2>&1; then
+    note "FAIL ctest-stage4 (build red; see out/ctest-build.log)"; status=1
   else
     # census (benchmark batch 1 / D104): since the CTEST keyword mints the six
     # rust-side entries, a dropped keyword would SHRINK the list while plain
     # ctest stays green on the survivors - so assert the NAMES, not just runs.
-    pixi run ctest --test-dir out/build-stage4 -N > /tmp/ctest-census.log 2>&1 || true
+    pixi run ctest --test-dir out/build-stage4 -N > out/ctest-census.log 2>&1 || true
     census_missing=""
     for _t in modukit-core-test modukit-transport-test modukit-codegen-test \
               example-plugin-test bad-plugin-test example_stage1_demo; do
-      grep -Eq "Test #[0-9]+: ${_t}( |$)" /tmp/ctest-census.log \
+      grep -Eq "Test #[0-9]+: ${_t}( |$)" out/ctest-census.log \
         || census_missing="${census_missing} ${_t}"
     done
     if [ -n "$census_missing" ]; then
       note "FAIL ctest-stage4 census (missing:${census_missing})"; status=1
-    elif pixi run ctest --test-dir out/build-stage4 --output-on-failure > /tmp/ctest-run.log 2>&1; then
-      note "ok ctest-stage4 ($(grep -E 'tests passed' /tmp/ctest-run.log | tail -1))"
+    elif pixi run ctest --test-dir out/build-stage4 --output-on-failure > out/ctest-run.log 2>&1; then
+      note "ok ctest-stage4 ($(grep -E 'tests passed' out/ctest-run.log | tail -1))"
     else
-      cp -f out/build-stage4/Testing/Temporary/LastTest.log /tmp/ctest-lasttest.log 2>/dev/null || true
-      note "FAIL ctest-stage4 (tests red; see /tmp/ctest-build.log + /tmp/ctest-run.log + /tmp/ctest-lasttest.log)"; status=1
+      cp -f out/build-stage4/Testing/Temporary/LastTest.log out/ctest-lasttest.log 2>/dev/null || true
+      note "FAIL ctest-stage4 (tests red; see out/ctest-build.log + out/ctest-run.log + out/ctest-lasttest.log)"; status=1
     fi
   fi
 else note "skip ctest-stage4 (no out/build-stage4 tree or no pixi)"; fi

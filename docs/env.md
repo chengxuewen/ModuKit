@@ -99,6 +99,14 @@ refreshes `graph.json`/`meta.json` without rebuilding the site. The SDD clauses
 under `docs/sdd/` are index entries; `scripts/spec-trace.sh` proves each one has a
 matching `spec:` tag on an existing test.
 
+## CI
+
+`.github/workflows/ci.yml` is a standby mirror (origin is gitee; it activates on the
+GitHub-mirror day). It checks out submodules recursively, installs the frozen
+default and `msrv` envs, runs `agents sync`, `pixi run ci`, the explicit MSRV check,
+and `spec-trace`. Pin both actions to a commit SHA before enabling it for real.
+The local equivalent is `pixi run ci`; the workflow adds no second gate definition.
+
 ## Output territory
 
 | Path | Owner |

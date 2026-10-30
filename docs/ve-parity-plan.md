@@ -1,8 +1,7 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-10-30 (revision 8). B0-B6 landed; B7 pending;
-> B8 deferred. B6 follows VE D46 (English-only book, reader-side browser
-> translation). Twelve adjudications walked one by one with the maintainer (ten in
+> STATUS: PLAN OF RECORD, 2026-10-30 (revision 8). B0-B7 landed; B8 deferred.
+> B6 follows VE D46 (English-only book, reader-side browser translation). Twelve adjudications walked one by one with the maintainer (ten in
 > section 2: A / A / C / A / A / B / A / A / A / B; two follow-ups in section 2.1:
 > C / A), plus the B4b-2 trio in section 2.3. Functional code, contracts, binding
 > implementations, demo assertions, and project memory entries are out of scope.
@@ -703,6 +702,13 @@ ModuKit anchors:
   plus the with-node omission, `probe_mode`, `SKILL.md` markers, toc
   type/visibility, book SUMMARY check 13, CONSTRAINTS anti-gaming half, llms source
   list, reference profile body, omo/tier branding, copy-ledger rows.
+- 2026-10-30 B7: standby `ci.yml` (submodules recursive, pixi 0.78 frozen,
+  `agents sync`, `ci`, MSRV, `spec-trace`); `.vscode/tasks.json` with the four
+  pixi entry points; AGENTS gains `book/`, `docs/sdd/`, `.serena/`, hooks, and the
+  `docs/env.md` pointer; gitignore pre-declares host/IDE layers. `launch.json` is
+  omitted because PolyOrch debug presets are not generated for this lane. The
+  local proof is `git ls-files -ci --exclude-standard` empty plus the expected
+  `git check-ignore` hits.
 - 2026-10-30 B6b: SDD skeleton landed: `docs/sdd/README.md` ownership plus the
   five clauses (`KERNEL-01`, `EMBED-01`, `WIRE-01`, `BUS-01`, `TRANSPORT-01`),
   tags on five existing tests, and `spec-trace` (5 pairs; a clause without a tag

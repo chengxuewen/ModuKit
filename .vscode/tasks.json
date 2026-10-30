@@ -1,0 +1,34 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "pixi: ci",
+      "type": "shell",
+      "command": "pixi",
+      "args": ["run", "ci"],
+      "problemMatcher": [],
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "pixi: agents sync",
+      "type": "shell",
+      "command": "pixi",
+      "args": ["run", "agents", "sync"],
+      "problemMatcher": []
+    },
+    {
+      "label": "pixi: book-build",
+      "type": "shell",
+      "command": "pixi",
+      "args": ["run", "book-build"],
+      "problemMatcher": []
+    },
+    {
+      "label": "pixi: spec-trace",
+      "type": "shell",
+      "command": "pixi",
+      "args": ["run", "spec-trace"],
+      "problemMatcher": []
+    }
+  ]
+}

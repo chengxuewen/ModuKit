@@ -19,6 +19,8 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── docs/capability-ledger.md # embed/plugin verb capability map (check-capability-ledger leg)
 ├── docs/codegraph-bootstrap.md # codegraph MCP index bootstrap note
 ├── docs/reference/           # external profiles + audits (roster: its README.md; 00 §4 maintainer register)
+├── docs/sdd/                 # SDD clauses + ownership/trace (KERNEL/EMBED/WIRE/BUS/TRANSPORT)
+├── book/                     # English-only mdBook site: toc/graph/mermaid/footer (VE D46)
 ├── crates/modukit-core/      # kernel: lifecycle/registry/manifest/bundle/bus/clock/logger/
 │   │                         #   executor{dl,exe}+supervisor/proc_wire TL-frames/proxy/observability
 │   ├── tests/                # incl. dual_placement + step_replay (v1-frozen proofs)
@@ -37,7 +39,9 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── scripts/                  # check.sh (D50 local gate incl ALL THIRTEEN demo legs + commit-shape),
 │                             #   demo-stage{1,2}.sh + demo-stage4-{m1,m2}.sh + demo-stage5-n2.sh + demo-wave2-{reader,clock,py,py-sup,js,js-sup,plugin-py,plugin-js}.sh, regen-fdset/golden.sh,
 │                             #   check-embed-parity/capability-ledger.sh, skill-lint.py
+│   └── hooks/                # commit-msg (C3) + pre-commit (agent sync/gate)
 ├── .agents/                  # memorys/ + rules/ + skills/ governance tree → .agents/AGENTS.md
+├── .serena/                  # Serena project config (cache/memories ignored)
 └── .vscode/ .opencode/ .omo/ # IDE cmake pin (PIT-7) / agent config / OMO state
 ```
 
@@ -53,6 +57,8 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Conventions & gates | `.agents/memorys/conventions.md` | C0 executable-checks, C1 English, C2 branch/pin, C3 commit-shape |
 | v1 frozen surface (what may NOT break) | architecture §11 D87 row + `docs/stage-2-plan.md` §9 | amendment policy = D83 (tail-add by record, break by hearing) |
 | Dev toolchain | `bootstrap.sh`/`.bat` + `pixi.toml` | ALL cargo/rustfmt/node via `pixi run` (single track since B4; MSRV 1.88) |
+| Environment / tasks / book / MCP | `docs/env.md` | pixi single-track, gate contract, MCP lifecycle, English-only book |
+| SDD clauses / trace | `docs/sdd/` + `scripts/spec-trace.sh` | five index clauses; existing tests are the authority |
 
 ## CODE MAP
 
