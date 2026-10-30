@@ -1,8 +1,8 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-10-30 (revision 13). B0-B7 landed; B8 is IN
-> EXECUTION (H0a-H3 landed; H2b full 41; H4 closeout open). Its execution
-> plan is `docs/agent-host-parity-plan.md` (revision 7).
+> STATUS: PLAN OF RECORD, 2026-10-30 (revision 14). B0-B7 landed; B8 is
+> COMPLETE (H0a-H4 landed; full 41-skill activation). Its execution plan is
+> `docs/agent-host-parity-plan.md` (revision 8).
 > Gap-closure #20-22 are in section 2.4; VE-new-commit #23-26 are in section 2.5.
 > B6 follows VE D46 (English-only book, reader-side browser translation). Twelve adjudications walked one by one with the maintainer (ten in
 > section 2: A / A / C / A / A / B / A / A / A / B; two follow-ups in section 2.1:
@@ -582,14 +582,14 @@ Red-proof: plant a tracked-but-ignored file -> `git ls-files -ci` red; remove
 `submodules: recursive` in a scratch workflow -> the configure leg fails (the
 PolyOrch gitlink is absent).
 
-### B8 - Host link layer (IN EXECUTION)
+### B8 - Host link layer (COMPLETE)
 
-Detailed plan: `docs/agent-host-parity-plan.md` (revision 7, 2026-10-30).
+Detailed plan: `docs/agent-host-parity-plan.md` (revision 8, 2026-10-30).
 Maintainer word opened B8 on 2026-10-30. H0a shipped the P0 gate wiring
 (`gate-rules` + `spec-trace` are `check.sh` legs; 36 legs), H0b registered the
 optional CodeBuddy target, H1 landed `rules-links.py` / `skills-links.py`,
-H2a added `skill-authoring`, H3 passed the fresh CodeBuddy host probe, and H2b
-chose full 41-skill activation. H4 closeout remains.
+H2a added `skill-authoring`, H3 passed the fresh CodeBuddy host probe, H2b
+chose full 41-skill activation, and H4 closed the batch (36-leg `ci` green).
 The execution plan records: CodeBuddy is the pilot; rules require
 `.codebuddy/rules/<name>/RULE.mdc` with frontmatter (flat `.md` symlinks are
 dead, VE D35); skills use `.codebuddy/skills` links with a Windows `--copy`
@@ -598,8 +598,7 @@ fallback; MCP reuses the root `.mcp.json` (no `.codebuddy/mcp.json`); host-owned
 
 ### 3.9 Done when
 
-B0-B7 are green; B8 execution items are landed or explicitly deferred with an owner
-(H4 closeout open only); Appendix C is intact; D109 is written and
+B0-B7 are green; B8 is complete (H0a-H4 landed); Appendix C is intact; D109 is written and
 the high-water sites agree; a clean clone can run `bash bootstrap.sh` then
 `pixi run ci` green.
 
@@ -712,6 +711,8 @@ ModuKit anchors:
 
 ## 8. Change log
 
+- 2026-10-30 revision 14: B8 COMPLETE. H4 closed; `pixi run ci` 36 legs green;
+  H0a-H4 landed with full 41-skill activation.
 - 2026-10-30 revision 13: H3 CodeBuddy host probe passed; H2b finalised as
   full 41-skill activation. H4 closeout remains.
 - 2026-10-30 revision 12: B8 opened on the maintainer word. H0a added

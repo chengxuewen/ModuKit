@@ -1,12 +1,12 @@
 # Agent Host & Skill Surface Plan
 
-> STATUS: IN EXECUTION, 2026-10-30 (revision 7). Maintainer word given
-> 2026-10-30; H0a / H0b / H1 / H2a / H3 / H2b are landed; H4 closeout remains.
-> This plan elaborates VE-parity B8 and the project-level skill repairs.
-> Revision 4 recorded the execution findings; revision 5 folded the facts /
-> host / plan review; revision 6 recorded the implementation; revision 7 records
-> the H3 host pass and the full-41 H2b decision. Rulings #1-#4 are unchanged.
-> Functional code, contracts, ABI, and packaging are OUT.
+> STATUS: COMPLETE, 2026-10-30 (revision 8). Maintainer word given 2026-10-30;
+> H0a / H0b / H1 / H2a / H3 / H2b / H4 are landed; B8 is closed. This plan
+> elaborates VE-parity B8 and the project-level skill repairs. Revision 4
+> recorded the execution findings; revision 5 folded the facts / host / plan
+> review; revision 6 recorded the implementation; revision 7 recorded the H3
+> host pass and full-41 H2b decision; revision 8 closes H4. Rulings #1-#4 are
+> unchanged. Functional code, contracts, ABI, and packaging are OUT.
 
 ## 0. Why now
 
@@ -89,7 +89,7 @@ and adding a skill or a host follows one documented path.
 | Inactive | 5 `openspec-*` + `browser-testing` |
 | Aliases | `ecosystem-scan`, `review-hardcode` |
 | Repaired | `shipping-and-launch` + `test-harness` (B5a import + `d8e1212` audit) |
-| Missing | H4 closeout only |
+| Missing | none (H4 closed 2026-10-30) |
 | Gate wiring | `gate-rules` + `spec-trace` are `check.sh` legs (36 total) |
 | Env doc | Host matrix + probe log added 2026-10-30; activation policy pending H2b |
 
@@ -398,6 +398,8 @@ git status --short
 - Run `pixi run ci`, `agents check`, `skill-lint`, `gate-docs`, `gate-rules`,
   and `spec-trace`.
 - Add a short "how to add a host" section to `skill-authoring` or `docs/env.md`.
+- H4 completion (2026-10-30): `pixi run ci` 36 legs green; `agents check`,
+  `skill-lint`, `gate-docs`, `gate-rules`, and `spec-trace` green; B8 closed.
 
 Acceptance:
 
@@ -525,6 +527,8 @@ target file.
 
 ## 10. Change log
 
+- 2026-10-30 revision 8: H4 closeout. B8 complete; full 41-skill activation;
+  `pixi run ci` 36 legs green; H0a-H4 all landed.
 - 2026-10-30 revision 7: H3 CodeBuddy host pass accepted; H2b finalised as
   full 41-skill activation; H4 closeout remains.
 - 2026-10-30 revision 6: IN EXECUTION. H0a added `gate-rules` + `spec-trace`
