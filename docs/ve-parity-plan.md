@@ -1,6 +1,8 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-10-30 (revision 10). B0-B7 landed; B8 deferred.
+> STATUS: PLAN OF RECORD, 2026-10-30 (revision 12). B0-B7 landed; B8 is IN
+> EXECUTION (H0a/H0b/H1/H2a landed; H3 host restart pending). Its execution
+> plan is `docs/agent-host-parity-plan.md` (revision 6).
 > Gap-closure #20-22 are in section 2.4; VE-new-commit #23-26 are in section 2.5.
 > B6 follows VE D46 (English-only book, reader-side browser translation). Twelve adjudications walked one by one with the maintainer (ten in
 > section 2: A / A / C / A / A / B / A / A / A / B; two follow-ups in section 2.1:
@@ -578,16 +580,19 @@ Red-proof: plant a tracked-but-ignored file -> `git ls-files -ci` red; remove
 `submodules: recursive` in a scratch workflow -> the configure leg fails (the
 PolyOrch gitlink is absent).
 
-### B8 - Host link layer (deferred)
+### B8 - Host link layer (IN EXECUTION)
 
-Detailed plan: `docs/agent-host-parity-plan.md` (proposed 2026-10-30; the
-cross-agent IDE trigger is real, but B8 stays deferred until the proposal and
-host list are accepted). Lands only when a link-based host is enabled
-(CodeBuddy / Trae / Claude / Cursor): `rules-links.py`, `skills-links.py`, an
-extended `agent-targets.json` (no second target file), the `.codebuddy` / `.trae`
-link layers, Windows `--copy` plus the hashed map, and the forbidden-dir guard.
-Not on the current critical path; recorded so the deferral is visible rather
-than forgotten.
+Detailed plan: `docs/agent-host-parity-plan.md` (revision 6, 2026-10-30).
+Maintainer word opened B8 on 2026-10-30. H0a shipped the P0 gate wiring
+(`gate-rules` + `spec-trace` are `check.sh` legs; 36 legs), H0b registered the
+optional CodeBuddy target, H1 landed `rules-links.py` / `skills-links.py`, and
+H2a added `skill-authoring`. H3 needs a CodeBuddy restart for the real host
+probe; H2b/H4 remain.
+The execution plan records: CodeBuddy is the pilot; rules require
+`.codebuddy/rules/<name>/RULE.mdc` with frontmatter (flat `.md` symlinks are
+dead, VE D35); skills use `.codebuddy/skills` links with a Windows `--copy`
+fallback; MCP reuses the root `.mcp.json` (no `.codebuddy/mcp.json`); host-owned
+`.codebuddy/teams/` is never generated or checked.
 
 ### 3.9 Done when
 
@@ -602,7 +607,7 @@ the high-water sites agree, and a clean clone can run `bash bootstrap.sh` then
 | `out/` keeps its name; VE uses `cmake-build*/` + `build/` | Adjudication 6: the discipline transfers, the rename costs 15+ references and 5 GB of trees |
 | No Wasm / Qt / Install / Packaging modules yet | Adjudication 7: a module must own a lane; VE itself renamed a file for this |
 | Host switches follow local verification, not VE's snapshot | Adjudication 8: a wrong path is a dead file (VE D35) |
-| Memory keeps 7 files, not VE's 4 | `backlog.md` and `history-archive.md` are ModuKit assets; the digest generator iterates `*.md` |
+| Memory keeps 6 files, not VE's 4 | `backlog.md` and `history-archive.md` are ModuKit assets; the digest generator iterates `*.md` |
 | `demo-*` names kept, no `smoke-*` rename | 13 gate legs, sabotage levers, and docs reference the current names |
 | ModuKit `.opencode` plugin pins kept | VE's plugin list is floating; ModuKit's pins are stronger |
 | `.gitattributes` (`*.bat eol=crlf`) kept | VE has none; ModuKit's Windows batch history needs it |
@@ -621,7 +626,7 @@ the high-water sites agree, and a clean clone can run `bash bootstrap.sh` then
 | MSRV ladder leaves lock churn | high | throwaway solves; only the final pin commits |
 | common-rule merge imports VE numbering | high | `rule-ref-lint.py` + explicit provenance markers |
 | book i18n helper not on conda | low | `cargo-binstall --root .tools`, pinned |
-| 37 skills inflate host context | medium | route by description; opencode does not load bodies; revisit before CodeBuddy onboarding |
+| 41 skills inflate host context | medium | route by description; opencode does not load bodies; H2b sets the CodeBuddy activation budget |
 | Windows `bootstrap.bat` never executed | medium | keep the first-run debt explicit; do not claim Windows parity until a green run |
 
 ## 5. Open items (grouped by what unblocks them)
@@ -643,6 +648,13 @@ when its trigger fires.
 - Provenance/NOTICE fill (B0 skeleton; B1/B5 rows).
 - Immediate defects: IP redaction (B0), C1 scope drift (B3), numbering gate bounds
   (B0), legacy `.opencode/serena/` kept (B1).
+- P0 gate wiring (2026-10-30 review): `gate-rules` joins `check.sh`; `spec-trace`
+  becomes a leg or is explicitly CI-only. Both pass manually today but neither is
+  in the local `ci`.
+- P0 copy-residue sweep: `scripts/agents-cli.py` still prints `visiaengine.sh`;
+  `scripts/hooks/pre-commit` still claims to regenerate `.codebuddy/*`;
+  `.agents/AGENTS.md` says 12 skills (actual 40); `pixi.toml` says book output
+  `www/` (actual `build/book`).
 
 ### 5.3 Trigger-gated forks (adjudicate only when the trigger fires)
 
@@ -697,6 +709,20 @@ ModuKit anchors:
 
 ## 8. Change log
 
+- 2026-10-30 revision 12: B8 opened on the maintainer word. H0a added
+  `gate-rules` / `spec-trace` (36 legs); H0b registered the optional CodeBuddy
+  target; H1 landed `rules-links.py` / `skills-links.py`; H2a added
+  `skill-authoring` (41 skills). H3 host restart and H2b/H4 remain.
+- 2026-10-30 revision 11: execution-findings pass after the full-tree audit.
+  B0-B7 verified green (34 legs; 40 skills; 74 SUMMARY chapters; 5 SDD clauses).
+  B8 execution plan revised (`docs/agent-host-parity-plan.md` revision 4):
+  CodeBuddy pilot candidate, `RULE.mdc` rules dialect, skills link/copy, MCP
+  root `.mcp.json`, 40-skill context budget. P0 gate wiring (`gate-rules`,
+  `spec-trace`) and copy-residue sweep recorded in section 5.2. Counts corrected
+  to 40 skills and 6 memory files. The host plan was then review-hardened to
+  revision 5: optional target, single skills-target contract, host-owned state
+  guard, ownership/rollback units, and H3/H4 acceptance blocks. No ruling
+  changed.
 - 2026-10-29: created; ten adjudications recorded; B1-B7 scoped; deviations and open
   items listed.
 - 2026-10-29 revision 1: P0/P1 review fixes - B0 housekeeping, batch dependency graph,
@@ -835,6 +861,8 @@ ModuKit anchors:
 | `.serena/project.yml` | `.serena/project.yml` | adapt (server set) | B1 |
 | `.opencode/init-lsp-wrap.mjs` | `.opencode/init-lsp-wrap.mjs` | conditional (probe; omit if LSP starts) | B1 |
 | `scripts/book-build.py` | `scripts/book-build.py` | adapt (paths/toc) | B6 |
+| `scripts/rules-links.py` | `scripts/rules-links.py` | adapt (mdc + optional skip + backup) | B8/H1 |
+| `scripts/skills-links.py` | `scripts/skills-links.py` | adapt (single target file + per-target map) | B8/H1 |
 
 A copied file without a row fails review. The batch commit body names
 `VE <path> @ <commit>`; the row lands in `docs/reference/visiaengine.md`.
@@ -858,7 +886,7 @@ Record these at B0 and compare at each batch close:
 - Current `check.sh` leg count, captured at B0 from the existing script; after B3,
   `bash scripts/check.sh --list | wc -l` must report the same count. No leg may
   disappear.
-- Skill directories after B5: 39 (37 VE + 2 ModuKit-only).
+- Skill directories after B5: 40 (37 VE + 2 ModuKit-only + `repo-audit` added by #26); 41 after H2a (`skill-authoring`).
 - `bash scripts/check.sh` wall time: no more than a 20% regression after B3.
 - `pixi run node -v`: 22.x, sourced from `.pixi`, after B4.
 - `git ls-files -ci --exclude-standard`: empty after B0 and at every batch close.

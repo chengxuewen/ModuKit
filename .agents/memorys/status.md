@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-29: D1-D109 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`; queue EMPTY, remainder trigger-gated. Stages 1-3 COMPLETE/ACCEPTED (D91; v1 STABLE D87; amendment D83); Stage-4 INFRA volume ACCEPTED/CLOSED (D95); wave-2 volumes ACCEPTED through D107; wave-3 parent-push hearing D108; VE-parity plan D109 (B0-B7 landed, B8 deferred, revision 10; gap-closure #20-22, VE-new #23-26). Full narrative: `history-archive.md` (2026-10-30 entry). Kernel v0 parked.
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-10-29: D1-D109 (D53 reserved) in `docs/architecture.md` + `docs/modules/00-11`; queue EMPTY, remainder trigger-gated. Stages 1-3 COMPLETE/ACCEPTED (D91; v1 STABLE D87; amendment D83); Stage-4 INFRA volume ACCEPTED/CLOSED (D95); wave-2 volumes ACCEPTED through D107; wave-3 parent-push hearing D108; VE-parity plan D109 (B0-B7 landed, B8 IN EXECUTION, revision 12; gap-closure #20-22, VE-new #23-26; host plan rev 6: H0a/H0b/H1/H2a landed, H3 restart pending, H2b/H4 open). Full narrative: `history-archive.md` (2026-10-30 entry). Kernel v0 parked.
 
 ## Modules
 
@@ -43,7 +43,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 ## Repo Audit
 
-- 2026-10-30 Full (10 domains): 34 gates green, skill-lint 40/0, book 74,
+- 2026-10-30 Full (10 domains): 34 gates at audit time; now 36 (gate-rules/spec-trace added), skill-lint 41/0, book 74,
   scripts syntax clean, no case/EOL findings. HIGH fixed same day: shipping-pack-check,
   test-harness paths, README D103->D107. MEDIUM: B8 host links absent (plan
   docs/agent-host-parity-plan.md), gate-mcp O5 WARN. Adjudicated 2026-10-30:
@@ -65,7 +65,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
   LANDED + check.sh leg + core debt cleared (D97/D98). PYTHON VOLUME ACCEPTED
   2026-10-23 (D101; boundary green via pinned recipe). JS VOLUME LANDED 2026-10-23
   ACCEPTED (D102/D103; eleven-leg green; js region bin-like-exempt, proofs node-side).
-  Benchmark volume ACCEPTED (D105); plugin-door (D106) plan pending. Live-attach armed.
+  Benchmark volume ACCEPTED (D105); plugin-door volume ACCEPTED (D107). Live-attach armed.
 - [ ] Media-server base doctrine landed (D68-D73, 2026-10-15; card `docs/modules/11-media-server-base.md`); MediaServo integration = declared intent only — K7=C (D89): v1-STABLE factual note pending maintainer send; wiring-hearing proposal ARMED, not opened
 - [x] rules/common dangling-refs family CLOSED 2026-10-19 (M3S-1 sweep; doc-liveness leg in check.sh; unmounted pool kept per G10)
 - [x] Cargo workspace landed 2026-10-15 (M2; kernel filled from M3 on)
