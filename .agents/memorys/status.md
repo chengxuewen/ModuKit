@@ -43,12 +43,11 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 ## Repo Audit
 
-- 2026-10-30 Full (10 domains): 34 gates at audit time; now 36 (gate-rules/spec-trace added), skill-lint 41/0, book 74,
-  scripts syntax clean, no case/EOL findings. HIGH fixed same day: shipping-pack-check,
-  test-harness paths, README D103->D107. MEDIUM: B8 host links absent (plan
-  docs/agent-host-parity-plan.md), gate-mcp O5 WARN. Adjudicated 2026-10-30:
-  one pilot host + Qoder native, symlink default, partial test-harness repair,
-  skill-authoring only. NEXT: H0 pick pilot, H1 links; gate-prose deferred.
+- 2026-10-30 Quick (post-B8): 10/10 local checks; scripts syntax clean, no
+  case/EOL findings; 36 gates, 41 skills, book 74. One MEDIUM: `www/book/en`
+  stale in `modukit.sh`/`.bat` and `pixi.toml` (actual `build/book/en`). B8 layer
+  generated (18 rules / 41 skills); H3 restart probe pending. Full 2026-10-30
+  record: HIGH fixed (shipping-pack-check, test-harness, README); gate-mcp O5 WARN.
 
 ## Open Items
 
