@@ -1,8 +1,8 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-10-30 (revision 9). B0-B7 landed; B8 deferred.
-> Gap-closure adjudications #20-22 are recorded in section 2.4. B6 follows VE D46
-> (English-only book, reader-side browser translation). Twelve adjudications walked one by one with the maintainer (ten in
+> STATUS: PLAN OF RECORD, 2026-10-30 (revision 10). B0-B7 landed; B8 deferred.
+> Gap-closure #20-22 are in section 2.4; VE-new-commit #23-26 are in section 2.5.
+> B6 follows VE D46 (English-only book, reader-side browser translation). Twelve adjudications walked one by one with the maintainer (ten in
 > section 2: A / A / C / A / A / B / A / A / A / B; two follow-ups in section 2.1:
 > C / A), plus the B4b-2 trio in section 2.3. Functional code, contracts, binding
 > implementations, demo assertions, and project memory entries are out of scope.
@@ -81,8 +81,17 @@ shells are created. Trigger to split: a real SDK packaging or prebuilt-consumer 
 | # | Decision | Ruling | Key note |
 |---|---|---|---|
 | 20 | install/packaging surface | **C: out of scope** | No `cmake --install`, pkg-config, CMake package config, `gate-pack`/`pack-check`/`npm-pack`; source/C ABI consumption only; revisit on a real downstream |
-| 21 | API docs (rustdoc) | **A: add to docs-gen** | `cargo doc --workspace --no-deps` -> `target/doc`; `book-build` merges it into `www/book/api`; llms links it |
+| 21 | API docs (rustdoc) | **A: add to docs-gen** | `cargo doc --workspace --no-deps` -> `target/doc`; `book-build` merges it into `build/book/api`; llms links it |
 | 22 | quality surface | **B: format/tooling only** | `.clang-format` + `.markdownlint*` + `ast-grep-cli`; `gate-prose`/`polish` stays deferred |
+
+### 2.5 VE-new-commit adjudications (2026-10-30, user-adjudicated one by one)
+
+| # | Decision | Ruling | Key note |
+|---|---|---|---|
+| 23 | book output root | **A: adopt `build/book`** | Root redirect + stale-language prune; all `www/book` refs move; `/www/` retires |
+| 24 | sidebar folding | **A: nest SDD/reference** | `nested = true` + `[output.html.fold]`; SUMMARY check must accept indentation (PIT-92) |
+| 25 | CLI command form | **B: narrow gate** | Check wrapper-advertised names and `.sh`/`.bat` parity; docs keep `pixi run` as canonical |
+| 26 | agent audit skills | **A: full upgrade** | `ecosystem-scan` -> `repo-audit` (alias kept); revise `doc-audit`; router Audit class |
 
 ## 3. Work breakdown
 
@@ -491,8 +500,8 @@ Deliverables:
   `docs/reference/` profiles; each chapter carries `type` (index / explanation /
   how-to / reference) and `visibility` (public or internal; stage plans are
   internal); `book/web/` graph + lazy mermaid + provenance footer.
-- English-only build: `scripts/book-build.py` emits `www/book/en` only (no
-  `BOOK_LANG`, no per-language trees, no `langs.json`/root redirect), writes
+- English-only build: `scripts/book-build.py` emits `build/book/en` only (no
+  `BOOK_LANG`, no per-language trees, no `langs.json`; root redirect retained), writes
   `meta.json` for the footer, and supports `--graph-only`; `book-check.py` checks
   index/graph/meta/mermaid/vendor with an optional browser layer; `book-serve.py`
   is the foreground LAN server + rebuild watcher.
@@ -523,7 +532,7 @@ Acceptance:
 
 ```bash
 pixi run mcp index                      # graph source
-pixi run book-build                     # (target) produces www/book/en
+pixi run book-build                     # (target) produces build/book/en
 pixi run book-check                     # (target) index + graph + meta + vendor
 pixi run book-graph                     # (target) refreshes graph.json/meta.json only
 pixi run docs-gen                       # (target) llms.txt includes book + SDD
@@ -532,7 +541,7 @@ bash scripts/spec-trace.sh              # (target) 5 pairs aligned
 ```
 
 Red-proof: add a clause without a test tag -> `spec-trace` red; remove a toc entry's
-source -> `book-check` red; remove `www/book/en/meta.json` or `graph.json` ->
+source -> `book-check` red; remove `build/book/en/meta.json` or `graph.json` ->
 `book-check` red. Browser translation is a reader-side tool, so there is no PO
 coverage number to ratchet.
 
@@ -725,6 +734,9 @@ ModuKit anchors:
   five clauses (`KERNEL-01`, `EMBED-01`, `WIRE-01`, `BUS-01`, `TRANSPORT-01`),
   tags on five existing tests, and `spec-trace` (5 pairs; a clause without a tag
   was observed red). The book grows to 73 chapters; gate-prose stays deferred.
+- 2026-10-30 revision 10: VE-new-commit adjudications #23-26 - book output A
+  (`build/book`), sidebar nesting A, CLI narrow gate B, agent audit A
+  (`repo-audit`/`doc-audit`/router).
 - 2026-10-30 revision 9: gap-closure adjudications #20-22 - packaging C (out of
   scope), API docs A (rustdoc in docs-gen), quality B (format configs + ast-grep;
   gate-prose deferred).

@@ -160,9 +160,9 @@ pixi run cmake --preset default && pixi run cmake --build --preset default
 | `context-engineering` | Route language-specific rules to the right... |
 | `debugging-and-error-recovery` | Systematic debugging and error recovery fo... |
 | `deprecation-and-migration` | Deprecate and migrate safely in this repo:... |
-| `doc-audit` | Audit this repository's documentation and... |
+| `doc-audit` | Project documentation and architecture audit. |
 | `documentation-and-adrs` | Record architecture decisions and keep doc... |
-| `ecosystem-scan` | Audit the .agents/ system and scan the com... |
+| `ecosystem-scan` | Deprecated alias for repo-audit; use repo-... |
 | `incremental-implementation` | Thin vertical slice methodology — implemen... |
 | `lesson-review` | Batch session review: systematically extra... |
 | `observability-and-instrumentation` | Observability and instrumentation for Modu... |
@@ -173,6 +173,7 @@ pixi run cmake --preset default && pixi run cmake --build --preset default
 | `openspec-sync-specs` (inoperative) | Sync delta specs from a change to main specs. |
 | `performance-optimization` | Generic performance profiling and optimiza... |
 | `planning-and-task-breakdown` | Turn a spec or a vague ask into ordered, v... |
+| `repo-audit` | Whole-repo 10-domain engineering audit + e... |
 | `repo-triage` | Layer triage for an ambiguous task in this... |
 | `review-hardcode` (deprecated alias) | Hardcoded secrets/ports/URLs scan. |
 | `rust-engineering` | Rust engineering workflow for the ModuKit... |

@@ -27,7 +27,7 @@ ModuKit-specific skills, located in `.agents/skills/`:
 | `deprecation-and-migration` | process | deprecate and migrate without breakage |
 | `doc-audit` | tooling | documentation/decision consistency audit — **re-scoped to ModuKit canon 2026-10-09** (first full run 2026-10-10) |
 | `documentation-and-adrs` | tooling | docs and ADR discipline |
-| `ecosystem-scan` | tooling | audit `.agents/` and scan the community for adoptable skills/rules/MCP |
+| `ecosystem-scan` | deprecated | deprecated alias -> repo-audit; grace-period trigger |
 | `incremental-implementation` | process | thin vertical slices |
 | `lesson-review` | memory | batch session review → `.agents/memorys/` |
 | `observability-and-instrumentation` | tooling | kernel event ring, logger, debug-reader |
@@ -38,6 +38,7 @@ ModuKit-specific skills, located in `.agents/skills/`:
 | `openspec-sync-specs` (inoperative) | spec | sync delta specs into main specs — **inoperative**: openspec CLI not installed |
 | `performance-optimization` | process | measure before optimizing |
 | `planning-and-task-breakdown` | process | plan and split work |
+| `repo-audit` | tooling | whole-repo 10-domain audit (skills/rules/MCP/scripts/docs/book/CLI/tests/structure/naming); formerly ecosystem-scan |
 | `repo-triage` | tooling | route a task to the right ModuKit layer |
 | `review-hardcode` (deprecated alias) | deprecated | deprecated alias to security-hardening |
 | `rust-engineering` | rust | workspace gates, unsafe/C ABI review, MSRV 1.88 |

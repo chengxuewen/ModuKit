@@ -230,6 +230,8 @@ the clause text is ModuKit-authored, not copied.
 | `.markdownlint.json` | same | verbatim | B7-gap |
 | `.markdownlintignore` | same | adapt (comment de-VE-ified) | B7-gap |
 | `scripts/gen-llms-txt.sh` | same | adapt (rustdoc + ModuKit sources) | B7-gap |
+| `.agents/skills/repo-audit/SKILL.md` | same | adapt (10 domains, 34 gates, build/book) | #23-26 |
+| `.agents/skills/doc-audit/SKILL.md` | same | adapt (two-reviewer revision, ModuKit targets) | #23-26 |
 | `book/po/*` + `scripts/book-i18n.py` | not adopted | removed by VE D46 | B6 |
 | `scripts/gate-prose.py` + `docs/prose-banned.toml` | not adopted | deferred (prose policy batch) | B6 |
 
