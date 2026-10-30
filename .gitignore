@@ -1,6 +1,15 @@
-# This file is used to ignore files which are generated
-# ----------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# .gitignore - generated artefacts, local state, and secrets never enter git.
+#
+# Verify one path before adding a rule:   git check-ignore -v <path>
+# Confirm nothing tracked is silently ignored:
+#   git ls-files -ci --exclude-standard     (must print nothing)
+#
+# Order: noise -> legacy toolchains -> IDE -> build -> node -> python ->
+#        pixi -> secrets -> agent layers -> local notes -> clones -> bindings
+# ---------------------------------------------------------------------------
 
+# --- OS / editor temporary noise -------------------------------------------
 *~
 *.autosave
 *.core
@@ -11,17 +20,15 @@
 tags
 .DS_Store
 .directory
+Thumbs.db
 *.debug
 *.app
-Thumbs.db
-
 # xemacs temporary files
 *.flc
-
-# Vim temporary files
+# vim swap files
 .*.swp
 
-# Visual Studio generated files
+# --- Visual Studio / MinGW (legacy template, kept for Windows contributors) --
 *.ib_pdb_index
 *.idb
 *.ilk
@@ -35,121 +42,108 @@ Thumbs.db
 *.opensdf
 *.vcxproj
 *vcxproj.*
-
-# MinGW generated files
 *.Debug
 *.Release
-
-# Python byte code
-*.pyc
-
-# Binaries
-# --------
 *.dll
 *.exe
 
-# IDE files
-# --------
-.vs
-.idea
-.cache
+# --- IDE local configuration ------------------------------------------------
+.vs/
+.idea/
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
-CMakeUserPresets.json
-compile_commands.json
 
-# Build dirs
-# --------
-out
-log
-dist
-build
-target
-*.node
-/install
-
-# Temp dirs
-# --------
-nodejs
-stash
-
-# nodejs environments
-node_modules
-.npm-cache
-.turbo
-
-# Root npm echoes for the MCP single source (pins live in scripts/mcp-servers.json)
-/package.json
-/package-lock.json
-
-# Local MCP credentials (canonical .agents/mcp.json is committed)
-.agents/mcp.local.json
-
-# Don't ignore files
-# --------
-!.vscode/settings.json
-
-# Agent dirs
-.venv-openspace
-.playwright-mcp
-.codegraph
-# CodeGraph CLI + bin links (installed by init-mcp-codegraph.sh)
-.opencode/codegraph/
-.opencode/bin/
-# Agent host layers (generated; never tracked)
-.qoder/
-.codebuddy/
-.trae/
-.claude/
-.cursor/
-.certs/
-.tools/
-.opencode/*.bak-*
-# Serena generated state (project.yml stays tracked)
-/.serena/cache/
-/.serena/memories/
-/.serena/project.local.yml
-# pixi environment manager
-.pixi
-.pixi-pack
-.pixi-cache
-.sisyphus/
-.omo/*
-!.omo/omo.jsonc
-
-# PolyOrch is now a tracked git submodule (D64-D67, M1 landing 2026-10-15) - the gitlink
-# pin is the version authority (D67); the old ignore-for-reference-checkout entry retired.
-
-# Build/delivery root for the assembly layer (PIT-210 lesson: generated trees live
-# here, never inside the source tree; ignoring out/ is correct because it is derived)
-out/
-
-# Script-managed reference clones (codegraph/ecosystem tooling)
-.refinfo
-
-
+# --- Build and test outputs -------------------------------------------------
+# out/ is the assembly root; build/ holds the book and other derived trees.
+/out/
+/build/
+/target/
+/dist/
+/install/
+/log/
+cmake-build*/
+/Testing/
 # in-source build accidents
 CMakeCache.txt
 CMakeFiles/
-
-/Testing/
-
-# Rust build artifacts
-/target
-
-# cargo build tree (out/ is the assembly root; both derived, never committed)
-target/
-
-# llvm-cov default profraw litter (spawned children + uninstrumented exit paths)
+# clangd database and per-user CMake presets
+/compile_commands.json
+/CMakeUserPresets.json
+# llvm-cov default profraw litter
 *.profraw
 
+# --- Node / MCP bridge (root manifests are npm state, not project files) ----
+node_modules/
+/package.json
+/package-lock.json
+.npm-cache/
+.turbo/
+*.node
 
-# regenerated live skin for the wave-2 python band (scripts/demo-wave2-py.sh
-# re-emits it through the codegen door; the byte-pinned face lives in
-# crates/modukit-codegen/testdata/golden/modukit_embed.py - never hand-commit).
-# The hand-written plugin runtime is TRACKED (D106 batch-2 T2.4): the dir-
-# exclusion form cannot be re-included by a negation (git never descends),
-# hence bindings/py/* + an explicit !-line, proven both ways via check-ignore.
+# --- Python -----------------------------------------------------------------
+*.pyc
+__pycache__/
+.venv-openspace/
+
+# --- pixi environment manager ----------------------------------------------
+.pixi/
+.pixi-pack/
+.pixi-cache/
+
+# --- Local secrets and overrides (never track) ------------------------------
+# Canonical .agents/mcp.json is committed; this file carries real credentials.
+.agents/mcp.local.json
+# local environment files (the .example template stays committable)
+.env
+.env.local
+.env.*.local
+!.env.example
+# local TLS artefacts
+.certs/
+# local tool caches
+.cache/
+
+# --- Agent host layers (generated from .agents/; never hand-edit) -----------
+.codebuddy/
+.qoder/
+.trae/
+.claude/
+.cursor/
+.playwright-mcp/
+.codegraph/
+# CodeGraph CLI and bin links (installed by init-mcp-codegraph.sh)
+.opencode/codegraph/
+.opencode/bin/
+.opencode/*.bak-*
+# Serena generated state (project.yml stays tracked by design)
+/.serena/cache/
+/.serena/memories/
+/.serena/project.local.yml
+
+# --- Local planning / scaffolding ------------------------------------------
+.omo/*
+!.omo/omo.jsonc
+.sisyphus/
+# legacy temp dirs (no current user; confirm before removing)
+/stash/
+/nodejs/
+
+# --- Activation wrappers ----------------------------------------------------
+# ModuKit tracks pixi.sh / pixi.bat / pixi.ps1 as documented entry points.
+# (Unlike VE, these are not generated-and-ignored here.)
+
+# --- Script-managed reference clones (read-only) ----------------------------
+/.refinfo/
+
+# --- Repo-local tool binaries ----------------------------------------------
+/.tools/
+
+# --- Generated language skins ----------------------------------------------
+# The wave-2 python demo re-emits this file through the codegen door; the
+# byte-pinned face lives in crates/modukit-codegen/testdata/golden.
+# plugin_runtime.py is hand-written and TRACKED (D106 batch-2 T2.4): the
+# directory-exclusion form cannot be re-included by a negation (git never
+# descends), hence bindings/py/* + an explicit !-line.
 bindings/py/*
 !bindings/py/plugin_runtime.py

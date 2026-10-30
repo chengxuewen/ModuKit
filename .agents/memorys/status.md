@@ -36,6 +36,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | memory disposition (C5) | `bash scripts/check-memory.sh <base>..HEAD` (batch close only) | pass (2026-10-30; B7 red, B2 green observed) |
 | local check gate (D50) | `bash scripts/check.sh` - THIRTEEN demo legs + D104 lane-table/deny/RUNNER legs, pixi per D65 | pass (2026-10-27) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md` 2026-10-14; red observed pre-move at 47924 bytes, green at 4144 | pass (2026-10-14) |
+| gitignore hygiene | `git ls-files -ci --exclude-standard` empty; expected `git check-ignore` hits for out/build/target/agent layers | pass (2026-10-30; VE ownership order) |
 | C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15: HEAD on a tmp branch -> RED, on master -> GREEN) | pass (2026-10-15) |
 | doc-audit full | 2026-10-23: 45 raw -> 26 merged, swept (git-date/bat-hooks/C1-red/D83) | this entry IS the record |
 | gate escalations live | check.sh ctest-stage4 leg (incremental rebuild THEN ctest; planted red observed); scripts/hooks/commit-msg via core.hooksPath (2 bad msgs blocked, good passed) | live (2026-10-21) |
