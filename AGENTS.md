@@ -8,7 +8,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 ## STRUCTURE
 
-```
+```text
 ├── README.md / SKILL.md      # front door / skills registry
 ├── docs/whitepaper.md        # v1.0 canon - crate names §2.3, roadmap §8 (superseded by §9/§10/§12)
 ├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D109, §12 roadmap (amended at D95 2026-10-21))

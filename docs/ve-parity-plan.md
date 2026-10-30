@@ -1,7 +1,8 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-10-30 (revision 8). B0-B7 landed; B8 deferred.
-> B6 follows VE D46 (English-only book, reader-side browser translation). Twelve adjudications walked one by one with the maintainer (ten in
+> STATUS: PLAN OF RECORD, 2026-10-30 (revision 9). B0-B7 landed; B8 deferred.
+> Gap-closure adjudications #20-22 are recorded in section 2.4. B6 follows VE D46
+> (English-only book, reader-side browser translation). Twelve adjudications walked one by one with the maintainer (ten in
 > section 2: A / A / C / A / A / B / A / A / A / B; two follow-ups in section 2.1:
 > C / A), plus the B4b-2 trio in section 2.3. Functional code, contracts, binding
 > implementations, demo assertions, and project memory entries are out of scope.
@@ -74,6 +75,14 @@ Ownership map for #18: `ModuKitPolyOrch.cmake` owns the SDK/toolchain face;
 codemodel probe; `bindings/cpp` + `test-plugins/cpp` + `examples/cpp` own the binding
 targets through root `add_subdirectory`. No empty `ModuKitSDK/Ffi/Bindings.cmake`
 shells are created. Trigger to split: a real SDK packaging or prebuilt-consumer lane.
+
+### 2.4 Gap-closure adjudications (2026-10-30, user-adjudicated one by one)
+
+| # | Decision | Ruling | Key note |
+|---|---|---|---|
+| 20 | install/packaging surface | **C: out of scope** | No `cmake --install`, pkg-config, CMake package config, `gate-pack`/`pack-check`/`npm-pack`; source/C ABI consumption only; revisit on a real downstream |
+| 21 | API docs (rustdoc) | **A: add to docs-gen** | `cargo doc --workspace --no-deps` -> `target/doc`; `book-build` merges it into `www/book/api`; llms links it |
+| 22 | quality surface | **B: format/tooling only** | `.clang-format` + `.markdownlint*` + `ast-grep-cli`; `gate-prose`/`polish` stays deferred |
 
 ## 3. Work breakdown
 
@@ -646,6 +655,9 @@ when its trigger fires.
 - No v1 surface changes (D87) and no v2 verb additions.
 - No bulk rewrite of SDD clauses or capability-ledger numbers.
 - No renumbering of existing C/D/PIT entries.
+- Install/packaging surface (`cmake --install`, pkg-config, CMake package config,
+  `gate-pack`/`pack-check`/`npm-pack`) is out of scope; consumers use source or the
+  C ABI. Revisit only on a real downstream consumer.
 
 ## 7. References
 
@@ -713,6 +725,9 @@ ModuKit anchors:
   five clauses (`KERNEL-01`, `EMBED-01`, `WIRE-01`, `BUS-01`, `TRANSPORT-01`),
   tags on five existing tests, and `spec-trace` (5 pairs; a clause without a tag
   was observed red). The book grows to 73 chapters; gate-prose stays deferred.
+- 2026-10-30 revision 9: gap-closure adjudications #20-22 - packaging C (out of
+  scope), API docs A (rustdoc in docs-gen), quality B (format configs + ast-grep;
+  gate-prose deferred).
 - 2026-10-30 revision 8: VE D46 (English-only book; browser-side translation)
   applied to B6. Removed PO/gettext/book-i18n/BOOK_LANG/.tools/cargo-binstall;
   added meta.json/footer, book-serve, book-graph; gate-prose deferred. B0-B5 are

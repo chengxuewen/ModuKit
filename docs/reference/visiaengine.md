@@ -226,6 +226,10 @@ the clause text is ModuKit-authored, not copied.
 | `scripts/book-check.py` | same | adapt (English-only checks) | B6 |
 | `scripts/book-serve.py` | same | adapt (English-only watcher) | B6 |
 | `scripts/export-graph.mjs` | same | verbatim | B6 |
+| `.clang-format` | `.clang-format` | adapt (header says config-only) | B7-gap |
+| `.markdownlint.json` | same | verbatim | B7-gap |
+| `.markdownlintignore` | same | adapt (comment de-VE-ified) | B7-gap |
+| `scripts/gen-llms-txt.sh` | same | adapt (rustdoc + ModuKit sources) | B7-gap |
 | `book/po/*` + `scripts/book-i18n.py` | not adopted | removed by VE D46 | B6 |
 | `scripts/gate-prose.py` + `docs/prose-banned.toml` | not adopted | deferred (prose policy batch) | B6 |
 
