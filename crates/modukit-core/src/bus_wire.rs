@@ -19,10 +19,10 @@
 //! -19/-26 channels) is N1's and is reused verbatim, never forked
 //! (ruling 5); the refusal channel rides a DELIVER with a negative qos.
 
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::io;
+use std::collections::{HashMap, HashSet, VecDeque};
+use std::io::{self, Write};
 use std::os::unix::net::UnixStream;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock, PoisonError};
 use std::time::{Duration, Instant};
 
@@ -60,6 +60,46 @@ pub(crate) const fn qos_to_i32(qos: QoS) -> i32 {
 
 // ---------------------------------------------------------------- parent
 
+/// Whole-frame outbox ceiling per child. A stalled child keeps at most this
+/// many bytes queued; older WHOLE frames are shed, never a byte-level cut.
+#[allow(dead_code)] // 1a inert plumbing; 1b wires the hook
+pub(crate) const WALL_OUTBOX_CAP: usize = 256 * 1024;
+
+/// Per-child bounded write queue. 1a adds the structure and tests; 1b installs
+/// the hook that makes it the production path.
+#[allow(dead_code)] // 1a inert plumbing; 1b wires the hook
+#[derive(Default)]
+struct Outbox {
+    frames: VecDeque<Vec<u8>>,
+    head_written: usize,
+    bytes: usize,
+}
+
+impl Outbox {
+    fn push(&mut self, frame: Vec<u8>, sheds: &AtomicU64) {
+        if frame.len() > WALL_OUTBOX_CAP {
+            sheds.fetch_add(1, Ordering::Relaxed);
+            return;
+        }
+        while self.bytes + frame.len() > WALL_OUTBOX_CAP {
+            let Some(old) = self.frames.pop_front() else {
+                break;
+            };
+            self.bytes -= old.len();
+            if self.frames.is_empty() {
+                self.head_written = 0;
+            }
+            sheds.fetch_add(1, Ordering::Relaxed);
+        }
+        if self.bytes + frame.len() <= WALL_OUTBOX_CAP {
+            self.bytes += frame.len();
+            self.frames.push_back(frame);
+        } else {
+            sheds.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+}
+
 /// Per-capable-child topic interest plus the child control sockets, one
 /// instance per Supervisor boot (`proc_supervisor`), shared through the
 /// executor table so the start-window pump reaches it from the frame loop.
@@ -80,6 +120,12 @@ pub(crate) struct ParentFanout {
     /// FORWARD through the executor's register site when its HELLO carried
     /// the bit; `retire` sweeps it with the rest of the mailbox window.
     timer: Mutex<HashSet<String>>,
+    /// 1a inert plumbing: bounded whole-frame queues used by `pump_topic`
+    /// tests; 1b installs the hook that makes this the production path.
+    outbox: Mutex<HashMap<String, Outbox>>,
+    wall_stalls: AtomicU64,
+    wall_sheds: AtomicU64,
+    wall_losses: AtomicU64,
 }
 
 impl ParentFanout {
@@ -89,6 +135,10 @@ impl ParentFanout {
             children: Mutex::new(HashMap::new()),
             subs: Mutex::new(HashMap::new()),
             timer: Mutex::new(HashSet::new()),
+            outbox: Mutex::new(HashMap::new()),
+            wall_stalls: AtomicU64::new(0),
+            wall_sheds: AtomicU64::new(0),
+            wall_losses: AtomicU64::new(0),
         }
     }
 
@@ -110,6 +160,8 @@ impl ParentFanout {
     /// FORWARDs - every snapshot it needs comes from `Bus::subscribe`
     /// late-join at that moment.
     pub(crate) fn retire(&self, id: &str) {
+        // Keep the outbox -> children order used by `flush_outbox`.
+        self.lock_outbox().remove(id);
         self.lock_children().remove(id);
         self.lock_timer().remove(id); // T2: the bell-target set leaves too
         let mut subs = self.lock_subs();
@@ -238,6 +290,121 @@ impl ParentFanout {
                 self.deliver(&child, topic, qos, value);
             }
         }
+    }
+
+    /// 1a: the general-publish pump, exercised by tests only. 1b installs
+    /// this as the `Bus::publish` hook; the current production path remains
+    /// `on_publish` plus the bell-only pump.
+    #[allow(dead_code)] // wired in 1b
+    pub(crate) fn pump_topic(&self, topic: &TopicId, qos: i32, value: &[u8]) {
+        let targets: Vec<(String, Receiver)> = self
+            .lock_subs()
+            .get(topic)
+            .map(|per_child| {
+                per_child
+                    .iter()
+                    .map(|(child, rx)| (child.clone(), rx.clone()))
+                    .collect()
+            })
+            .unwrap_or_default();
+        for (child, mut rx) in targets {
+            let mut delivered = false;
+            while let Some(v) = rx.try_recv() {
+                self.deliver_bounded(&child, topic, qos, &v);
+                delivered = true;
+            }
+            if !delivered {
+                self.deliver_bounded(&child, topic, qos, value);
+            }
+        }
+    }
+
+    #[allow(dead_code)] // wired in 1b
+    fn deliver_bounded(&self, child: &str, topic: &TopicId, qos: i32, value: &[u8]) {
+        let payload = proc_wire::deliver_payload(&Delivery {
+            topic: topic.to_string(),
+            qos,
+            value: value.to_vec(),
+        });
+        let frame = proc_wire::encode_frame(proc_wire::MSG_DELIVER, &payload);
+        let mut boxes = self.lock_outbox();
+        let outbox = boxes.entry(child.to_string()).or_default();
+        outbox.push(frame, &self.wall_sheds);
+        self.flush_outbox(child, outbox);
+    }
+
+    #[allow(dead_code)] // wired in 1b
+    fn flush_outbox(&self, child: &str, outbox: &mut Outbox) {
+        loop {
+            let Some(head) = outbox.frames.front() else {
+                return;
+            };
+            let frame_len = head.len();
+            let start = outbox.head_written;
+            let mut children = self.lock_children();
+            let Some(ctl) = children.get_mut(child) else {
+                drop(children);
+                outbox.frames.clear();
+                outbox.bytes = 0;
+                outbox.head_written = 0;
+                return;
+            };
+            let result = ctl.write(&head[start..]);
+            drop(children);
+            match result {
+                Ok(0) => {
+                    self.wall_losses.fetch_add(1, Ordering::Relaxed);
+                    outbox.frames.clear();
+                    outbox.bytes = 0;
+                    outbox.head_written = 0;
+                    self.lock_children().remove(child);
+                    return;
+                }
+                Ok(n) => {
+                    outbox.head_written += n;
+                    if outbox.head_written == frame_len {
+                        outbox.frames.pop_front();
+                        outbox.bytes -= frame_len;
+                        outbox.head_written = 0;
+                    }
+                }
+                Err(err) if err.kind() == io::ErrorKind::Interrupted => {}
+                Err(err)
+                    if err.kind() == io::ErrorKind::WouldBlock
+                        || err.kind() == io::ErrorKind::TimedOut =>
+                {
+                    self.wall_stalls.fetch_add(1, Ordering::Relaxed);
+                    return;
+                }
+                Err(_) => {
+                    self.wall_losses.fetch_add(1, Ordering::Relaxed);
+                    outbox.frames.clear();
+                    outbox.bytes = 0;
+                    outbox.head_written = 0;
+                    self.lock_children().remove(child);
+                    return;
+                }
+            }
+        }
+    }
+
+    #[allow(dead_code)] // tests read these; 1b folds them into the counter view
+    pub(crate) fn wall_stalls(&self) -> u64 {
+        self.wall_stalls.load(Ordering::Relaxed)
+    }
+
+    #[allow(dead_code)] // tests read these; 1b folds them into the counter view
+    pub(crate) fn wall_sheds(&self) -> u64 {
+        self.wall_sheds.load(Ordering::Relaxed)
+    }
+
+    #[allow(dead_code)] // tests read these; 1b folds them into the counter view
+    pub(crate) fn wall_losses(&self) -> u64 {
+        self.wall_losses.load(Ordering::Relaxed)
+    }
+
+    fn lock_outbox(&self) -> MutexGuard<'_, HashMap<String, Outbox>> {
+        self.outbox.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
     /// Write one DELIVER. A dead socket removes that child's registration
@@ -692,5 +859,37 @@ mod tests {
         fan.bus.publish(&t, QoS::LatestValue, b"x".to_vec());
         fan.pump_local_bell(&t, 2, b"x");
         assert_silent(&mut reader);
+    }
+
+    #[test]
+    fn general_pump_delivers_belt_to_interested_child() {
+        let (fan, mut reader) = wired_fan();
+        let t = topic("org.modukit.pump.belt");
+        fan.handle_forward("c", &fwd(FWD_SUB, t.as_str(), 0, &[]))
+            .unwrap();
+        fan.pump_topic(&t, 2, b"host");
+        assert_eq!(next_deliver(&mut reader).value, b"host");
+    }
+
+    #[test]
+    fn general_pump_drains_queued_value_before_the_belt() {
+        let (fan, mut reader) = wired_fan();
+        let t = topic("org.modukit.pump.queued");
+        fan.handle_forward("c", &fwd(FWD_SUB, t.as_str(), 0, &[]))
+            .unwrap();
+        fan.bus.publish(&t, QoS::Lossy(4), b"queued".to_vec());
+        fan.pump_topic(&t, 2, b"belt");
+        assert_eq!(next_deliver(&mut reader).value, b"queued");
+    }
+
+    #[test]
+    fn outbox_sheds_whole_frames_over_the_cap() {
+        let mut outbox = Outbox::default();
+        let sheds = AtomicU64::new(0);
+        for _ in 0..5 {
+            outbox.push(vec![0u8; 64 * 1024], &sheds);
+        }
+        assert!(sheds.load(Ordering::Relaxed) >= 1);
+        assert!(outbox.bytes <= WALL_OUTBOX_CAP);
     }
 }

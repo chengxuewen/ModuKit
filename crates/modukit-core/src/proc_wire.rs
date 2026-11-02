@@ -115,18 +115,26 @@ pub struct Hello {
     pub caps: u32,
 }
 
+/// Encode one frame (header + payload) without touching a socket. The
+/// envelope stamps `WIRE_VERSION`; `write_frame` and the wall outbox share
+/// this exact byte layout.
+pub(crate) fn encode_frame(kind: u8, payload: &[u8]) -> Vec<u8> {
+    let mut frame = Vec::with_capacity(6 + payload.len());
+    frame.extend_from_slice(&(payload.len() as u32).to_le_bytes());
+    frame.push(WIRE_VERSION);
+    frame.push(kind);
+    frame.extend_from_slice(payload);
+    frame
+}
+
 /// Write one frame (header + payload, flushed as one write). The envelope
 /// stamps `WIRE_VERSION` — speakers do not get to choose their own ver.
 ///
 /// Errors: the peer's socket died or the stream timed out — the caller
 /// turns either into a crash observation; nothing here decides policy.
 pub fn write_frame(sock: &mut UnixStream, kind: u8, payload: &[u8]) -> io::Result<()> {
-    let mut header = Vec::with_capacity(6);
-    header.extend_from_slice(&(payload.len() as u32).to_le_bytes());
-    header.push(WIRE_VERSION);
-    header.push(kind);
-    sock.write_all(&header)?;
-    sock.write_all(payload)?;
+    let frame = encode_frame(kind, payload);
+    sock.write_all(&frame)?;
     sock.flush()
 }
 
