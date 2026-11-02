@@ -11,8 +11,8 @@
 >
 > EXECUTION STATUS (2026-11-02): batch 0 closed 2026-10-27; batch 1a landed
 > 2026-11-02 (inert pump/outbox); batch 1b landed 2026-11-02 (hook installed,
-> old paths retired); batch 2/3 not started. Do not start batch 2 before 1b is
-> green (it is: 36-leg ci green).
+> old paths retired); batch 2 landed 2026-11-02 (HOST PUSH + lever proof);
+> batch 3 closeout not started. Both legs 12/13 and the 36-leg ci are green.
 
 ## 0. Fact base (verified against the tree, 2026-10-27)
 
@@ -233,6 +233,16 @@ clippy fresh-check clean; full gate green.
   `ParentFanout`; folding them into `Snapshot.counters()` needs a `CountersView`
   surface change and is deferred. They are still asserted by unit tests and
   readable from the fanout.
+- **Registration lifetime (2)**: the parent-side wall registration now
+  outlives the START ack and is retired at stop, so host-origin publishes can
+  reach a running child. Child-local mailbox authority is unchanged; only the
+  parent proxy lifetime moved.
+- **Host bus routing (2)**: once the exe rung is active, `modukit_bus_publish`
+  targets the supervisor kernel bus (the one carrying the hook), not the
+  separate ambient in-process kernel. No ABI or contract change.
+- **Lever scope (2)**: `MODUKIT_HOST_PUSH_OFF` suppresses only host-origin
+  publishes, marked by a thread-local set at the C door; child-origin traffic
+  still rides the hook and stays green.
 
 ## 8. Non-goals
 
@@ -316,6 +326,9 @@ forget the ordering, the atomic switch, or the frozen surfaces.
   child-origin stanzas green.
 - `bindings/`, `contracts/`, `wire.h`, and goldens stay untouched.
 - Exit: both legs green, lever red observed, full gate green.
+- Landed 2026-11-02 (`0a89d4e`): both plugin legs print `HOST PUSH PASS`;
+  with `MODUKIT_HOST_PUSH_OFF=1` they print `HOST PUSH LEVER PASS` (host-origin
+  red, child-origin green) and never reach `LIFECYCLE PASS`.
 
 ### 10.5 Do-not-forget checklist
 
