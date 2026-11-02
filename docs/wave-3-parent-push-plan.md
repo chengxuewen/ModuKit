@@ -10,8 +10,9 @@
 > circled numerals (C4).
 >
 > EXECUTION STATUS (2026-11-02): batch 0 closed 2026-10-27; batch 1a landed
-> 2026-11-02 (inert pump/outbox, no production install); batch 1b next; batch 2/3
-> not started. Do not start batch 2 before 1b is green.
+> 2026-11-02 (inert pump/outbox); batch 1b landed 2026-11-02 (hook installed,
+> old paths retired); batch 2/3 not started. Do not start batch 2 before 1b is
+> green (it is: 36-leg ci green).
 
 ## 0. Fact base (verified against the tree, 2026-10-27)
 
@@ -228,6 +229,10 @@ clippy fresh-check clean; full gate green.
   the type's doc).
 - **Known environment**: the ctest cold-window flake family (PIT-32) -
   capture first, isolate second.
+- **Wall counters (1b)**: `wall_stalls` / `wall_sheds` / `wall_losses` live on
+  `ParentFanout`; folding them into `Snapshot.counters()` needs a `CountersView`
+  surface change and is deferred. They are still asserted by unit tests and
+  readable from the fanout.
 
 ## 8. Non-goals
 
@@ -300,6 +305,9 @@ forget the ordering, the atomic switch, or the frozen surfaces.
 - Atomic invariant: install + retirement are one commit; never leave a tree with
   both paths active or neither path active.
 - Rollback: revert 1b; 1a stays; the old paths return. Do not revert 1a first.
+- Landed 2026-11-02 (`91fc390`): hook installed, write timeout set, bell pump
+  and `on_publish` loop removed, registered STOP/DIAL writes routed through
+  `send`; 47 core tests and 36-leg `ci` green.
 
 ### 10.4 Batch 2 - HOST PUSH proof (only after 1b green)
 
