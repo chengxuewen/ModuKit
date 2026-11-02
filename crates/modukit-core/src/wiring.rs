@@ -102,7 +102,6 @@ impl Kernel {
             executor,
             plugins,
             plugin_timers: Mutex::new(HashMap::new()),
-            parent_bells: Mutex::new(None),
             contract_ledger,
         }
     }
@@ -225,19 +224,8 @@ impl Kernel {
         {
             let _ = b.publish(topic.as_str(), 2, &payload);
         }
-        // Outlet 2 (D99 R5-A, parent side): the named landed absence from
-        // the hearing review, fixed at the due-funnel - pump the just-
-        // published bell to timer-capable INTERESTED children only. The
-        // Arc clone keeps the parent_bells lock a leaf (one-thread host
-        // law: no kernel lock stays live across the fanout's maps).
-        let bells = self
-            .parent_bells
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .clone();
-        if let Some(f) = bells {
-            f.pump_local_bell(&topic, 2, &payload);
-        }
+        // The parent-side wall fan is the general publish hook (installed at
+        // the supervisor seam); no bell-only outlet remains.
     }
 
     /// Post timer jobs that became due (the `Real` domain's poll doorway):
@@ -304,7 +292,6 @@ mod bell_crossing_tests {
         let topic = bell_topic(plugin);
         let fan = Arc::new(ParentFanout::new(Arc::clone(&kernel.bus)));
         fan.register_child("cap".into(), wired);
-        fan.note_timer_child("cap".into());
         fan.handle_forward(
             "cap",
             &Forward {
@@ -315,7 +302,7 @@ mod bell_crossing_tests {
             },
         )
         .expect("bell-topic interest");
-        kernel.attach_parent_bells(fan);
+        kernel.attach_parent_fanout(fan);
         (kernel, reader, topic)
     }
 
@@ -363,6 +350,29 @@ mod bell_crossing_tests {
             token.value()
         );
         assert_eq!(&bytes[16..], b"tick", "the job label rides verbatim");
+    }
+
+    /// The general publish hook is the only wall fan: one DELIVER, no
+    /// second copy from a retired `on_publish` loop.
+    #[test]
+    fn host_publish_hook_delivers_once_without_a_manual_pump() {
+        let (kernel, mut reader, topic) = wired_pair("com.example.hookonce");
+        kernel
+            .bus()
+            .publish(&topic, crate::topic::QoS::Lossy(4), b"host-push".to_vec());
+        let (_, kind, payload) = proc_wire::read_frame(&mut reader).expect("the hook must deliver");
+        assert_eq!(kind, MSG_DELIVER);
+        let delivery = proc_wire::parse_deliver(&payload).expect("DELIVER grammar");
+        assert_eq!(delivery.value, b"host-push");
+        let mut byte = [0u8; 1];
+        match reader.read(&mut byte) {
+            Err(err)
+                if matches!(
+                    err.kind(),
+                    std::io::ErrorKind::TimedOut | std::io::ErrorKind::WouldBlock
+                ) => {}
+            other => panic!("exactly one DELIVER is expected, got {other:?}"),
+        }
     }
 
     /// The T1 register law through the new outlets: a host-owned token

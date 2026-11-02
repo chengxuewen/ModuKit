@@ -67,12 +67,6 @@ pub struct Kernel {
     /// tokens; drained at stop/uninstall by `release_plugin_timers` (the
     /// "token never re-fires" census). Host-owned timers are NOT in it.
     pub(crate) plugin_timers: Mutex<HashMap<u64, PluginId>>,
-    /// Wave-2 T2 (D99 R5-A): the parent-side bell fan-out handle - `Some`
-    /// only on a Supervisor boot (`proc_supervisor::with_clock` attaches
-    /// the SAME Arc it installs into the executor table). `post_timer_bell`
-    /// pumps plugin bells through it, bells ONLY - the general parent->child
-    /// publish pump stays deferred (stage-5-plan §3 row).
-    pub(crate) parent_bells: Mutex<Option<Arc<crate::bus_wire::ParentFanout>>>,
 }
 
 fn lock(
@@ -158,15 +152,18 @@ impl Kernel {
         &self.bus
     }
 
-    /// Wave-2 T2 (D99 R5-A): attach the parent-side bell fan-out. One
-    /// boot-time setter (the supervisor's fanout construction point), the
-    /// lock is a leaf, and a kernel without supervised children simply
-    /// never owns a handle (the standalone-kernel posture is unchanged).
-    pub(crate) fn attach_parent_bells(&self, fan: Arc<crate::bus_wire::ParentFanout>) {
-        *self
-            .parent_bells
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner) = Some(fan);
+    /// D108: install the general parent->child publish hook at the single
+    /// boot seam. The hook observes every publish after fan-out and outside
+    /// the topics lock; `MODUKIT_HOST_PUSH_OFF` skips the install at this
+    /// one site. A kernel without supervised children installs nothing.
+    pub(crate) fn attach_parent_fanout(&self, fan: Arc<crate::bus_wire::ParentFanout>) {
+        if std::env::var_os("MODUKIT_HOST_PUSH_OFF").is_some() {
+            return;
+        }
+        self.bus
+            .set_publish_hook(Arc::new(move |topic, qos, value| {
+                fan.pump_topic(topic, crate::bus_wire::qos_to_i32(qos), value);
+            }));
     }
 
     /// Boot seam (M7, closing the M6 "fdset equality rides M7/M8"

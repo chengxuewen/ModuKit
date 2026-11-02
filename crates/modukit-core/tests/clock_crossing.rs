@@ -19,7 +19,7 @@
 //! with `ProcessExecutor`, which polices its placement kind, so it hosts NO
 //! dl plugin and its `plugin_timers` register can never fill - there is no
 //! parent-originated bell producer on any tree that also owns a fanout;
-//! (2) even with a producer, `pump_local_bell` can reach a child only while
+//! (2) even with a producer, the general pump can reach a child only while
 //! the child's interest is live, and that window is the START exchange
 //! (`retire` at the ack sweeps it - 01 §3 rule 2, the T2 plan keeps it);
 //! (3) the parent's dial of its own kernel cannot run concurrently with the

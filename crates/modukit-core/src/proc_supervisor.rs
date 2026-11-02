@@ -120,10 +120,9 @@ impl Supervisor {
             std::sync::Arc::clone(&kernel.bus),
         ));
         live.lock().fanout = Some(std::sync::Arc::clone(&fanout));
-        // Wave-2 T2 (D99 R5-A): the SAME Arc rides the kernel - the parent-
-        // side bell outlet (`wiring.rs::post_timer_bell`) pumps through it.
-        // Bells only; the ordinary-publish pump row stays in stage-5-plan §3.
-        kernel.attach_parent_bells(fanout);
+        // D108: the SAME Arc rides the kernel hook - every publish origin
+        // after fan-out pumps through the general wall path.
+        kernel.attach_parent_fanout(fanout);
         Self {
             kernel,
             live,

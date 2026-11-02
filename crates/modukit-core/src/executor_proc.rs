@@ -343,7 +343,6 @@ impl Executor for ProcessExecutor {
             // Stage-5 N2: the HELLO capability bit gates the bus talkers
             // (ruling 4), and the fan-out door rides the Supervisor boot.
             bus_caps: hello.caps & proc_wire::HELLO_CAP_BUS_V2 != 0,
-            timer_caps: hello.caps & proc_wire::HELLO_CAP_TIMER_V2 != 0,
             fanout: shared.fanout.clone(),
         };
         Ok(Box::new(handle))
@@ -406,11 +405,6 @@ struct ProcPlugin {
     /// Whether this child's HELLO declared the bus capability (D96
     /// ruling 4): speaking FORWARD without it is a lie, refused.
     bus_caps: bool,
-    /// Whether this child declared `HELLO_CAP_TIMER_V2` (D99 R5-A T2):
-    /// the fan-out notes it as a bell target at the register site, and its
-    /// own bells may ride the crossing dial. The bus gate above stands:
-    /// no-bus-cap is never spoken to at all.
-    timer_caps: bool,
     /// The kernel's bus fan-out door (`None` for a standalone executor).
     fanout: Option<std::sync::Arc<crate::bus_wire::ParentFanout>>,
     /// Registration ids of the kernel-side proxies installed from the
@@ -514,9 +508,6 @@ impl LoadedPlugin for ProcPlugin {
                         return Err(crashed(&self.id, "forward: control closed"));
                     };
                     fan.register_child(self.id.clone(), ctl);
-                    if self.timer_caps {
-                        fan.note_timer_child(self.id.clone());
-                    }
                     let Some(fwd) = proc_wire::parse_forward(&payload) else {
                         kill_and_reap(p);
                         return Err(crashed(&self.id, "forward: malformed payload"));
@@ -561,6 +552,7 @@ impl LoadedPlugin for ProcPlugin {
 
     fn stop(&mut self) -> Result<(), KernelError> {
         let live = self.live.clone();
+        let fanout = self.fanout.clone();
         let mut shared = live.lock();
         let p = self.entry(&mut shared)?;
         let control_io = |e: io::Error| crashed(&self.id, format!("control io: {e}"));
@@ -570,18 +562,32 @@ impl LoadedPlugin for ProcPlugin {
             .set_read_timeout(Some(STOP_KILL_GRACE))
             .map_err(control_io)?;
         // Graceful STOP message first; a named grace, then SIGKILL
-        // (modules/01 §3 rule 5: `exe` teardown is kill).
-        proc_wire::write_frame(
-            p.control
-                .as_mut()
-                .ok_or_else(|| crashed(&self.id, "control closed"))?,
-            MSG_STOP,
-            &[],
-        )
-        .map_err(|e| {
-            kill_and_reap(p);
-            control_io(e)
-        })?;
+        // (modules/01 §3 rule 5: `exe` teardown is kill). A registered
+        // wall child goes through the single writer; pre-registration keeps
+        // the direct write.
+        let sent = fanout
+            .as_ref()
+            .and_then(|f| f.send(&self.id, MSG_STOP, &[]));
+        match sent {
+            Some(Ok(())) => {}
+            Some(Err(e)) => {
+                kill_and_reap(p);
+                return Err(control_io(e));
+            }
+            None => {
+                proc_wire::write_frame(
+                    p.control
+                        .as_mut()
+                        .ok_or_else(|| crashed(&self.id, "control closed"))?,
+                    MSG_STOP,
+                    &[],
+                )
+                .map_err(|e| {
+                    kill_and_reap(p);
+                    control_io(e)
+                })?;
+            }
+        }
         let outcome = match proc_wire::read_frame(
             p.control
                 .as_mut()
@@ -707,6 +713,7 @@ pub(crate) fn dial_child(
     delta: Duration,
 ) -> Result<proc_wire::DueTurn, KernelError> {
     let mut shared = live.lock();
+    let fanout = shared.fanout.clone();
     let p = shared
         .live
         .get_mut(id)
@@ -720,9 +727,22 @@ pub(crate) fn dial_child(
         .ok_or_else(|| crashed(id, "control closed"))?;
     sock.set_read_timeout(Some(DIAL_TIMEOUT))
         .map_err(|e| crashed(id, format!("set timeout: {e}")))?;
-    if proc_wire::write_frame(sock, proc_wire::MSG_DIAL, &proc_wire::dial_payload(delta)).is_err() {
-        kill_and_reap(p);
-        return Err(crashed(id, "dial write: control closed"));
+    let payload = proc_wire::dial_payload(delta);
+    match fanout
+        .as_ref()
+        .and_then(|f| f.send(id, proc_wire::MSG_DIAL, &payload))
+    {
+        Some(Ok(())) => {}
+        Some(Err(_)) => {
+            kill_and_reap(p);
+            return Err(crashed(id, "dial write: control closed"));
+        }
+        None => {
+            if proc_wire::write_frame(sock, proc_wire::MSG_DIAL, &payload).is_err() {
+                kill_and_reap(p);
+                return Err(crashed(id, "dial write: control closed"));
+            }
+        }
     }
     let turn = match proc_wire::read_frame(sock) {
         Ok((proc_wire::WIRE_VERSION, proc_wire::MSG_DUE, payload)) => {
@@ -792,9 +812,22 @@ pub(crate) fn dial_child_crossing(
         .ok_or_else(|| crashed(id, "control closed"))?;
     sock.set_read_timeout(Some(DIAL_TIMEOUT))
         .map_err(|e| crashed(id, format!("set timeout: {e}")))?;
-    if proc_wire::write_frame(sock, proc_wire::MSG_DIAL, &proc_wire::dial_payload(delta)).is_err() {
-        kill_and_reap(p);
-        return Err(crashed(id, "dial write: control closed"));
+    let payload = proc_wire::dial_payload(delta);
+    match fanout
+        .as_ref()
+        .and_then(|f| f.send(id, proc_wire::MSG_DIAL, &payload))
+    {
+        Some(Ok(())) => {}
+        Some(Err(_)) => {
+            kill_and_reap(p);
+            return Err(crashed(id, "dial write: control closed"));
+        }
+        None => {
+            if proc_wire::write_frame(sock, proc_wire::MSG_DIAL, &payload).is_err() {
+                kill_and_reap(p);
+                return Err(crashed(id, "dial write: control closed"));
+            }
+        }
     }
     let turn = loop {
         let Some(sock) = p.control.as_mut() else {

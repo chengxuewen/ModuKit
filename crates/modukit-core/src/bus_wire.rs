@@ -19,7 +19,7 @@
 //! -19/-26 channels) is N1's and is reused verbatim, never forked
 //! (ruling 5); the refusal channel rides a DELIVER with a negative qos.
 
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, VecDeque};
 use std::io::{self, Write};
 use std::os::unix::net::UnixStream;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -62,12 +62,12 @@ pub(crate) const fn qos_to_i32(qos: QoS) -> i32 {
 
 /// Whole-frame outbox ceiling per child. A stalled child keeps at most this
 /// many bytes queued; older WHOLE frames are shed, never a byte-level cut.
-#[allow(dead_code)] // 1a inert plumbing; 1b wires the hook
 pub(crate) const WALL_OUTBOX_CAP: usize = 256 * 1024;
 
-/// Per-child bounded write queue. 1a adds the structure and tests; 1b installs
-/// the hook that makes it the production path.
-#[allow(dead_code)] // 1a inert plumbing; 1b wires the hook
+/// Bounded blocking write window for one outbox flush attempt (D108 A6).
+pub(crate) const WALL_WRITE_TIMEOUT: Duration = Duration::from_millis(50);
+
+/// Per-child bounded write queue used by the general pump and `send`.
 #[derive(Default)]
 struct Outbox {
     frames: VecDeque<Vec<u8>>,
@@ -115,13 +115,7 @@ pub(crate) struct ParentFanout {
     /// live pair is a no-op, so the snapshot never double-delivers - the
     /// child's own local late-join covers same-child re-subscribes.
     subs: Mutex<HashMap<TopicId, HashMap<String, Receiver>>>,
-    /// Child ids that declared `HELLO_CAP_TIMER_V2` (D99 R5-A T2): the
-    /// ONLY children `pump_local_bell` targets. Fed at the child's first
-    /// FORWARD through the executor's register site when its HELLO carried
-    /// the bit; `retire` sweeps it with the rest of the mailbox window.
-    timer: Mutex<HashSet<String>>,
-    /// 1a inert plumbing: bounded whole-frame queues used by `pump_topic`
-    /// tests; 1b installs the hook that makes this the production path.
+    /// Bounded whole-frame queues used by `pump_topic` and `send`.
     outbox: Mutex<HashMap<String, Outbox>>,
     wall_stalls: AtomicU64,
     wall_sheds: AtomicU64,
@@ -134,7 +128,6 @@ impl ParentFanout {
             bus,
             children: Mutex::new(HashMap::new()),
             subs: Mutex::new(HashMap::new()),
-            timer: Mutex::new(HashSet::new()),
             outbox: Mutex::new(HashMap::new()),
             wall_stalls: AtomicU64::new(0),
             wall_sheds: AtomicU64::new(0),
@@ -144,14 +137,8 @@ impl ParentFanout {
 
     /// Idempotent: the start pump registers on the child's first FORWARD.
     pub(crate) fn register_child(&self, id: String, ctl: UnixStream) {
+        let _ = ctl.set_write_timeout(Some(WALL_WRITE_TIMEOUT));
         self.lock_children().insert(id, ctl);
-    }
-
-    /// Idempotent: the executor's register site notes the timer bit once
-    /// per child per start window (D99 R5-A: bells pump to declared
-    /// children only - a BUS-only child never hears this method's frames).
-    pub(crate) fn note_timer_child(&self, id: String) {
-        self.lock_timer().insert(id);
     }
 
     /// The mailbox authority law across the wall (01 §3 rule 2): a START
@@ -163,7 +150,6 @@ impl ParentFanout {
         // Keep the outbox -> children order used by `flush_outbox`.
         self.lock_outbox().remove(id);
         self.lock_children().remove(id);
-        self.lock_timer().remove(id); // T2: the bell-target set leaves too
         let mut subs = self.lock_subs();
         for per_child in subs.values_mut() {
             per_child.remove(id);
@@ -188,27 +174,11 @@ impl ParentFanout {
     fn on_publish(&self, topic: &TopicId, fwd: &Forward) -> Result<(), String> {
         // THE single fan-out doorway, ruling 6: the same `Bus::publish`
         // an in-process plugin calls - parent-local subscribers, the
-        // D21 gate tallies, retention, all ride it unchanged.
+        // D21 gate tallies, retention, all ride it unchanged. The general
+        // hook (installed by the kernel) drains the proxy queues after the
+        // fan-out; the old manual wall loop is retired.
         let qos = codec::qos_from_i32(fwd.qos).ok_or("forward: qos off the embed vocabulary")?;
         self.bus.publish(topic, qos, fwd.value.clone());
-        // Wall fan: every interested child, the publisher itself included
-        // (self-echo - the in-process bus already echoes into the proxy
-        // Receiver, the drain simply forwards what it holds).
-        let targets: Vec<(String, Receiver)> = self
-            .lock_subs()
-            .get(topic)
-            .map(|per_child| {
-                per_child
-                    .iter()
-                    .map(|(child, rx)| (child.clone(), rx.clone()))
-                    .collect()
-            })
-            .unwrap_or_default();
-        for (child, mut rx) in targets {
-            while let Some(value) = rx.try_recv() {
-                self.deliver(&child, topic, fwd.qos, &value);
-            }
-        }
         Ok(())
     }
 
@@ -255,47 +225,9 @@ impl ParentFanout {
         Ok(())
     }
 
-    /// Wave-2 T2 (D99 R5-A): the parent-side bell outlet - the named landed
-    /// absence from the hearing review, fixed at the due-funnel only. The
-    /// EXACT drain-and-deliver grammar `on_publish` runs (proxy `Receiver`
-    /// pull + one DELIVER frame per value), restricted to timer-capable
-    /// interested children: the value has already landed on the parent bus
-    /// (the bell site publishes first), so a live proxy box holds it; the
-    /// passed `value` is delivered as the belt when a target box drained
-    /// empty (rings drop the OLDEST, never evict everything - this keeps
-    /// the pump byte-honest under a racing drain). NEVER call this from
-    /// `Bus::publish`: the ordinary-publish pump stays deferred
-    /// (stage-5-plan §3). No new frame type: DELIVER is the existing one.
-    pub(crate) fn pump_local_bell(&self, topic: &TopicId, qos: i32, value: &[u8]) {
-        let targets: Vec<(String, Receiver)> = {
-            let subs = self.lock_subs();
-            let timer = self.lock_timer();
-            subs.get(topic)
-                .map(|per_child| {
-                    per_child
-                        .iter()
-                        .filter(|(child, _rx)| timer.contains(*child))
-                        .map(|(child, rx)| (child.clone(), rx.clone()))
-                        .collect()
-                })
-                .unwrap_or_default()
-        };
-        for (child, mut rx) in targets {
-            let mut delivered = false;
-            while let Some(v) = rx.try_recv() {
-                self.deliver(&child, topic, qos, &v);
-                delivered = true;
-            }
-            if !delivered {
-                self.deliver(&child, topic, qos, value);
-            }
-        }
-    }
-
-    /// 1a: the general-publish pump, exercised by tests only. 1b installs
-    /// this as the `Bus::publish` hook; the current production path remains
-    /// `on_publish` plus the bell-only pump.
-    #[allow(dead_code)] // wired in 1b
+    /// General publish pump (D108 A1): drain every interested child's proxy
+    /// queue, then deliver the passed value as the belt when the queue was
+    /// empty. Installed as the `Bus::publish` hook; no timer gate (A2).
     pub(crate) fn pump_topic(&self, topic: &TopicId, qos: i32, value: &[u8]) {
         let targets: Vec<(String, Receiver)> = self
             .lock_subs()
@@ -319,7 +251,21 @@ impl ParentFanout {
         }
     }
 
-    #[allow(dead_code)] // wired in 1b
+    /// Queue one control frame for a registered child (D108 T1.7). `None`
+    /// means the child is outside the wall fan-out (pre-registration), so the
+    /// caller keeps its direct write. `Some(Err)` means the outbox stalled or
+    /// the socket died; the caller decides whether to kill.
+    pub(crate) fn send(&self, child: &str, kind: u8, payload: &[u8]) -> Option<io::Result<()>> {
+        let frame = proc_wire::encode_frame(kind, payload);
+        let mut boxes = self.lock_outbox();
+        if !self.lock_children().contains_key(child) {
+            return None;
+        }
+        let outbox = boxes.entry(child.to_string()).or_default();
+        outbox.push(frame, &self.wall_sheds);
+        Some(self.flush_outbox(child, outbox))
+    }
+
     fn deliver_bounded(&self, child: &str, topic: &TopicId, qos: i32, value: &[u8]) {
         let payload = proc_wire::deliver_payload(&Delivery {
             topic: topic.to_string(),
@@ -330,14 +276,13 @@ impl ParentFanout {
         let mut boxes = self.lock_outbox();
         let outbox = boxes.entry(child.to_string()).or_default();
         outbox.push(frame, &self.wall_sheds);
-        self.flush_outbox(child, outbox);
+        let _ = self.flush_outbox(child, outbox);
     }
 
-    #[allow(dead_code)] // wired in 1b
-    fn flush_outbox(&self, child: &str, outbox: &mut Outbox) {
+    fn flush_outbox(&self, child: &str, outbox: &mut Outbox) -> io::Result<()> {
         loop {
             let Some(head) = outbox.frames.front() else {
-                return;
+                return Ok(());
             };
             let frame_len = head.len();
             let start = outbox.head_written;
@@ -347,7 +292,10 @@ impl ParentFanout {
                 outbox.frames.clear();
                 outbox.bytes = 0;
                 outbox.head_written = 0;
-                return;
+                return Err(io::Error::new(
+                    io::ErrorKind::NotFound,
+                    "child not registered",
+                ));
             };
             let result = ctl.write(&head[start..]);
             drop(children);
@@ -358,7 +306,10 @@ impl ParentFanout {
                     outbox.bytes = 0;
                     outbox.head_written = 0;
                     self.lock_children().remove(child);
-                    return;
+                    return Err(io::Error::new(
+                        io::ErrorKind::WriteZero,
+                        "outbox write made no progress",
+                    ));
                 }
                 Ok(n) => {
                     outbox.head_written += n;
@@ -374,15 +325,15 @@ impl ParentFanout {
                         || err.kind() == io::ErrorKind::TimedOut =>
                 {
                     self.wall_stalls.fetch_add(1, Ordering::Relaxed);
-                    return;
+                    return Err(err);
                 }
-                Err(_) => {
+                Err(err) => {
                     self.wall_losses.fetch_add(1, Ordering::Relaxed);
                     outbox.frames.clear();
                     outbox.bytes = 0;
                     outbox.head_written = 0;
                     self.lock_children().remove(child);
-                    return;
+                    return Err(err);
                 }
             }
         }
@@ -433,10 +384,6 @@ impl ParentFanout {
     fn lock_subs(&self) -> MutexGuard<'_, HashMap<TopicId, HashMap<String, Receiver>>> {
         self.subs.lock().unwrap_or_else(PoisonError::into_inner)
     }
-
-    fn lock_timer(&self) -> MutexGuard<'_, HashSet<String>> {
-        self.timer.lock().unwrap_or_else(PoisonError::into_inner)
-    }
 }
 
 impl std::fmt::Debug for ParentFanout {
@@ -446,11 +393,9 @@ impl std::fmt::Debug for ParentFanout {
         // shared `Bus` stays Debug-free by design, 06 §2).
         let children = self.children.lock().map(|m| m.len()).unwrap_or(0);
         let topics = self.subs.lock().map(|m| m.len()).unwrap_or(0);
-        let timer = self.timer.lock().map(|s| s.len()).unwrap_or(0);
         f.debug_struct("ParentFanout")
             .field("children", &children)
             .field("topics", &topics)
-            .field("timer_children", &timer)
             .finish()
     }
 }
@@ -711,6 +656,9 @@ mod tests {
         assert_silent(&mut reader); // nothing retained yet
         fan.handle_forward("c", &fwd(FWD_PUB, t.as_str(), 0, b"self-echo"))
             .unwrap();
+        // The production kernel installs pump_topic as the bus hook; this
+        // unit test drives it directly so it does not need a Kernel.
+        fan.pump_topic(&t, 0, b"self-echo");
         let delivery = next_deliver(&mut reader);
         assert_eq!(
             (delivery.qos, delivery.value.as_slice()),
@@ -787,11 +735,10 @@ mod tests {
         );
     }
 
-    /// T2 leg DOWN at the fan-out level: `pump_local_bell` reaches a
-    /// timer-capable interested child with the on_publish DELIVER grammar
-    /// and leaves a BUS-only child in silence (the legacy pin, asserted).
+    /// The general pump follows subscription law: every interested child
+    /// hears a timer-topic publish; timer capability is no longer a gate.
     #[test]
-    fn pump_local_bell_targets_timer_children_only() {
+    fn pump_topic_reaches_every_interested_child() {
         let fan = ParentFanout::new(Arc::new(Bus::new()));
         let (wired_t, mut reader_t) = UnixStream::pair().expect("pair t");
         let (wired_p, mut reader_p) = UnixStream::pair().expect("pair p");
@@ -801,19 +748,17 @@ mod tests {
         }
         fan.register_child("t".into(), wired_t);
         fan.register_child("p".into(), wired_p);
-        fan.note_timer_child("t".into()); // only "t" declared HELLO_CAP_TIMER_V2
         let t = topic("org.modukit.timer.com.example.bellcap");
         for child in ["t", "p"] {
             fan.handle_forward(child, &fwd(FWD_SUB, t.as_str(), 0, &[]))
                 .unwrap();
         }
-        // The bell site publishes locally first (the T2 wiring law), then pumps.
         fan.bus.publish(
             &t,
             QoS::Lossy(crate::embed_codec::LOSSY_RING),
             b"gen-tick".to_vec(),
         );
-        fan.pump_local_bell(&t, 2, b"gen-tick");
+        fan.pump_topic(&t, 2, b"gen-tick");
         let delivery = next_deliver(&mut reader_t);
         assert_eq!(
             (
@@ -823,21 +768,18 @@ mod tests {
             ),
             (t.as_str(), 2, b"gen-tick".as_slice())
         );
-        assert_silent(&mut reader_p);
+        assert_eq!(next_deliver(&mut reader_p).value, b"gen-tick");
     }
 
-    /// The retire sweep takes the timer set with the rest of the window:
-    /// a retired child is never a pump target again, revived or not.
+    /// Retire removes the child's subscription: re-interest creates a new
+    /// box, but the old socket is not a delivery target.
     #[test]
-    fn retire_purges_the_timer_children_set() {
+    fn retire_purges_the_subscription() {
         let (fan, mut reader) = wired_fan(); // registers "c" with the pair
-        fan.note_timer_child("c".into());
         let t = topic("org.modukit.timer.com.example.retire");
         fan.handle_forward("c", &fwd(FWD_SUB, t.as_str(), 0, &[]))
             .unwrap();
         fan.retire("c");
-        // Re-interest WITHOUT re-noting (the executor notes only on a
-        // timer-carrying HELLO): the pump must find no target.
         fan.handle_forward("c", &fwd(FWD_SUB, t.as_str(), 0, &[]))
             .unwrap();
         fan.bus.publish(
@@ -845,7 +787,7 @@ mod tests {
             QoS::Lossy(crate::embed_codec::LOSSY_RING),
             b"x".to_vec(),
         );
-        fan.pump_local_bell(&t, 2, b"x");
+        fan.pump_topic(&t, 2, b"x");
         assert_silent(&mut reader);
     }
 
@@ -854,10 +796,9 @@ mod tests {
     #[test]
     fn pump_without_interest_stays_silent() {
         let (fan, mut reader) = wired_fan();
-        fan.note_timer_child("c".into());
         let t = topic("org.modukit.timer.com.example.nosub");
         fan.bus.publish(&t, QoS::LatestValue, b"x".to_vec());
-        fan.pump_local_bell(&t, 2, b"x");
+        fan.pump_topic(&t, 2, b"x");
         assert_silent(&mut reader);
     }
 
@@ -891,5 +832,37 @@ mod tests {
         }
         assert!(sheds.load(Ordering::Relaxed) >= 1);
         assert!(outbox.bytes <= WALL_OUTBOX_CAP);
+    }
+
+    #[test]
+    fn send_queues_a_registered_control_frame() {
+        let (fan, mut reader) = wired_fan();
+        assert!(fan.send("c", proc_wire::MSG_STOP, &[]).is_some());
+        let (ver, kind, payload) = proc_wire::read_frame(&mut reader).expect("STOP frame");
+        assert_eq!((ver, kind), (proc_wire::WIRE_VERSION, proc_wire::MSG_STOP));
+        assert!(payload.is_empty());
+        assert!(
+            fan.send("missing", proc_wire::MSG_STOP, &[]).is_none(),
+            "unregistered children keep the direct-write fallback"
+        );
+    }
+
+    #[test]
+    fn pump_topic_stalls_on_a_full_socket_and_counts_it() {
+        let (fan, _reader) = wired_fan();
+        let t = topic("org.modukit.pump.stall");
+        fan.handle_forward("c", &fwd(FWD_SUB, t.as_str(), 0, &[]))
+            .unwrap();
+        let payload = vec![0u8; 64 * 1024];
+        for _ in 0..16 {
+            fan.pump_topic(&t, 2, &payload);
+            if fan.wall_stalls() > 0 {
+                break;
+            }
+        }
+        assert!(
+            fan.wall_stalls() > 0,
+            "a full socket must return via the bounded write timeout"
+        );
     }
 }
