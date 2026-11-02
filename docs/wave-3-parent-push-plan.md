@@ -8,6 +8,10 @@
 > and the A6 amendment to the hearing. Hearing:
 > `docs/wave-3-parent-push-hearing.md` (D108 + A6). English only (C1); no
 > circled numerals (C4).
+>
+> EXECUTION STATUS (2026-11-02): batch 0 closed 2026-10-27; batch 1 not started;
+> batch 2/3 not started. Next action: the preflight in section 10, then 1a, then
+> 1b. Do not start batch 2 before 1b is green.
 
 ## 0. Fact base (verified against the tree, 2026-10-27)
 
@@ -83,7 +87,10 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
 | 0 | Hook foundation: `Bus` field + setter, fire-after-lock, install at both seams, single-point lever | unit tests + full gate |
 | 1 | General pump: `pump_topic` + bounded-write outbox + retirements | unit tests + full gate |
 | 2 | HOST PUSH stanza on legs 12 + 13, lever proven red | both legs green + lever red + full gate |
-| 3 | Docs sweep, plan close, acceptance battery -> D109 | full gate + boundary + verdict sheet |
+| 3 | Docs sweep, plan close, acceptance battery -> next free D | full gate + boundary + verdict sheet |
+
+> Batch 1 executes as **1a (inert plumbing)** + **1b (atomic switch)**; the
+> install and the old-path retirement must be in the same 1b commit. See section 10.
 
 ## 2. Batch 0 - the hook foundation
 
@@ -171,7 +178,8 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
   diff over the volume must be EMPTY - any change is stop-the-line);
   coverage boundary re-measure (core must stay >= 80 with the outbox branches
   covered); section 6 ledger walk with each plant observed; verdict sheet ->
-  mint D109 on the maintainer's acceptance word.
+  mint the next free D on the maintainer's acceptance word (D109 is already the
+  VE-parity record).
 
 ## 6. Verification ledger (planted red before trusted)
 
@@ -244,3 +252,80 @@ clippy fresh-check clean; full gate green.
   ("rps exhausted"); no verdict produced. The self-review above stands in for
   it this session; re-run Momus when quota recovers, before acceptance.
 - [ ] Maintainer approval word (batch 0 opens on it).
+
+## 10. Execution annex (2026-11-02)
+
+This section is the hand-off checklist. It exists so the next session does not
+forget the ordering, the atomic switch, or the frozen surfaces.
+
+### 10.1 Preflight (must pass before code)
+
+- [ ] Maintainer go word for batch 1 is recorded.
+- [ ] Momus/approval gap in section 9 is resolved, or explicitly waived by the
+  maintainer; do not silently proceed.
+- [ ] `git status` clean; record `HEAD`.
+- [ ] Baseline `pixi run ci` is green; record the 36-leg result and time.
+- [ ] No unrelated in-flight change; B8 and the doc-audit batch are closed.
+- [ ] `git diff -- contracts/ bindings/` is empty; if not, stop.
+- [ ] Owner and independent verifier are named; rollback commit will be recorded.
+
+### 10.2 Batch 1a - inert plumbing (no behavior change)
+
+- Implement `pump_topic`, `Outbox`, counters, and their tests. Do not set a
+  socket write timeout in 1a; that would change the old path's behavior.
+- Do **not** install the hook at either seam.
+- Do **not** delete `pump_local_bell`, `ParentFanout.timer`, `note_timer_child`,
+  or `on_publish`'s drain loop yet.
+- Exit: unit tests plus full `pixi run ci` green; tree behavior is identical to
+  batch 0; the diff shows no production hook install.
+
+### 10.3 Batch 1b - atomic switch (behavior change)
+
+- Install the hook at both seams (`proc_supervisor.rs` and test `wiring.rs`).
+- Set `WALL_WRITE_TIMEOUT` at `register_child` (this is a behavior change, so
+  it belongs here, not in 1a).
+- Delete the bell pump, timer state, `note_timer_child` call site, and
+  `on_publish` drain loop in the SAME commit.
+- Route registered-child STOP/CALL/DIAL through `ParentFanout::send()`; keep
+  START direct.
+- Verify the `wall_stalls` / `wall_sheds` counters increment on the production
+  path (the counters and their unit tests landed in 1a).
+- Tests: filled socket bounded return, STALL count, frame alignment, over-cap
+  whole-frame SHED, timer pin as subscriber-law, echo/snapshot green,
+  clock/abi_v3 regression green, no double delivery.
+- Atomic invariant: install + retirement are one commit; never leave a tree with
+  both paths active or neither path active.
+- Rollback: revert 1b; 1a stays; the old paths return. Do not revert 1a first.
+
+### 10.4 Batch 2 - HOST PUSH proof (only after 1b green)
+
+- Add the HOST PUSH stanza to legs 12/13.
+- Prove `MODUKIT_HOST_PUSH_OFF=1` reds the host-origin stanza and leaves
+  child-origin stanzas green.
+- `bindings/`, `contracts/`, `wire.h`, and goldens stay untouched.
+- Exit: both legs green, lever red observed, full gate green.
+
+### 10.5 Do-not-forget checklist
+
+- [ ] `contracts/` diff over the volume is empty.
+- [ ] `wire.h` unchanged; no golden regeneration.
+- [ ] `bindings/` unchanged.
+- [ ] No `O_NONBLOCK` on the child fd.
+- [ ] No new thread; no periodic drain.
+- [ ] No new frame kind; no deferred-QoS delivery.
+- [ ] Outbox keeps whole-frame boundaries; SHED is whole-frame.
+- [ ] No double delivery after the hook install.
+- [ ] `grep -c pump_local_bell crates/` is 0 after 1b.
+- [ ] `MODUKIT_HOST_PUSH_OFF` works at exactly one install helper (proof in
+  batch 2).
+- [ ] Status/plan updated after each batch; C5 runs at batch close.
+- [ ] Evidence recorded: HEAD, commands, red plants, outputs.
+
+### 10.6 Ownership and evidence
+
+| Batch | Owner | Verifier | Evidence |
+|---|---|---|---|
+| 1a | core/bus | independent reviewer | unit tests + full gate; no install diff |
+| 1b | core/bus | independent reviewer | full gate + clock/abi_v3 + no-double-delivery plant |
+| 2 | demo/legs | independent reviewer | both demo legs + lever red + frozen-surface diff |
+| 3 | docs/ci | independent reviewer | full gate + coverage + verdict sheet |
