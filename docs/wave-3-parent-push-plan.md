@@ -9,9 +9,9 @@
 > `docs/wave-3-parent-push-hearing.md` (D108 + A6). English only (C1); no
 > circled numerals (C4).
 >
-> EXECUTION STATUS (2026-11-02): batch 0 closed 2026-10-27; batch 1 not started;
-> batch 2/3 not started. Next action: the preflight in section 10, then 1a, then
-> 1b. Do not start batch 2 before 1b is green.
+> EXECUTION STATUS (2026-11-02): batch 0 closed 2026-10-27; batch 1a landed
+> 2026-11-02 (inert pump/outbox, no production install); batch 1b next; batch 2/3
+> not started. Do not start batch 2 before 1b is green.
 
 ## 0. Fact base (verified against the tree, 2026-10-27)
 
@@ -278,6 +278,8 @@ forget the ordering, the atomic switch, or the frozen surfaces.
   or `on_publish`'s drain loop yet.
 - Exit: unit tests plus full `pixi run ci` green; tree behavior is identical to
   batch 0; the diff shows no production hook install.
+- Landed 2026-11-02 (`338957c`): `pump_topic`, `Outbox`, wall counters, 11
+  bus_wire tests; no hook install, no timeout, no retirement.
 
 ### 10.3 Batch 1b - atomic switch (behavior change)
 
