@@ -296,6 +296,12 @@ pub extern "C" fn modukit_bus_publish(
         let Ok(tid) = TopicId::try_new(name.to_string()) else {
             return codec::NEG_SCHEMA_INVALID;
         };
+        // D108: once the exe rung is active, its supervisor kernel owns the
+        // host bus and the parent-push hook. Otherwise the ambient in-process
+        // kernel stays the host bus.
+        if let Some(rc) = crate::embed_sup::publish_if_active(&tid, q, bytes) {
+            return rc;
+        }
         ambient().0.bus().publish(&tid, q, bytes.to_vec());
         0
     })

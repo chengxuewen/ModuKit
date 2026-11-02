@@ -72,8 +72,9 @@ done
 log=$(mktemp)
 dlog=$(mktemp)
 sablog=$(mktemp)
+hplog=$(mktemp)
 stage=$(mktemp -d)
-trap 'rm -f "$log" "$dlog" "$sablog"; rm -rf "$stage"' EXIT
+trap 'rm -f "$log" "$dlog" "$sablog" "$hplog"; rm -rf "$stage"' EXIT
 
 "${CARGO[@]}" build -p modukit-core >>"$log" 2>&1 || {
   echo "demo-wave2-plugin-js: RED (modukit-core cdylib build failed; last lines:)"
@@ -314,6 +315,8 @@ const skin = require(path.join(process.cwd(), 'target', 'js', 'modukit_embed.js'
 
 const ID_ECHO = 'org.modukit.demo.jsecho';
 const ID_LIAR = 'org.modukit.demo.jsliar';
+const TOPIC = 'org.modukit.demo.wire-echo';
+const HOST_PUSH = Buffer.from('host-push');
 const VERSION = '0.1.0';
 const ACTIVE = skin.PluginState.STATE_ACTIVE;
 // D51 codes as the ledger numbers them (modukit_embed.h, embed_codec.rs):
@@ -400,6 +403,17 @@ if (rc !== want.length || !out.equals(want)) {
   fail(`BUS ROUNDTRIP -> rc=${rc} out=${out.toString('hex')} want ${want.toString('hex')} (crossing did not complete)`);
 }
 console.log('BUS ROUNDTRIP PASS (seed out, echo back, derivative in `seen`)');
+
+// HOST PUSH: after the lifecycle stage, the driver publishes through the
+// napi floor; the child must receive it via the general pump, not through
+// its own publish.
+const publishRc = skin.modukit_bus_publish(TOPIC, 2, HOST_PUSH);
+if (publishRc !== 0) fail(`HOST PUSH publish -> ${publishRc}`);
+[rc, out] = call(ID_ECHO, 'seen', Buffer.alloc(0));
+if (rc !== HOST_PUSH.length || !out.equals(HOST_PUSH)) {
+  fail(`HOST PUSH -> rc=${rc} out=${out.toString('hex')} want ${HOST_PUSH.toString('hex')} (host-origin publish did not cross)`);
+}
+console.log('HOST PUSH PASS (host-origin publish crossed the wall via the general pump)');
 
 // DIAL clean refusal: the skin answers DUE(DIAL_STATUS_REFUSED_REAL) and the
 // parent maps it typed - the child must SURVIVE the refusal (a live,
@@ -535,5 +549,28 @@ if ! grep -q 'FIDELITY echo -> rc=-14' "$sablog"; then
   exit 1
 fi
 echo "SABOTAGE PASS (REGISTER skipped -> lifecycle red, exit $sab_rc)"
+
+# --- [5] host-push lever: MODUKIT_HOST_PUSH_OFF=1 suppresses only the
+# host-origin publish; the child-origin stanzas must stay green, then the
+# HOST PUSH stanza must go red (no LIFECYCLE PASS).
+MODUKIT_HOST_PUSH_OFF=1 "$NBIN" "$stage/driver.mjs" "$PWD/$core_so" "target/js/modukit_js.node" \
+  "$stage" "$NABS" "sup-fidelity-payload" >"$hplog" 2>&1
+hp_rc=$?
+if [ "$hp_rc" -eq 0 ] || grep -q '^LIFECYCLE PASS' "$hplog"; then
+  cat "$hplog"
+  echo "demo-wave2-plugin-js: RED (host-push lever did not red the host-origin stanza)"
+  exit 1
+fi
+if ! grep -q 'BUS ROUNDTRIP PASS' "$hplog"; then
+  cat "$hplog"
+  echo "demo-wave2-plugin-js: RED (host-push lever also silenced child-origin traffic)"
+  exit 1
+fi
+if grep -q 'HOST PUSH PASS' "$hplog" || ! grep -q 'HOST PUSH' "$hplog"; then
+  cat "$hplog"
+  echo "demo-wave2-plugin-js: RED (host-push lever attribution is ambiguous)"
+  exit 1
+fi
+echo "HOST PUSH LEVER PASS (host-origin red, child-origin green, exit $hp_rc)"
 
 echo "demo-wave2-plugin-js: PASS"

@@ -19,6 +19,7 @@
 //! [`crate::embed::registered_id`]).
 
 use std::ffi::c_char;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{LazyLock, Mutex, MutexGuard, PoisonError};
 use std::time::Duration;
 
@@ -39,9 +40,27 @@ unsafe impl Send for AmbientSup {}
 
 static SUPERVISOR: LazyLock<Mutex<AmbientSup>> =
     LazyLock::new(|| Mutex::new(AmbientSup(Supervisor::new())));
+static SUPERVISOR_ACTIVE: AtomicBool = AtomicBool::new(false);
 
 fn supervisor() -> MutexGuard<'static, AmbientSup> {
     SUPERVISOR.lock().unwrap_or_else(PoisonError::into_inner)
+}
+
+/// Route a host C publish to the supervisor bus once the exe rung is in use.
+/// D108's hook lives on this bus, not on the in-process ambient kernel.
+pub(crate) fn publish_if_active(
+    topic: &crate::identity::TopicId,
+    qos: crate::topic::QoS,
+    value: &[u8],
+) -> Option<i32> {
+    if !SUPERVISOR_ACTIVE.load(Ordering::Relaxed) {
+        return None;
+    }
+    let sup = supervisor();
+    crate::bus_wire::with_host_origin(|| {
+        sup.0.kernel().bus().publish(topic, qos, value.to_vec());
+    });
+    Some(0)
 }
 
 #[unsafe(no_mangle)]
@@ -61,6 +80,7 @@ pub extern "C" fn modukit_sup_install(
             Err(err) => return -codec::d51_number(err.code()),
         };
         let sup = supervisor();
+        SUPERVISOR_ACTIVE.store(true, Ordering::Relaxed);
         let kernel = sup.0.kernel();
         let id = match kernel.install(manifest) {
             Ok(id) => id,

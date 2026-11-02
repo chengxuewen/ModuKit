@@ -466,14 +466,9 @@ impl LoadedPlugin for ProcPlugin {
             ) {
                 Ok((proc_wire::WIRE_VERSION, MSG_ACK, payload)) => {
                     status = proc_wire::parse_ack(&payload).unwrap_or(i32::MIN);
-                    // Stage-5 N2: the mailbox authority ends with the
-                    // START ack (01 §3 rule 2 across the wall) - the
-                    // child's queues die with its `start`, so its wall
-                    // interest retires with them; a revived run re-opens
-                    // both through its own FORWARDs.
-                    if let Some(fan) = &self.fanout {
-                        fan.retire(&self.id);
-                    }
+                    // D108: the wall registration stays live after the START
+                    // ack so host-origin publishes can reach the child through
+                    // the general pump. It is retired explicitly at stop.
                     break;
                 }
                 Ok((proc_wire::WIRE_VERSION, MSG_REGISTER, payload)) => {
@@ -553,6 +548,9 @@ impl LoadedPlugin for ProcPlugin {
     fn stop(&mut self) -> Result<(), KernelError> {
         let live = self.live.clone();
         let fanout = self.fanout.clone();
+        if let Some(f) = &fanout {
+            f.retire(&self.id);
+        }
         let mut shared = live.lock();
         let p = self.entry(&mut shared)?;
         let control_io = |e: io::Error| crashed(&self.id, format!("control io: {e}"));

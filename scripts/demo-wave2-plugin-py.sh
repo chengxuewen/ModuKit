@@ -69,8 +69,9 @@ done
 log=$(mktemp)
 dlog=$(mktemp)
 sablog=$(mktemp)
+hplog=$(mktemp)
 stage=$(mktemp -d)
-trap 'rm -f "$log" "$dlog" "$sablog"; rm -rf "$stage"' EXIT
+trap 'rm -f "$log" "$dlog" "$sablog" "$hplog"; rm -rf "$stage"' EXIT
 
 "${CARGO[@]}" build -p modukit-core >>"$log" 2>&1 || {
   echo "demo-wave2-plugin-py: RED (modukit-core cdylib build failed; last lines:)"
@@ -264,6 +265,8 @@ import modukit_embed as skin  # noqa: E402  (generated floor; import after path)
 
 ID_ECHO = "org.modukit.demo.pyecho"
 ID_LIAR = "org.modukit.demo.pyliar"
+TOPIC = "org.modukit.demo.wire-echo"
+HOST_PUSH = b"host-push"
 VERSION = "0.1.0"
 ACTIVE = skin.PluginState.STATE_ACTIVE
 # D51 codes as the ledger numbers them (modukit_embed.h, embed_codec.rs):
@@ -354,6 +357,18 @@ if rc != len(seed) + 4 or out != seed + b"|bus":
     fail("BUS ROUNDTRIP -> rc=%d out=%r want %r (crossing did not complete)"
          % (rc, out, seed + b"|bus"))
 print("BUS ROUNDTRIP PASS (seed out, echo back, derivative in `seen`)")
+
+# HOST PUSH: after the lifecycle stage, the driver publishes through the
+# ctypes floor; the child must receive it via the general pump, not through
+# its own publish.
+rc = lib.modukit_bus_publish(TOPIC.encode(), 2, HOST_PUSH, len(HOST_PUSH))
+if rc != 0:
+    fail("HOST PUSH publish -> %d" % rc)
+rc, out = call(ID_ECHO.encode(), b"seen", b"")
+if rc != len(HOST_PUSH) or out != HOST_PUSH:
+    fail("HOST PUSH -> rc=%d out=%r want %r (host-origin publish did not cross)"
+         % (rc, out, HOST_PUSH))
+print("HOST PUSH PASS (host-origin publish crossed the wall via the general pump)")
 
 # DIAL clean refusal: the skin answers DUE(DIAL_STATUS_REFUSED_REAL) and the
 # parent maps it typed - the child must SURVIVE the refusal (a live,
@@ -482,5 +497,28 @@ if ! grep -q 'FIDELITY echo -> rc=-14' "$sablog"; then
   exit 1
 fi
 echo "SABOTAGE PASS (REGISTER skipped -> lifecycle red, exit $sab_rc)"
+
+# --- [5] host-push lever: MODUKIT_HOST_PUSH_OFF=1 suppresses only the
+# host-origin publish; the child-origin stanzas must stay green, then the
+# HOST PUSH stanza must go red (no LIFECYCLE PASS).
+MODUKIT_HOST_PUSH_OFF=1 "$PYBIN" "$stage/driver.py" "$PWD/$core_so" "$PWD/bindings/py" \
+  "$stage" "$PYABS" "sup-fidelity-payload" >"$hplog" 2>&1
+hp_rc=$?
+if [ "$hp_rc" -eq 0 ] || grep -q '^LIFECYCLE PASS' "$hplog"; then
+  cat "$hplog"
+  echo "demo-wave2-plugin-py: RED (host-push lever did not red the host-origin stanza)"
+  exit 1
+fi
+if ! grep -q 'BUS ROUNDTRIP PASS' "$hplog"; then
+  cat "$hplog"
+  echo "demo-wave2-plugin-py: RED (host-push lever also silenced child-origin traffic)"
+  exit 1
+fi
+if grep -q 'HOST PUSH PASS' "$hplog" || ! grep -q 'HOST PUSH' "$hplog"; then
+  cat "$hplog"
+  echo "demo-wave2-plugin-py: RED (host-push lever attribution is ambiguous)"
+  exit 1
+fi
+echo "HOST PUSH LEVER PASS (host-origin red, child-origin green, exit $hp_rc)"
 
 echo "demo-wave2-plugin-py: PASS"

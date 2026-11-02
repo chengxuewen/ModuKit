@@ -19,6 +19,7 @@
 //! -19/-26 channels) is N1's and is reused verbatim, never forked
 //! (ruling 5); the refusal channel rides a DELIVER with a negative qos.
 
+use std::cell::Cell;
 use std::collections::{HashMap, VecDeque};
 use std::io::{self, Write};
 use std::os::unix::net::UnixStream;
@@ -66,6 +67,25 @@ pub(crate) const WALL_OUTBOX_CAP: usize = 256 * 1024;
 
 /// Bounded blocking write window for one outbox flush attempt (D108 A6).
 pub(crate) const WALL_WRITE_TIMEOUT: Duration = Duration::from_millis(50);
+
+thread_local! {
+    /// Set only while the host C door publishes, so the `MODUKIT_HOST_PUSH_OFF`
+    /// lever can suppress host-origin push without silencing child-origin traffic.
+    static HOST_ORIGIN: Cell<bool> = const { Cell::new(false) };
+}
+
+pub(crate) fn with_host_origin<T>(f: impl FnOnce() -> T) -> T {
+    HOST_ORIGIN.with(|origin| {
+        let previous = origin.replace(true);
+        let out = f();
+        origin.set(previous);
+        out
+    })
+}
+
+pub(crate) fn is_host_origin() -> bool {
+    HOST_ORIGIN.with(Cell::get)
+}
 
 /// Per-child bounded write queue used by the general pump and `send`.
 #[derive(Default)]
@@ -141,11 +161,10 @@ impl ParentFanout {
         self.lock_children().insert(id, ctl);
     }
 
-    /// The mailbox authority law across the wall (01 §3 rule 2): a START
-    /// ack closes the child's queues, so its wall interest and its socket
-    /// leave with the call. A revived run re-opens both by its own
-    /// FORWARDs - every snapshot it needs comes from `Bus::subscribe`
-    /// late-join at that moment.
+    /// Explicit teardown of a child's wall registration (D108): stop/uninstall
+    /// removes the socket, outbox, and proxy subscriptions. Registration now
+    /// outlives the START ack so host-origin publishes can reach a running
+    /// child; a revived run rebuilds it through its own FORWARDs.
     pub(crate) fn retire(&self, id: &str) {
         // Keep the outbox -> children order used by `flush_outbox`.
         self.lock_outbox().remove(id);

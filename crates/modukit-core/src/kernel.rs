@@ -157,11 +157,12 @@ impl Kernel {
     /// the topics lock; `MODUKIT_HOST_PUSH_OFF` skips the install at this
     /// one site. A kernel without supervised children installs nothing.
     pub(crate) fn attach_parent_fanout(&self, fan: Arc<crate::bus_wire::ParentFanout>) {
-        if std::env::var_os("MODUKIT_HOST_PUSH_OFF").is_some() {
-            return;
-        }
+        let host_push_off = std::env::var_os("MODUKIT_HOST_PUSH_OFF").is_some();
         self.bus
             .set_publish_hook(Arc::new(move |topic, qos, value| {
+                if host_push_off && crate::bus_wire::is_host_origin() {
+                    return;
+                }
                 fan.pump_topic(topic, crate::bus_wire::qos_to_i32(qos), value);
             }));
     }
