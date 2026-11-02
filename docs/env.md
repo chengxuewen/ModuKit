@@ -134,8 +134,8 @@ Generation rules:
 - 2026-10-30 H2b allowlist probe: a temporary 3-skill `skills_allowlist`
   (repo-audit, think-before-act, skill-authoring) synced/checked green and
   pruned the other links; removing the key and syncing restored all 41. The
-  config was restored to full activation; the final policy waits for the host
-  measurement.
+  config was restored to full activation; H3 later confirmed the full policy
+  (H2b).
 - 2026-10-30 H3 host probe: PASS (user-confirmed fresh CodeBuddy session).
   The 41 project skills, always-on `common-constraints`/`common-security`
   rules, and `codegraph`/`serena` MCP tools were visible and usable; the

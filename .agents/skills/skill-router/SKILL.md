@@ -47,7 +47,7 @@ Before recommending, check current state:
 
 **Single skill scenario** (clear intent):
 ```
-Recommendation: /systematic-debugging
+Recommendation: /debugging-and-error-recovery
 Rationale: 2 consecutive fix commits suggest systematic root cause diagnosis is needed first
 ```
 
@@ -63,7 +63,7 @@ Rationale: non-trivial multi-module change, test coverage needed
 ```
 Intent unclear, possible directions:
 1. If implementing new feature → /think-before-act + /test-driven-development
-2. If fixing a bug → /systematic-debugging
+2. If fixing a bug → /debugging-and-error-recovery
 3. If refactoring → /think-before-act
 What specifically would you like to do?
 ```

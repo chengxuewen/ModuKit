@@ -91,7 +91,7 @@ and adding a skill or a host follows one documented path.
 | Repaired | `shipping-and-launch` + `test-harness` (B5a import + `d8e1212` audit) |
 | Missing | none (H4 closed 2026-10-30) |
 | Gate wiring | `gate-rules` + `spec-trace` are `check.sh` legs (36 total) |
-| Env doc | Host matrix + probe log added 2026-10-30; activation policy pending H2b |
+| Env doc | Host matrix + probe log; activation policy full 41 (H2b closed) |
 
 ## 3. Diagram
 
@@ -132,10 +132,10 @@ flowchart TB
   G --> GUARD
 ```
 
-The dashed gap is current state: source and gates exist, but the generation
-box is absent, so only native readers (`opencode`, Qoder) see the skills.
-CodeBuddy sees `AGENTS.md` but not the 40 project skills. Host-owned
-`.codebuddy/teams/` is explicitly outside the generated tree.
+The dashed gap is the proposal-time state: source and gates existed, but the
+generation box was absent. After H1/H2a/H3, CodeBuddy sees `AGENTS.md`, the
+generated 41 project skills, and the 18 generated rules; host-owned
+`.codebuddy/teams/` remains outside the generated tree.
 
 ## 4. Work breakdown
 
@@ -470,8 +470,8 @@ Rollback is one unit per revertible C3 commit:
 - CodeBuddy rules use `RULE.mdc`; skills use links/copy; MCP uses root `.mcp.json`.
 - `codebuddy` target is `optional: true`; absent layer is SKIP.
 - One `rule_descriptions` entry per generated rule folder.
-- The 40-skill activation policy and measured cost are recorded in `docs/env.md`;
-  `AGENTS.md` stays under the 30 KB hub ceiling.
+- The 41-skill full activation policy and measured cost are recorded in
+  `docs/env.md`; `AGENTS.md` stays under the 30 KB hub ceiling.
 - `gate-rules` is a `check.sh` leg; `spec-trace` is a leg or explicitly CI-only.
 - `forbidden_paths` (no `CODEBUDDY.md`, no `.codebuddy/mcp.json`, no shadow
   host skills) are checked by `gate-agents`, with one red observation.

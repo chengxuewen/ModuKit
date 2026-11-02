@@ -91,7 +91,7 @@ shells are created. Trigger to split: a real SDK packaging or prebuilt-consumer 
 | # | Decision | Ruling | Key note |
 |---|---|---|---|
 | 23 | book output root | **A: adopt `build/book`** | Root redirect + stale-language prune; all `www/book` refs move; `/www/` retires |
-| 24 | sidebar folding | **A: nest SDD/reference** | `nested = true` + `[output.html.fold]`; SUMMARY check must accept indentation (PIT-92) |
+| 24 | sidebar folding | **A: nest SDD/reference** | `nested = true` + `[output.html.fold]`; SUMMARY check must accept indentation (VE PIT-92) |
 | 25 | CLI command form | **B: narrow gate** | Check wrapper-advertised names and `.sh`/`.bat` parity; docs keep `pixi run` as canonical |
 | 26 | agent audit skills | **A: full upgrade** | `ecosystem-scan` -> `repo-audit` (alias kept); revise `doc-audit`; router Audit class |
 
@@ -107,8 +107,7 @@ and land with the batch that names them.
 - **Dependency graph**: B0 -> B1 -> B2 -> B3; B3 -> B5; B3 -> B6 (B1 also feeds
   B6's codegraph index); B4 depends on B2 (the `agent-sync` task must exist before
   bootstrap calls it) and may run in parallel with B3; B7 closes after B4/B5/B6. B8
-  (host link layer) opened on 2026-10-30; H0a/H0b/H1/H2a landed, H3 restart and
-  H2b/H4 remain.
+  (host link layer) opened on 2026-10-30; H0a-H4 landed; B8 is complete.
 - **Authority**: D109 (`.agents/memorys/decisions.md`) is the binding decision record;
   this file is the execution detail. A change here that alters a ruling re-opens the
   adjudication.
@@ -653,10 +652,10 @@ when its trigger fires.
 - P0 gate wiring (2026-10-30 review): `gate-rules` joins `check.sh`; `spec-trace`
   becomes a leg or is explicitly CI-only. Both pass manually today but neither is
   in the local `ci`.
-- P0 copy-residue sweep: `scripts/agents-cli.py` still prints `visiaengine.sh`;
-  `scripts/hooks/pre-commit` still claims to regenerate `.codebuddy/*`;
-  `.agents/AGENTS.md` says 12 skills (actual 40); `pixi.toml` says book output
-  `www/` (actual `build/book`).
+- P0 copy-residue sweep (swept 2026-10-30): `scripts/agents-cli.py` now prints
+  `modukit.sh`; pre-commit's `.codebuddy/*` claim became true at B8;
+  `.agents/AGENTS.md` no longer hardcodes counts; `pixi.toml` points at
+  `build/`.
 
 ### 5.3 Trigger-gated forks (adjudicate only when the trigger fires)
 
@@ -671,7 +670,7 @@ when its trigger fires.
 - `demo-*` vs `smoke-*`: keep `demo-*`; aliases only if a VE-shaped task name is required.
 - Memory 7 vs 4: keep 7; copy the digest machinery, not the layout.
 - `resources/`: not created until a fixture class needs it.
-- B8 host link layer: opened 2026-10-30; H0a/H0b/H1/H2a landed, H3/H2b/H4 open.
+- B8 host link layer: COMPLETE (H0a-H4 landed).
 
 ## 6. Non-goals
 

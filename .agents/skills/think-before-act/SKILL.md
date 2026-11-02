@@ -143,7 +143,7 @@ CRITICAL items found in review must be fixed. LOW items can be recorded as tech 
 |------|------|
 | `lesson-memory` (rule) | think-before-act looks up past lessons; lesson-memory records new lessons |
 | `lesson-review` | think-before-act is prevention; lesson-review is retrospective |
-| `systematic-debugging` | think-before-act manages "investigate before fixing"; debugging manages "how to fix" |
+| `debugging-and-error-recovery` | think-before-act manages "investigate before fixing"; debugging manages "how to fix" |
 | `verification-before-completion` | think-before-act manages "before acting"; verification manages "after completion" |
 
 ## Multi-Ecosystem Examples

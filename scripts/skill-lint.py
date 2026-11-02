@@ -27,8 +27,9 @@ MAX_LINES = 800
 SKILL_REL = "SKILL.md"
 REF_RE = re.compile(r"@((?:\./)?[A-Za-z0-9_][A-Za-z0-9_./-]*\.(?:md|py|sh|json|toml|yaml|yml|cjs|mjs|js|ts|txt))")
 SKILL_REF_RE = re.compile(r"See skill:\s*`([a-z0-9-]+)`")
-CMD_REF_RE = re.compile(r"`(/[a-z0-9-]+)`")
-EXTERNAL_COMMANDS = {"brainstorming", "systematic-debugging"}
+CMD_REF_RE = re.compile(r"(?<![A-Za-z0-9_])/([a-z][a-z0-9-]{2,})(?![A-Za-z0-9_])")
+EXTERNAL_COMMANDS = {"brainstorming"}
+GHOST_NAMES = re.compile(r"(?<![A-Za-z0-9-])(systematic-debugging|remove-ai-slops|security-review)(?![A-Za-z0-9-])")
 
 findings = []  # (severity, skill, message)
 
@@ -116,10 +117,16 @@ def check_references(names):
     router = os.path.join(".agents", "skills", "skill-router", "SKILL.md")
     if os.path.isfile(router):
         for lineno, line in enumerate(open(router, encoding="utf-8", errors="replace").read().split("\n"), 1):
-            for ref in CMD_REF_RE.findall(line):
-                name = ref[1:]
+            for name in CMD_REF_RE.findall(line):
                 if name not in names and name not in EXTERNAL_COMMANDS:
-                    findings.append(("FAIL", "refs", f"{router}:{lineno}: command `{ref}` unresolved"))
+                    findings.append(("FAIL", "refs", f"{router}:{lineno}: command `/{name}` unresolved"))
+    for skill in sorted(names):
+        path = os.path.join(".agents", "skills", skill, "SKILL.md")
+        if not os.path.isfile(path):
+            continue
+        for lineno, line in enumerate(open(path, encoding="utf-8", errors="replace").read().split("\n"), 1):
+            for ghost in GHOST_NAMES.findall(line):
+                findings.append(("FAIL", "refs", f"{path}:{lineno}: ghost skill `{ghost}`"))
 
 
 def main():

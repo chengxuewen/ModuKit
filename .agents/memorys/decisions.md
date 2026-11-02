@@ -1027,4 +1027,7 @@
   (`rules-links.py` / `skills-links.py`), and H2a (`skill-authoring`) landed;
   H3 restart, H2b budget, and H4 closeout remain. The original "B8 deferred"
   impact stays as the 2026-10-29 record.
+- **Amendment (2026-11-02)**: H3 passed the fresh CodeBuddy host probe, H2b
+  selected full 41-skill activation, and H4 closed the batch. B8 is COMPLETE
+  (host plan revision 8; VE-parity revision 14).
 

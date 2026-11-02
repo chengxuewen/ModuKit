@@ -200,5 +200,6 @@ predates the openings - see the rows
 
 - Debug-reader first landing 2026-10-21: the adjudicated door shipped as a minimal
   reader-only `modukit-debug-reader` self-check bin in `modukit-runtime`. It uses the
-  existing `TestHost` data plane, adds no ABI verb or live attach, and is not a
-  standalone `check.sh` demo leg. Plan: `docs/wave-2-debug-reader-plan.md`.
+  existing `TestHost` data plane, adds no ABI verb or live attach; D98 promoted it
+  to the sixth demo leg (`demo-wave2-reader` is in `scripts/check.sh`). Plan:
+  `docs/wave-2-debug-reader-plan.md`.
