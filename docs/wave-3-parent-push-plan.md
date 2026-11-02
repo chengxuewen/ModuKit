@@ -295,6 +295,8 @@ forget the ordering, the atomic switch, or the frozen surfaces.
 - Tests: filled socket bounded return, STALL count, frame alignment, over-cap
   whole-frame SHED, timer pin as subscriber-law, echo/snapshot green,
   clock/abi_v3 regression green, no double delivery.
+- Remove the temporary `#[allow(dead_code)]` markers from `pump_topic`,
+  `Outbox`, and the wall getters once the hook is installed.
 - Atomic invariant: install + retirement are one commit; never leave a tree with
   both paths active or neither path active.
 - Rollback: revert 1b; 1a stays; the old paths return. Do not revert 1a first.
