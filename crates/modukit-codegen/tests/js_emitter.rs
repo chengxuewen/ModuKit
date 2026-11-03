@@ -308,6 +308,9 @@ fn emitted_facade_parses_under_node() {
     let status = std::process::Command::new("node")
         .args(["--check"])
         .arg(&face)
+        // Host shells may inject a language-server preload through NODE_OPTIONS;
+        // the emitted facade must parse with a clean node runtime.
+        .env_remove("NODE_OPTIONS")
         .status();
     match status {
         Ok(status) => {
