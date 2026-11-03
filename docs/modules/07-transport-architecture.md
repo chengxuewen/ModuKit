@@ -129,13 +129,15 @@ Vendor libraries' threads/allocators are quarantined inside a backend implementa
 Any vendor linkage; DDS mappings; full QoS matrices; cross-host discovery (the kernel's
 network story is transport-level until a real multi-machine need).
 
-## 8. As built (2026-10-19, S2 shipped)
+## 8. As built (2026-10-19, S2 shipped; frame census 2026-11-03)
 
 Slot 1) is live in `crates/modukit-transport` and `proc_wire.rs`. The control frame is
 exactly the TL envelope — `u32 LE len | u8 ver | u8 type | payload` — with
 `WIRE_VERSION = 1`: every frame carries the version byte and a foreign `ver` is a typed
-protocol error, never a reinterpret. Nine kinds ride it today (HELLO, START, STOP, ACK,
-REGISTER, CALL, RESULT, plus the S2-M3b dial pair DIAL/DUE); payload ceiling `FRAME_MAX`
+protocol error, never a reinterpret. Eleven kinds ride it today (HELLO, START, STOP, ACK,
+REGISTER, CALL, RESULT, the S2-M3b dial pair DIAL/DUE, and the wave-2 bus pair
+FORWARD/DELIVER), plus the HELLO capability bits introduced by D96; `modukit_wire.h` and
+`proc_wire.rs` remain the count/source-of-truth pair. Payload ceiling `FRAME_MAX`
 (64 KiB) so a lying length prefix cannot make the host allocate unbounded. Descriptor
 passing over `SCM_RIGHTS` (`fdpass.rs`) shipped as slot 1)'s fd courier — §3's
 "attach once, hot path zero syscalls" is now the mechanism, not the plan. The first pool

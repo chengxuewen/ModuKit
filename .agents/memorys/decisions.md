@@ -742,6 +742,8 @@
  - **Amendment (2026-10-30 doc-audit)**: D99 R5-A's delivery clause is
    SUPERSEDED by D108. D108 batch 0 landed only; the ordinary parent->child
    pump remains deferred until D108 batches 1-2.
+ - **Update (2026-11-03)**: superseded by D110 — D108 batches 0-2 landed and
+   the parent-to-child push volume is accepted/closed.
 
 ## D100: Python bindings hearing held - four rulings (A,A,A,A) drawn; generated-ctypes floor, full 24-verb scope, five-gate parity, core cdylib (2026-10-22)
 - **Decision**: the armed Python door opened on maintainer word 2026-10-22 (the D93
@@ -1008,6 +1010,8 @@
   reds only host-origin traffic while child-origin stays green. Batch 3
   acceptance (coverage boundary, frozen-surface audit, ledger walk, verdict
   sheet) remains.
+- **Update (2026-11-03)**: the Batch 3 verdict was accepted and minted as
+  D110; the parent-to-child push volume is closed.
 
 ## D109: Non-functional surface adopts the VisiaEngine shape (2026-10-29)
 

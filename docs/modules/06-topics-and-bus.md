@@ -90,6 +90,10 @@ RPC; QoS vocabulary borrowed from any vendor (the kernel owns the list, bridges 
 
 ## 7. As built (2026-10-19, S2 shipped)
 
+> SUPERSEDED (2026-11-03): this 2026-10-19 snapshot predates the v2 bus/clock
+> doors and the D108/D110 parent-to-child pump. Read it as history; the current
+> wall behavior is §8, with D96/D99/D108/D110 as the decision provenance.
+
 The bus remains the kernel-side face: in-process publish/subscribe and latest-value live
 in `bus.rs`, and a plugin still receives no bus handle — §5's "Stage 2: topics cross the
 wire" row is honestly UNBUILT, not quietly bridged. The cross-process clause (D81) was

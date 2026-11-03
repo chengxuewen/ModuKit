@@ -15,7 +15,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── docs/modules/             # 00-11 deep dives (placement, service model, lifecycle, codegen,
 │                             #   manifest, bus, transport, walkthrough, record, observability, media base)
 ├── docs/stage-{1,2,3,4}-plan.md # PLANS OF RECORD: S1-S3 closed, S4 = INFRA volume (D93/D95: M1-M3 landed, ACCEPTED)
-├── docs/stage-5-plan.md        # wave-2 target: D96 hearing + N1 door + N2 crossing LANDED (D97 debug-reader face too)
+├── docs/stage-5-plan.md        # wave-2 ledger (retired Stage-5 file number; naming note inside): D96-D110
 ├── docs/capability-ledger.md # embed/plugin verb capability map (check-capability-ledger leg)
 ├── docs/codegraph-bootstrap.md # codegraph MCP index bootstrap note
 ├── docs/reference/           # external profiles + audits (roster: its README.md; 00 §4 maintainer register)
@@ -104,7 +104,7 @@ servers). Host link layers and the MCP merge are GENERATED; `.opencode/opencode.
 # C1 English-artifact gate (canonical copy lives in .agents/memorys/conventions.md - keep synced)
 bash scripts/gate-i18n.sh
 
-# full local gate - fast checks incl ALL THIRTEEN demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader + T2 clock + D100 python x2 + D102 js x2 + D106 plugin-py x1 + plugin-js x1
+# full local gate - fast checks incl ALL THIRTEEN demo legs + ctest bridge (D50 + audit leg + stage4 M1/M2/M3 + wave-2 N2 + D98 reader + T2 clock + D100 python x2 + D102 js x2 + D106 plugin-py x1 + plugin-js x1 + D108/D110 HOST PUSH x2 with lever
 #   + D104 lane-table/deny legs + RUNNER census + ctest per-name census)
 bash scripts/check.sh
 

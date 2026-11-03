@@ -59,7 +59,7 @@ cabin_video.proto ─┬─ fdset (ledger, checked in; CI regen-diff gate)
                    ├─ C:     plain structs + encode/decode decls + vtable entries
                    ├─ C++:   header-only modukit/video_frame.h (class FrameView, Result<T>)
                    │         — zero protobuf/abseil runtime inside plugins
-                   └─ (Stage-5) Python/JS stubs; WIT projection; ROS2 dialect (bridge-time)
+                   └─ (wave-2, LANDED) Python/JS stubs; WIT projection and ROS2 dialect stay trigger-gated (bridge-time)
 ```
 
 ## 4. The cargo `oneof` — two shapes, one accessor

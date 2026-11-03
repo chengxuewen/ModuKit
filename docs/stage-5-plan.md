@@ -9,7 +9,8 @@ maintainer word (D94/D96/D97/D99/D100-D104) - the rows carry current state.
 > day; its lane T2 (the crossing) LANDED 2026-10-22 - row below. The §3
 > ordinary-publish pump row is SUPERSEDED by D108 (hearing five-A); batches
 > 0-2 landed 2026-11-02 (hook installed, bell pump and timer gate retired,
-> HOST PUSH + lever proven); Batch 3 acceptance remains.
+> HOST PUSH + lever proven); Batch 3 acceptance landed and closed as D110 on
+> 2026-11-03.
 >
 > Naming note: this file keeps the old §8 Stage-5 number for the wave-2 ledger
 > target. In `docs/architecture.md` §12, Stage 5 now means remote WebRTC; the
