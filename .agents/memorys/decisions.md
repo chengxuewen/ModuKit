@@ -1038,3 +1038,27 @@
   selected full 41-skill activation, and H4 closed the batch. B8 is COMPLETE
   (host plan revision 8; VE-parity revision 14).
 
+## D110: Parent-to-child bus push accepted (2026-11-03)
+
+- **Decision**: accept the D108 execution verdict and close the volume. Batches
+  0-2 are the accepted behavior: one post-fan-out publish hook drives the wall
+  pump; bell-only delivery and its TIMER_V2 gate are retired; child writes use
+  the bounded outbox with STALL/SHED/LOSS counters; legs 12/13 prove host-origin
+  push; `MODUKIT_HOST_PUSH_OFF` suppresses only host-origin traffic.
+- **Accepted evidence**: 36-leg `ci` green; pinned coverage core 84.58%,
+  transport 88.29%, codegen 87.30% (JS exempt per D103); 59 suites / 304 tests
+  passed; frozen surface zero-touch; old bell symbols absent from `crates/`;
+  HOST PUSH and host-origin-only lever proven on both plugin legs.
+- **Named residuals**: the outbox's defensive `Ok(0)`/`WriteZero` branch is not
+  naturally reachable through the suite; STALL/SHED/LOSS counters stay on
+  `ParentFanout` instead of `Snapshot.counters()`; retry occurs only on the next
+  publish to that child (no timer thread). Each is trigger-gated, not silent debt.
+- **Impact**: parent-origin publishes no longer bypass subscribed exe children;
+  the parent-side wall registration outlives the START ack and retires at stop;
+  when the exe rung is active, `modukit_bus_publish` routes to the supervisor
+  bus. `contracts/`, `bindings/`, `wire.h`, and goldens remain untouched.
+- **Reference**: `docs/wave-3-parent-push-plan.md` §11 (accepted verdict sheet);
+  `docs/modules/06-topics-and-bus.md` §8 (as-built).
+- **Re-review triggers**: fold wall counters into `Snapshot.counters()`; add
+  periodic/timer-driven outbox drain; open post-start child-to-child overlap.
+

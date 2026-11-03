@@ -314,8 +314,9 @@ them. Re-review trigger recorded in D5.
 | D105 | benchmark volume accepted | four-point DoD green 2026-10-23 (fresh boundary; contracts zero-touch); same-day doc-audit 26 findings swept; debts on plan §7 |
 | D106 | plugin door hearing | wire-native language plugins (C,A,A,A): exe-door via published process wire + golden-vector contract promotion; bindings skins hand-written; two demo legs + env-free frame-parity leg; embed road armed with named blockers |
 | D107 | plugin-door volume ACCEPTED | batches 0-3 landed and accepted on the four-step battery: gate green x2 (thirteen legs), contracts additions-only, boundary 84.28/88.76/84.75, §6 ledger evidenced + two acceptance plants (E-row drop, golden byte) red-proven; py+js skins, echo/liar fixtures, legs twelve+thirteen |
-| D108 | parent-push hearing | five-A adjudicated; batches 0-2 landed 2026-11-02: production hook installed, bell pump and timer gate retired, writes ride the bounded outbox, and legs 12+13 prove `HOST PUSH PASS` with the host-origin-only lever. D99 R5-A delivery clause is superseded. Batch 3 acceptance remains. |
+| D108 | parent-push hearing | five-A adjudicated; batches 0-2 landed 2026-11-02: production hook installed, bell pump and timer gate retired, writes ride the bounded outbox, and legs 12+13 prove `HOST PUSH PASS` with the host-origin-only lever. D99 R5-A delivery clause is superseded; accepted and closed by D110. |
 | D109 | VE-parity plan | non-functional surface adopts the VisiaEngine shape: 16 adjudications (10 hearing + 2 follow-up + 4 P0 review); B0-B7 landed; B8 COMPLETE (H0a-H4 landed, full 41-skill activation), deviations and triggers in docs/ve-parity-plan.md |
+| D110 | parent-push acceptance | D108 execution accepted 2026-11-03: 36-leg `ci`, pinned coverage (core 84.58%), frozen-surface zero-touch, ledger reds/equivalents, and HOST PUSH + host-origin-only lever accepted; wall-counter folding, timer-driven retry, and post-start overlap stay trigger-gated |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
@@ -352,6 +353,9 @@ per D11, only backend/vendor selection remains open).
 7. **Non-functional parity track (D109)** — B0-B7 landed; B8 is COMPLETE (H0a-H4
    landed, full 41-skill activation). This is a delivery track, not a new stage; the
    authority remains `docs/ve-parity-plan.md` and `status.md`.
+8. **Parent-to-child bus push (D108/D110)** — COMPLETE 2026-11-03. The general
+   publish hook, bounded wall outbox, and HOST PUSH proof are accepted; the authority
+   remains `docs/wave-3-parent-push-plan.md` and `docs/modules/06` §8.
 
 ## 13. Module documentation index
 

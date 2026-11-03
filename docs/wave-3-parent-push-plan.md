@@ -13,8 +13,8 @@
 > 2026-11-02 (inert pump/outbox); batch 1b landed 2026-11-02 (hook installed,
 > old paths retired); batch 2 landed 2026-11-02 (HOST PUSH + lever proof);
 > batch 3 docs sync and the acceptance battery landed 2026-11-03; the verdict
-> sheet is ACCEPTANCE READY and awaits the maintainer's word to mint the next
-> free D. Both legs 12/13 and the 36-leg ci are green.
+> sheet was accepted on the maintainer's word and minted as D110. Both legs
+> 12/13 and the 36-leg ci are green.
 
 ## 0. Fact base (verified against the tree, 2026-10-27)
 
@@ -189,8 +189,8 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
   T3.2 remains.
 - **T3.2 acceptance battery landed 2026-11-03**: full 36-leg gate, pinned
   coverage (core 84.58%), frozen-surface audit, ledger plants/red equivalents,
-  and section 11 verdict sheet. The sheet is ACCEPTANCE READY; minting waits
-  for the maintainer's word.
+  and section 11 verdict sheet. The sheet was accepted on the maintainer's
+  word and minted as D110.
 
 ## 6. Verification ledger (planted red before trusted)
 
@@ -365,11 +365,11 @@ forget the ordering, the atomic switch, or the frozen surfaces.
 | 2 | demo/legs | independent reviewer | both demo legs + lever red + frozen-surface diff |
 | 3 | docs/ci | independent reviewer | full gate + coverage + verdict sheet |
 
-## 11. Batch 3 verdict sheet (proposed 2026-11-03)
+## 11. Batch 3 verdict sheet (accepted 2026-11-03 as D110)
 
-**Verdict: ACCEPTANCE READY.** The acceptance battery is green and the verdict is
-recorded for the maintainer. No next D is minted yet; that happens only on the
-maintainer's acceptance word.
+**Verdict: ACCEPTED.** The acceptance battery is green and the maintainer's
+acceptance word minted D110. The volume is closed; the named residuals stay
+trigger-gated.
 
 ### Implementation scope
 
@@ -421,5 +421,5 @@ maintainer's acceptance word.
 
 ### Gate to close
 
-Maintainer acceptance of this verdict is required to mint the next free D. Until then,
-this sheet is proposed evidence, not an accepted decision.
+CLOSED 2026-11-03: the maintainer accepted this verdict and D110 was minted.
+The named residuals remain trigger-gated.
