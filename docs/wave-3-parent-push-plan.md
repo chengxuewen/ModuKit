@@ -12,7 +12,8 @@
 > EXECUTION STATUS (2026-11-02): batch 0 closed 2026-10-27; batch 1a landed
 > 2026-11-02 (inert pump/outbox); batch 1b landed 2026-11-02 (hook installed,
 > old paths retired); batch 2 landed 2026-11-02 (HOST PUSH + lever proof);
-> batch 3 closeout not started. Both legs 12/13 and the 36-leg ci are green.
+> batch 3 docs sync landed 2026-11-03; the acceptance battery remains. Both
+> legs 12/13 and the 36-leg ci are green.
 
 ## 0. Fact base (verified against the tree, 2026-10-27)
 
@@ -181,6 +182,10 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
   covered); section 6 ledger walk with each plant observed; verdict sheet ->
   mint the next free D on the maintainer's acceptance word (D109 is already the
   VE-parity record).
+- **T3.1 docs sync landed 2026-11-03**: D108 decision amendment,
+  `docs/architecture.md` D108 row, `docs/stage-5-plan.md`, `docs/modules/06`,
+  and `status.md` now describe batches 0-2 as landed. Acceptance work in
+  T3.2 remains.
 
 ## 6. Verification ledger (planted red before trusted)
 

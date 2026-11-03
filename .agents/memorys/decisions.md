@@ -1001,6 +1001,13 @@
   `bus_wire.rs` and are called by `wiring.rs`; `set_publish_hook` is installed
   only in tests. Production install, pump deletion, the HOST PUSH stanza, and
   `MODUKIT_HOST_PUSH_OFF` are batches 1-2 in `docs/wave-3-parent-push-plan.md`.
+- **Amendment (2026-11-03 doc sync; implementation landed 2026-11-02)**:
+  batches 0-2 landed. The hook is installed at the supervisor seam; the bell
+  pump and timer gate are deleted; writes ride the bounded outbox with
+  STALL/SHED/LOSS counters; legs 12/13 show `HOST PUSH PASS`, and the lever
+  reds only host-origin traffic while child-origin stays green. Batch 3
+  acceptance (coverage boundary, frozen-surface audit, ledger walk, verdict
+  sheet) remains.
 
 ## D109: Non-functional surface adopts the VisiaEngine shape (2026-10-29)
 

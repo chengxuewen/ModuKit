@@ -7,8 +7,9 @@ maintainer word (D94/D96/D97/D99/D100-D104) - the rows carry current state.
 > The schedule-timer agenda was HEARD and DRAWN 2026-10-21 (D99,
 > docs/wave-2-clock-hearing.md); its lane T1 (the door) LANDED the same
 > day; its lane T2 (the crossing) LANDED 2026-10-22 - row below. The §3
-> ordinary-publish pump row is SUPERSEDED by D108 (hearing five-A; batch 0
-> landed, batches 1-2 pending; T2 wired bells only at the due-funnel).
+> ordinary-publish pump row is SUPERSEDED by D108 (hearing five-A); batches
+> 0-2 landed 2026-11-02 (hook installed, bell pump and timer gate retired,
+> HOST PUSH + lever proven); Batch 3 acceptance remains.
 >
 > Naming note: this file keeps the old §8 Stage-5 number for the wave-2 ledger
 > target. In `docs/architecture.md` §12, Stage 5 now means remote WebRTC; the
@@ -177,9 +178,10 @@ predates the openings - see the rows
 
 ## 3. What this file deliberately does NOT decide
 
-> SUPERSEDED (2026-10-30 doc-audit): D108 adjudicated this row. Batch 0 landed;
-> batches 1-2 (production hook install, pump deletion, HOST PUSH stanza) remain.
-> The text below is the historical deferral record, not the current status.
+> SUPERSEDED (2026-11-03 doc sync): D108 adjudicated this row, and batches
+> 0-2 landed 2026-11-02 (production hook install, pump and timer-gate deletion,
+> HOST PUSH stanza plus lever proof). The text below is the historical deferral
+> record, not the current status.
 
 - Parent->child live-push for ORDINARY publishes (named by the D99 CLOCK
   hearing review, 2026-10-21): a parent-originated bus publish never pumps

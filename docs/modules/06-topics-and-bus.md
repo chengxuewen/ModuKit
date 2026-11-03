@@ -101,3 +101,29 @@ v1-STABLE fact fired the media-base wiring trigger (D73), recorded as D89-K7 —
 factual note to the external consumer's maintainer is pending, the wiring-hearing
 proposal stays armed. §3, §4 and §6 are untouched by any of this: the bus is still the
 instrumentation point, and the deliberately-not list stands.
+
+## 8. As built 2026-11-02: parent-to-child push (D108)
+
+The parent bus now drains every ordinary publish through one post-fan-out hook. The
+supervisor installs `ParentFanout::pump_topic` at the boot seam, so a host-origin,
+child-origin, or timer-topic publish follows the same subscription law: every
+interested child's proxy queue is drained, then the current value is delivered as a
+belt when the queue was empty. Deferred QoS still builds no queue and no DELIVER.
+
+Wall writes are bounded, not blocking forever. Each child keeps a whole-frame outbox;
+one flush attempts at most `WALL_WRITE_TIMEOUT`; a `WouldBlock`/timeout parks the
+remaining bytes and counts a STALL. An over-cap outbox sheds whole frames and counts a
+SHED; a dead socket deregisters the child and counts a LOSS. There is no timer thread:
+a stalled child resumes on the next publish to that child. The old bell-only pump and
+`HELLO_CAP_TIMER_V2` delivery gate are deleted; timer capability keeps only its DIAL
+eligibility.
+
+Registered children route STOP and DIAL control writes through the same single writer
+(`ParentFanout::send`); pre-registration callers keep the direct write. A registered
+child's wall registration stays live while it runs and is retired at stop, so
+post-start host publishes can reach it. `MODUKIT_HOST_PUSH_OFF=1` suppresses only
+host-origin publishes; child-origin traffic still crosses.
+
+Verification is behavioral, not unit-only: legs twelve and thirteen print
+`HOST PUSH PASS` for a driver-side publish, and the lever run prints
+`HOST PUSH LEVER PASS` — host-origin red, child-origin green, no `LIFECYCLE PASS`.
