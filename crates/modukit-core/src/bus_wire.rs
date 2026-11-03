@@ -867,6 +867,61 @@ mod tests {
     }
 
     #[test]
+    fn stalled_outbox_resumes_without_tearing_a_frame() {
+        let (fan, mut reader) = wired_fan();
+        let t = topic("org.modukit.pump.align");
+        fan.handle_forward("c", &fwd(FWD_SUB, t.as_str(), 0, &[]))
+            .unwrap();
+        let payload = vec![0xa5u8; 16 * 1024];
+        for _ in 0..48 {
+            fan.pump_topic(&t, 2, &payload);
+            if fan.wall_stalls() > 0 {
+                break;
+            }
+        }
+        assert!(fan.wall_stalls() > 0, "the fixture must reach a stall");
+        // Drain everything already complete. A partial head must never reach
+        // the reader as a parseable frame; the timeout is the "incomplete" red.
+        loop {
+            match proc_wire::read_frame(&mut reader) {
+                Ok(_) => continue,
+                Err(err)
+                    if err.kind() == io::ErrorKind::WouldBlock
+                        || err.kind() == io::ErrorKind::TimedOut =>
+                {
+                    break;
+                }
+                Err(err) => panic!("stream lost frame alignment: {err}"),
+            }
+        }
+        // The next publish must flush the parked remainder first; every subsequent
+        // frame is parseable, and the `resume` payload must eventually arrive.
+        fan.pump_topic(&t, 2, b"resume");
+        loop {
+            let (_, kind, framed) = proc_wire::read_frame(&mut reader)
+                .expect("resume must not tear a frame or lose the tail");
+            assert_eq!(kind, proc_wire::MSG_DELIVER);
+            let delivery = proc_wire::parse_deliver(&framed).expect("DELIVER grammar");
+            if delivery.value == b"resume" {
+                break;
+            }
+        }
+    }
+
+    #[test]
+    fn send_surfaces_a_hard_socket_error_and_removes_the_child() {
+        let (fan, reader) = wired_fan();
+        drop(reader); // peer EOF: the next registered write must be a hard loss
+        let result = fan.send("c", proc_wire::MSG_STOP, &[]);
+        assert!(matches!(result, Some(Err(_))));
+        assert!(fan.wall_losses() > 0);
+        assert!(
+            !fan.lock_children().contains_key("c"),
+            "a hard socket error must deregister the child"
+        );
+    }
+
+    #[test]
     fn pump_topic_stalls_on_a_full_socket_and_counts_it() {
         let (fan, _reader) = wired_fan();
         let t = topic("org.modukit.pump.stall");
