@@ -52,7 +52,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 ## Open Items
 
-- [ ] D108 batch 3 acceptance next: docs sync landed (batches 0-2 are authoritative), then coverage/frozen-surface/ledger walk/verdict; see `docs/wave-3-parent-push-plan.md` section 10
+- [ ] D108 verdict sheet ACCEPTANCE READY: coverage/frozen-surface/plants/CI green; awaiting maintainer word to mint the next free D; see `docs/wave-3-parent-push-plan.md` section 11
 - [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger D1-D109 in `.agents/memorys/decisions.md`)
 - [ ] Agent-system track (plugins/config/skills/MCP ONLY — do not mix Stage-1): see `.agents/memorys/backlog.md`; next: P2 PAT (user) + R restart verification (+2026-10-14 bumps) + S2 user-side apiKey rotation; P3/P4/P5 done; ecosystem-scan FULL rerun 2026-10-14 — fix batches 1-3 adjudicated and landed (see history-archive.md later entry); residual Stage-1-gated items listed there
 

@@ -12,8 +12,9 @@
 > EXECUTION STATUS (2026-11-02): batch 0 closed 2026-10-27; batch 1a landed
 > 2026-11-02 (inert pump/outbox); batch 1b landed 2026-11-02 (hook installed,
 > old paths retired); batch 2 landed 2026-11-02 (HOST PUSH + lever proof);
-> batch 3 docs sync landed 2026-11-03; the acceptance battery remains. Both
-> legs 12/13 and the 36-leg ci are green.
+> batch 3 docs sync and the acceptance battery landed 2026-11-03; the verdict
+> sheet is ACCEPTANCE READY and awaits the maintainer's word to mint the next
+> free D. Both legs 12/13 and the 36-leg ci are green.
 
 ## 0. Fact base (verified against the tree, 2026-10-27)
 
@@ -186,6 +187,10 @@ mechanism) bounded writes, remainder-retaining outbox, NO `O_NONBLOCK`.
   `docs/architecture.md` D108 row, `docs/stage-5-plan.md`, `docs/modules/06`,
   and `status.md` now describe batches 0-2 as landed. Acceptance work in
   T3.2 remains.
+- **T3.2 acceptance battery landed 2026-11-03**: full 36-leg gate, pinned
+  coverage (core 84.58%), frozen-surface audit, ledger plants/red equivalents,
+  and section 11 verdict sheet. The sheet is ACCEPTANCE READY; minting waits
+  for the maintainer's word.
 
 ## 6. Verification ledger (planted red before trusted)
 
@@ -359,3 +364,62 @@ forget the ordering, the atomic switch, or the frozen surfaces.
 | 1b | core/bus | independent reviewer | full gate + clock/abi_v3 + no-double-delivery plant |
 | 2 | demo/legs | independent reviewer | both demo legs + lever red + frozen-surface diff |
 | 3 | docs/ci | independent reviewer | full gate + coverage + verdict sheet |
+
+## 11. Batch 3 verdict sheet (proposed 2026-11-03)
+
+**Verdict: ACCEPTANCE READY.** The acceptance battery is green and the verdict is
+recorded for the maintainer. No next D is minted yet; that happens only on the
+maintainer's acceptance word.
+
+### Implementation scope
+
+| Batch | Commit | Result |
+|---|---|---|
+| 0 | `0215656` | hook field + post-lock witness |
+| 1a | `338957c` | inert `pump_topic`, bounded outbox, counters, tests |
+| 1b | `91fc390` | production hook; bell pump/timer gate retired; single writer |
+| 2 | `0a89d4e` | HOST PUSH stanza + host-origin-only lever proof |
+| docs | `031ab76` | authority docs synced to batches 0-2 |
+
+### Acceptance battery
+
+| Check | Result |
+|---|---|
+| Full `pixi run ci` | PASS - 36 legs all green after the final outbox tests |
+| Pinned coverage | PASS - core 84.58%, transport 88.29%, codegen 87.30%; JS exempt (D103) |
+| Coverage census | PASS - 59 suites, 304 passed, 0 failed |
+| Outbox lines | core `bus_wire.rs` 82.22% lines; stall, shed, hard-loss, alignment, and fallback paths tested |
+| Frozen surface | PASS - none of the D108 implementation commits touches `contracts/`, `bindings/`, `modukit_wire.h`, or goldens |
+| Old-path removal | PASS - `pump_local_bell` / `note_timer_child` references in `crates/` are zero |
+| Host push | PASS - both legs print `HOST PUSH PASS`; lever runs print `HOST PUSH LEVER PASS` |
+
+### Red plants / behavioral reds observed
+
+| Ledger row | Red evidence |
+|---|---|
+| C2 stream integrity | `stalled_outbox_resumes_without_tearing_a_frame` parses the parked remainder plus the resumed tail |
+| A6 stall counting | scratch removal of the STALL increment reds `pump_topic_stalls_on_a_full_socket_and_counts_it` |
+| A6 cap shedding | scratch removal of the cap reds `outbox_sheds_whole_frames_over_the_cap` |
+| A2 subscriber law | scratch limiting the pump to one target reds `pump_topic_reaches_every_interested_child` |
+| hook coverage (lever) | both demo legs observe host-origin red and child-origin green under `MODUKIT_HOST_PUSH_OFF=1` |
+| deferred no-op | `publish_hook_fires_for_deferred_qos_too`; no proxy queue/DELIVER exists for deferred QoS |
+| no double delivery | scratch duplicate hook call reds `host_publish_hook_delivers_once_without_a_manual_pump` |
+| C8 single writer | `send_queues_a_registered_control_frame`; unregistered children return `None` and keep the pre-registration direct write |
+| C9 bell regression | scratch suppression of the pump reds `host_publish_hook_delivers_once_without_a_manual_pump` |
+| bell retirement | timer delivery rides the general pump; old bell symbols are absent from `crates/` |
+| frozen surface | the D108 implementation commit list contains no frozen-surface paths |
+
+### Residuals (named, not silently dropped)
+
+- `flush_outbox` keeps a defensive `Ok(0)`/`WriteZero` branch that cannot be exercised
+  naturally through a real `UnixStream` pair in the suite; the reachable hard-error,
+  stall, cap, and resume paths are tested.
+- Wall STALL/SHED/LOSS counters remain on `ParentFanout`; folding them into
+  `Snapshot.counters()` would change `CountersView` and stays out of this volume.
+- Outbox retries happen only on the next publish to that child; there is no timer thread
+  by design.
+
+### Gate to close
+
+Maintainer acceptance of this verdict is required to mint the next free D. Until then,
+this sheet is proposed evidence, not an accepted decision.
