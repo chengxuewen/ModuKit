@@ -105,7 +105,10 @@ spec-trace = "bash scripts/spec-trace.sh"
 [feature.agents.tasks]
 agents = "python scripts/agents-cli.py"
 agent-sync = "python scripts/agents-cli.py sync"
-gate-agents = "python scripts/agents-cli.py check"
+gate-agents = "python -m unittest discover -s scripts/tests -p 'test_*.py' && python scripts/check-memory-ownership.py self-test && python scripts/check-memory-ownership.py check && python scripts/agents-cli.py check"
+agent-tests = "python -m unittest discover -s scripts/tests -p 'test_*.py'"
+memory-ownership = "python scripts/check-memory-ownership.py check"
+prose-report = "python scripts/check-prose.py"
 gate-skills = "python scripts/skills-index.py check"
 gate-rules = "python scripts/rule-ref-lint.py"                     # C/D/PIT citations resolve or are allowlisted
 gate-memory = "bash scripts/check-memory.sh"                     # C5 batch-close memory disposition
