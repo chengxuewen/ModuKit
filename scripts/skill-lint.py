@@ -30,6 +30,7 @@ SKILL_REF_RE = re.compile(r"See skill:\s*`([a-z0-9-]+)`")
 CMD_REF_RE = re.compile(r"(?<![A-Za-z0-9_])/([a-z][a-z0-9-]{2,})(?![A-Za-z0-9_])")
 EXTERNAL_COMMANDS = {"brainstorming"}
 GHOST_NAMES = re.compile(r"(?<![A-Za-z0-9-])(systematic-debugging|remove-ai-slops|security-review)(?![A-Za-z0-9-])")
+TRIGGERS_REL = os.path.join(".agents", "skills", "TRIGGERS.md")
 
 findings = []  # (severity, skill, message)
 
@@ -129,6 +130,57 @@ def check_references(names):
                 findings.append(("FAIL", "refs", f"{path}:{lineno}: ghost skill `{ghost}`"))
 
 
+def check_trigger_matrix(names):
+    """Every phrase in TRIGGERS.md has one owner and that owner exists."""
+    if not os.path.isfile(TRIGGERS_REL):
+        findings.append(("FAIL", "triggers", f"trigger matrix missing: {TRIGGERS_REL}"))
+        return
+
+    rows = []
+    for line in open(TRIGGERS_REL, encoding="utf-8", errors="replace"):
+        if not line.strip().startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        rows.append(cells)
+    if not rows:
+        findings.append(("FAIL", "triggers", "trigger matrix has no table rows"))
+        return
+
+    header = [cell.lower() for cell in rows[0]]
+    try:
+        intent_i = next(i for i, cell in enumerate(header) if "intent" in cell)
+        phrase_i = next(i for i, cell in enumerate(header) if "trigger phrase" in cell)
+        owner_i = next(i for i, cell in enumerate(header) if "owning skill" in cell)
+    except StopIteration:
+        findings.append(("FAIL", "triggers", "matrix header must name Intent, Trigger phrases, and Owning skill"))
+        return
+
+    phrase_owners: dict[str, set[str]] = {}
+    for row_no, cells in enumerate(rows[1:], 2):
+        if set(cells) <= {"", "---", ":---", ":---:", "---:"}:
+            continue
+        if len(cells) <= max(intent_i, phrase_i, owner_i):
+            findings.append(("FAIL", "triggers", f"row {row_no}: missing cells"))
+            continue
+
+        def clean(value):
+            return value.replace("`", "").replace("*", "").strip().lower()
+
+        owner = clean(cells[owner_i])
+        if owner not in names:
+            findings.append(("FAIL", "triggers", f"row {row_no}: owner `{owner}` is not a mounted skill"))
+        phrases = [clean(part) for part in cells[phrase_i].split(",") if clean(part)]
+        if not phrases:
+            findings.append(("FAIL", "triggers", f"row {row_no}: no trigger phrases"))
+            continue
+        for phrase in phrases:
+            phrase_owners.setdefault(phrase, set()).add(owner)
+
+    for phrase, owners in sorted(phrase_owners.items()):
+        if len(owners) > 1:
+            findings.append(("FAIL", "triggers", f"duplicate trigger `{phrase}` owned by {sorted(owners)}"))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--skills", default=".agents/skills")
@@ -153,6 +205,7 @@ def main():
                 findings.append(("FAIL", n, f"not mentioned in registry {args.registry}"))
 
     check_references(set(names))
+    check_trigger_matrix(set(names))
 
     fails = [f for f in findings if f[0] == "FAIL"]
     for sev, skill, msg in findings:

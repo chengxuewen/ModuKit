@@ -70,9 +70,7 @@ First agent 1, then agent 2, then agent 3
 
 ## Multi-Perspective Analysis
 
-For complex problems, use split role sub-agents:
-- Factual reviewer
-- Senior engineer
-- Security expert
-- Consistency reviewer
-- Redundancy checker
+For a quick heuristic, look at correctness, engineering impact, security,
+consistency, and redundancy. For a durable review of one plan, decision, or
+conclusion, use the `expert-panel-review` skill instead of improvising a second
+panel engine here. See `.agents/skills/TRIGGERS.md` for the review boundary.
