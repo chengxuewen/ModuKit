@@ -11,9 +11,10 @@ envelope differs):
     The mcpServers key shape is the canonical one, so transfer is a verbatim copy
     of the merged map (only `command` is wrapped in the repo-relative launcher).
   - "named": opencode's opencode.json uses a named-object mcp{} (type/enabled/
-    command/environment). Convert each canonical server to that shape and MERGE
-    into opencode.json's existing mcp{} -- other keys (websearch, disabled
-    local-playwright/postgres/openspace) are preserved (non-destructive).
+    command/environment). Build the FULL expected map from the canonical local
+    servers plus `opencode_extra_mcp` (host-only remote/disabled entries), then
+    REWRITE the mcp{} section. A merge here leaves removed servers behind
+    forever (PIT-248).
 
 Exit codes: 0 clean, 1 findings, 2 guard violation (nothing written).
 
@@ -141,23 +142,63 @@ def _opencode_value(value):
     return value
 
 
-def _expected_opencode_mcp(merged):
+def _extra_guard_reasons(merged, extras):
+    """Validate host-only extras before any generation or filesystem write."""
+    reasons = []
+    for name, entry in (extras or {}).items():
+        if name in merged:
+            reasons.append(f"opencode_extra_mcp[{name}] duplicates a canonical local server")
+        if not isinstance(entry, dict):
+            reasons.append(f"opencode_extra_mcp[{name}] must be an object")
+            continue
+        if entry.get("type") != "remote":
+            reasons.append(
+                f"opencode_extra_mcp[{name}]: only remote extras are allowed (got {entry.get('type')!r})"
+            )
+        url = entry.get("url")
+        if not isinstance(url, str) or not url:
+            reasons.append(f"opencode_extra_mcp[{name}]: remote url must be a non-empty string")
+        if "enabled" in entry and not isinstance(entry["enabled"], bool):
+            reasons.append(f"opencode_extra_mcp[{name}]: enabled must be boolean")
+    return reasons
+
+
+def _expected_opencode_mcp(merged, extras):
+    """Build the complete opencode mcp{} map.
+
+    `merged` is the canonical local set. `extras` is the host-only allowlist in
+    agent-targets.json (currently the disabled remote `websearch`). Keep this
+    one helper as the only definition of the opencode visible set (PIT-247).
+    """
     out = {}
     for name, entry in merged.items():
         command = [entry.get("command", "")] + list(entry.get("args") or [])
         out[name] = {
             "type": "local",
-            "enabled": True,
+            "enabled": bool(entry.get("enabled", True)),
             "command": command,
         }
         env = entry.get("env")
         if env:
             out[name]["environment"] = {k: _opencode_value(v) for k, v in env.items()}
+    for name, entry in (extras or {}).items():
+        item = dict(entry)
+        if item.get("type") != "remote":
+            # The project-local registry stays stdio-only; this allowlist is for
+            # host-only remote/disabled entries. Reject anything else loudly.
+            raise ValueError("opencode_extra_mcp[%s]: only remote extras are allowed" % name)
+        item["enabled"] = bool(item.get("enabled", True))
+        out[name] = item
     return out
 
 
 def run(command, targets, cfg, dry_run):
     merged = _merged_servers(cfg)
+    extras = cfg.get("opencode_extra_mcp", {})
+    extra_reasons = _extra_guard_reasons(merged, extras)
+    if extra_reasons:
+        print("%s ✗ guard opencode_extra_mcp: %s" % (PREFIX, "; ".join(extra_reasons)))
+        return ac.EXIT_GUARD
     if command == "list":
         for t in targets:
             if t.get("mcp_file"):
@@ -186,10 +227,21 @@ def run(command, targets, cfg, dry_run):
                 path = os.path.join(ac.ROOT, t["opencode_file"])
                 with open(path) as handle:
                     cur = json.load(handle).get("mcp", {})
-                want = _expected_opencode_mcp(merged)
-                if any(cur.get(n) != want[n] for n in want):
+                want = _expected_opencode_mcp(merged, extras)
+                if cur != want:
                     failures += 1
-                    print(" [ FIX ] %-10s %s (named mcp drift)" % (t["label"], t["opencode_file"]))
+                    missing = sorted(set(want) - set(cur))
+                    orphan = sorted(set(cur) - set(want))
+                    changed = sorted(name for name in set(want) & set(cur) if cur[name] != want[name])
+                    detail = []
+                    if missing:
+                        detail.append("missing=%s" % missing)
+                    if orphan:
+                        detail.append("orphan=%s" % orphan)
+                    if changed:
+                        detail.append("changed=%s" % changed)
+                    print(" [ FIX ] %-10s %s (named mcp drift: %s)"
+                          % (t["label"], t["opencode_file"], ", ".join(detail) or "unknown"))
                 else:
                     print(" [ OK  ] %-10s %s" % (t["label"], t["opencode_file"]))
         if failures:
@@ -198,41 +250,67 @@ def run(command, targets, cfg, dry_run):
         print("%s ✓ (%d server(s) × %d target(s))" % (PREFIX, len(merged), sum(1 for t in targets if t.get("enabled"))))
         return ac.EXIT_OK
 
-    # sync / dry-run
+    # sync / dry-run: preflight every write so one bad target cannot leave a
+    # partial generation behind when a later target hits a guard.
+    canonical_dir = os.path.dirname(os.path.join(ac.ROOT, cfg["mcp_source"]))
+    writes = []
     for t in targets:
         if not t.get("enabled"):
             continue
         if t.get("mcp_file"):
             path = os.path.join(ac.ROOT, t["mcp_file"])
+            reasons = ac.target_write_reasons(path, canonical_dir)
+            if reasons:
+                print("%s ✗ guard %s: %s" % (PREFIX, t["mcp_file"], "; ".join(reasons)))
+                return ac.EXIT_GUARD
             want = _expected_mcp_file(merged, t)
             have = open(path).read() if os.path.exists(path) else ""
             if os.path.exists(path) and _same_doc(have, want, t.get("structured_compare")):
                 print(" [ OK  ] %-10s %s" % (t["label"], t["mcp_file"]))
                 continue
+            reasons = ac.target_write_reasons(path, canonical_dir)
+            if reasons:
+                print("%s ✗ guard %s: %s" % (PREFIX, t["mcp_file"], "; ".join(reasons)))
+                return ac.EXIT_GUARD
             print(" [ WRITE] %-10s %s" % (t["label"], t["mcp_file"]))
-            if not dry_run:
-                os.makedirs(os.path.dirname(path), exist_ok=True)
-                with open(path, "w") as handle:
-                    handle.write(want)
+            writes.append(("file", t, path, want))
         elif t.get("opencode_file"):
             path = os.path.join(ac.ROOT, t["opencode_file"])
+            reasons = ac.target_write_reasons(path, canonical_dir)
+            if reasons:
+                print("%s ✗ guard %s: %s" % (PREFIX, t["opencode_file"], "; ".join(reasons)))
+                return ac.EXIT_GUARD
             with open(path) as handle:
                 doc = json.load(handle)
-            want = _expected_opencode_mcp(merged)
-            cur = doc.setdefault("mcp", {})
-            if all(cur.get(n) == want[n] for n in want):
+            want = _expected_opencode_mcp(merged, extras)
+            cur = doc.get("mcp", {})
+            if cur == want:
                 print(" [ OK  ] %-10s %s" % (t["label"], t["opencode_file"]))
                 continue
-            print(" [ MERGE] %-10s %s" % (t["label"], t["opencode_file"]))
-            if not dry_run:
-                backup = ac.backup_name(os.path.dirname(path), os.path.basename(path))
-                os.makedirs(os.path.dirname(backup), exist_ok=True)
-                import shutil
-                shutil.copy2(path, backup)  # never lose the assembly point
-                cur.update(want)
-                with open(path, "w") as handle:
-                    json.dump(doc, handle, indent=2, sort_keys=False)
-                    handle.write("\n")
+            reasons = ac.target_write_reasons(path, canonical_dir)
+            if reasons:
+                print("%s ✗ guard %s: %s" % (PREFIX, t["opencode_file"], "; ".join(reasons)))
+                return ac.EXIT_GUARD
+            print(" [ REWRITE] %-10s %s" % (t["label"], t["opencode_file"]))
+            writes.append(("opencode", t, path, (doc, want)))
+
+    if dry_run:
+        return ac.EXIT_OK
+
+    for kind, t, path, payload in writes:
+        if kind == "file":
+            with open(path, "w") as handle:
+                handle.write(payload)
+            continue
+        doc, want = payload
+        backup = ac.backup_name(os.path.dirname(path), os.path.basename(path))
+        os.makedirs(os.path.dirname(backup), exist_ok=True)
+        import shutil
+        shutil.copy2(path, backup)  # never lose the assembly point
+        doc["mcp"] = want
+        with open(path, "w") as handle:
+            json.dump(doc, handle, indent=2, sort_keys=False)
+            handle.write("\n")
     print("%s ✓ sync done" % PREFIX)
     return ac.EXIT_OK
 

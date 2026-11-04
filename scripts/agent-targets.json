@@ -8,6 +8,13 @@
   "skills_registry": "SKILL.md",
   "constraints_hub": "CONSTRAINTS.md",
   "mcp_file_guard": ".mcp.json",
+  "opencode_extra_mcp": {
+    "websearch": {
+      "type": "remote",
+      "url": "https://websearch.opencode.ai",
+      "enabled": false
+    }
+  },
   "forbidden_paths": [
     "CODEBUDDY.md",
     ".codebuddy/mcp.json",
@@ -81,6 +88,7 @@
         "common-performance": "Use when a change touches hot paths, allocations, or performance.",
         "common-security": "Always apply: security boundaries, unsafe or FFI code, and untrusted input.",
         "common-testing": "Use when adding or changing tests, or when behavior has no regression guard.",
+        "common-tool-routing": "Always apply: choose between native grep/LSP and semantic codegraph exploration without duplicate searches.",
         "rust-coding-style": "Use when writing or reviewing Rust code.",
         "rust-hooks": "Use when editing Rust lifecycle hooks or callbacks.",
         "rust-patterns": "Use when selecting Rust ownership, error, or iterator patterns.",

@@ -14,6 +14,11 @@ The PATH probe mirrors the GUI-inherited PATH (O5): ~/.pixi/bin is removed, so a
 pixi that only lives there is caught before a host fails to spawn a server. O5 is a
 WARN by default (the fix is a machine-level symlink the repo cannot make); set
 MODUKIT_GATE_MCP_STRICT=1 to turn it red in CI.
+
+The `local-codegraph` server and `.agents/rules/common/tool-routing.md` are also
+locked in both directions. The rule must be registered in at least the CodeBuddy
+always-on list and opencode instructions; an on-disk rule that no host loads is
+dead.
 Exit: 0 if no red, 1 if any red.
 """
 
@@ -29,6 +34,11 @@ import agent_common as ac
 PREFIX = "GATE-MCP"
 CFG = os.path.join(ac.ROOT, ".agents", "mcp.json")
 REGISTRY = os.path.join(ac.ROOT, "scripts", "mcp-servers.json")
+RULE_PATH = os.path.join(ac.ROOT, ".agents", "rules", "common", "tool-routing.md")
+TARGETS_PATH = os.path.join(ac.ROOT, "scripts", "agent-targets.json")
+OPENCODE_PATH = os.path.join(ac.ROOT, ".opencode", "opencode.json")
+RULE_SERVER = "local-codegraph"
+RULE_NAME = "common-tool-routing"
 TOKEN_HINT = re.compile(
     r"environment variable is not set|unauthorized|401|token|GITHUB_PERSONAL_ACCESS_TOKEN",
     re.I,
@@ -57,6 +67,36 @@ def _env_bin(spec):
     return os.path.join(ac.ROOT, ".pixi", "envs", spec["pixi_env"], "bin", name)
 
 
+def _routing_lock(servers):
+    """Red on either half of the server/rule pair or a missing registration."""
+    problems = []
+    has_server = RULE_SERVER in servers
+    has_rule = os.path.isfile(RULE_PATH)
+    if has_server and not has_rule:
+        problems.append("%s exists but %s is absent" % (RULE_SERVER, os.path.relpath(RULE_PATH, ac.ROOT)))
+    if has_rule and not has_server:
+        problems.append("%s exists but %s is absent" % (os.path.relpath(RULE_PATH, ac.ROOT), RULE_SERVER))
+
+    if has_rule:
+        try:
+            targets = ac.load_json(TARGETS_PATH)
+        except Exception as exc:  # noqa: BLE001 - lock failure is a gate finding
+            targets = {}
+            problems.append("cannot read agent targets: %s" % exc)
+        codebuddy = next((t for t in targets.get("targets", []) if t.get("label") == "codebuddy"), {})
+        if RULE_NAME not in codebuddy.get("always_on_rules", []):
+            problems.append("rule not registered in CodeBuddy always_on_rules")
+        try:
+            opencode = ac.load_json(OPENCODE_PATH)
+        except Exception as exc:  # noqa: BLE001 - lock failure is a gate finding
+            opencode = {}
+            problems.append("cannot read opencode config: %s" % exc)
+        rule_rel = os.path.relpath(RULE_PATH, ac.ROOT).replace(os.sep, "/")
+        if rule_rel not in opencode.get("instructions", []):
+            problems.append("rule not registered in opencode instructions")
+    return problems
+
+
 def _run(cmd, env):
     try:
         proc = subprocess.run(
@@ -81,6 +121,10 @@ def main():
         return 0
     with open(REGISTRY) as handle:
         registry = json.load(handle)
+
+    for problem in _routing_lock(servers):
+        print(" [ RED  ] tool-routing lock: %s" % problem)
+        red += 1
 
     host_path = _host_path()
     env = dict(os.environ, PATH=host_path)
