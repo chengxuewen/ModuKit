@@ -28,6 +28,7 @@ ModuKit-specific skills, located in `.agents/skills/`:
 | `doc-audit` | tooling | documentation/decision consistency audit — **re-scoped to ModuKit canon 2026-10-09** (first full run 2026-10-10) |
 | `documentation-and-adrs` | tooling | docs and ADR discipline |
 | `ecosystem-scan` | deprecated | deprecated alias -> repo-audit; grace-period trigger |
+| `expert-panel-review` | - | Run a bounded multi-role review of one pla... |
 | `incremental-implementation` | process | thin vertical slices |
 | `lesson-review` | memory | batch session review → `.agents/memorys/` |
 | `observability-and-instrumentation` | tooling | kernel event ring, logger, debug-reader |

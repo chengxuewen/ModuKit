@@ -165,6 +165,7 @@ pixi run cmake --preset default && pixi run cmake --build --preset default
 | `doc-audit` | Project documentation and architecture audit. |
 | `documentation-and-adrs` | Record architecture decisions and keep doc... |
 | `ecosystem-scan` | Deprecated alias for repo-audit; use repo-... |
+| `expert-panel-review` | Run a bounded multi-role review of one pla... |
 | `incremental-implementation` | Thin vertical slice methodology — implemen... |
 | `lesson-review` | Batch session review: systematically extra... |
 | `observability-and-instrumentation` | Observability and instrumentation for Modu... |
