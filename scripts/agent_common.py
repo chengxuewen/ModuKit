@@ -17,7 +17,15 @@ import re
 import shutil
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_DEFAULT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Tests run the real generators against a temporary target root. Both variables
+# must be set before import; requiring the explicit test switch prevents an
+# accidentally exported MODUKIT_AGENT_ROOT from redirecting normal gates.
+ROOT = (
+    os.path.abspath(os.environ["MODUKIT_AGENT_ROOT"])
+    if os.environ.get("MODUKIT_AGENT_TESTS") == "1" and os.environ.get("MODUKIT_AGENT_ROOT")
+    else _DEFAULT_ROOT
+)
 
 EXIT_OK = 0
 EXIT_FINDINGS = 1
@@ -174,6 +182,26 @@ def hub_budget(path):
 def gate(prefix, ok, msg):
     mark = "✓" if ok else "✗"
     print("%s %s %s" % (prefix, mark, msg))
+
+
+def target_write_reasons(target_path, canonical_dir):
+    """Why writing one generated file would be unsafe (empty list == safe).
+
+    This is the file-level counterpart to `guard_reasons`: reject symlinked
+    targets, targets inside the canonical tree, symlinked parents, and paths
+    that the current user cannot write without creating a partial file.
+    """
+    target_path = os.path.abspath(target_path)
+    target_dir = os.path.dirname(target_path)
+    reasons = guard_reasons(target_dir, os.path.realpath(canonical_dir))
+    if os.path.islink(target_path):
+        reasons.append("target file is a symlink (%s)" % os.readlink(target_path))
+    if os.path.exists(target_path):
+        if not os.access(target_path, os.W_OK):
+            reasons.append("target file is not writable (%s)" % target_path)
+    elif not os.access(target_dir, os.W_OK):
+        reasons.append("target directory is not writable (%s)" % target_dir)
+    return reasons
 
 
 def die_guard(prefix, target_dir, reasons):
