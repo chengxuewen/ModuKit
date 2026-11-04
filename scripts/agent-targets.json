@@ -72,11 +72,13 @@
       ],
       "always_on_rules": [
         "common-constraints",
-        "common-security"
+        "common-security",
+        "common-tool-routing"
       ],
       "rule_descriptions": {
         "common-agents": "Use when coordinating agents or subagent work in this repository.",
         "common-code-review": "Use when reviewing a diff, PR, or proposed change.",
+        "common-communication": "Use when composing a reply or plan summary -- answer the asked scope, label uncertainty, avoid tangents, and lead with the conclusion.",
         "common-coding-style": "Use when writing or reviewing code in any language.",
         "common-constraints": "Always apply: project constraints, frozen surfaces, and gate rules.",
         "common-development-workflow": "Use when planning, sequencing, or landing a change.",
