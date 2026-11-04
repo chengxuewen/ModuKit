@@ -1,0 +1,19 @@
+# Banned prose candidates for polished human-facing pages.
+# These words are not forbidden everywhere. They are findings because each one
+# can hide a missing measurement, command, path, or acceptance criterion.
+
+words = [
+  "delve",
+  "leverage",
+  "seamless",
+  "seamlessly",
+  "robust",
+  "comprehensive",
+  "unlock",
+  "elevate",
+  "cutting-edge",
+  "game-changer",
+  "best-in-class",
+  "it's worth noting",
+  "at the end of the day",
+]
