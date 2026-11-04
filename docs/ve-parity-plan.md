@@ -4,9 +4,9 @@
 > COMPLETE (H0a-H4 landed; full activation, live skill count 42). Its execution
 > plan is `docs/agent-host-parity-plan.md` (revision 9).
 > Gap-closure #20-22 are in section 2.4; VE-new-commit #23-26 are in section 2.5.
-> B6 follows VE D46 (English-only book, reader-side browser translation). Twelve adjudications walked one by one with the maintainer (ten in
-> section 2: A / A / C / A / A / B / A / A / A / B; two follow-ups in section 2.1:
-> C / A), plus the B4b-2 trio in section 2.3. Functional code, contracts, binding
+> B6 follows VE D46 (English-only book, reader-side browser translation).
+> Adjudications #1-#26 are recorded in sections 2 through 2.5; each was walked
+> one by one with the maintainer. Functional code, contracts, binding
 > implementations, demo assertions, and project memory entries are out of scope.
 > Reference clone: `.refinfo/VisiaEngine` (read-only, git-ignored).
 

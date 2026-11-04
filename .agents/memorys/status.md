@@ -43,6 +43,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 ## Repo Audit
 
 - 2026-11-04 Quick: 36 gates green, 42 skills, 42 CodeBuddy skill links, 20 generated rules, book 75. Count drift fixed; `verify-codebuddy-host.py` 59 checks / 0 findings. Remaining LOW: codegraph 1.6.2 advisory, gate-mcp O5 WARN, CodeBuddy IDE restart visibility pending.
+- 2026-11-04 Full doc-audit: README/AGENTS/architecture/VE-plan synced for wave-3 D110, plugin-door D107 acceptance, B8 completion, and adjudications #1-#26.
 
 ## Open Items
 
