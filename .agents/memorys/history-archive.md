@@ -1,5 +1,48 @@
 # ModuKit — History Archive
 
+## 2026-11-04 - status offload (host-plan counts, audit detail, completed items)
+
+- Moved the pre-offload completed `Open Items` list out of `status.md`. Current
+  status now keeps only active open threads and pointers.
+- Current host facts at offload: VE-parity B8 COMPLETE; `agent-host-parity-plan`
+  revision 9; live counts 42 skills, 20 CodeBuddy rules, 42 CodeBuddy skill links,
+  75 book chapters; 36-leg `pixi run ci` green (123.10 s).
+- The 2026-11-04 Quick repo-audit detail, including fixed MEDIUM count drift and
+  `verify-codebuddy-host.py` 59 checks / 0 findings, is preserved here.
+
+Moved verbatim from `status.md` (completed history):
+
+- D108 ACCEPTED/CLOSED 2026-11-03 as D110: batches 0-2 landed; acceptance battery,
+  verdict sheet, frozen surface, and coverage are green; residuals trigger-gated
+- PolyOrch submodule live since M1; pin chain 3cbc155..f8f85db (seven standalone
+  bumps), policy = follow dev-modukit tip; C2 bless cycles: first 2026-10-16,
+  second 2026-10-23 (dev-into-main at f8f85db)
+- Stage-2 COMPLETE 2026-10-18: M1-M5 + freeze hearing (D82-D88); v1 STABLE per
+  D87, v2 PLANNED, dictionary 19 names, hint() paid, coverage debt calendared
+  (D84); Stage-3 scoping opens on maintainer word; push decision open
+- Stage-3 COMPLETE 2026-10-19: K1-K7 (D89), freeze hearing (D82-D88), debt paid +
+  hook lifted (D90), lanes closed, acceptance D91; UI tier stays demoted per K2;
+  push decision remains maintainer-owned
+- Stage-4 volume ACCEPTED 2026-10-21 (D95): M1-M3 + coverage boundary run + §12
+  applied + wave-2 door landed; push tail + K7 remain maintainer calls
+- Wave-2 v2 bus: HEARING (D96 six-by-A) + N1 door + N2 crossing both LANDED
+  2026-10-21 (five demo legs, wall transparent in the start window): docs/stage-5-plan.md
+- Clock lanes LANDED (T1+T2 2026-10-22, D99); debug-reader face LANDED + check.sh
+  leg + core debt cleared (D97/D98). PYTHON VOLUME ACCEPTED 2026-10-23 (D101;
+  boundary green via pinned recipe). JS VOLUME LANDED 2026-10-23 ACCEPTED
+  (D102/D103; eleven-leg green; js region bin-like-exempt, proofs node-side).
+  Benchmark volume ACCEPTED (D105); plugin-door volume ACCEPTED (D107). Live-attach armed.
+- rules/common dangling-refs family CLOSED 2026-10-19 (M3S-1 sweep; doc-liveness
+  leg in check.sh; unmounted pool kept per G10)
+- Cargo workspace landed 2026-10-15 (M2; kernel filled from M3 on)
+- License decided — MIT OR Apache-2.0 dual (D1, 2026-10-09); texts at repo root;
+  workspace metadata = Stage-1 trigger
+- doc-audit re-scoped to ModuKit canon (commit 2aa7663); first full run
+  2026-10-10: 18 findings, all user-adjudicated
+- PORT_NOW bundle FULLY retired 2026-10-19 (seed + D-record + doc-liveness all in gates)
+- Benchmark volume ACCEPTED (D105) after a fresh boundary green + same-day
+  doc-audit sweep.
+
 ## 2026-10-30 - status Phase offload (B2 housekeeping)
 
 - The Phase paragraph below was moved verbatim from status.md to keep it under

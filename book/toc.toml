@@ -47,6 +47,12 @@ source = "docs/agent-host-parity-plan.md"
 type = "explanation"
 visibility = "internal"
 
+[[chapter]]
+title = "Agent Governance Borrow Plan"
+source = "docs/agent-governance-borrow-plan.md"
+type = "explanation"
+visibility = "internal"
+
 [[group]]
 title = "Modules"
 type = "explanation"

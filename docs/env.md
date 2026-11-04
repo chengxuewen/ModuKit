@@ -99,7 +99,7 @@ The named gates:
 
 | Host | Discovery | Generated layer | Status |
 |---|---|---|---|
-| CodeBuddy | Root `AGENTS.md` when `CODEBUDDY.md` is absent; `.codebuddy/rules/<name>/RULE.mdc`; `.codebuddy/skills/<name>`; root `.mcp.json` | `rules-links.py` (`mdc`) + `skills-links.py` (link, `--copy` on Windows) | H3 pass 2026-10-30: `AGENTS.md` fallback, 18 rules, 41 skills, and MCP tools confirmed in a fresh session |
+| CodeBuddy | Root `AGENTS.md` when `CODEBUDDY.md` is absent; `.codebuddy/rules/<name>/RULE.mdc`; `.codebuddy/skills/<name>`; root `.mcp.json` | `rules-links.py` (`mdc`) + `skills-links.py` (link, `--copy` on Windows) | H3 pass 2026-10-30: `AGENTS.md` fallback, 18 rules, 41 skills then, and MCP tools confirmed; current regeneration: 20 rules + 42 links, no broken symlinks |
 | Qoder | Native reader of `.agents/rules` and `.agents/skills`; project `.mcp.json` | none | Native reader; no generated layer |
 | opencode | Native rules/skills; `.opencode/opencode.json` `mcp{}` merge | `mcp-links.py` | Green |
 | project | Root `.mcp.json` (`mcpServers`, launcher) | `mcp-links.py` | Green; the only writer of `.mcp.json` |
@@ -118,15 +118,18 @@ Generation rules:
 - Forbidden paths (`CODEBUDDY.md`, `.codebuddy/mcp.json`, shadow host skill
   directories) are checked by `gate-agents`; one red observation is recorded in
   the plan review trail.
-- Activation policy: **full inventory (41 skills) final** (H2b, 2026-10-30).
+- Activation policy: **full inventory (live count; 42 on 2026-11-04)** (H2b, 2026-10-30).
   H3 confirmed the host cost is acceptable; no `skills_allowlist` is active.
   Revisit only if the skill surface grows or routing noise appears.
 - Repository-side check: `python3 scripts/verify-codebuddy-host.py` verifies the
-  AGENTS.md fallback, 18 RULE.mdc files, 41 skill links, root `.mcp.json`, and
+  AGENTS.md fallback, 20 RULE.mdc files, 42 skill links, root `.mcp.json`, and
   `agents-cli.py check`. It cannot see an already-running IDE session.
 
 ### Probe log
 
+- 2026-11-04 CLI probe: 20 `.codebuddy/rules/*/RULE.mdc` and 42 skill links
+  generated; no broken symlinks; `verify-codebuddy-host.py` 59 checks / 0 findings;
+  IDE session visibility still requires a CodeBuddy restart.
 - 2026-10-30 CLI probe: 18 `.codebuddy/rules/*/RULE.mdc` generated; 41 skill
   links generated; `gate-agents` green; `agents sync --dry-run` writes nothing;
   a planted `CODEBUDDY.md` reds `gate-agents` and removal restores green; a
