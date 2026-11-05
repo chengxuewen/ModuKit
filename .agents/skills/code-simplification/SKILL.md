@@ -12,7 +12,7 @@ notes: "simplify without changing behavior"
 
 ## Trigger Conditions
 
-- The user says "太复杂" / "简化" (too complex / simplify), "refactor", "dead code"
+- The user says "太复杂" / "简化" (too complex / simplify), "refactor", "dead code" <!-- c1:allow:trigger -->
 - After ponytail-audit finds removable items
 - A file exceeds 500 lines (`wc -l` > 500)
 - `cargo clippy -- -W clippy::cognitive_complexity` reports high complexity

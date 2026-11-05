@@ -17,7 +17,7 @@ notes: "measure before optimizing"
 - Throughput drops >10%
 - Web UI render frame drops
 - After core pipeline code changes
-- The user says "performance" / "latency" / "slow" / "优化性能"
+- The user says "performance" / "latency" / "slow" / "优化性能" <!-- c1:allow:trigger -->
 - Pre-release benchmark regression
 
 ## Golden Rules

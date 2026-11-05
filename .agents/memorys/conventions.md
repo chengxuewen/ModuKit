@@ -18,7 +18,7 @@ test -f .opencode/opencode.json && python3 -m json.tool .opencode/opencode.json 
 
 Every file this project produces — code, comments, memory files, markdown docs (README, `docs/`, rules), build configuration (pixi.toml, CMakeLists.txt, cmake/), and contract originals (`contracts/*.proto` and their `.h`/`.rs` goldens) — is written in English. Only AI-session replies follow the user's language (Chinese in, Chinese out); artifacts stay English regardless.
 
-Exception: functional CJK literals that must stay verbatim (trigger keywords in `adjudication-walkthrough`, Chinese chapter-numbering parse data in `book-to-skill`, routing phrases in `skill-router`). `.agents/skills/**` is excluded from the scan; new skills follow the same rule — English prose, verbatim functional literals only.
+Exception: functional CJK that must stay verbatim, exempted per LINE, never per directory (adjudication #28 retired the old whole-`.agents/skills/` skip). A CJK line is legal only when it carries `c1:allow:trigger` (activation phrases) or `c1:allow:vocab` (functional parse data) — markdown: trailing `<!-- c1:allow:trigger -->`; code/YAML: trailing `# c1:allow:vocab`. Two files keep a whole-file exemption with the reason recorded in `scripts/gate-i18n.sh`: `.agents/skills/adjudication-walkthrough/SKILL.md` (the frontmatter description leads with the verbatim phrase; a marker inside the quoted YAML value would pollute it) and `.agents/skills/book-to-skill/book_to_skill/utils.py` (chapter-number vocabulary, partly inside a docstring). New skills: English prose, verbatim functional literals with a marker.
 
 ```bash
 # Check: no CJK (incl. CJK/full-width punctuation) in tracked or untracked

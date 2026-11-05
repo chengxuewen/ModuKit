@@ -18,7 +18,7 @@ notes: "review checklist and quality bar"
 - Reviewing a diff, PR, or your own staged change before commit.
 - After a large or risky change (unsafe, FFI, concurrency, public API, serialization).
 - When a gate is red and you need to decide *how* to fix, not just *that* it is red.
-- A second opinion ("复审") on the highest-risk hunk.
+- A second opinion ("复审") on the highest-risk hunk. <!-- c1:allow:trigger -->
 
 ## Process (steps + checkpoints + exit)
 

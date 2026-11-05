@@ -13,7 +13,7 @@ description: Whole-repo 10-domain engineering audit + ecosystem scan; formerly e
 
 ## Trigger Conditions
 
-- The user says "优化 agents" / "审计 .agents" / "扫描生态" / "找新技能" / "全面体检" (optimize agents / audit .agents / scan ecosystem / find new skills / full checkup)
+- The user says "优化 agents" / "审计 .agents" / "扫描生态" / "找新技能" / "全面体检" (optimize agents / audit .agents / scan ecosystem / find new skills / full checkup) <!-- c1:allow:trigger -->
 - `/repo-audit` -- pops up the mode-selection menu
 - `/repo-audit quick` -- fast scan (default)
 - `/repo-audit full` -- deep scan (auto-escalated on first run or after >5 Quick runs)

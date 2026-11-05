@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 # C1 gate: every tracked or untracked (non-ignored) artifact is English.
 # Whitelisted classes (extend deliberately, never silently):
-#   1) .agents/skills/** -- routing trigger phrases and keyword tables are the
-#      activation surface; the whole directory is skipped.
-#   2) .opencode/node_modules + vendored deps.
-#   3) .po/.pot are outside EXTS (book translations are functional CJK).
-# Red/green duty (C0): plant a Chinese comment in README.md -> this gate MUST go red.
+#   1) dependency and build trees (SKIP_PARTS / SKIP_PATH_PREFIX).
+#   2) LINE ALLOW -- a line that legitimately carries functional CJK ends with an
+#      inline marker: `<!-- c1:allow:trigger -->` (markdown) or
+#      `# c1:allow:trigger` / `# c1:allow:vocab` (code, YAML). Exemption is per
+#      line, so everything around it stays guarded (adjudication #28: the old
+#      whole-directory skip on `.agents/skills/` was a standing blind spot).
+#   3) ALLOW -- whole-file exemption for cases where a marker cannot live on the
+#      line (YAML frontmatter values, docstring examples); each entry carries a
+#      recorded reason below.
+#   4) .po/.pot are outside EXTS (book translations are functional CJK).
+# Red/green duty (C0): plant an UNMARKED Chinese line in a skill file -> red;
+# plant one in README.md -> red; marker removed -> red again.
 set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.."
 python3 - <<'PY'
@@ -23,13 +30,25 @@ untracked = subprocess.run(
 ).stdout.split()
 candidates = sorted(set(tracked + untracked))
 SKIP_PARTS = {'.omo', '.pixi', 'node_modules', 'target', 'build', '.git', 'out', '.refinfo', '.qoder', '.serena'}
-SKIP_PATH_PREFIX = ('.agents/skills/', '.opencode/node_modules/', 'book/web/vendor/')
+SKIP_PATH_PREFIX = ('.opencode/node_modules/', 'book/web/vendor/')
+LINE_ALLOW = re.compile(r'c1:allow:(?:trigger|vocab)\b')
 EXTS = {
     '.md', '.rst', '.txt', '.cmake', '.rs', '.c', '.cpp', '.h', '.hpp', '.toml',
     '.json', '.jsonc', '.sh', '.bat', '.mjs', '.js', '.py', '.yml', '.yaml',
     '.in', '.wgsl', '.pc', '.jsonl',
 }
-ALLOW = set()  # add a path only with a recorded reason in the header
+# Whole-file exemptions -- one line each, with the reason inline.
+# adjudication-walkthrough: the frontmatter description LEADS with the verbatim
+# Chinese activation phrase (hosts match on it); a marker inside the quoted YAML
+# value would pollute the description, so the file is exempt and its body lines
+# are still marker-scanned by convention.
+# book-to-skill utils.py: Chinese numeral/chapter vocabulary is functional parse
+# data across 14 lines, two of them inside a docstring where a marker would land
+# in user-visible help text.
+ALLOW = {
+    '.agents/skills/adjudication-walkthrough/SKILL.md',
+    '.agents/skills/book-to-skill/book_to_skill/utils.py',
+}
 
 bad = []
 for f in candidates:
@@ -47,12 +66,12 @@ for f in candidates:
     except Exception:
         continue
     for i, line in enumerate(text.splitlines(), 1):
-        if CJK.search(line) and str(p) not in ALLOW:
+        if CJK.search(line) and str(p) not in ALLOW and not LINE_ALLOW.search(line):
             bad.append(f"{p}:{i}: {line.strip()[:70]}")
 
 print('\n'.join(bad) if bad else '')
 if bad:
     print(f"GATE-I18N ✗ {len(bad)} CJK lines outside the whitelist")
     sys.exit(1)
-print("GATE-I18N ✓ (tracked + untracked artifacts English; skills surface and deps skipped)")
+print("GATE-I18N ✓ (tracked + untracked artifacts English; per-line c1:allow markers honoured, deps skipped)")
 PY

@@ -105,7 +105,7 @@ Sources: MediaServo (`.refinfo/MediaServo`) and remote_control_host_computer
 | # | Decision | Ruling | Key note |
 |---|---|---|---|
 | 27 | commit-shape baseline | **A: derive from `@{u}`** | LANDED 2026-11-05: `scripts/check-commit-shape.sh` owns the leg; baseline = `MODUKIT_C3_BASE` or `@{u}`, loud WARN when neither resolves; `--self-test` plants an over-long subject (red) and greens it (C0 observed) |
-| 28 | C1 exemption precision | **A: line-level markers** | `.agents/skills/` leaves the whole-directory skip; Chinese trigger lines carry `<!-- c1:trigger -->` (MediaServo `c49:trigger` pattern) |
+| 28 | C1 exemption precision | **A: line-level markers** | LANDED 2026-11-05: `.agents/skills/` left the whole-directory skip in `scripts/gate-i18n.sh`; CJK lines carry `c1:allow:trigger` / `c1:allow:vocab`, two files keep a reasoned whole-file exemption (YAML description, docstring vocab); red proofs observed (unmarked line red, marker stripped red, restore green) |
 | 29 | `lsp-code-analysis` skill | **A: port** | Pre-change impact ladder serena -> codegraph -> ripgrep; Do-Not-Use boundary table; fits C ABI/wire surfaces |
 | 30 | team-mode convergence | **A: converge to `expert-panel-review`** | repo-audit/doc-audit/think-before-act inline team sections reference the engine; add consensus-illusion warning + no-`team_create` sequential track (remote_control D22) |
 

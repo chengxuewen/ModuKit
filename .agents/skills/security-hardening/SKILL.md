@@ -17,7 +17,7 @@ notes: "security audit and hardening"
 - After changes to the Auth module
 - New WebSocket endpoint
 - New token / credential handling
-- The user says "security review" / "安全审计"
+- The user says "security review" / "安全审计" <!-- c1:allow:trigger -->
 - New FFI boundary (C/ObjC bridge)
 
 ## Mode A: audit mode

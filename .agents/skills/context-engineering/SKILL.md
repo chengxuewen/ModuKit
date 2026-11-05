@@ -126,7 +126,7 @@ Before submitting work touching multiple languages/modules:
 
 This skill routes **language rules to modules** — which `.agents/rules/<lang>/` files apply to which files. It does **not** recommend skills for a task.
 
-- For "what skill should I use / 怎么做 / 帮我选择", use `skill-router` (the single source for task → skill classification).
+- For "what skill should I use / 怎么做 / 帮我选择", use `skill-router` (the single source for task → skill classification). <!-- c1:allow:trigger -->
 - For the actual skill inventory, read the SKILL DIRECTORY in `AGENTS.md`.
 
 Keeping one routing table (in `skill-router`) avoids two drifting tables with stale names.
