@@ -366,7 +366,7 @@ architecture.md §12 — none of them changes the kernel object model.
 |---|---|---|---|
 | **deploy** | bundle `modukit.toml` (TOML by adjudication 28: human annotations + typed + nested tables + Cargo-grade parser; INI cannot nest the resource tree, JSON cannot carry comments, YAML's indentation minefield and parser divergence are deployment-floor hazards; `resources[]`/config ride the same envelope) | `entry.kind` floor (raise-only), artifact/runner, `start_level`, `start_timeout`, `stop_timeout` (D34), `host_id` (D36, host-level config), `restart{}`, requires `policy`/`on_down`, `capabilities[]`, `min_host`, `resources[]` (D30), `[net] listen` (D54/D56 grammar), `[ros2]` (D59) | ops / packaging |
 | **self-report** | `PluginAbiV1` descriptor fields (04 §3) | `id`, `version`, `provides[]` (+ ranking, `parallel_ok`), requires + `topics[]` summaries (D10) | plugin code — or its runner, for script plugins |
-| **verification** | pre-dlopen ELF/Mach-O/PE parse | link/dependency sanity | kernel, stage-5 only; a guard, never a truth source |
+| **verification** | pre-dlopen ELF/Mach-O/PE parse | link/dependency sanity | kernel, stage-5 only (former numbering: the polyglot line dissolved into stage-4 wave-2 by the D95 §12 amendment; Stage 5 now means remote WebRTC); a guard, never a truth source |
 
 Ledger note (D13): the cross-check reads the `.proto`+`fdset` originals in the repo —
 manifest payload names must resolve in the ledger; descriptor self-reports must match their

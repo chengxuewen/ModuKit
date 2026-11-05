@@ -28,7 +28,7 @@ Explicitly out (trigger-gated): cgroup/rlimit supervision and witness-based
 liveness (modules/01 §7); watchdog/safety surface (§10 Out; D3 re-review trigger:
 "watchdog/ASIL contract with a real safety vendor"); Zenoh cross-host carrier
 (trigger: first cross-machine topic link); OTA distribution; compositor; all
-language bindings (Stage 5); wasm executor.
+language bindings (Stage 5; note: Stage 5 was renumbered to remote WebRTC by the D95 §12 amendment - the binding line dissolved into stage-4 wave-2, Python/JS shipped); wasm executor.
 parallel_ok routing: SUPERSEDED per A7/D80 - mechanism deferred, declaration field
 gains a typed deferral at the hot-swap door (inside S2-M2/M3); D8 triggers stand.
 Recorder/replay (D16) and CLI (D17/D23): DEFERRED per A5/D78 - the Stage-2

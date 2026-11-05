@@ -52,13 +52,13 @@ crates/modukit-codegen     # protoc plugin (protoc-gen-modukit): Rust skeletons,
 crates/modukit-js           # generated napi bridge crate (D102; bin-like metric-exempt, D103)
 ```
 
-Planned (whitepaper §2.3 namespace; naming authority `docs/whitepaper.md` §2/§4):
+Planned (whitepaper §2.3 namespace; naming authority `docs/whitepaper.md` §2/§4; live view - the whitepaper table stays the frozen v1.0 snapshot, increments land here until a canon revision):
 
 ```toml
 modukit-compositor    # multi-process UI compositor (extension)
 
 modukit-c             # C ABI export
-modukit-py            # Python bindings
+modukit-py            # crate name unused; Python ships as bindings/py (D100/D101)
 modukit-cs            # C# bindings
 (modukit-js - SHIPPED since D102, see the Shipped block above)
 modukit-wasm          # WASM host & sandbox
@@ -74,12 +74,14 @@ modukit-cli           # command-line tooling
 Five stages per the whitepaper implementation path:
 
 - [x] **Stage 1** — in-process plugin kernel: OSGi-style lifecycle & service registry — closed 2026-10-16 ([plan of record](docs/stage-1-plan.md))
-- [x] **Stage 2** — multi-process plugins & zero-copy IPC: iceoryx2/Zenoh, I420 SHM transport — closed 2026-10-18 ([plan of record](docs/stage-2-plan.md))
+- [x] **Stage 2** — multi-process plugins & zero-copy IPC: iceoryx2 local zero-copy + SCM_RIGHTS fd-passing — closed 2026-10-18 (Zenoh remote carrier and the I420 media plane stay trigger-gated per D89-K3) ([plan of record](docs/stage-2-plan.md))
 - [x] **Stage 3** — re-scoped to stability & docs hardening (UI composition demoted to research tier per D89-K2) — accepted and closed 2026-10-19 ([plan of record](docs/stage-3-plan.md))
 - [x] **Stage 4** — INFRA volume: bindings / communication / debugging — C/C++ line shipped M1+M2+M3 (embed face, sup rung, service-call door); accepted and closed 2026-10-21 ([plan of record](docs/stage-4-plan.md))
 - [ ] **Stage 5** — remote WebRTC: encode, stream, route input back (renumbered by the §12 amendment; the polyglot & script ecosystem line dissolved into stage-4 wave-2 candidates)
 
 ## Platform support
+
+Live view - the whitepaper §7 platform table stays the frozen v1.0 snapshot; increments land here until a canon revision.
 
 | Platform | Local IPC | UI composition | Input injection | Notes |
 |---|---|---|---|---|

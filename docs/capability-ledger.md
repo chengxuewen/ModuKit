@@ -4,7 +4,7 @@ The matrix of what each language surface actually ships, verb by verb.
 Adopted by `docs/stage-4-plan.md` §4 ("capability ledger gate", trunk-first
 doctrine, ruled 2026-10-19); shipped with the M1 surfaces per §5 lane #7.
 
-Semantics (the adjudicated rule, copied):
+Semantics (the adjudicated rule, copied; this file is the AUTHORITATIVE copy - the stage-4-plan.md duplicate is historical):
 - **One row = one header verb.** Section A rows mirror `EMBED_VERBS`
   (`crates/modukit-core/src/embed_abi.rs`), itself pinned verb-for-verb to
   `contracts/modukit_embed.h` by `scripts/check-embed-parity.sh`.

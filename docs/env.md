@@ -177,7 +177,7 @@ The local equivalent is `pixi run ci`; the workflow adds no second gate definiti
 | `.codegraph/` | CodeGraph index (ignored). |
 | `node_modules/` | Root MCP npm echo (ignored). |
 
-Do not add a new root-level build/bin directory; `docs/modules/09-observability-debug.md`
+Do not add a new root-level build/bin directory; `docs/modules/10-observability-and-debugging.md`
 and the `.gitignore` treat these as the only writer classes.
 
 ## MCP lifecycle

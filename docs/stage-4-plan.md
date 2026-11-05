@@ -130,7 +130,7 @@ write-back here + D-entry minting (gate widening first) exactly as the Stage-3 k
 
 Analysis adoptions recorded with the rulings (accepted, not separately contested):
 - **trunk-first doctrine**: every new public API lands in C-header-expressible shape first; rich Rust forms stay syntactic sugar outside the header table.
-- **capability ledger gate**: a checked-in matrix artifact + a check.sh leg. PRECISE: one row = one header verb (artifact path fixed at the M1 brief; M1 scope = modukit_embed.h verbs); RED iff a header verb lacks a row; unshipped languages ride a `planned` column, never a red condition (green from day one, tightens as skins ship); the row updates in the SAME change that adds the verb (planted red once before trusted, C0).
+- **capability ledger gate**: a checked-in matrix artifact + a check.sh leg. PRECISE: one row = one header verb (artifact path fixed at the M1 brief; M1 scope = modukit_embed.h verbs); RED iff a header verb lacks a row; unshipped languages ride a `planned` column, never a red condition (green from day one, tightens as skins ship); the row updates in the SAME change that adds the verb (planted red once before trusted, C0). (Historical copy - the authoritative semantics live in `docs/capability-ledger.md`.)
 - **Python footnote**: Python SCRIPT plugins are a script-host project (modukit-script-*), separate ruling later; Python BINDINGS are ordinary generated skins of the C tables.
 
 ## 5. Milestones (lanes open on a separate go order; briefs presented before work)
