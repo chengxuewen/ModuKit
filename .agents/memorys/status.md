@@ -53,6 +53,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 - 2026-11-05 fix: gate-mcp.py routing-lock UnboundLocalError (repo-audit HIGH) - counter init moved before the lock loop; C0 fail-path reproof is a clean RED exit 1 with no traceback; regression test added to scripts/tests/test_agent_config.py (8 tests OK); gate-agents and pixi-run gate-mcp green.
 - 2026-11-05 lesson batch: PIT-37 minted (pre-commit covers agents-layer gates only; a gate-docs red shipped in the #28 first commit, amended same session); PIT-12 strike 4 (terminator plus trailing `; cmd` on one line).
 - 2026-11-05 link pass: doc-refs gained a markdown-link extractor (PIT-37 syntax edge closed); self-test backtick-red/link-red/clean-green; 119 candidates 0 dead.
+- 2026-11-05 flaky re-check: warm x2 all green, ctest-stage4 9/9 each, logs kept (out/flaky-run1/2.log); the 11-04 discarded-log flaky is unreproduced; PIT-32 cold-window trait stands.
 
 ## Open Items
 
