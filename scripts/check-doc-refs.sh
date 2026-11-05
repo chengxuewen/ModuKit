@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # leg: doc-liveness (M3S-1 c1 - the sole PORT_NOW tribunal survivor, D-ruling 2026-10-19).
-# Extract backtick-quoted repo-relative paths AND markdown-link targets from the five
+# Extract backtick-quoted repo-relative paths AND markdown-link targets from the six
 # instruction-scope files (root AGENTS.md, .agents/AGENTS.md, conventions.md, status.md,
-# + README.md since M3S-2). The link pass closed a blind spot a planted defect proved
+# README.md since M3S-2, + llms.txt since the 2026-11-05 HIGH cleanup - the generated
+# index had no liveness owner). The link pass closed a blind spot a planted defect proved
 # on 2026-11-05 (PIT-37: `[x](dead.md)` sailed through the backtick-only extractor).
 # Scope is tight on purpose - on-demand docs are not scanned.
 # Filter bias: SKIP the candidate when in doubt, never FAIL on a guess. So anything that
@@ -23,7 +24,7 @@ IN="${MODUKIT_GATE_INPUT_DIR:-}"; [ -n "$IN" ] && IN="${IN%/}/"
 if [ "${1:-}" = "--self-test" ]; then
   seed_scratch() {
     mkdir -p "$1/.agents/memorys"
-    cp AGENTS.md README.md "$1/"
+    cp AGENTS.md README.md llms.txt "$1/"
     cp .agents/AGENTS.md "$1/.agents/"
     cp .agents/memorys/conventions.md .agents/memorys/status.md "$1/.agents/memorys/"
   }
@@ -51,7 +52,7 @@ if [ "${1:-}" = "--self-test" ]; then
   exit 0
 fi
 
-FILES=("${IN}AGENTS.md" "${IN}.agents/AGENTS.md" "${IN}.agents/memorys/conventions.md" "${IN}.agents/memorys/status.md" "${IN}README.md")
+FILES=("${IN}AGENTS.md" "${IN}.agents/AGENTS.md" "${IN}.agents/memorys/conventions.md" "${IN}.agents/memorys/status.md" "${IN}README.md" "${IN}llms.txt")
 
 missing=0
 checked=0
@@ -82,6 +83,7 @@ cands=$(awk '
       sub(/#.*/, "", t)
       if (t == "") continue
       if (t ~ /^[\/~]/ || t ~ /^\./) continue        # absolute or file-relative - skip
+      if (t ~ /^target\//) continue                  # generated-artifact paths (llms.txt)
       if (t ~ /^https?:/ || t ~ /^mailto:/) continue
       if (t ~ /:/ || t ~ /[*?\[\]|]/) continue       # schemes and globs - never guess
       print "LINK\t" FILENAME "\t" t                # structured target: bare names count

@@ -23,6 +23,8 @@ include(cmake/ModuKitGates.cmake)
 modukit_gates_codemodel_probe()      # W4 evidence: File API codemodel dump for the FOLDER assertion
 include(cmake/ModuKitPolyOrchCrates.cmake)
 modukit_polyorch_crates()          # M8.5 W2-W4 lane wiring: five cargo lanes + stage1_demo button + ctest bridge (D66)
+include(cmake/ModuKitDemoTwins.cmake)
+modukit_add_demo_twins()           # ctest twins for the 13 demo legs (repo-audit HIGH 2026-11-04)
 
 add_subdirectory(bindings/cpp)      # Stage-4 M1 cpp shelf: generated faces + modukit_cpp + ctest probe (auto-skips without the env protoc)
 add_subdirectory(test-plugins/cpp)  # Stage-4 M1 cpp fixture band: the .so pair the probe dlopens

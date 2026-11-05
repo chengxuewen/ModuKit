@@ -20,6 +20,7 @@ test
 msrv
 gate-i18n
 skill-lint
+book-check
 regen-fdset
 demo-stage1
 demo-stage2
@@ -95,6 +96,12 @@ else note "skip gate-i18n (no script)"; fi
 if command -v python3 >/dev/null 2>&1 && [ -f scripts/skill-lint.py ]; then
   python3 scripts/skill-lint.py || { note "FAIL skill-lint"; status=1; }
 else note "skip skill-lint (python3 or script absent)"; fi
+
+# 5b. built-book check (repo-audit HIGH 2026-11-04: the pixi task existed but no
+#     gate called it; skip-when-unbuilt keeps the leg loud, never silent)
+if command -v python3 >/dev/null 2>&1 && [ -f scripts/book-check.py ] && [ -d build/book ]; then
+  python3 scripts/book-check.py || { note "FAIL book-check"; status=1; }
+else note "skip book-check (script or build/book absent)"; fi
 
 # 6. contract ledger regen-diff (D12, modules/04 §2): re-run protoc over
 #    contracts/*.proto and require every checked-in .fdset to match byte for
@@ -260,16 +267,24 @@ if [ -d out/build-stage4 ] && command -v pixi >/dev/null 2>&1; then
     # census (benchmark batch 1 / D104): since the CTEST keyword mints the six
     # rust-side entries, a dropped keyword would SHRINK the list while plain
     # ctest stays green on the survivors - so assert the NAMES, not just runs.
+    # The thirteen twin names joined 2026-11-05 (repo-audit HIGH): existence is
+    # gated here, execution is acceptance-grade `ctest -L demo-twin` - the run
+    # below EXCLUDES the twins to keep this leg fast.
     pixi run ctest --test-dir out/build-stage4 -N > out/ctest-census.log 2>&1 || true
     census_missing=""
     for _t in modukit-core-test modukit-transport-test modukit-codegen-test \
-              example-plugin-test bad-plugin-test example_stage1_demo; do
-      grep -Eq "Test #[0-9]+: ${_t}( |$)" out/ctest-census.log \
+              example-plugin-test bad-plugin-test example_stage1_demo \
+              twin-demo-stage1 twin-demo-stage2 twin-demo-stage4-m1 \
+              twin-demo-stage4-m2 twin-demo-stage5-n2 twin-demo-wave2-reader \
+              twin-demo-wave2-clock twin-demo-wave2-py twin-demo-wave2-py-sup \
+              twin-demo-wave2-js twin-demo-wave2-js-sup \
+              twin-demo-wave2-plugin-py twin-demo-wave2-plugin-js; do
+      grep -Eq "Test +#[0-9]+: ${_t}( |$)" out/ctest-census.log \
         || census_missing="${census_missing} ${_t}"
     done
     if [ -n "$census_missing" ]; then
       note "FAIL ctest-stage4 census (missing:${census_missing})"; status=1
-    elif pixi run ctest --test-dir out/build-stage4 --output-on-failure > out/ctest-run.log 2>&1; then
+    elif pixi run ctest --test-dir out/build-stage4 --output-on-failure -LE demo-twin > out/ctest-run.log 2>&1; then
       note "ok ctest-stage4 ($(grep -E 'tests passed' out/ctest-run.log | tail -1))"
     else
       cp -f out/build-stage4/Testing/Temporary/LastTest.log out/ctest-lasttest.log 2>/dev/null || true
