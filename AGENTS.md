@@ -4,7 +4,7 @@
 
 ## OVERVIEW
 
-ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stages 1-3 are CLOSED** (D88/D91; the UI-composition tier stays demoted until a real beachhead demand, D89-K2); **STAGE-4 INFRA volume: C/C++ bindings line shipped M1+M2** 2026-10-20, ruled in as D93/D94 (M3 service-call door landed 2026-10-21), volume ACCEPTED AND CLOSED 2026-10-21 (D95); wave-2: v2 bus LANDED (D96) + debug-reader minimal face LANDED (D97) + closeout LANDED (D98: reader gate leg, cold-census coverage - core debt cleared) + CLOCK HEARING DRAWN (D99, T1+T2 LANDED 2026-10-22) + PYTHON VOLUME ACCEPTED (D100/D101, 2026-10-23; pinned coverage boundary) + JS VOLUME ACCEPTED (D102/D103; napi bridge, tri-language fidelity; eleven-leg gate) + BENCHMARK VOLUME ACCEPTED (D104/D105; debts plan §7) + PLUGIN-DOOR HEARING DRAWN (D106 2026-10-23: wire-native C,A,A,A; plan armed) + PLUGIN-DOOR VOLUME ACCEPTED (D107 2026-10-27) + PARENT-PUSH ACCEPTED (D108/D110 2026-11-03: general wall hook, bounded outbox, HOST PUSH proven) + VE-PARITY B0-B8 COMPLETE (D109; host plan rev 9, live counts 42 skills / 20 rules). Working code: `crates/modukit-core / -runtime / -transport / -codegen / -js` + `bindings/cpp` + `bindings/py` + contracts C originals (test totals volatile — live in the plans of record; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D110 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
+ModuKit — modular plugin host framework & polyglot extension toolkit (Rust core, C ABI as the only cross-language exit). **Stages 1-3 are CLOSED** (D88/D91; the UI-composition tier stays demoted until a real beachhead demand, D89-K2); **STAGE-4 INFRA volume: C/C++ bindings line shipped M1+M2** 2026-10-20, ruled in as D93/D94 (M3 service-call door landed 2026-10-21), volume ACCEPTED AND CLOSED 2026-10-21 (D95); wave-2: v2 bus LANDED (D96) + debug-reader minimal face LANDED (D97) + closeout LANDED (D98: reader gate leg, cold-census coverage - core debt cleared) + CLOCK HEARING DRAWN (D99, T1+T2 LANDED 2026-10-22) + PYTHON VOLUME ACCEPTED (D100/D101, 2026-10-23; pinned coverage boundary) + JS VOLUME ACCEPTED (D102/D103; napi bridge, tri-language fidelity; eleven-leg gate) + BENCHMARK VOLUME ACCEPTED (D104/D105; debts plan §7) + PLUGIN-DOOR HEARING DRAWN (D106 2026-10-23: wire-native C,A,A,A; plan armed) + PLUGIN-DOOR VOLUME ACCEPTED (D107 2026-10-27) + PARENT-PUSH ACCEPTED (D108/D110 2026-11-03: general wall hook, bounded outbox, HOST PUSH proven) + VE-PARITY B0-B8 COMPLETE (D109; host plan rev 9, live counts 42 skills / 20 rules). Working code: `crates/modukit-core / -runtime / -transport / -codegen / -js` + `bindings/cpp` + `bindings/py` + `bindings/js` + contracts C originals (test totals volatile — live in the plans of record; v1 surfaces frozen STABLE per D87). Design baseline whitepaper v1.0 + adjudicated architecture (`docs/architecture.md` + `docs/modules/00-11`); decision ledger `.agents/memorys/decisions.md` at D1-D110 (D53 reserved), index architecture.md §11. Kernel v0 parked outside repo.
 
 ## STRUCTURE
 
@@ -23,17 +23,20 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── book/                     # English-only mdBook site: toc/graph/mermaid/footer (VE D46)
 ├── crates/modukit-core/      # kernel: lifecycle/registry/manifest/bundle/bus/clock/logger/
 │   │                         #   executor{dl,exe}+supervisor/proc_wire TL-frames/proxy/observability
-│   ├── tests/                # incl. dual_placement + step_replay (v1-frozen proofs)
-│   └── ../modukit-runtime/   # bins: modukit-run (shadow-runner), modukit-host (supervisor loop)
+│   └── tests/                # incl. dual_placement + step_replay (v1-frozen proofs)
+├── crates/modukit-runtime/   # bins: modukit-run (shadow-runner), modukit-host (supervisor loop)
 ├── crates/modukit-transport/ # seam + socketpair/memfd + SCM_RIGHTS fdpass + vendor-shm (iceoryx2 =0.10.0,
 │                             #   non-default feature, one-module confinement, D76/D90 lineage)
 ├── crates/modukit-codegen/   # protoc plugin: Rust skeleton + C ABI shade + fdset decoder
+├── crates/modukit-js/        # napi bridge crate (D102/D103; node-side proofs)
 ├── contracts/                # .proto ledger + checked-in fdsets (regen-diff gated) + embed.h/plugin.h C
 │                             #   originals, HostEmbedV1 24 verbs (sup service-call door, M3), three-way parity-gated (D93/D94)
 ├── examples/ test-plugins/   # demo shelf / fixture crates, language bands on disk
 │                             #   (examples rs/cpp/py/js; test-plugins rs+cpp bands, rs 2026-10-23);
 │                             #   plugins/ = reserved, NOT created
 ├── bindings/cpp/             # C++ wrapper shelf: generated faces + live probe (Visia-grammar)
+├── bindings/py/              # generated ctypes floor (D100/D101)
+├── bindings/js/              # node plugin runtime + generated napi bridge (D102/D103)
 ├── CMakeLists.txt + cmake/   # PolyOrch-driven graph: pixi translation, cargo lanes, ctest bridges, demo lanes
 ├── pixi.toml                # single toolchain + tasks (mise/rust-toolchain retired, B4)
 ├── scripts/                  # check.sh (D50 local gate incl ALL THIRTEEN demo legs + commit-shape),
@@ -81,10 +84,14 @@ servers). Host link layers and the MCP merge are GENERATED; `.opencode/opencode.
 `instructions[]` is a hand-maintained list. Never hand-edit generated regions.
 
 - Edit `.agents/rules/`, `.agents/skills/`, `.agents/memorys/`, `.agents/mcp.json`.
+- A new skill must add its trigger row in `.agents/skills/TRIGGERS.md` before it is
+  mounted (machine-checked by `skill-lint.py`; one owning skill per phrase).
 - Regenerate with `pixi run agents sync`; verify with `pixi run agents check`
   (`gate-agents`).
 - Generated tracked files: the `AGENTS.md` skills/memory regions, `CONSTRAINTS.md`,
-  `.mcp.json`, `.opencode/opencode.json` `mcp{}`, `SKILL.md` registry.
+  `.mcp.json`, `.opencode/opencode.json` `mcp{}`, `SKILL.md` registry, plus the B8
+  CodeBuddy link layer (`.codebuddy/rules/<name>/RULE.mdc`, `.codebuddy/skills/<name>`)
+  produced by the same sync.
 - A new host enters through `scripts/agent-targets.json` only after a discovery
   probe; never copy the trees.
 - The pre-commit hook runs sync + gate; `--no-verify` is not allowed for config

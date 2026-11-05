@@ -1,11 +1,12 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-11-04 (revision 15). B0-B7 landed; B8 is
+> STATUS: PLAN OF RECORD, 2026-11-05 (revision 16). B0-B7 landed; B8 is
 > COMPLETE (H0a-H4 landed; full activation, live skill count 42). Its execution
 > plan is `docs/agent-host-parity-plan.md` (revision 9).
-> Gap-closure #20-22 are in section 2.4; VE-new-commit #23-26 are in section 2.5.
+> Gap-closure #20-22 are in section 2.4; VE-new-commit #23-26 are in section 2.5;
+> external-practice-scan #27-30 are in section 2.6.
 > B6 follows VE D46 (English-only book, reader-side browser translation).
-> Adjudications #1-#26 are recorded in sections 2 through 2.5; each was walked
+> Adjudications #1-#30 are recorded in sections 2 through 2.6; each was walked
 > one by one with the maintainer. Functional code, contracts, binding
 > implementations, demo assertions, and project memory entries are out of scope.
 > Reference clone: `.refinfo/VisiaEngine` (read-only, git-ignored).
@@ -94,6 +95,23 @@ shells are created. Trigger to split: a real SDK packaging or prebuilt-consumer 
 | 24 | sidebar folding | **A: nest SDD/reference** | `nested = true` + `[output.html.fold]`; SUMMARY check must accept indentation (VE PIT-92) |
 | 25 | CLI command form | **B: narrow gate** | Check wrapper-advertised names and `.sh`/`.bat` parity; docs keep `pixi run` as canonical |
 | 26 | agent audit skills | **A: full upgrade** | `ecosystem-scan` -> `repo-audit` (alias kept); revise `doc-audit`; router Audit class |
+
+### 2.6 External-practice-scan adjudications (2026-11-05, user-adjudicated one by one)
+
+Sources: MediaServo (`.refinfo/MediaServo`) and remote_control_host_computer
+(`.refinfo/remote_control_host_computer`), scanned as whole-repo practice patterns
+(no installs).
+
+| # | Decision | Ruling | Key note |
+|---|---|---|---|
+| 27 | commit-shape baseline | **A: derive from `@{u}`** | `check.sh:329` hardcodes `origin/master` + swallows errors; derive upstream, degrade to a loud WARN (MediaServo `gate-wire-changelog.sh` lesson) |
+| 28 | C1 exemption precision | **A: line-level markers** | `.agents/skills/` leaves the whole-directory skip; Chinese trigger lines carry `<!-- c1:trigger -->` (MediaServo `c49:trigger` pattern) |
+| 29 | `lsp-code-analysis` skill | **A: port** | Pre-change impact ladder serena -> codegraph -> ripgrep; Do-Not-Use boundary table; fits C ABI/wire surfaces |
+| 30 | team-mode convergence | **A: converge to `expert-panel-review`** | repo-audit/doc-audit/think-before-act inline team sections reference the engine; add consensus-illusion warning + no-`team_create` sequential track (remote_control D22) |
+
+Rejected with record: Gerrit Change-Id gate (no Gerrit here), a second
+`skills-targets.json` (contradicts #25 single-target ruling), Chinese working
+ledgers (C1), `ci.sh` accumulate runner (same as our `check.sh`).
 
 ## 3. Work breakdown
 
@@ -711,6 +729,9 @@ ModuKit anchors:
 
 ## 8. Change log
 
+- 2026-11-05 revision 16: external-practice-scan adjudications #27-30 (all A) -
+  upstream-derived commit-shape baseline, line-level C1 markers, ported
+  `lsp-code-analysis` skill, team-mode convergence into `expert-panel-review`.
 - 2026-11-04 revision 15: post-H4 quick audit. The live skill inventory is 42;
   current prose now uses "live count" instead of freezing it at 41.
 - 2026-10-30 revision 14: B8 COMPLETE. H4 closed; `pixi run ci` 36 legs green;
