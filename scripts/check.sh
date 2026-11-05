@@ -326,15 +326,8 @@ else note "skip spec-trace (no script)"; fi
 # leg: C3 commit-shape over the pending (unpushed) range (machine gate, PIT-8)
 # scope note: the 56 pushed legacy subjects (48 pre-C3 + 8 Oct-16 gap; recounted 2026-10-19) subjects stay RED in any wider window by design
 # - pushed history is immutable (reword covered the pre-push 24 only); the gate owns new work
-c3_shape=$(git log origin/master..HEAD --format='Subject: %s%nBody: %b%n_END_' 2>/dev/null | awk '
-  function isbullet(l) { return substr(l,1,3)==" - " && length(l)<=102 }
-  /^Subject: /{ subj=substr($0,10); if (length(subj)>60) print "SUBJ-VIOL(" length(subj) "): " substr(subj,1,40); inbody=0; next }
-  /^Body: /{ inbody=1; b=substr($0,7); if (b=="") next; if (!isbullet(b)) print "BODY-VIOL: " substr(b,1,40); next }
-  /^_END_$/{ inbody=0; next }
-  inbody==1 { if ($0!="" && !isbullet($0)) print "BODY-VIOL: " substr($0,1,40) }
-')
-if [ -n "$c3_shape" ]; then printf '%s\n' "$c3_shape" | while IFS= read -r l; do note "FAIL commit-shape: $l"; done; status=1
-else note "ok commit-shape (pending range)"; fi
+# baseline is derived (@{u} or MODUKIT_C3_BASE) by the leg script -- never hardcoded here (#27)
+bash scripts/check-commit-shape.sh || { note "FAIL commit-shape"; status=1; }
 
 # leg: gate-docs (B3): root CMake purity, PolyOrch gitlink, CLI task names,
 # relative links (delegated to check-doc-refs.sh), book SUMMARY when built.
