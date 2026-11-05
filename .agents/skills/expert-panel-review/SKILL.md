@@ -8,6 +8,19 @@ description: "Run a bounded multi-role review of one plan, decision, or conclusi
 Review one artifact: a plan, decision, design, or material conclusion. The goal
 is independent lenses and preserved disagreement, not decorative consensus.
 
+## Philosophy
+
+The value of a panel is independence, not headcount. When N roles reach the same
+verdict from the same model, the same notes, and the same framing, that is not N
+independent checks — it is one opinion copied N times (the consensus illusion).
+Everything below exists to manufacture and protect real perspective difference.
+
+This engine is the reusable executor for every "team / multi-role" step in the
+repo: `think-before-act`, `doc-audit`, and `repo-audit` reference it instead of
+inlining their own team mechanics. A caller supplies only its domain roster (which
+lenses, which scope); the isolation discipline, the degradation track, and the
+merge rules live here and are not re-stated per skill.
+
 ## Boundary
 
 | Need | Use instead |
@@ -48,8 +61,12 @@ relevant.
 - **Parallel track**: use team/subagent tools when available. Members are
   read-only and must not write git.
 - **Sequential track**: use one context in separate role passes when the host
-  has no team tools. Declare that this isolation is weaker than separate
-  contexts; do not call the result independently verified.
+  has no team tools (no `team_create`, no subagent facility). Declare that this
+  isolation is weaker than separate contexts; do not call the result
+  independently verified. **This is not a reduced version of the review**: a
+  large audit on such a host runs exactly this track — each lens freezes its own
+  conclusions first, cites `file:line` evidence, never anchors on the previous
+  lens's findings, and only then does the lead run the merge pass.
 
 Isolation rules:
 

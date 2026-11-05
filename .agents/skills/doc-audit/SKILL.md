@@ -121,6 +121,11 @@ check for B0-B8. (decisions.md carries no Phase tags -- checking there is a dead
 
 ## Audit modes
 
+The team/multi-role **execution engine** is `expert-panel-review` -- isolation
+discipline, the no-team-tools sequential track, freeze-then-merge, and handing
+conflicts to `adjudication-walkthrough`. These modes define only the doc-audit
+dimension roster and the size tiers; they do not re-state team mechanics.
+
 ### A. Team mode (recommended -- large audits)
 3+ large documents -> launch 3-4 parallel subagents through the host Task mechanism
 (self-contained briefs per `.agents/skills/subagent-orchestration/`: exact question,
@@ -145,7 +150,11 @@ brief 3: agent-system + gaps     (core questions of dimensions 3-4)
 Few documents -> one background subagent per dimension, same brief discipline.
 
 ### C. Single-thread mode
-Tiny scope → check directly with Read/Grep, no subagents.
+Tiny scope → check directly with Read/Grep, no subagents. On a host with neither
+team tools nor background subagents, a LARGE audit runs the engine's sequential
+track (one isolated pass per dimension, each frozen with `file:line` evidence,
+then one merge pass) -- that is the engine's degradation path, not a shrunken
+review.
 
 ---
 

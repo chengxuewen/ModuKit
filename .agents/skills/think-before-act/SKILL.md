@@ -85,15 +85,19 @@ Wait for user confirmation via the `question` tool.
 For complex changes (build changes / architecture changes / framework-level issues / affecting >5 files),
 after user approval but before execution, add a team review step:
 
+Run `expert-panel-review` on the draft plan (it owns the roster, the parallel vs
+sequential track, isolation, and the merge pass) with the lens set drawn from the
+change's surfaces, then revise the plan from its findings:
+
 ```
-1. team_create — create review team (3 perspectives)
-2. team_task_create — assign review tasks
-3. team_send_message — send draft plan
-4. Collect review feedback → revise plan
-5. User confirms revision → enter Phase 3
+1. invoke expert-panel-review on the approved draft
+2. collect findings -> revise plan
+3. user confirms revision -> enter Phase 3
 ```
 
 CRITICAL items found in review must be fixed. LOW items can be recorded as tech debt.
+Disagreements between lenses are not resolved here -- hand them to
+`adjudication-walkthrough` for the user to rule on.
 
 ---
 

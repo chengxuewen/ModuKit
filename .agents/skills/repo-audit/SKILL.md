@@ -240,6 +240,16 @@ surface is a fixed four-file set, and new files change the agent-links sync face
 
 ## Team-mode configuration (Full scan only; Quick runs in the main session)
 
+Execution engine: `expert-panel-review` (isolation discipline, the no-team-tools
+sequential track, freeze-then-merge, and handing conflicts to
+`adjudication-walkthrough`). This section defines only the repo-audit domain
+roster -- the per-domain division of labour across the 10 domains, not adversarial
+roles, so the engine's mandatory core two need not be instantiated as separate
+members; dedupe, severity ordering, and conflict escalation still follow the
+engine's merge pass. On a host without team tools, run the roster as the engine's
+sequential track: each domain freezes its own findings with `file:line` evidence
+before the next domain starts.
+
 ```
 member 1: structure-analyst (deep) -- domains 9+10 + scripts syntax sweep
 member 2: content-auditor (deep)   -- domains 1+2+5 (skills/rules/docs content)
