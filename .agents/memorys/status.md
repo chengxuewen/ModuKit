@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-11-03: D1-D110 (D53 reserved). Stages 1-3 COMPLETE/ACCEPTED (Stage-3 UI tier stays demoted, D89-K2); Stage-4 INFRA volume ACCEPTED/CLOSED (D95); wave-2 volumes ACCEPTED through D107; wave-3 parent-push ACCEPTED/CLOSED (D108 batches 0-2 + D110 acceptance); VE-parity plan D109: B0-B7 landed, B8 COMPLETE (`ve-parity-plan` rev 15 / `agent-host-parity-plan` rev 9; live counts gate-verified: 42 skills / 20 rules / 75 book chapters). Full narrative: `history-archive.md` (2026-11-04 entry). Kernel v0 parked.
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-11-03: D1-D110 (D53 reserved). Stages 1-3 COMPLETE/ACCEPTED (Stage-3 UI tier stays demoted, D89-K2); Stage-4 INFRA volume ACCEPTED/CLOSED (D95); wave-2 volumes ACCEPTED through D107; wave-3 parent-push ACCEPTED/CLOSED (D108 batches 0-2 + D110 acceptance); VE-parity plan D109: B0-B7 landed, B8 COMPLETE (`ve-parity-plan` rev 16 / `agent-host-parity-plan` rev 9; live counts gate-verified: 43 skills / 20 rules / 75 book chapters). Full narrative: `history-archive.md` (2026-11-04 entry). Kernel v0 parked.
 
 ## Modules
 
@@ -39,6 +39,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15) | pass (2026-10-15) |
 | doc-audit full | 2026-10-23: 45 raw -> 26 merged, swept; this row is the record | pass (2026-10-23) |
 | gate escalations live | check.sh ctest-stage4 leg; commit-msg via core.hooksPath | live (2026-10-21) |
+| pre-commit hook legs | `sh scripts/hooks/pre-commit` — agents sync + re-stage + gate-agents + check-doc-refs | live (2026-11-05; doc-refs leg C0-proven, PIT-37) |
 
 ## Repo Audit
 

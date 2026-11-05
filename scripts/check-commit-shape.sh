@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # C3 commit-shape gate (PIT-8 lineage; baseline derivation per adjudication #27).
 # Rules for every commit in the pending range: subject <=60 chars, body lines are
-# ' - ' bullets <=102 chars, one physical line per bullet.
+# ' - ' bullets <=100 chars, one physical line per bullet.
 #
 # The baseline is DERIVED, never hardcoded: MODUKIT_C3_BASE (explicit ref) wins,
 # otherwise the branch's own upstream (@{u}). With no resolvable baseline the leg
@@ -20,7 +20,7 @@ TARGET="${COMMIT_SHAPE_REPO:-$ROOT}"
 
 shape_scan() {
   awk '
-  function isbullet(l) { return substr(l,1,3)==" - " && length(l)<=102 }
+  function isbullet(l) { return substr(l,1,3)==" - " && length(l)<=100 }
   /^Subject: /{ subj=substr($0,10); if (length(subj)>60) print "SUBJ-VIOL(" length(subj) "): " substr(subj,1,40); inbody=0; next }
   /^Body: /{ inbody=1; b=substr($0,7); if (b=="") next; if (!isbullet(b)) print "BODY-VIOL: " substr(b,1,40); next }
   /^_END_$/{ inbody=0; next }

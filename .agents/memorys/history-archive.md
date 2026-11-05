@@ -1,5 +1,20 @@
 # ModuKit — History Archive
 
+## 2026-11-05 - audit fixes, #27-30 landing, lesson batch, hook escalation
+
+- Full doc-audit (single-thread sequential track, adjudication-walkthrough): 17
+  findings (3 HIGH / 10 MEDIUM / 4 LOW), all fixed per option A, 0 won't-fix.
+- External-practice-scan adjudications #27-30 LANDED: derived commit-shape
+  baseline (`--self-test`), line-level `c1:allow` markers replace the skills
+  skip, `lsp-code-analysis` skill added (43 skills), team modes converged into
+  `expert-panel-review`; gate-mcp routing-lock fix with regression test.
+- Lesson batch: PIT-37 minted (pre-commit covers agents-layer gates only; a
+  gate-docs red shipped in the #28 first commit, amended same session);
+  PIT-12 strike 4.
+- Pre-commit escalation: the check-doc-refs leg runs inside the hook after
+  agents check; C0 proofs clean-green / planted-dead-ref-red; coverage edge
+  (five instruction-scope files, backtick paths) recorded in PIT-37.
+
 ## 2026-11-04 - status offload (host-plan counts, audit detail, completed items)
 
 - Moved the pre-offload completed `Open Items` list out of `status.md`. Current

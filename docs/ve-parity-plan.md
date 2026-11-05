@@ -1,7 +1,8 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
 > STATUS: PLAN OF RECORD, 2026-11-05 (revision 16). B0-B7 landed; B8 is
-> COMPLETE (H0a-H4 landed; full activation, live skill count 42). Its execution
+> COMPLETE (H0a-H4 landed; full activation, live skill count 43; 42 at B8
+> closure, +1 from adjudication #29). Its execution
 > plan is `docs/agent-host-parity-plan.md` (revision 9).
 > Gap-closure #20-22 are in section 2.4; VE-new-commit #23-26 are in section 2.5;
 > external-practice-scan #27-30 are in section 2.6.
