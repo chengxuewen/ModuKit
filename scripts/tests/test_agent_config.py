@@ -96,6 +96,42 @@ def make_opencode(root, ghost=False):
     return path
 
 
+class GateMcpRoutingLockRegression(unittest.TestCase):
+    """A routing-lock failure must be a clean red, never a crash.
+
+    gate-mcp.py once incremented `red` before initializing it, so any
+    `_routing_lock` problem raised UnboundLocalError and the gate died with a
+    traceback instead of printing the lock findings (repo-audit Full
+    2026-11-04; fixed 2026-11-05). This test keeps that fail path observable.
+    """
+
+    def test_lock_failure_counts_red_without_crash(self):
+        import contextlib
+        import importlib.util
+        import io
+
+        scripts_dir = os.path.join(REPO, "scripts")
+        sys.path.insert(0, scripts_dir)
+        try:
+            spec = importlib.util.spec_from_file_location(
+                "gate_mcp_under_test", os.path.join(scripts_dir, "gate-mcp.py")
+            )
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+        finally:
+            sys.path.remove(scripts_dir)
+        mod._routing_lock = lambda servers: ["synthetic lock problem"]
+        mod._run = lambda cmd, env: (None, "probe disabled in test")
+
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            code = mod.main()
+
+        self.assertEqual(code, 1)
+        self.assertIn("tool-routing lock: synthetic lock problem", buffer.getvalue())
+        self.assertIn("GATE-MCP", buffer.getvalue())
+
+
 class AgentConfigBehavior(unittest.TestCase):
     def setUp(self):
         self.roots = []

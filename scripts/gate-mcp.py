@@ -122,15 +122,16 @@ def main():
     with open(REGISTRY) as handle:
         registry = json.load(handle)
 
+    red = 0
+    yellow = 0
+    skip_env = 0
+
     for problem in _routing_lock(servers):
         print(" [ RED  ] tool-routing lock: %s" % problem)
         red += 1
 
     host_path = _host_path()
     env = dict(os.environ, PATH=host_path)
-    red = 0
-    yellow = 0
-    skip_env = 0
 
     if shutil.which("pixi", path=host_path) is None:
         message = "pixi not on the GUI-inherited PATH (fix: bootstrap / O5 symlink)"
