@@ -72,7 +72,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 - **C1**: all artifacts English; chat follows user. (CJK scan is the canonical block below — keep it synced with conventions.md verbatim.)
 - **C0**: every constraint carries a runnable check, observed red once before trusted.
-- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D110/C5/PIT-36; the prose re-sync at every mint covers high-water AND index ranges (doc-audit 2026-10-23 fixed three missed sites); numbering gate in status.md guards bounds.
+- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D110/C5/PIT-37; the prose re-sync at every mint covers high-water AND index ranges (doc-audit 2026-10-23 fixed three missed sites); numbering gate in status.md guards bounds.
 - **C2**: ModuKit lands on master; PolyOrch edits on dev-modukit, tests blessed on main; pin = fresh dev-modukit tip via standalone bumps.
 - **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
 - `Cargo.lock` commits with `Cargo.toml`.
@@ -261,8 +261,7 @@ file. Read the source file before acting on a rule you are unsure about.
 
 ### pitfalls
 - full text: `.agents/memorys/pitfalls.md`
-- ... 21 older entries omitted (read the full file)
-- PIT-22 (trivial): an assertion whose output the harness never reads is an assertion that never ran (2026-10-21)
+- ... 22 older entries omitted (read the full file)
 - PIT-23: an instrumented coverage rerun can silently execute fewer suites than the tree has - a false-HIGH percent (2026-10-21)
 - PIT-24: an outbound artifact can be falsified by your own same-day work (2026-10-21)
 - PIT-25: a malformed replace op "succeeds" and inserts while the consumed region survives (2026-10-21)
@@ -277,6 +276,7 @@ file. Read the source file before acting on a rule you are unsure about.
 - PIT-34: hardcoded /tmp scratch turns a green gate red on read-only /tmp (2026-10-30)
 - PIT-35: .refinfo is a moving donor clone, not a frozen snapshot (2026-10-30)
 - PIT-36: registry meta keys must strip label suffixes, or sync/check never agree (2026-10-30)
+- PIT-37: pre-commit runs the agents-layer gates only; doc legs live outside it (2026-11-05)
 
 ### status
 - full text: `.agents/memorys/status.md`

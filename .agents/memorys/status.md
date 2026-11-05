@@ -50,6 +50,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 - 2026-11-05 doc-audit full (adjudication-walkthrough, user-adjudicated one by one): 17 findings (3 HIGH / 10 MEDIUM / 4 LOW; two merged into one row), all 17 fixed per option A, 0 won't-fix; 14 files touched, agents sync run, ci all green after. Open: FFI panic SDD clause, check-doc-refs inline-ref blind spot, D65 Reference inside decisions.md stays append-only.
 - 2026-11-05 batch #27-30 LANDED: derived commit-shape baseline with `--self-test`; line-level `c1:allow` markers replace the skills directory skip (red proofs observed); `lsp-code-analysis` added (43 skills); team modes converged into `expert-panel-review`.
 - 2026-11-05 fix: gate-mcp.py routing-lock UnboundLocalError (repo-audit HIGH) - counter init moved before the lock loop; C0 fail-path reproof is a clean RED exit 1 with no traceback; regression test added to scripts/tests/test_agent_config.py (8 tests OK); gate-agents and pixi-run gate-mcp green.
+- 2026-11-05 lesson batch: PIT-37 minted (pre-commit covers agents-layer gates only; a gate-docs red shipped in the #28 first commit, amended same session); PIT-12 strike 4 (terminator plus trailing `; cmd` on one line).
 
 ## Open Items
 

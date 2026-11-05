@@ -112,6 +112,7 @@
 - **Symptom**: bash "unexpected syntax near open('...')" errors and "warning: here-document delimited by end-of-file (wanted MSG)" - commands half-executed, chains short-circuited.
 - **Root cause**: pasting python lines after a closed PY/MARKER heredoc (they become bash), or ending a heredoc with the WRONG terminator (EOF vs MSG) which swallows every following line into the message body - twice shipping commit messages that inhaled script tails.
 - **Strike 3 (2026-10-21, twice in one session)**: multi-heredoc CHAINS desynchronize when an earlier component fails, and the pattern itself recurred mid-lesson-batch (missing terminator swallowed the git tail). Adopted rule: generators via the write tool as files (rule 20), commit messages via a written /tmp/msg file; never stack three quoted documents in one command.
+- **Strike 4 (2026-11-05)**: `MSG; git status` written on the SAME line as the terminator - the heredoc swallowed the tail and the terminal hung waiting; the recovery line "MSG" typed into the hung terminal executed as a command (exit 127). Terminator goes on its own line with nothing trailing it; recovery for a hung heredoc is Ctrl-C, never more typing.
 - **Solution**: one language per invocation; verify each heredoc's opener/terminator pair match before running; after any such error, ALWAYS re-check which steps actually ran (git status / file greps) before re-running the rest.
 - **Verification**: grep -c "EOF" inside a MSG-terminated block must be 0; post-error, `git status --short` + `grep -c "<marker string>" target` before retry.
 - **Forbidden**: assuming a chained block ran to the end after a syntax error mid-block.
@@ -289,3 +290,10 @@
 - **Solution**: extract the name between the first pair of backticks before the meta lookup; keep suffixes only in the rendered label. Re-run sync twice and require the second check green.
 - **Verification**: `pixi run agents sync && pixi run gate-skills` twice; the second run must be `OK` with no `[ FIX ]`; `python3 scripts/skill-lint.py` stays 0 fail.
 - **Forbidden**: hand-editing generated registry rows to silence drift; keying generated metadata by a display label.
+
+## PIT-37: pre-commit runs the agents-layer gates only; doc legs live outside it (2026-11-05)
+- **Symptom**: the #28 batch's first commit (later amended) carried two gate-docs red lines: paths hand-written into conventions.md lacked the `.agents/skills/` prefix and `check-doc-refs.sh` flagged them as dead references - yet the commit itself passed every hook that ran, and the red surfaced only on the follow-up gate run.
+- **Root cause**: the pre-commit hook (core.hooksPath) runs the agents-layer gates (skill-lint, registry checks); it does NOT run the doc legs (`check-doc-refs.sh`, gate-docs). Reading a green pre-commit as "the tree is green" is PIT-6's unconditioned-gate mistake one layer up: a partial suite mistaken for a full verdict.
+- **Solution**: for any commit touching `docs/` or `.agents/`, run `bash scripts/check-doc-refs.sh` INSIDE the commit chain, before `git commit` executes, so the gate can abort the mutation (PIT-6 fail-closed pattern); a red found after the fact is fixed by `git commit --amend` while the range is unpushed.
+- **Verification**: the doc-refs leg is green in the same invocation that performs the commit; `bash scripts/check-doc-refs.sh` exits 0 with the amended tree.
+- **Forbidden**: citing pre-commit green as evidence for legs it does not run; leaving a discovered dead reference for a later batch (it ships in the meantime).
