@@ -24,6 +24,7 @@ Read the user message and classify as:
 | **Implementation** | "add" / "implement" / "create" / "modify" | `/think-before-act` + `/test-driven-development` |
 | **Fix** | "fix" / "bug" / "error" / "not working" | `/debugging-and-error-recovery` |
 | **Refactor** | "refactor" / "optimize" / "simplify" / "clean up" | `/think-before-act` + `/ai-slop-cleanup` |
+| **Impact** | "who implements" / "what breaks if" / "call chain" | `/lsp-code-analysis` (layer unknown -> `/repo-triage` first) |
 | **Design** | "design" / "architecture" / "approach" / "how to" | `/think-before-act` + `/api-interface-design` |
 | **Test** | "test" / "E2E" / "coverage" | `/test-driven-development` + `/test-harness` |
 | **Adjudication** | "裁决逐项过" / "一个个来" / "decide between options" / "walk the options" | `/adjudication-walkthrough` | <!-- c1:allow:trigger -->

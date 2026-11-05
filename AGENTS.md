@@ -175,6 +175,7 @@ pixi run cmake --preset default && pixi run cmake --build --preset default
 | `expert-panel-review` | Run a bounded multi-role review of one pla... |
 | `incremental-implementation` | Thin vertical slice methodology — implemen... |
 | `lesson-review` | Batch session review: systematically extra... |
+| `lsp-code-analysis` | Pre-change impact analysis for ModuKit: wh... |
 | `observability-and-instrumentation` | Observability and instrumentation for Modu... |
 | `openspec-apply-change` (inoperative) | Implement tasks from an OpenSpec change. |
 | `openspec-archive-change` (inoperative) | Archive a completed change in the experime... |

@@ -31,6 +31,7 @@ ModuKit-specific skills, located in `.agents/skills/`:
 | `expert-panel-review` | - | Run a bounded multi-role review of one pla... |
 | `incremental-implementation` | process | thin vertical slices |
 | `lesson-review` | memory | batch session review → `.agents/memorys/` |
+| `lsp-code-analysis` | process | symbol impact before the edit |
 | `observability-and-instrumentation` | tooling | kernel event ring, logger, debug-reader |
 | `openspec-apply-change` (inoperative) | spec | implement tasks from an OpenSpec change — **inoperative**: openspec CLI not installed (2026-10-09 scan) |
 | `openspec-archive-change` (inoperative) | spec | archive a completed change — **inoperative**: openspec CLI not installed |

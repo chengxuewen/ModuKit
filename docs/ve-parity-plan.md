@@ -106,7 +106,7 @@ Sources: MediaServo (`.refinfo/MediaServo`) and remote_control_host_computer
 |---|---|---|---|
 | 27 | commit-shape baseline | **A: derive from `@{u}`** | LANDED 2026-11-05: `scripts/check-commit-shape.sh` owns the leg; baseline = `MODUKIT_C3_BASE` or `@{u}`, loud WARN when neither resolves; `--self-test` plants an over-long subject (red) and greens it (C0 observed) |
 | 28 | C1 exemption precision | **A: line-level markers** | LANDED 2026-11-05: `.agents/skills/` left the whole-directory skip in `scripts/gate-i18n.sh`; CJK lines carry `c1:allow:trigger` / `c1:allow:vocab`, two files keep a reasoned whole-file exemption (YAML description, docstring vocab); red proofs observed (unmarked line red, marker stripped red, restore green) |
-| 29 | `lsp-code-analysis` skill | **A: port** | Pre-change impact ladder serena -> codegraph -> ripgrep; Do-Not-Use boundary table; fits C ABI/wire surfaces |
+| 29 | `lsp-code-analysis` skill | **A: port** | LANDED 2026-11-05: `.agents/skills/lsp-code-analysis/SKILL.md` (impact ladder serena rust-only -> codegraph -> ripgrep, Do-Not-Use table, ModuKit impact map with owning gates); TRIGGERS row added before mount and `repo-triage` hand-off retargeted; router gained the Impact category |
 | 30 | team-mode convergence | **A: converge to `expert-panel-review`** | repo-audit/doc-audit/think-before-act inline team sections reference the engine; add consensus-illusion warning + no-`team_create` sequential track (remote_control D22) |
 
 Rejected with record: Gerrit Change-Id gate (no Gerrit here), a second
