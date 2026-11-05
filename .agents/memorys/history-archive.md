@@ -14,6 +14,22 @@
 - Pre-commit escalation: the check-doc-refs leg runs inside the hook after
   agents check; C0 proofs clean-green / planted-dead-ref-red; coverage edge
   (five instruction-scope files, backtick paths) recorded in PIT-37.
+- Status offload (size check at 7959/8000 bytes): ten Repo Audit rows moved
+  verbatim below; `status.md` keeps only the 11-04 Quick row and an
+  active-remainder summary line.
+
+Offloaded rows (verbatim from `status.md`, 2026-11-05):
+
+- 2026-11-04 Full doc-audit: README/AGENTS/architecture/VE-plan synced for wave-3 D110, plugin-door D107 acceptance, B8 completion, and adjudications #1-#26.
+- 2026-11-05 External practice scan (MediaServo + remote_control_host_computer): P1 candidates = english-only script+allowlist, lsp impact skill, upstream-derivation fix in commit-shape leg, expert-panel team-mode convergence; P2 = refinfo sync script, gate tiering, wire-changelog pairing; rejected = Gerrit Change-Id, second skills-targets file, Chinese working ledgers. Adjudicated A/A/A/A as plan #27-30 (ve-parity rev 16); implementation not started.
+- 2026-11-04 repo-audit Full (quick-runs 1, escalated): 10 domains / 24 deep checks; 36 gates green on isolated rerun, but the first run was RED and its log was discarded, so a flaky leg is unproven. HIGH: `gate-mcp.py:127` UnboundLocalError on routing-lock failure (red proof observed); `SECURITY.md:24` claims an advisories gate absent from `deny.toml`; `AGENTS.md` STRUCTURE tree omits bindings/py and bindings/js; `llms.txt` is generated with no owner; TRIGGERS matrix lacks reverse coverage; book-check is called by no gate; 10/13 demos have no ctest twin.
+- 2026-11-04 repo-audit Full external/practice: no egress, all 4 web lanes skipped, all external claims memory-grade/unpinned, all install candidates REJECT by Sanity Gate; 11 pattern cards, P1 adopt = tiered QA ladder, skip census plus per-gate evidence retention, docs/modules status header, `.gitattributes` fence, Cargo.lock freshness, typos/credential-filename gates. Next scan re-checks the HIGH list first; quick-run counter resets to 0.
+- 2026-11-05 doc-audit full (adjudication-walkthrough, user-adjudicated one by one): 17 findings (3 HIGH / 10 MEDIUM / 4 LOW; two merged into one row), all 17 fixed per option A, 0 won't-fix; 14 files touched, agents sync run, ci all green after. Open: FFI panic SDD clause, D65 Reference inside decisions.md stays append-only (the check-doc-refs link blind spot closed same day).
+- 2026-11-05 batch #27-30 LANDED: derived commit-shape baseline with `--self-test`; line-level `c1:allow` markers replace the skills directory skip (red proofs observed); `lsp-code-analysis` added (43 skills); team modes converged into `expert-panel-review`.
+- 2026-11-05 fix: gate-mcp.py routing-lock UnboundLocalError (repo-audit HIGH) - counter init moved before the lock loop; C0 fail-path reproof is a clean RED exit 1 with no traceback; regression test added to scripts/tests/test_agent_config.py (8 tests OK); gate-agents and pixi-run gate-mcp green.
+- 2026-11-05 lesson batch: PIT-37 minted (pre-commit covers agents-layer gates only; a gate-docs red shipped in the #28 first commit, amended same session); PIT-12 strike 4 (terminator plus trailing `; cmd` on one line).
+- 2026-11-05 link pass: doc-refs gained a markdown-link extractor (PIT-37 syntax edge closed); self-test backtick-red/link-red/clean-green; 119 candidates 0 dead.
+- 2026-11-05 flaky re-check: warm x2 all green, ctest-stage4 9/9 each, logs kept (out/flaky-run1/2.log); the 11-04 discarded-log flaky is unreproduced; PIT-32 cold-window trait stands.
 
 ## 2026-11-04 - status offload (host-plan counts, audit detail, completed items)
 
