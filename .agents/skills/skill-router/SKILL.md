@@ -77,12 +77,12 @@ Confirmed: loading /think-before-act skill...
 
 ## Relationship with passive matching
 
-- **Passive matching**: each skill's frontmatter description is surfaced by opencode's skill tool and auto-matched to the task scenario — no separate routing table exists in this repo (the PolyOrch-era `context-engineering` pointer here was a phantom; fixed 2026-10-14).
+- **Passive matching**: each skill's frontmatter description is surfaced by opencode's skill tool and auto-matched to the task scenario. Trigger-phrase OWNERSHIP (which skill owns which phrase, machine-checked, one owner per phrase) lives in `.agents/skills/TRIGGERS.md` — a new skill must add its row there before it is mounted. A PolyOrch-era claim that no routing table existed here was wrong and removed 2026-11-05.
 - **skill-router**: explicit invocation (when the user asks "how should I do this" or intent is ambiguous, performs deep analysis and recommendation)
 
-- **context-engineering**: passive trigger (auto-recommends when scenarios are detected, via the AGENTS.md directory table)
+- **context-engineering**: passive trigger — per the root `SKILL.md` registry it assembles the right context before acting (language-rule routing is its description in the generated directory table, not a separate skill); check TRIGGERS.md for phrase ownership.
 
-Complementary: passive matching handles clear scenario hits, skill-router handles ambiguous intent and multi-skill combinations. The full inventory lives in the root `SKILL.md` registry.
+Complementary: passive matching handles clear scenario hits, skill-router handles ambiguous intent and multi-skill combinations. The full inventory lives in the root `SKILL.md` registry; phrase ownership lives in TRIGGERS.md.
 
 ## When Not to Recommend
 

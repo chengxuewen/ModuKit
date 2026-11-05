@@ -1,6 +1,6 @@
 ---
 name: shipping-and-launch
-description: "Release and launch checklist for this engine: full ci green (36 gates), version/tag policy, changelog decision, rollback, and docs. Packaging is out of scope. Use before a release, a publish band, or any 'ship it' request."
+description: "Release and launch checklist for this engine: full ci green (gate count lives in scripts/check.sh --list), version/tag policy, changelog decision, rollback, and docs. Packaging is out of scope. Use before a release, a publish band, or any 'ship it' request."
 type: process
 notes: "release and launch checklist"
 ---
@@ -9,7 +9,7 @@ notes: "release and launch checklist"
 
 ## Overview
 
-- The release gate is `pixi run ci` (36 gates). Packaging/install is explicitly out of scope (Adjudication #20 C): there is no `pack-check`, no tarball gate, and no package-config step.
+- The release gate is `pixi run ci` (all legs; the live count is `bash scripts/check.sh --list`). Packaging/install is explicitly out of scope (Adjudication #20 C): there is no `pack-check`, no tarball gate, and no package-config step.
 - Version lives in the workspace `Cargo.toml` (currently `0.1.0`); **version files are user-managed** — never bump them without an explicit instruction.
 - There is **no `CHANGELOG` yet**; creating one is a decision, not an automatic step.
 - Docs to keep in sync: `docs/architecture.md`, `docs/env.md`, `AGENTS.md`, `CONSTRAINTS.md`.
@@ -22,7 +22,7 @@ notes: "release and launch checklist"
 
 ## Process (steps + checkpoints + exit)
 
-1. **Full gate**: `pixi run ci` must be green (all 36 gates).
+1. **Full gate**: `pixi run ci` must be green (all legs; the live count is `bash scripts/check.sh --list`).
 2. **Packaging**: none. Packaging/install is out of scope; do not invent a `pack-check` or tarball step. If the user asks for packaging, reopen Adjudication #20 first.
 3. **Version**: read `Cargo.toml`; propose the bump (semver) and **ask** — do not edit version files unilaterally.
 4. **Changelog**: if none exists, propose creating one (a decision); otherwise update it from the commits since the last tag.
@@ -51,7 +51,7 @@ notes: "release and launch checklist"
 
 ## Verification (evidence)
 
-- `pixi run ci` tail (36 gates green).
+- `pixi run ci` tail (all legs green; live count via `bash scripts/check.sh --list`).
 - The tag object (`git tag -n`) and the commit it points to.
 - The docs diff for the release.
 - The named previous tag for rollback.
