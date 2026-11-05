@@ -3,6 +3,8 @@
 # Regenerates .codebuddy/* (gitignored), .opencode/opencode.json and the AGENTS.md memory
 # region (both tracked); re-stages the tracked generated files so the commit carries the
 # regenerated version; then verifies with gate-agents (blocks the commit on drift/guard).
+# The doc-reference leg runs last (PIT-37): it catches dead paths in docs/.agents
+# edits that the agents-layer gates never see, so a red doc leg can no longer ship.
 set -e
 cd "$(git rev-parse --show-toplevel)"
 export PATH="$HOME/.pixi/bin:$PATH"
@@ -20,3 +22,6 @@ printf '%s\n' "$generated" | while IFS= read -r path; do
   git add -- "$path" 2>/dev/null || true
 done
 pixi run agents check
+# Doc-reference leg (PIT-37 lineage): after the sync above, so it sees the
+# freshly regenerated layers too. set -e turns any dead path into a refusal.
+bash scripts/check-doc-refs.sh
