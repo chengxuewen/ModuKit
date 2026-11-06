@@ -362,6 +362,19 @@ pub(crate) fn guard(f: impl FnOnce() -> i32) -> i32 {
 mod tests {
     use super::*;
 
+    // spec: EMBED-02
+    #[test]
+    fn guard_is_the_ffi_panic_wall() {
+        // SDD EMBED-02: a kernel-side panic is converted at the single
+        // boundary and answers NEG_KERNEL_BUG (-10) - it never unwinds into
+        // C frames; a clean verb body passes its own code through unchanged.
+        assert_eq!(
+            guard(|| panic!("planted kernel bug for EMBED-02")),
+            NEG_KERNEL_BUG
+        );
+        assert_eq!(guard(|| 7), 7);
+    }
+
     #[test]
     fn d51_numbers_match_the_header_slots() {
         // Anchors copied from contracts/modukit_embed.h (the frozen enum);
