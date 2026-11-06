@@ -44,9 +44,10 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 ## Repo Audit
 
 - 2026-11-04 Quick: 36 gates green, 42 skills, 42 CodeBuddy skill links, 20 generated rules, book 75. Count drift fixed; `verify-codebuddy-host.py` 59 checks / 0 findings. Remaining LOW: codegraph 1.6.2 advisory, gate-mcp O5 WARN, CodeBuddy IDE restart visibility pending.
-- 2026-11-05 offload: audit/batch/lesson/hook/flaky rows moved verbatim to `history-archive.md` (2026-11-05 entry). Active remainders: #31 sync-refinfo implementation; FFI panic SDD clause, D65 decisions.md append-only; codegraph advisory, gate-mcp O5 WARN, CodeBuddy restart visibility.
+- 2026-11-05 offload: audit/batch/lesson/hook/flaky rows moved verbatim to `history-archive.md` (2026-11-05 entry). Active remainders: FFI panic SDD clause, D65 decisions.md append-only; codegraph advisory, gate-mcp O5 WARN, CodeBuddy restart visibility; MediaServo donor clone carries gitlink drift (refinfo-sync FAILs it until resolved upstream-side).
 - 2026-11-05 HIGH cleanup (repo-audit trio closed): llms.txt joined the doc-refs scan set (136 candidates, planted dead link reddened); book-check wired as check.sh leg 5b (37 legs, tamper-red observed); thirteen ctest twins minted under label demo-twin - census asserts the names in the fast gate, `ctest -L demo-twin` runs them (sabotage-lever red + clean green observed); census regex widened for ctest's padded numbering.
 - 2026-11-06 P2 adjudications #31-33 (walked one by one, A/A/A; #31 corrected to EXCLUDE remote_control_host_computer as a downstream donor, not upstream): donor-sync script to port with per-donor SHA evidence; gate tiering declined (the serial status quo IS the tiering); wire-changelog pairing declined (decisions.md is the changelog; an incident-triggered fallback leg recorded). ve-parity rev 17.
+- 2026-11-06 #31 LANDED: `scripts/sync-refinfo.sh` (8 tracked donors, self-test clean-SYNC/dirty-FAIL/HELD observed, live run 7 SYNC / 1 FAIL / 4 HELD); pixi task `refinfo-sync`; repo-audit Relay section wired.
 
 ## Open Items
 

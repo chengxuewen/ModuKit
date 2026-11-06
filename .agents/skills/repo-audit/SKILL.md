@@ -184,7 +184,10 @@ a pattern is worth reading.
 
 **Relay**: a P1 pattern that needs deep study is archived under `.refinfo/` and
 distilled into a `docs/reference/` profile -- repo-audit discovers and triages;
-the reference-library mechanism digests.
+the reference-library mechanism digests. Before citing a tracked donor clone,
+run `pixi run refinfo-sync` and paste the SHA it prints into the citing row
+(PIT-35, adjudication #31); HELD donors are one-shot snapshots cited at their
+recorded pin, FAIL donors go to the maintainer before any claim is drawn.
 
 ---
 
