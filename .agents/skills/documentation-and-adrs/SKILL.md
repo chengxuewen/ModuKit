@@ -36,6 +36,16 @@ notes: "docs and ADR discipline"
 5. **Regenerate + gate**: `pixi run agent-sync` then `pixi run gate-agents`.
 6. **Exit**: the D-entry exists, the doc is consistent, and the gate is green — with evidence.
 
+## Reference anchor drift (append-only)
+
+`path:NN` anchors inside a D entry's **Reference** field are snapshots taken at
+adjudication time. `.refinfo/` donors are live clones (PIT-35) - when a re-check
+shows the cited text moved, append a dated note to the SAME Reference line
+(`anchor re-check YYYY-MM-DD: ... at donor HEAD <sha>`; the D71 precedent, and
+the SHA comes from `pixi run refinfo-sync`). NEVER rewrite the original anchor:
+the field is append-only, and a rewrite launders a stale citation into fresh
+truth while silently breaking every reader who verified against the record.
+
 ## Rationalizations (anti-excuse)
 
 | Excuse | Rebuttal |
