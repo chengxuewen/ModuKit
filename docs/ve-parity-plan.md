@@ -1,13 +1,14 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-11-05 (revision 16). B0-B7 landed; B8 is
+> STATUS: PLAN OF RECORD, 2026-11-06 (revision 17). B0-B7 landed; B8 is
 > COMPLETE (H0a-H4 landed; full activation, live skill count 43; 42 at B8
 > closure, +1 from adjudication #29). Its execution
 > plan is `docs/agent-host-parity-plan.md` (revision 9).
 > Gap-closure #20-22 are in section 2.4; VE-new-commit #23-26 are in section 2.5;
-> external-practice-scan #27-30 are in section 2.6.
+> external-practice-scan #27-30 are in section 2.6, plus the P2 trio #31-33
+> adjudicated 2026-11-06.
 > B6 follows VE D46 (English-only book, reader-side browser translation).
-> Adjudications #1-#30 are recorded in sections 2 through 2.6; each was walked
+> Adjudications #1-#33 are recorded in sections 2 through 2.6; each was walked
 > one by one with the maintainer. Functional code, contracts, binding
 > implementations, demo assertions, and project memory entries are out of scope.
 > Reference clone: `.refinfo/VisiaEngine` (read-only, git-ignored).
@@ -97,7 +98,7 @@ shells are created. Trigger to split: a real SDK packaging or prebuilt-consumer 
 | 25 | CLI command form | **B: narrow gate** | Check wrapper-advertised names and `.sh`/`.bat` parity; docs keep `pixi run` as canonical |
 | 26 | agent audit skills | **A: full upgrade** | `ecosystem-scan` -> `repo-audit` (alias kept); revise `doc-audit`; router Audit class |
 
-### 2.6 External-practice-scan adjudications (2026-11-05, user-adjudicated one by one)
+### 2.6 External-practice-scan adjudications (2026-11-05 + 11-06, user-adjudicated one by one)
 
 Sources: MediaServo (`.refinfo/MediaServo`) and remote_control_host_computer
 (`.refinfo/remote_control_host_computer`), scanned as whole-repo practice patterns
@@ -109,6 +110,9 @@ Sources: MediaServo (`.refinfo/MediaServo`) and remote_control_host_computer
 | 28 | C1 exemption precision | **A: line-level markers** | LANDED 2026-11-05: `.agents/skills/` left the whole-directory skip in `scripts/gate-i18n.sh`; CJK lines carry `c1:allow:trigger` / `c1:allow:vocab`, two files keep a reasoned whole-file exemption (YAML description, docstring vocab); red proofs observed (unmarked line red, marker stripped red, restore green) |
 | 29 | `lsp-code-analysis` skill | **A: port** | LANDED 2026-11-05: `.agents/skills/lsp-code-analysis/SKILL.md` (impact ladder serena rust-only -> codegraph -> ripgrep, Do-Not-Use table, ModuKit impact map with owning gates); TRIGGERS row added before mount and `repo-triage` hand-off retargeted; router gained the Impact category |
 | 30 | team-mode convergence | **A: converge to `expert-panel-review`** | LANDED 2026-11-05: engine gained the Philosophy block (consensus illusion) and the strengthened no-team-tools sequential track ("not a reduced version"); `repo-audit`, `doc-audit`, and `think-before-act` now reference the engine and keep only their rosters -- no inline `team_create` steps remain |
+| 31 | refinfo donor sync | **A: port `sync-refinfo.sh`** | whitelist of tracked donors EXCLUDING `.refinfo/remote_control_host_computer` (a downstream port of our own governance tree, not upstream - MediaServo's no-third-party-fork discipline applied); shallow fetch, prints per-donor SHA as the PIT-35 evidence; pixi task `refinfo-sync`. NOT YET IMPLEMENTED (2026-11-06) |
+| 32 | gate tiering `--full` | **A: declined - the status quo IS the tiering** | serial 37-leg fast gate ~120 s has no parallel port contention (the disease MediaServo's PIT-192 treats); acceptance lanes already separated: `ctest -L demo-twin`, `pixi run vendor-test`, coverage-boundary |
+| 33 | wire-changelog pairing | **A: declined - decisions.md IS the changelog** | D83 tail-add policy + wire-parity + check-promises carry the pairing duty; a CHANGELOG would be a second ledger (#25 class). Recorded fallback: a ~30-line leg requiring wire-surface ranges to touch decisions.md re-opens on the FIRST missed-D incident |
 
 Rejected with record: Gerrit Change-Id gate (no Gerrit here), a second
 `skills-targets.json` (contradicts #25 single-target ruling), Chinese working
