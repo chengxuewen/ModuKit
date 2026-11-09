@@ -257,7 +257,7 @@ file. Read the source file before acting on a rule you are unsure about.
 
 ### history-archive
 - full text: `.agents/memorys/history-archive.md`
-- ... 26 entries omitted (read the full file)
+- ... 27 entries omitted (read the full file)
 
 ### pitfalls
 - full text: `.agents/memorys/pitfalls.md`

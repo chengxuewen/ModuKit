@@ -1,5 +1,17 @@
 # ModuKit — History Archive
 
+## 2026-11-09 - MediaServo governance-face hearing #34-37
+
+- Whole-surface `.refinfo/MediaServo` analysis (agent governance / MCP / skills /
+  memory / rules / scripts / pixi / CLI / CMake / IDE adapters), then a
+  one-by-one adjudication walk: #34 skip-credential B (trigger-armed), #35
+  self-test coverage B (risk-based; gate-i18n first, backlog P6), #36 CHANGELOG
+  C (armed at first release, #33-consistent), #37 P-mode dual-context C (armed
+  at first embedding; the child-citation half was already ours, D67).
+- Premise corrections caught during the walk: digest windows (D47) and child
+  citations (D67) were already in-tree and left the roster; the plan change log
+  gained the missing revision 17 line alongside revision 18.
+
 ## 2026-11-05 - audit fixes, #27-30 landing, lesson batch, hook escalation
 
 - Full doc-audit (single-thread sequential track, adjudication-walkthrough): 17

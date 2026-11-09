@@ -1,14 +1,14 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-11-06 (revision 17). B0-B7 landed; B8 is
+> STATUS: PLAN OF RECORD, 2026-11-09 (revision 18). B0-B7 landed; B8 is
 > COMPLETE (H0a-H4 landed; full activation, live skill count 43; 42 at B8
 > closure, +1 from adjudication #29). Its execution
 > plan is `docs/agent-host-parity-plan.md` (revision 9).
 > Gap-closure #20-22 are in section 2.4; VE-new-commit #23-26 are in section 2.5;
 > external-practice-scan #27-30 are in section 2.6, plus the P2 trio #31-33
-> adjudicated 2026-11-06.
+> adjudicated 2026-11-06; MediaServo governance-face #34-37 are in section 2.7.
 > B6 follows VE D46 (English-only book, reader-side browser translation).
-> Adjudications #1-#33 are recorded in sections 2 through 2.6; each was walked
+> Adjudications #1-#37 are recorded in sections 2 through 2.7; each was walked
 > one by one with the maintainer. Functional code, contracts, binding
 > implementations, demo assertions, and project memory entries are out of scope.
 > Reference clone: `.refinfo/VisiaEngine` (read-only, git-ignored).
@@ -117,6 +117,25 @@ Sources: MediaServo (`.refinfo/MediaServo`) and remote_control_host_computer
 Rejected with record: Gerrit Change-Id gate (no Gerrit here), a second
 `skills-targets.json` (contradicts #25 single-target ruling), Chinese working
 ledgers (C1), `ci.sh` accumulate runner (same as our `check.sh`).
+
+### 2.7 MediaServo governance-face adjudications (2026-11-09, user-adjudicated one by one)
+
+Source: the 2026-11-09 whole-surface analysis of `.refinfo/MediaServo` (agent
+governance, MCP, skills, memory, rules, scripts, pixi, CLI, CMake targets, IDE
+adapters). Two premise corrections surfaced during the walk, both already ours
+and therefore never ruled: the digest-window machinery
+(`scripts/memory-aggregate.py`, D47) and the `child:<id>` citation machinery
+(`scripts/check-memory-ownership.py`, D67; zero live citations, standing by).
+
+| # | Decision | Ruling | Key note |
+|---|---|---|---|
+| 34 | gate-mcp skip-credential state | **B: not now - trigger-armed** | our three servers (codegraph / playwright / serena) have no credential path; an unreachable state is untestable (C0). ARMED: when the first credential-bearing server enters `scripts/mcp-servers.json`, port the state AND its self-test together from `.refinfo/MediaServo/scripts/agents/gate_mcp.py` |
+| 35 | checker `--self-test` coverage | **B: risk-based rollout** | text-scan checkers first; `check-capability-ledger.sh` / `check-commit-shape.sh` already carry legs; demo gates keep their sabotage levers (no duplication). OPEN: backlog P6 wires `scripts/gate-i18n.sh --self-test` (planted unmarked CJK line must RED, marked trigger line must stay green) into `check.sh`, red observed once (C0) |
+| 36 | CHANGELOG + changelog gates | **C: defer - armed at first release** | consistent with #33 (decisions.md IS the changelog); no external readers exist today. ARMED: at the first tag/release, create `CHANGELOG.md` together with the scope-marker and version-currency gates (donor shape: `.refinfo/MediaServo` ci.yml changelog steps + `scripts/gate-wire-changelog.sh`) |
+| 37 | agents generator P-mode (dual-context) | **C: defer - trigger-armed** | ModuKit is the embedder, not the embedded (`.gitmodules` takes PolyOrch in). ARMED: when ModuKit is first embedded as a submodule, or a sibling repo must share this `.agents`, port S/P dual-context + hub AGENTS.md generation from `.refinfo/MediaServo/scripts/agents/cli.py`; the `child:<id>` half is already in-tree (D67). An initial sight-unseen lean toward A was revised to C after the details were presented |
+
+Rejected with record: full-coverage self-test mandate (demo gates already carry
+levers), CHANGELOG now (#33-class second ledger with zero readers).
 
 ## 3. Work breakdown
 
@@ -734,6 +753,13 @@ ModuKit anchors:
 
 ## 8. Change log
 
+- 2026-11-09 revision 18: MediaServo governance-face adjudications #34-37
+  (B/B/C/C): skip-credential trigger-armed on the first credential-bearing
+  server; risk-based self-test rollout opening with gate-i18n (backlog P6);
+  CHANGELOG armed at first release (#33-consistent); P-mode dual-context armed
+  at first embedding. This entry also records the missing revision 17 line:
+  the 2026-11-06 P2 write-back (#31-33, `sync-refinfo.sh` landing) bumped the
+  header to revision 17 without adding its change-log entry.
 - 2026-11-05 revision 16: external-practice-scan adjudications #27-30 (all A) -
   upstream-derived commit-shape baseline, line-level C1 markers, ported
   `lsp-code-analysis` skill, team-mode convergence into `expert-panel-review`.
