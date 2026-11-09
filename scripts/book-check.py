@@ -10,6 +10,11 @@ Static layer (always runs):
 Browser layer (--browser): loads the site over HTTP in headless chromium and
 asserts a rendered marker. It self-SKIPs when no chromium is available, same
 convention as gate-web.
+Self-test (--self-test, adjudication #35 / backlog P9): builds a scratch site
+under a temp dir, plants a graph.json stats drift and a dropped vendored
+asset (both must red in one run), then asserts a clean scratch site is green.
+The scan root redirects via MODUKIT_BOOK_OUT; repo files never touched and the
+browser layer is out of scope (static face only).
 """
 
 from __future__ import annotations
@@ -26,7 +31,59 @@ import http.server
 import socketserver
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "build", "book")
+OUT = os.environ.get("MODUKIT_BOOK_OUT") or os.path.join(ROOT, "build", "book")
+
+
+def self_test() -> int:
+    """C0 replay (#35 rollout, backlog P9): planted stats drift + lost vendor."""
+    import tempfile
+
+    s = tempfile.mkdtemp(prefix="book-check-selftest.")
+    try:
+        base = os.path.join(s, "en")
+        web = os.path.join(base, "web")
+        docs = os.path.join(base, "docs")
+        for d in (web, os.path.join(web, "vendor"), docs):
+            os.makedirs(d)
+        open(os.path.join(base, "index.html"), "w").write("<html>ModuKit</html>")
+        open(os.path.join(base, "meta.json"), "w").write('{"commit": "probe", "updated": "2026-11-09"}')
+        graph = os.path.join(base, "graph.json")
+        open(graph, "w").write('{"nodes": [{"id": "a"}], "edges": [{"s": "a", "t": "a"}], '
+                                '"stats": {"nodes": 1, "edges": 1}}')
+        open(os.path.join(web, "graph.html"), "w").write('<iframe src="graph-view.html"></iframe>')
+        open(os.path.join(web, "graph-view.html"), "w").write('<div id="cy"></div>')
+        open(os.path.join(web, "vendor", "cytoscape.min.js"), "w").write("vendor")
+        open(os.path.join(web, "vendor", "mermaid.min.js"), "w").write("vendor")
+        open(os.path.join(docs, "architecture.html"), "w").write(
+            '<pre class="language-mermaid"></pre><script id="mermaid-init"></script>')
+
+        def run():
+            env = dict(os.environ, MODUKIT_BOOK_OUT=s)
+            return subprocess.run(
+                [sys.executable, os.path.abspath(__file__)],
+                env=env, capture_output=True, text=True,
+            )
+
+        r = run()
+        if r.returncode != 0:
+            print("BOOK-CHECK ✗ self-test: clean scratch site did not green")
+            print(r.stdout)
+            return 1
+        data = json.load(open(graph))
+        data["stats"]["nodes"] = 2  # plant 1: stats drift
+        json.dump(data, open(graph, "w"))
+        os.remove(os.path.join(web, "vendor", "mermaid.min.js"))  # plant 2
+        r = run()
+        for expected in ("stats.nodes mismatch", "mermaid.min.js missing"):
+            if r.returncode == 0 or expected not in r.stdout:
+                print(f"BOOK-CHECK ✗ self-test: planted defect not caught ({expected})")
+                print(r.stdout)
+                return 1
+        print("BOOK-CHECK ✓ self-test (stats drift and lost vendor red; clean green)")
+        return 0
+    finally:
+        import shutil
+        shutil.rmtree(s, ignore_errors=True)
 
 
 def languages() -> list[str]:
@@ -143,7 +200,10 @@ def browser_layer(langs: list[str]) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--browser", action="store_true", help="also run the browser layer (needs chromium)")
+    parser.add_argument("--self-test", action="store_true", help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.self_test:
+        return self_test()
 
     langs = languages()
     if not langs:
