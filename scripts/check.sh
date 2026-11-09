@@ -19,6 +19,7 @@ clippy
 test
 msrv
 gate-i18n
+gate-i18n-selftest
 skill-lint
 book-check
 regen-fdset
@@ -91,6 +92,14 @@ else note "skip msrv (no script)"; fi
 if [ -f scripts/gate-i18n.sh ]; then
   bash scripts/gate-i18n.sh || { note "FAIL gate-i18n"; status=1; }
 else note "skip gate-i18n (no script)"; fi
+
+# 5c. gate-i18n self-test leg (adjudication #35 / backlog P6): the first
+#     checker self-test wired INTO the gate (MediaServo donor practice) - the
+#     planted-unmarked-CJK red replays on every run, not once at landing.
+#     Scratch root via MODUKIT_GATE_INPUT_DIR; repo files never touched.
+if [ -f scripts/gate-i18n.sh ]; then
+  bash scripts/gate-i18n.sh --self-test || { note "FAIL gate-i18n-selftest"; status=1; }
+else note "skip gate-i18n-selftest (no script)"; fi
 
 # 5. skill-tree lint
 if command -v python3 >/dev/null 2>&1 && [ -f scripts/skill-lint.py ]; then
