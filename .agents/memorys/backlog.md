@@ -37,6 +37,7 @@
 | P5 | affaan-m/everything-claude-code | profile lane timed out x3 — unprofiled gap from the scan | DONE 2026-10-14 (FULL rerun; profiled 278.8k stars MIT active; rust-patterns+rust-testing = P1 vendor candidates; star-growth flagged anomalous) |
 | R | restart verification | after next opencode restart from activated shell: pinned versions resolve (ponytail@5.2.0, omo 5.1.33, superpowers ref-pinned @v7.0.0 since 2026-10-14; context-mode 1.0.169 unchanged), `lsp` row lights (mise node22), `.omo/omo.jsonc` schema recheck | pending restart |
 | P6 | gate-i18n self-test | `scripts/gate-i18n.sh --self-test` (#35 / ve-parity-plan §2.7): scratch scan root with a planted unmarked CJK line (must RED) and a `c1:allow:trigger` line (must stay green); wire one self-test leg into `check.sh` and observe red once (C0); patterned on `check-capability-ledger.sh` | DONE 2026-11-09 (self-test green + `gate-i18n-selftest` leg in check.sh --list; red replays in-gate every run, first wired self-test leg) |
+| P7 | skill-lint self-test | #35 rollout step 2 (text-scan class): `--self-test` in skill-lint.py plants name-mismatch + dangling `@ref` + unmounted TRIGGERS owner in a scratch tree (all three must red), clean scratch must green | DONE 2026-11-09 (cwd-redirect re-exec, zero code-path changes; manual-mode family idiom — wired-leg escalation stays P6-only) |
 ## Not this track (cross-reference only — Stage-1 triggers)
 
 `scripts/check.sh` seed (landed 2026-10-13 per D50) + doc-liveness + D-record mechanics (PORT_NOW bundle),

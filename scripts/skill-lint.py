@@ -15,7 +15,11 @@ Registry check (when --registry given and file exists):
   7. every skill directory is mentioned in the registry
 
 Exit code: 0 = clean, 1 = at least one FAIL.
-Negative proof (C0): point --skills at a fixture with a broken skill -> must exit 1.
+Negative proof (C0): `--self-test` builds a scratch tree, plants a name
+mismatch, a dangling @ref and an unmounted trigger owner (all three must red
+in one run), then asserts a clean scratch is green. Repo files never touched:
+the child run is re-exec'd with cwd inside the scratch root, so every
+repo-relative default (.agents/skills, TRIGGERS.md, SKILL.md) redirects.
 """
 import argparse
 import os
@@ -181,7 +185,59 @@ def check_trigger_matrix(names):
             findings.append(("FAIL", "triggers", f"duplicate trigger `{phrase}` owned by {sorted(owners)}"))
 
 
+def self_test():
+    """C0 replay (#35 rollout, backlog P7): three planted defects must red."""
+    import shutil
+    import subprocess
+    import tempfile
+
+    def write(path, text):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(text)
+
+    def run(cwd):
+        return subprocess.run(
+            [sys.executable, os.path.abspath(__file__)],
+            cwd=cwd, capture_output=True, text=True,
+        )
+
+    header = "| Intent | Trigger phrases | Owning skill |\n|---|---|---|\n"
+    s = tempfile.mkdtemp(prefix="skill-lint-selftest.")
+    try:
+        sk = os.path.join(s, ".agents", "skills")
+        write(os.path.join(sk, "good-skill", "SKILL.md"),
+              "---\nname: good-skill\ndescription: probe skill for the self-test\n---\nbody\n")
+        write(os.path.join(sk, "TRIGGERS.md"),
+              header + "| probe intent | probe phrase | good-skill |\n")
+        write(os.path.join(s, "SKILL.md"), "registry mentions good-skill\n")
+        r = run(s)
+        if r.returncode != 0:
+            print("SKILL-LINT ✗ self-test: clean scratch did not green")
+            print(r.stdout)
+            return 1
+        write(os.path.join(sk, "bad-name", "SKILL.md"),
+              "---\nname: wrong-name\ndescription: probe\n---\nbody\n")
+        write(os.path.join(sk, "dangling-ref", "SKILL.md"),
+              "---\nname: dangling-ref\ndescription: probe\n---\nsee @./nope.md\n")
+        write(os.path.join(sk, "TRIGGERS.md"),
+              header + "| probe intent | probe phrase | good-skill |\n"
+                       "| ghost intent | ghost phrase | ghost-skill |\n")
+        r = run(s)
+        for expected in ("!= dir name", "unresolved", "ghost-skill` is not a mounted skill"):
+            if r.returncode == 0 or expected not in r.stdout:
+                print(f"SKILL-LINT ✗ self-test: planted defect not caught ({expected})")
+                print(r.stdout)
+                return 1
+        print("SKILL-LINT ✓ self-test (name mismatch, dangling @ref, ghost owner all red; clean green)")
+        return 0
+    finally:
+        shutil.rmtree(s, ignore_errors=True)
+
+
 def main():
+    if "--self-test" in sys.argv:
+        return self_test()
     ap = argparse.ArgumentParser()
     ap.add_argument("--skills", default=".agents/skills")
     ap.add_argument("--registry", default="SKILL.md")
