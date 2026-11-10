@@ -34,7 +34,7 @@ def run_mcp_links(command, root):
 
 def make_targets(root):
     scripts = os.path.join(root, "scripts")
-    os.makedirs(scripts, exist_ok=True)
+    os.makedirs(os.path.join(scripts, "agents"), exist_ok=True)
     cfg = {
         "mcp_source": ".agents/mcp.json",
         "mcp_local": ".agents/mcp.local.json",
@@ -64,7 +64,7 @@ def make_targets(root):
             },
         ],
     }
-    with open(os.path.join(scripts, "agent-targets.json"), "w", encoding="utf-8") as handle:
+    with open(os.path.join(scripts, "agents", "agent-targets.json"), "w", encoding="utf-8") as handle:
         json.dump(cfg, handle, indent=2)
         handle.write("\n")
 

@@ -199,6 +199,16 @@ every commit (one batch = one commit, C3).
 
 ## 8. Change log
 
+- 2026-11-10 execution complete: all six batches landed same day - B1 selftests
+  leg (gate count 38 -> 39), B2 dispatcher tests (unittest face 8 -> 10), B3+B6
+  aggregation both stages (scripts/agents/ holds 21 files: 16 leaves + 4 chain
+  + the B4 gate; import bootstraps on 10 files total), B4 abs-paths gate
+  (gate count 39 -> 40), B5 IDE grouping (File API: 39 foldered targets).
+  Premise corrections: FOLDER channel pre-wired at 12 sites (rev-1 said zero);
+  mcp-links behavior tests pre-existed (rev-1 said missing); leaf count 16,
+  not 14. Red proofs observed: phantom list entry, planted targets drift,
+  stale reference mid-move, planted abs-path literals, the new leg's own
+  comment, and the B6 move itself (test net red then green as designed).
 - 2026-11-10 revision 2: panel review (expert-panel-review, sequential track,
   4 lenses) folded in - H1 unmoved-consumer constants (gate-mcp.py REGISTRY)
   joined the B3 net; R4-1 mechanical grep replaces enumeration as the

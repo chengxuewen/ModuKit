@@ -113,5 +113,5 @@ if __name__ == "__main__":
     if command not in ("check", "list"):
         print(__doc__.strip())
         sys.exit(0)
-    cfg = ac.load_json(os.path.join(ac.ROOT, "scripts", "agent-targets.json"))
+    cfg = ac.load_json(os.path.join(ac.ROOT, "scripts", "agents", "agent-targets.json"))
     sys.exit(run(command, cfg["targets"], cfg, False))

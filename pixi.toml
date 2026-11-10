@@ -104,9 +104,9 @@ markdownlint = "markdownlint 'docs/**/*.md' 'book/**/*.md' README.md AGENTS.md S
 spec-trace = "bash scripts/spec-trace.sh"
 
 [feature.agents.tasks]
-agents = "python scripts/agents-cli.py"
-agent-sync = "python scripts/agents-cli.py sync"
-gate-agents = "python -m unittest discover -s scripts/tests -p 'test_*.py' && python scripts/agents/check-memory-ownership.py self-test && python scripts/agents/check-memory-ownership.py check && python scripts/agents-cli.py check"
+agents = "python scripts/agents/agents-cli.py"
+agent-sync = "python scripts/agents/agents-cli.py sync"
+gate-agents = "python -m unittest discover -s scripts/tests -p 'test_*.py' && python scripts/agents/check-memory-ownership.py self-test && python scripts/agents/check-memory-ownership.py check && python scripts/agents/agents-cli.py check"
 agent-tests = "python -m unittest discover -s scripts/tests -p 'test_*.py'"
 memory-ownership = "python scripts/agents/check-memory-ownership.py check"
 prose-report = "python scripts/check-prose.py"

@@ -26,7 +26,7 @@ import unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(os.path.dirname(HERE))
-AGENTS_CLI = os.path.join(REPO, "scripts", "agents-cli.py")
+AGENTS_CLI = os.path.join(REPO, "scripts", "agents", "agents-cli.py")
 
 # Governance-face snapshot copied into each scratch root. scripts/ is needed
 # whole: agent-links' loader loads layer modules from ac.ROOT/scripts/. The

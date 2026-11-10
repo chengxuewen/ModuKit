@@ -14,6 +14,15 @@
 - Two premise corrections during the walk: the agent-layer py tests were NOT
   missing (mcp-links carries 8 behavior tests since B1) and PolyOrch already
   ships the FOLDER channel end to end (ModuKit consumed zero of it).
+- EXECUTION (agents-engineering-plan B1-B6, all six batches same day, backed
+  by the panel-reviewed plan): selftests runner leg, dispatcher behavior
+  tests, both aggregation stages, the abs-path hygiene gate, and the IDE
+  grouping switch. Gate count 38 -> 40; unittest face 8 -> 10;
+  scripts/agents/ holds 21 files; File API shows 39 foldered targets.
+  Lessons: backlog edits never drift the digest (pointer rows only);
+  .codebuddy snapshots need symlinks=True; join-segment path literals evade
+  slash-pattern sed - grep for BOTH shapes; gates that name forbidden
+  literals belong in their own allowlist.
 
 ## 2026-11-09 - MediaServo governance-face hearing #34-37
 

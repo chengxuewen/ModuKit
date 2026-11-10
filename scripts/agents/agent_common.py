@@ -17,7 +17,7 @@ import re
 import shutil
 import sys
 
-_DEFAULT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_DEFAULT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Tests run the real generators against a temporary target root. Both variables
 # must be set before import; requiring the explicit test switch prevents an
 # accidentally exported MODUKIT_AGENT_ROOT from redirecting normal gates.

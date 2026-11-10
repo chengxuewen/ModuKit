@@ -3,12 +3,12 @@
 
 Layers: rules (rules-links), mcp (mcp-links), memory (memory-aggregate). Each
 generator exposes run(command, targets, cfg, dry_run). This dispatcher shares
-one parsed config (scripts/agent-targets.json) and one command across all
+one parsed config (scripts/agents/agent-targets.json) and one command across all
 layers and holds NO per-layer translation logic -- that lives in each generator
 (adjudication 2-B: "per-layer small generators + shared base", avoid one mega-script).
 
 usage:
-    python3 scripts/agent-links.py check|sync|dry-run|list
+    python3 scripts/agents/agent-links.py check|sync|dry-run|list
 exit: 0 clean, 1 findings, 2 guard violation. Highest exit code wins.
 """
 
@@ -19,7 +19,7 @@ import sys
 
 import agent_common as ac
 
-CONFIG = os.path.join(ac.ROOT, "scripts", "agent-targets.json")
+CONFIG = os.path.join(ac.ROOT, "scripts", "agents", "agent-targets.json")
 
 
 def _layer_path(name, subdir):

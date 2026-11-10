@@ -342,11 +342,11 @@ bash scripts/check-capability-ledger.sh || { note "FAIL capability-ledger"; stat
 
 # leg: gate-agents (B2/B3): generated layers match .agents (markers, hub,
 # MCP, CONSTRAINTS). Uses the pixi task when available; plain python3 otherwise.
-if [ -f scripts/agents-cli.py ]; then
+if [ -f scripts/agents/agents-cli.py ]; then
   if command -v pixi >/dev/null 2>&1; then
     pixi run gate-agents || { note "FAIL gate-agents"; status=1; }
   else
-    python3 scripts/agents-cli.py check || { note "FAIL gate-agents"; status=1; }
+    python3 scripts/agents/agents-cli.py check || { note "FAIL gate-agents"; status=1; }
   fi
 else note "skip gate-agents (no script)"; fi
 

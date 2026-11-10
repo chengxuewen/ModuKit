@@ -92,7 +92,7 @@ servers). Host link layers and the MCP merge are GENERATED; `.opencode/opencode.
   `.mcp.json`, `.opencode/opencode.json` `mcp{}`, `SKILL.md` registry, plus the B8
   CodeBuddy link layer (`.codebuddy/rules/<name>/RULE.mdc`, `.codebuddy/skills/<name>`)
   produced by the same sync.
-- A new host enters through `scripts/agent-targets.json` only after a discovery
+- A new host enters through `scripts/agents/agent-targets.json` only after a discovery
   probe; never copy the trees.
 - The pre-commit hook runs sync + gate; `--no-verify` is not allowed for config
   changes.

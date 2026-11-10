@@ -2,7 +2,7 @@
 """Check / repair the per-host MCP activation layer.
 
 Single source: <repo>/.agents/mcp.json (+ optional .agents/mcp.local.json for
-credentials, gitignored). Targets: scripts/agent-targets.json.
+credentials, gitignored). Targets: scripts/agents/agent-targets.json.
 
 Two host shapes (the command body is identical across hosts -- only the
 envelope differs):
@@ -18,7 +18,7 @@ envelope differs):
 
 Exit codes: 0 clean, 1 findings, 2 guard violation (nothing written).
 
-Per-target flags (scripts/agent-targets.json):
+Per-target flags (scripts/agents/agent-targets.json):
   - `optional`: the layer is gitignored and only exists on machines that ran
     sync for that host; an absent file is a SKIP in `check`, not a finding.
   - `structured_compare`: compare parsed JSON instead of bytes. A host that owns
@@ -31,7 +31,11 @@ import os
 import re
 import sys
 
-import agent_common as ac
+try:
+    import agent_common as ac
+except ModuleNotFoundError:  # direct run from scripts/ (mcp-links stayed top-level)
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/agents")
+    import agent_common as ac
 
 PREFIX = "GATE-MCP-LINKS"
 
@@ -320,5 +324,5 @@ if __name__ == "__main__":
     if command not in ("check", "sync", "dry-run", "list"):
         print(__doc__.strip())
         sys.exit(0)
-    cfg = ac.load_json(os.path.join(ac.ROOT, "scripts", "agent-targets.json"))
+    cfg = ac.load_json(os.path.join(ac.ROOT, "scripts", "agents", "agent-targets.json"))
     sys.exit(run(command, cfg["targets"], cfg, command == "dry-run"))

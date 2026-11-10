@@ -2,7 +2,7 @@
 """Check / repair the per-host skill activation layer.
 
 Single source: <repo>/.agents/skills/<name>/SKILL.md -- the only editable copy.
-Targets: `skills_dir` in scripts/agent-targets.json (one target file; no second
+Targets: `skills_dir` in scripts/agents/agent-targets.json (one target file; no second
 skills-targets.json).
 
 Delivery (`skills_delivery`):
@@ -16,7 +16,7 @@ Absent optional layers are a SKIP, not a finding (D50 B1): `.codebuddy/` is
 gitignored, so a fresh clone or CI runner legitimately has no layer.
 
 Exit codes: 0 clean, 1 findings, 2 guard violation (nothing written).
-Reuses scripts/agent_common.py.
+Reuses scripts/agents/agent_common.py.
 """
 
 import hashlib
@@ -337,5 +337,5 @@ if __name__ == "__main__":
     if argv and argv[0] in ("check", "sync", "dry-run", "list"):
         command = argv[0]
     copy = "--copy" in argv
-    cfg = ac.load_json(os.path.join(ac.ROOT, "scripts", "agent-targets.json"))
+    cfg = ac.load_json(os.path.join(ac.ROOT, "scripts", "agents", "agent-targets.json"))
     sys.exit(run(command, cfg["targets"], cfg, command == "dry-run", copy))

@@ -29,13 +29,17 @@ import shutil
 import subprocess
 import sys
 
-import agent_common as ac
+try:
+    import agent_common as ac
+except ModuleNotFoundError:  # common lives in scripts/agents/ (aggregation batch two)
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "agents"))
+    import agent_common as ac
 
 PREFIX = "GATE-MCP"
 CFG = os.path.join(ac.ROOT, ".agents", "mcp.json")
 REGISTRY = os.path.join(ac.ROOT, "scripts", "agents", "mcp-servers.json")
 RULE_PATH = os.path.join(ac.ROOT, ".agents", "rules", "common", "tool-routing.md")
-TARGETS_PATH = os.path.join(ac.ROOT, "scripts", "agent-targets.json")
+TARGETS_PATH = os.path.join(ac.ROOT, "scripts", "agents", "agent-targets.json")
 OPENCODE_PATH = os.path.join(ac.ROOT, ".opencode", "opencode.json")
 RULE_SERVER = "local-codegraph"
 RULE_NAME = "common-tool-routing"

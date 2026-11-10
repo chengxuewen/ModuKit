@@ -51,7 +51,7 @@ def frontmatter(text):
 
 
 def main():
-    targets = json.loads(read(os.path.join(ROOT, "scripts", "agent-targets.json")))
+    targets = json.loads(read(os.path.join(ROOT, "scripts", "agents", "agent-targets.json")))
     codebuddy = next((t for t in targets.get("targets", []) if t.get("label") == "codebuddy"), None)
     check(codebuddy is not None, "agent-targets.json has a codebuddy target")
     if codebuddy is None:
