@@ -3,7 +3,7 @@
 
 Resolution sources:
   1. local entries in `.agents/memorys/{conventions,decisions,pitfalls}.md`;
-  2. the explicit external-provenance allowlist `scripts/rule-ref-allowlist.txt`.
+  2. the explicit external-provenance allowlist `scripts/agents/rule-ref-allowlist.txt`.
 
 A bare number with neither is red. `--self-test` plants PIT-999 in a probe tree
 and requires a red result (C0).

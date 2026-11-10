@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Probe every declared MCP server without installing anything.
 
-`probe_mode` comes from scripts/mcp-servers.json:
+`probe_mode` comes from scripts/agents/mcp-servers.json:
   - start:   launch through the pinned npm launcher with empty stdin; expect clean EOF.
   - version: run the installed binary with --version; never start a server or browser.
   - pixi:    run the env binary probe; a missing env is SKIP-ENV, never red.
@@ -33,7 +33,7 @@ import agent_common as ac
 
 PREFIX = "GATE-MCP"
 CFG = os.path.join(ac.ROOT, ".agents", "mcp.json")
-REGISTRY = os.path.join(ac.ROOT, "scripts", "mcp-servers.json")
+REGISTRY = os.path.join(ac.ROOT, "scripts", "agents", "mcp-servers.json")
 RULE_PATH = os.path.join(ac.ROOT, ".agents", "rules", "common", "tool-routing.md")
 TARGETS_PATH = os.path.join(ac.ROOT, "scripts", "agent-targets.json")
 OPENCODE_PATH = os.path.join(ac.ROOT, ".opencode", "opencode.json")
@@ -144,7 +144,7 @@ def main():
     for name in servers:
         spec = registry.get(name)
         if spec is None:
-            print(" [ RED  ] %-14s absent from scripts/mcp-servers.json (registry drift)" % name)
+            print(" [ RED  ] %-14s absent from scripts/agents/mcp-servers.json (registry drift)" % name)
             red += 1
             continue
         mode = spec.get("probe_mode", "start")
@@ -171,9 +171,9 @@ def main():
             else:
                 cmd = [
                     "node",
-                    "scripts/mcp-serve.mjs",
+                    "scripts/agents/mcp-serve.mjs",
                     "--from",
-                    "scripts/mcp-servers.json",
+                    "scripts/agents/mcp-servers.json",
                     "--name",
                     name,
                 ]

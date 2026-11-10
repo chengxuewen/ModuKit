@@ -48,7 +48,7 @@ notes: "project skill authoring contract"
 5. **Registry**: run `pixi run agents sync`; it adds the row to `SKILL.md`.
 6. **Lint and gates**:
    ```bash
-   python3 scripts/skill-lint.py
+   python3 scripts/agents/skill-lint.py
    pixi run gate-skills
    pixi run gate-agents
    ```

@@ -109,8 +109,8 @@ if [ -f scripts/run-selftests.sh ]; then
 else note "skip selftests (no runner)"; fi
 
 # 5. skill-tree lint
-if command -v python3 >/dev/null 2>&1 && [ -f scripts/skill-lint.py ]; then
-  python3 scripts/skill-lint.py || { note "FAIL skill-lint"; status=1; }
+if command -v python3 >/dev/null 2>&1 && [ -f scripts/agents/skill-lint.py ]; then
+  python3 scripts/agents/skill-lint.py || { note "FAIL skill-lint"; status=1; }
 else note "skip skill-lint (python3 or script absent)"; fi
 
 # 5b. built-book check (repo-audit HIGH 2026-11-04: the pixi task existed but no
@@ -344,8 +344,8 @@ else note "skip gate-agents (no script)"; fi
 
 # leg: gate-rules (B5b): every C/D/PIT citation in .agents/rules resolves to a
 # local entry or the named external allowlist. Always-on when the script exists.
-if [ -f scripts/rule-ref-lint.py ]; then
-  python3 scripts/rule-ref-lint.py || { note "FAIL gate-rules"; status=1; }
+if [ -f scripts/agents/rule-ref-lint.py ]; then
+  python3 scripts/agents/rule-ref-lint.py || { note "FAIL gate-rules"; status=1; }
 else note "skip gate-rules (no script)"; fi
 
 # leg: spec-trace (B6): every SDD clause has a matching spec: tag on a test, and

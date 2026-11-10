@@ -22,30 +22,35 @@ import agent_common as ac
 CONFIG = os.path.join(ac.ROOT, "scripts", "agent-targets.json")
 
 
-def _load_layer(name):
+def _layer_path(name, subdir):
+    parts = ["scripts"] + ([subdir] if subdir else []) + [name + ".py"]
+    return os.path.join(ac.ROOT, *parts)
+
+
+def _load_layer(name, subdir=""):
     """Load a generator module by file path (filenames use hyphens, not importable)."""
-    path = os.path.join(ac.ROOT, "scripts", name + ".py")
+    path = _layer_path(name, subdir)
     spec = importlib.util.spec_from_file_location(name.replace("-", "_"), path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
 
 
-def _optional_layer(name):
+def _optional_layer(name, subdir=""):
     """Load a layer only when its script exists; B3/B8 layers land later."""
-    path = os.path.join(ac.ROOT, "scripts", name + ".py")
-    return _load_layer(name) if os.path.exists(path) else None
+    path = _layer_path(name, subdir)
+    return _load_layer(name, subdir) if os.path.exists(path) else None
 
 
 LAYERS = [
     layer
     for layer in (
-        _optional_layer("rules-links"),
-        _optional_layer("mcp-links"),
-        _optional_layer("memory-aggregate"),
-        _optional_layer("skills-index"),
-        _optional_layer("constraints-index"),
-        _optional_layer("mcp-file-guard"),
+        _optional_layer("rules-links", "agents"),
+        _optional_layer("mcp-links"),  # chain-adjacent sync/check, stays top-level
+        _optional_layer("memory-aggregate", "agents"),
+        _optional_layer("skills-index", "agents"),
+        _optional_layer("constraints-index", "agents"),
+        _optional_layer("mcp-file-guard", "agents"),
     )
     if layer is not None
 ]

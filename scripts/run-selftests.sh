@@ -30,10 +30,10 @@ run() { # run <python3|bash> <script> [args...]
 }
 
 run bash scripts/gate-i18n.sh --self-test
-run python3 scripts/skill-lint.py --self-test
+run python3 scripts/agents/skill-lint.py --self-test
 run bash scripts/check-msrv.sh --self-test
 run python3 scripts/book-check.py --self-test
-run python3 scripts/rule-ref-lint.py --self-test
+run python3 scripts/agents/rule-ref-lint.py --self-test
 run bash scripts/check-commit-shape.sh --self-test
 run bash scripts/check-capability-ledger.sh --self-test
 run bash scripts/check-numbering.sh --self-test
@@ -43,7 +43,7 @@ run bash scripts/check-lane-table.sh --self-test
 run bash scripts/check-promises.sh --self-test
 run bash scripts/check-wire-parity.sh --self-test
 run bash scripts/gate-abi.sh --self-test
-run python3 scripts/check-memory-ownership.py self-test
+run python3 scripts/agents/check-memory-ownership.py self-test
 
 if [ "$fail" -eq 0 ]; then
   echo "SELFTESTS ✓ (15 in-family red replays green)"

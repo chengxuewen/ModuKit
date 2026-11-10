@@ -22,7 +22,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 AGENT_LINKS = os.path.join(ROOT, "scripts", "agent-links.py")
-SKILLS_LINKS = os.path.join(ROOT, "scripts", "skills-links.py")
+SKILLS_LINKS = os.path.join(ROOT, "scripts", "agents", "skills-links.py")
 
 SUBCOMMANDS = ("sync", "check", "status", "dry-run")
 

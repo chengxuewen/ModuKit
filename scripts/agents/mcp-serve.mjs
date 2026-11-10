@@ -8,14 +8,14 @@
 // (NOT pypi, contrary to the first plan sketch — corrected per review #17).
 //
 // Usage:
-//   node scripts/mcp-serve.mjs --pkg <npm-pkg> --version <ver> --bin <bin> -- <server-args...>
-//   node scripts/mcp-serve.mjs --from scripts/mcp-servers.json --name <server-name>
+//   node scripts/agents/mcp-serve.mjs --pkg <npm-pkg> --version <ver> --bin <bin> -- <server-args...>
+//   node scripts/agents/mcp-serve.mjs --from scripts/agents/mcp-servers.json --name <server-name>
 // The --from/--name form is the SINGLE SOURCE for launcher specs (shared by the pixi
 // tasks AND scripts/gate-mcp.py / mcp-bootstrap.py), so the pinned version lives in one file.
 //   --pkg     npm package name (e.g. @colbymchenry/codegraph)
 //   --version pinned semver (e.g. 1.6.0) — MUST be confirmed via `npm view <pkg> version`
 //   --bin     executable name inside node_modules/.bin (e.g. codegraph)
-//   --from    path to scripts/mcp-servers.json
+//   --from    path to scripts/agents/mcp-servers.json
 //   --name    server key inside that json
 //   --        separator; everything after is passed verbatim to the server bin
 import { spawn, spawnSync } from 'node:child_process'
@@ -46,7 +46,7 @@ for (let i = 0; i < pre.length; i++) {
   else { console.error(`[mcp-serve] unknown arg: ${pre[i]}`); process.exit(2) }
 }
 
-// single-source mode: load launcher spec from scripts/mcp-servers.json
+// single-source mode: load launcher spec from scripts/agents/mcp-servers.json
 if (from) {
   const spec = JSON.parse(readFileSync(join(root, from), 'utf8'))[need('name', name)]
   if (!spec) { console.error(`[mcp-serve] no server "${name}" in ${from}`); process.exit(2) }

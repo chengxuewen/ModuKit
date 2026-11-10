@@ -14,7 +14,7 @@ Design notes (see docs/ve-parity-plan.md, B1):
 - `setup` is the ONLY explicit installer (`--save-exact`); the launcher still
   installs when a binary is missing (panel first run / clean clone), but the
   launcher no longer reinstalls on pin drift -- it fails with a hint instead.
-- Pins live in scripts/mcp-servers.json (single source); package.json /
+- Pins live in scripts/agents/mcp-servers.json (single source); package.json /
   package-lock.json / node_modules are gitignored local echoes.
 """
 
@@ -27,7 +27,11 @@ import tempfile
 import subprocess
 import sys
 
-import agent_common as ac
+try:
+    import agent_common as ac
+except ModuleNotFoundError:  # direct run from scripts/agents/ (batch one layout)
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    import agent_common as ac
 
 PREFIX = "MCP"
 SPECS = os.path.join("scripts", "mcp-servers.json")
@@ -372,7 +376,7 @@ def cmd_status(args):
 def build_parser():
     parser = argparse.ArgumentParser(
         prog="mcp",
-        description="MCP lifecycle management (local stdio servers, pinned via scripts/mcp-servers.json).",
+        description="MCP lifecycle management (local stdio servers, pinned via scripts/agents/mcp-servers.json).",
     )
     sub = parser.add_subparsers(dest="command", metavar="<subcommand>")
     setup = sub.add_parser("setup", help="install/verify every server (npm: pinned pkg; pixi: env present + version)")

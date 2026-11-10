@@ -46,9 +46,9 @@ nodejs = ">=22,<23"
 python = ">=3.11,<4"
 
 [feature.mcp.tasks]
-mcp = "python scripts/mcp-cli.py"
-mcp-codegraph = "node scripts/mcp-serve.mjs --from scripts/mcp-servers.json --name local-codegraph"
-mcp-playwright = "node scripts/mcp-serve.mjs --from scripts/mcp-servers.json --name local-playwright"
+mcp = "python scripts/agents/mcp-cli.py"
+mcp-codegraph = "node scripts/agents/mcp-serve.mjs --from scripts/agents/mcp-servers.json --name local-codegraph"
+mcp-playwright = "node scripts/agents/mcp-serve.mjs --from scripts/agents/mcp-servers.json --name local-playwright"
 gate-mcp = "python scripts/gate-mcp.py"
 
 [feature.rust.dependencies]
@@ -106,12 +106,12 @@ spec-trace = "bash scripts/spec-trace.sh"
 [feature.agents.tasks]
 agents = "python scripts/agents-cli.py"
 agent-sync = "python scripts/agents-cli.py sync"
-gate-agents = "python -m unittest discover -s scripts/tests -p 'test_*.py' && python scripts/check-memory-ownership.py self-test && python scripts/check-memory-ownership.py check && python scripts/agents-cli.py check"
+gate-agents = "python -m unittest discover -s scripts/tests -p 'test_*.py' && python scripts/agents/check-memory-ownership.py self-test && python scripts/agents/check-memory-ownership.py check && python scripts/agents-cli.py check"
 agent-tests = "python -m unittest discover -s scripts/tests -p 'test_*.py'"
-memory-ownership = "python scripts/check-memory-ownership.py check"
+memory-ownership = "python scripts/agents/check-memory-ownership.py check"
 prose-report = "python scripts/check-prose.py"
-gate-skills = "python scripts/skills-index.py check"
-gate-rules = "python scripts/rule-ref-lint.py"                     # C/D/PIT citations resolve or are allowlisted
+gate-skills = "python scripts/agents/skills-index.py check"
+gate-rules = "python scripts/agents/rule-ref-lint.py"                     # C/D/PIT citations resolve or are allowlisted
 gate-memory = "bash scripts/check-memory.sh"                     # C5 batch-close memory disposition
 
 [environments]

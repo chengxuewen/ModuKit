@@ -17,7 +17,11 @@ Exit codes: 0 clean, 1 findings, 2 guard violation.
 import os
 import sys
 
-import agent_common as ac
+try:
+    import agent_common as ac
+except ModuleNotFoundError:  # direct run from scripts/agents/ (batch one layout)
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    import agent_common as ac
 
 PREFIX = "GATE-MEMORY"
 BEGIN = "<!-- BEGIN:agents-memory -->"

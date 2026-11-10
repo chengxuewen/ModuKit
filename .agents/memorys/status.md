@@ -30,7 +30,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | Check | Command | Result |
 |---|---|---|
 | C1 English-artifacts check | `gate-i18n` in `check.sh` (scope grown with artifact classes; each extension red/green proved) | pass (2026-11-04) |
-| skill tree lint | `python3 scripts/skill-lint.py` | pass (2026-11-04) |
+| skill tree lint | `python3 scripts/agents/skill-lint.py` | pass (2026-11-04) |
 | numbering discipline | `bash scripts/check-numbering.sh` — derives max D, asserts AGENTS/status claims; `--self-test` red observed | pass (2026-11-04) |
 | memory disposition (C5) | `bash scripts/check-memory.sh <base>..HEAD` (batch close only) | pass (2026-10-30; B7 red, B2 green observed) |
 | local check gate (D50) | `bash scripts/check.sh` — 36 legs (13 demo + D104 + gate-rules/spec-trace), full list via `--list`, pixi per D65 | pass (2026-11-04; 123.10 s) |

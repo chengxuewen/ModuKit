@@ -1,7 +1,7 @@
 # External provenance anchors for .agents/rules citations.
 # Local entries live in .agents/memorys/{conventions,decisions,pitfalls}.md.
 # One ID per line; anything after '#' is a note. A bare number with no local
-# entry and no line here is red (scripts/rule-ref-lint.py).
+# entry and no line here is red (scripts/agents/rule-ref-lint.py).
 
 # PolyOrch ancestor (read-only submodule, C2)
 PIT-11

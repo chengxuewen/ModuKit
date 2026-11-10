@@ -2,7 +2,7 @@
 """skill-lint: executable check for the skill tree (C0 convention).
 
 Usage:
-    python3 scripts/skill-lint.py [--skills .agents/skills] [--registry SKILL.md]
+    python3 scripts/agents/skill-lint.py [--skills .agents/skills] [--registry SKILL.md]
 
 Checks every <skills>/*/SKILL.md:
   1. SKILL.md exists

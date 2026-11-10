@@ -55,10 +55,10 @@ def _merged_servers(cfg):
 # commit-tracked `.mcp.json`, which must stay machine-independent, and a
 # project-scope MCP host spawns with cwd = workspace root. mcp-launch.sh resolves
 # the repo root from BASH_SOURCE, so it does not depend on anything else.
-LAUNCHER_SH = os.path.join("scripts", "mcp-launch.sh")
+LAUNCHER_SH = os.path.join("scripts", "agents", "mcp-launch.sh")
 # Windows keeps the absolute path (escape hatch: a repo-relative .bat is not
 # reliably executable through cmd); Windows devs get a local-only diff.
-LAUNCHER_BAT = os.path.join(ac.ROOT, "scripts", "mcp-launch.bat")
+LAUNCHER_BAT = os.path.join(ac.ROOT, "scripts", "agents", "mcp-launch.bat")
 
 
 def _host_entry(entry, target):
@@ -87,7 +87,7 @@ def _host_entry(entry, target):
             # (root .mcp.json) may not. Needed because the launcher REFERENCE is
             # cwd-dependent while the launcher itself is not: hosts differ in the
             # spawn cwd (Trae does not start in the repo root, so a relative
-            # `scripts/mcp-launch.sh` dies with ENOENT / "no such file").
+            # `scripts/agents/mcp-launch.sh` dies with ENOENT / "no such file").
             item["command"] = "bash"
             item["args"] = [os.path.join(ac.ROOT, LAUNCHER_SH)] + tail
         else:

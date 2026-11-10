@@ -22,7 +22,11 @@ import os
 import re
 import sys
 
-import agent_common as ac
+try:
+    import agent_common as ac
+except ModuleNotFoundError:  # direct run from scripts/agents/ (batch one layout)
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    import agent_common as ac
 
 PREFIX = "MEMORY-OWNERSHIP"
 SECTION = re.compile(r"(?m)^##\s+(D\d+|PIT-\d+|C\d+):[ \t]*(.+?)[ \t]*$")

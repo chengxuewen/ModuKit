@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Shared base for the agent single-source generators (skills / rules / mcp / memory).
 
-Extracted from scripts/skills-links.py so the per-layer generators stay small and
+Extracted from scripts/agents/skills-links.py so the per-layer generators stay small and
 do not each re-implement the guard / classify / link / backup logic (adjudication 2-B:
 "per-layer small generators + shared base", avoid over-generalising into one mega-script).
 

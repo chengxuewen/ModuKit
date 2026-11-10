@@ -288,7 +288,7 @@
 - **Symptom**: `pixi run agents sync` rewrote the skill registry, then `pixi run gate-skills` immediately reported content drift for `openspec-*`/`review-hardcode`.
 - **Root cause**: `skills-index._existing_meta` keyed the table by the full first cell (`` `name` (inoperative) ``) while the builder looked up `name`; the type/notes meta was lost on the second read. Label suffixes are display text, not identity.
 - **Solution**: extract the name between the first pair of backticks before the meta lookup; keep suffixes only in the rendered label. Re-run sync twice and require the second check green.
-- **Verification**: `pixi run agents sync && pixi run gate-skills` twice; the second run must be `OK` with no `[ FIX ]`; `python3 scripts/skill-lint.py` stays 0 fail.
+- **Verification**: `pixi run agents sync && pixi run gate-skills` twice; the second run must be `OK` with no `[ FIX ]`; `python3 scripts/agents/skill-lint.py` stays 0 fail.
 - **Forbidden**: hand-editing generated registry rows to silence drift; keying generated metadata by a display label.
 
 ## PIT-37: pre-commit runs the agents-layer gates only; doc legs live outside it (2026-11-05)

@@ -6,7 +6,7 @@ This checks the contract the host reads: AGENTS.md fallback, generated
 root `.mcp.json`. It cannot verify what an already-running IDE session loaded;
 restart CodeBuddy and inspect its skill/rule/MCP panels for that last step.
 
-Usage: python3 scripts/verify-codebuddy-host.py
+Usage: python3 scripts/agents/verify-codebuddy-host.py
 Exit: 0 all checks pass; 1 findings.
 """
 

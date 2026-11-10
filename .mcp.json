@@ -2,7 +2,7 @@
   "mcpServers": {
     "local-codegraph": {
       "args": [
-        "scripts/mcp-launch.sh",
+        "scripts/agents/mcp-launch.sh",
         "mcp-codegraph"
       ],
       "command": "bash",
@@ -10,7 +10,7 @@
     },
     "local-playwright": {
       "args": [
-        "scripts/mcp-launch.sh",
+        "scripts/agents/mcp-launch.sh",
         "mcp-playwright"
       ],
       "command": "bash",
@@ -18,7 +18,7 @@
     },
     "local-serena": {
       "args": [
-        "scripts/mcp-launch.sh",
+        "scripts/agents/mcp-launch.sh",
         "-e",
         "serena",
         "mcp-serena"

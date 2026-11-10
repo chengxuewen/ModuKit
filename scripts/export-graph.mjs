@@ -4,7 +4,7 @@
 // Why direct SQLite instead of the SDK: the SDK exposes per-seed queries
 // (getCallGraph(nodeId), getCallers, getCallees) but no whole-graph export, and
 // 2k+ round trips are not worth it for a static site. The schema is stable at the
-// pinned codegraph version (see scripts/mcp-servers.json).
+// pinned codegraph version (see scripts/agents/mcp-servers.json).
 //
 // Output shape (short keys keep the file ~3x smaller):
 //   { generated_at, stats, nodes: [{i,k,n,f,l}], edges: [[srcIdx, dstIdx, kindIdx]] }

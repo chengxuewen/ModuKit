@@ -42,7 +42,7 @@ case "${1-}" in
     -h|--help) echo "$USAGE"; exit 0 ;;
 esac
 
-# Resolve pixi the same way scripts/mcp-launch.sh does: PATH first, then ~/.pixi/bin.
+# Resolve pixi the same way scripts/agents/mcp-launch.sh does: PATH first, then ~/.pixi/bin.
 PIXI="$(command -v pixi || true)"
 [ -z "$PIXI" ] && [ -x "$HOME/.pixi/bin/pixi" ] && PIXI="$HOME/.pixi/bin/pixi"
 [ -z "$PIXI" ] && { echo "modukit.sh: pixi not found (run bootstrap.sh)" >&2; exit 127; }

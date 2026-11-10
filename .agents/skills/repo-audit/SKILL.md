@@ -27,7 +27,7 @@ description: Whole-repo 10-domain engineering audit + ecosystem scan; formerly e
 |---|--------|---------|---------------------------|---------------|
 | 1 | **skills** | `.agents/skills/` | gate-skills (inventory); gate-agents (SKILLS-INDEX segment) | duplicate detection, community comparison, utilization |
 | 2 | **rules** | `.agents/rules/` (81 files) | gate-rules, gate-agents | semantic dedup, runnable-command check, quality |
-| 3 | **mcp** | `.mcp.json`, host mirrors, `scripts/mcp-*` | gate-mcp (MCP-FILE segment via scripts/mcp-file-guard.py) | launcher portability, pin drift, per-host parity |
+| 3 | **mcp** | `.mcp.json`, host mirrors, `scripts/mcp-*` | gate-mcp (MCP-FILE segment via scripts/agents/mcp-file-guard.py) | launcher portability, pin drift, per-host parity |
 | 4 | **scripts** | `scripts/` (py/sh) | gate-docs 3 (names only) | syntax health sweep (`bash -n` / `ast.parse`), orphan detection (not referenced by pixi/gates/docs), CRLF/LF consistency, shebang + exec bits |
 | 5 | **docs** | `docs/` (README, env, whitepaper, sdd/, reference/) | gate-docs, spec-trace | cross-reference audit; numbering HOLES detected here, numbering SEMANTICS hand off to doc-audit dimension 3; gate-prose is deferred |
 | 6 | **book** | `book/` + `build/book/` | book-check, gate-docs book SUMMARY | toc<->SUMMARY<->sidebar nesting consistency, vendored offline assets, fold structure, title-length budget |
