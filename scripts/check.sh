@@ -20,6 +20,7 @@ test
 msrv
 gate-i18n
 gate-i18n-selftest
+selftests
 skill-lint
 book-check
 regen-fdset
@@ -100,6 +101,12 @@ else note "skip gate-i18n (no script)"; fi
 if [ -f scripts/gate-i18n.sh ]; then
   bash scripts/gate-i18n.sh --self-test || { note "FAIL gate-i18n-selftest"; status=1; }
 else note "skip gate-i18n-selftest (no script)"; fi
+
+# 5d. selftests runner (hearing #41 / backlog P15; plan B1): replays every
+#     in-family --self-test in one leg - planted reds stay observed per run.
+if [ -f scripts/run-selftests.sh ]; then
+  bash scripts/run-selftests.sh || { note "FAIL selftests"; status=1; }
+else note "skip selftests (no runner)"; fi
 
 # 5. skill-tree lint
 if command -v python3 >/dev/null 2>&1 && [ -f scripts/skill-lint.py ]; then
