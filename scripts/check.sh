@@ -22,6 +22,7 @@ gate-i18n
 gate-i18n-selftest
 selftests
 skill-lint
+abs-paths
 book-check
 regen-fdset
 demo-stage1
@@ -107,6 +108,13 @@ else note "skip gate-i18n-selftest (no script)"; fi
 if [ -f scripts/run-selftests.sh ]; then
   bash scripts/run-selftests.sh || { note "FAIL selftests"; status=1; }
 else note "skip selftests (no runner)"; fi
+
+# 5e. absolute-home-path hygiene (hearing #40 / backlog P14; plan B4): no
+#     absolute HOME literals in scripts/ or .agents/ (win-64 promise,
+#     PIT-34 kin); memorys skipped, gate itself allowlisted.
+if command -v python3 >/dev/null 2>&1 && [ -f scripts/check-no-abs-paths.py ]; then
+  python3 scripts/check-no-abs-paths.py || { note "FAIL abs-paths"; status=1; }
+else note "skip abs-paths (no script)"; fi
 
 # 5. skill-tree lint
 if command -v python3 >/dev/null 2>&1 && [ -f scripts/agents/skill-lint.py ]; then

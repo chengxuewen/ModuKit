@@ -44,8 +44,9 @@ run bash scripts/check-promises.sh --self-test
 run bash scripts/check-wire-parity.sh --self-test
 run bash scripts/gate-abi.sh --self-test
 run python3 scripts/agents/check-memory-ownership.py self-test
+run python3 scripts/check-no-abs-paths.py --self-test
 
 if [ "$fail" -eq 0 ]; then
-  echo "SELFTESTS ✓ (15 in-family red replays green)"
+  echo "SELFTESTS ✓ (16 in-family red replays green)"
 fi
 exit "$fail"

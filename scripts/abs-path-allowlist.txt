@@ -1,0 +1,5 @@
+# Whole-file exemptions for check-no-abs-paths.py - one line each, with the
+# reason inline. Everything not listed here stays line-scanned.
+# The gate itself must name the literals it forbids (PATTERNS, self-test
+# plants, messages); no other file is expected here (pre-scan 2026-11-10).
+scripts/check-no-abs-paths.py
