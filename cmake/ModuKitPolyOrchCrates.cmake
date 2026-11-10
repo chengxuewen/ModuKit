@@ -59,7 +59,7 @@ function(modukit_polyorch_crates)
         ${_kindw}
         MANIFEST "${_manifest}"
         BASE_DIR "${_base}"
-        FOLDER   "${_fold}")
+        FOLDER   "${MODUKIT_IDE_ROOT}${_fold}")
 
     # -test button + ctest twin from the one vector (default entry name
     # <package>-test matches the button NAME below - census unchanged).
@@ -69,7 +69,7 @@ function(modukit_polyorch_crates)
         TARGET   ${_pkg}
         MANIFEST "${_manifest}"
         BASE_DIR "${_base}"
-        FOLDER   "${_fold}"
+        FOLDER   "${MODUKIT_IDE_ROOT}${_fold}"
         CTEST CTEST_LABELS "rust;headless"
             CTEST_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
             CTEST_SKIP_RETURN_CODE 77)
@@ -80,7 +80,7 @@ function(modukit_polyorch_crates)
     polyorch_rust_clean(
         NAME     ${_pkg}-clean
         BASE_DIR "${_base}"
-        FOLDER   "${_fold}")
+        FOLDER   "${MODUKIT_IDE_ROOT}${_fold}")
 
     list(APPEND _mediators ${_pkg}-build)
   endforeach()
@@ -95,7 +95,7 @@ function(modukit_polyorch_crates)
       BINARY
       MANIFEST "${CMAKE_SOURCE_DIR}/crates/modukit-codegen/Cargo.toml"
       BASE_DIR "${_base}"
-      FOLDER   "crates/modukit-codegen")
+      FOLDER   "${MODUKIT_IDE_ROOT}crates/modukit-codegen")
   list(APPEND _mediators modukit-codegen-bin-build)
 
   # Stage-4 M1 embed demo lane: the HostEmbedV1 staticlib exit
@@ -109,7 +109,7 @@ function(modukit_polyorch_crates)
       STATIC
       MANIFEST "${CMAKE_SOURCE_DIR}/crates/modukit-core/Cargo.toml"
       BASE_DIR "${_base}"
-      FOLDER   "crates/modukit-core")
+      FOLDER   "${MODUKIT_IDE_ROOT}crates/modukit-core")
   list(APPEND _mediators modukit-core-static-build)
 
   # W3: stage1_demo as a lane (cargo example of modukit-core; EXAMPLE kind).
@@ -126,10 +126,10 @@ function(modukit_polyorch_crates)
       EXAMPLE
       MANIFEST "${_demo_manifest}"
       BASE_DIR "${_base}"
-      FOLDER   "examples/rs")
+      FOLDER   "${MODUKIT_IDE_ROOT}examples/rs")
   polyorch_rust_run(
       TARGET modukit-example-stage1_demo
-      FOLDER "examples/rs")
+      FOLDER "${MODUKIT_IDE_ROOT}examples/rs")
   # ctest entry: exec the staged binary with the routed toolchain in its
   # environment. Two prefixes are load-bearing (measured first-red of this
   # wiring: the demo's internal fixture build died on the mise rustc shim):

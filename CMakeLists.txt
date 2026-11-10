@@ -13,6 +13,24 @@ endif()
 
 project(modukit VERSION ${CMAKE_MATCH_1} LANGUAGES CXX)   # CXX identity required before the PolyOrch embed (PlatformSupport contract, observed first-red M1)
 
+# IDE grouping switch + folder-root prefix (hearing #42 A-ruling; plan B5):
+# the ONE authority for the modukit/ subtree grouping. Trailing-slash
+# convention: embedded = "modukit/", standalone = "" (disk-mirror names stay
+# verbatim). FATAL guard: a cmake floor below 3.21 would leave
+# PROJECT_IS_TOP_LEVEL undefined and silently mis-group the whole tree.
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)   # without this the FOLDER properties on every lane/button are ignored by the IDE
+if(NOT DEFINED PROJECT_IS_TOP_LEVEL)
+  message(FATAL_ERROR
+    "PROJECT_IS_TOP_LEVEL is undefined - the cmake_minimum_required floor must stay "
+    ">= 3.21 for IDE grouping (hearing #42)")
+endif()
+if(PROJECT_IS_TOP_LEVEL)
+  set(MODUKIT_IDE_ROOT "")
+else()
+  set(MODUKIT_IDE_ROOT "modukit/")
+endif()
+message(STATUS "ModuKit IDE root prefix: '${MODUKIT_IDE_ROOT}' (top-level=${PROJECT_IS_TOP_LEVEL})")
+
 enable_testing()                       # must run before ALL add_subdirectory calls (measured lesson)
 
 include(cmake/ModuKitPolyOrch.cmake)

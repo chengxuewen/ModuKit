@@ -73,7 +73,7 @@ add_custom_target(modukit-cpp-gen
             "${_gen}/modukit.pb.cc" "${_gen}/com_modukit_demo.hpp"
             "${_gen}/modukit_embed.hpp")
 set_target_properties(modukit-cpp-gen PROPERTIES
-FOLDER "bindings/cpp")
+FOLDER "${MODUKIT_IDE_ROOT}bindings/cpp")
 add_dependencies(modukit-cpp-gen modukit-codegen-bin)  # the emitter binary is a cargo lane
 
 # The ONE gencode compilation (see the duplicate-registration note above).
@@ -83,7 +83,7 @@ add_dependencies(modukit-demo-gencode modukit-cpp-gen)
 set_target_properties(modukit-demo-gencode PROPERTIES
     CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON
     POSITION_INDEPENDENT_CODE ON
-    FOLDER "bindings/cpp")
+    FOLDER "${MODUKIT_IDE_ROOT}bindings/cpp")
 target_include_directories(modukit-demo-gencode PUBLIC "${_gen}" "${_prefix}/include")
 # protobuf 7.x headers call absl inline; protobuf.pc lists absl under Requires,
 # not Libs, so the direct link line must carry the conda absl set too.
@@ -93,7 +93,7 @@ target_link_libraries(modukit-demo-gencode PUBLIC "${MODUKIT_CPP_PROTOBUF}" ${_a
 # modukit_cpp: the header-only C++ face (shelf grammar: an INTERFACE target
 # over generated include/ + the contract originals it includes).
 add_library(modukit_cpp INTERFACE)
-set_target_properties(modukit_cpp PROPERTIES FOLDER "bindings/cpp")
+set_target_properties(modukit_cpp PROPERTIES FOLDER "${MODUKIT_IDE_ROOT}bindings/cpp")
 target_include_directories(modukit_cpp INTERFACE
     "${_gen}" "${_contracts}")
 target_compile_features(modukit_cpp INTERFACE cxx_std_20)

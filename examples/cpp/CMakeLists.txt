@@ -16,7 +16,7 @@ endif()
 add_executable(modukit-cpp-host-demo host_demo.cc)
 set_target_properties(modukit-cpp-host-demo PROPERTIES
     CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON
-    FOLDER "examples/cpp")
+    FOLDER "${MODUKIT_IDE_ROOT}examples/cpp")
 target_link_libraries(modukit-cpp-host-demo PRIVATE
     modukit_cpp modukit-core-static ${CMAKE_DL_LIBS})
 # the demo dlopens the real built fixture - it must exist before the test runs
@@ -40,7 +40,7 @@ set_tests_properties(modukit-cpp-host-demo PROPERTIES
 add_executable(modukit-cpp-host-sup-demo host_sup_demo.cc)
 set_target_properties(modukit-cpp-host-sup-demo PROPERTIES
     CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON
-    FOLDER "examples/cpp")
+    FOLDER "${MODUKIT_IDE_ROOT}examples/cpp")
 target_link_libraries(modukit-cpp-host-sup-demo PRIVATE
     modukit_cpp modukit-core-static ${CMAKE_DL_LIBS})
 add_dependencies(modukit-cpp-host-sup-demo cpp-example-plugin)
