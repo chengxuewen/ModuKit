@@ -1,5 +1,20 @@
 # ModuKit — History Archive
 
+## 2026-11-10 - MediaServo engineering-face hearing #38-43
+
+- repo-audit 2C pass over `.refinfo/MediaServo` @ 9d22cba (agent governance /
+  cmake targets / scripts+CLI; elegance-only lens per maintainer), then a
+  six-item adjudication walk: #38 leaf aggregation B (batch one = 14 leaf
+  scripts into scripts/agents/, batch two waits on the main-chain test),
+  #39 test_agents_cli B, #40 check-no-abs-paths B (variant transplant around
+  OUR threat: /home/ + /Users/ literals under win-64), #41 selftests runner
+  leg B (measurement killed the "wire a few" middle), #42 CMake IDE grouping
+  A (full port incl. IDE_ROOT prefix; PolyOrch FOLDER channel was already
+  ours to consume), #43 e2e naming C (our demo-{track}-{name} already wins).
+- Two premise corrections during the walk: the agent-layer py tests were NOT
+  missing (mcp-links carries 8 behavior tests since B1) and PolyOrch already
+  ships the FOLDER channel end to end (ModuKit consumed zero of it).
+
 ## 2026-11-09 - MediaServo governance-face hearing #34-37
 
 - Whole-surface `.refinfo/MediaServo` analysis (agent governance / MCP / skills /

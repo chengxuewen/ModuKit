@@ -59,6 +59,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 - [ ] Media-server base doctrine landed (D68-D73); MediaServo integration = declared intent only; wiring-hearing proposal ARMED, not opened
 - [ ] Benchmark volume: plan §7 debts = egress switches, Windows first-run, mirror slot (register 9/10)
 - [x] MediaServo governance-face hearing #34-37 ruled 2026-11-09 (ve-parity-plan §2.7); gate-i18n self-test leg landed in check.sh same day (backlog P6 DONE); skip-credential / CHANGELOG / P-mode deferrals stay trigger-armed
+- [ ] MediaServo engineering-face hearing #38-43 ruled 2026-11-10 (ve-parity-plan §2.8, donor pinned 9d22cba): leaf aggregation / main-chain test / abs-path gate / selftests runner leg / full CMake IDE grouping land as backlog P12-P16; e2e naming discarded
 - [ ] Maintainer calls pending (`docs/reference/00-overview.md` §4); A6 wording ratified as D63; §5 fork wording adopted by D25
 
 ## History

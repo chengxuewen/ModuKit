@@ -1,6 +1,6 @@
 # VE-parity plan - the non-functional surface adopts the VisiaEngine shape
 
-> STATUS: PLAN OF RECORD, 2026-11-09 (revision 18). B0-B7 landed; B8 is
+> STATUS: PLAN OF RECORD, 2026-11-10 (revision 19). B0-B7 landed; B8 is
 > COMPLETE (H0a-H4 landed; full activation, live skill count 43; 42 at B8
 > closure, +1 from adjudication #29). Its execution
 > plan is `docs/agent-host-parity-plan.md` (revision 9).
@@ -8,7 +8,7 @@
 > external-practice-scan #27-30 are in section 2.6, plus the P2 trio #31-33
 > adjudicated 2026-11-06; MediaServo governance-face #34-37 are in section 2.7.
 > B6 follows VE D46 (English-only book, reader-side browser translation).
-> Adjudications #1-#37 are recorded in sections 2 through 2.7; each was walked
+> Adjudications #1-#43 are recorded in sections 2 through 2.8; each was walked
 > one by one with the maintainer. Functional code, contracts, binding
 > implementations, demo assertions, and project memory entries are out of scope.
 > Reference clone: `.refinfo/VisiaEngine` (read-only, git-ignored).
@@ -136,6 +136,31 @@ and therefore never ruled: the digest-window machinery
 
 Rejected with record: full-coverage self-test mandate (demo gates already carry
 levers), CHANGELOG now (#33-class second ledger with zero readers).
+
+### 2.8 MediaServo engineering-face adjudications (2026-11-10, user-adjudicated one by one)
+
+Source: the 2026-11-10 repo-audit 2C pass over `.refinfo/MediaServo` @ 9d22cba
+(directory aggregation / agent-layer tests / path hygiene / self-test wiring /
+CMake IDE grouping / naming families; elegance-only lens, sunk cost explicitly
+out of scope per maintainer). Premise corrections caught during the walk: the
+PolyOrch verbs already carry a FOLDER channel end to end (ModuKit consumes zero
+of it today), and the measured per-self-test cost is sub-second across the
+board, which collapsed the "wire a few" middle option.
+
+| # | Decision | Ruling | Key note |
+|---|---|---|---|
+| 38 | `scripts/agents/` aggregation | **B: leaf batch first** | 14 leaf scripts (mcp-* family, skill/rule/constraints/memory checkers) move under `scripts/agents/`; the dispatcher chain (`agents-cli.py`, `agent-links.py`, `agent_common.py`, `agent-targets.json`) stays put until #39's test lands as its safety net, then batch two moves the chain |
+| 39 | agent-layer py tests | **B: main chain only** | `mcp-links.py` already carries 8 behavior tests (`scripts/tests/test_agent_config.py`, B1); the real gap is the dispatcher chain. OPEN: backlog P13 adds `test_agents_cli.py` (sync idempotence byte-equal + planted targets.json drift must RED) - precondition for #38 batch two |
+| 40 | check-no-parent port | **B: variant transplant** | the donor's parent-workspace literals have no ModuKit equivalent (top-level repo); the same-family real risk is absolute home paths (`/home/`, `/Users/`) under the linux-64+win-64 platform promise (PIT-34 kin). OPEN: backlog P14 lands `check-no-abs-paths.py` + self-test + check.sh leg; the parent-literal half returns on the #37 trigger day |
+| 41 | wiring self-tests into check.sh | **B: one aggregate leg** | measured sub-second per self-test makes "wire a few" pointless; a single `selftests` runner leg (explicit list, ~15 scripts, one --list row) replays every planted-defect red on each run. OPEN: backlog P15; check-memory stays off the list (deliberately outside check.sh) |
+| 42 | CMake IDE folder grouping | **A: full port** | PolyOrch FOLDER channel consumed at zero places today; A lands `MODUKIT_IDE_ROOT` prefix (PROJECT_IS_TOP_LEVEL), FOLDER on every lane/twin/gate target and USE_FOLDERS ON - maintainer chose the full shape so the #37 embedding day needs no rework. OPEN: backlog P16 |
+| 43 | e2e-* naming family | **C: discard** | our `demo-{track}-{name}` two-level naming already beats the donor's flat `e2e-*`; measurement ("probe"-species) scripts get named on first landing, not by a standing rule |
+
+Rejected with record: donor-parity three-file pytest suite (the agent chain is
+already held by the gate-agents round-trip plus 16 self-tests), selective
+self-test wiring (killed by measurement), and - from the pattern-card stage -
+the donor CLI shape and the cmake eight-way split (modukit.sh is a 50-line
+passthrough vs the donor's 1671-line shell; our four cmake files fit our face).
 
 ## 3. Work breakdown
 
@@ -753,6 +778,13 @@ ModuKit anchors:
 
 ## 8. Change log
 
+- 2026-11-10 revision 19: MediaServo engineering-face adjudications #38-43
+  (B/B/B/B/A/C): leaf aggregation opens `scripts/agents/` (batch two waits on
+  the main-chain test), test_agents_cli lands as the dispatcher safety net,
+  check-no-abs-paths transplants the donor's hygiene check around OUR threat
+  model, one `selftests` runner leg replays every planted-defect red per run,
+  full CMake IDE grouping consumes the PolyOrch FOLDER channel, e2e naming
+  discarded (our demo-{track}-{name} already wins). Donor pinned 9d22cba.
 - 2026-11-09 revision 18: MediaServo governance-face adjudications #34-37
   (B/B/C/C): skip-credential trigger-armed on the first credential-bearing
   server; risk-based self-test rollout opening with gate-i18n (backlog P6);
