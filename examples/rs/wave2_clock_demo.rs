@@ -60,7 +60,10 @@ fn repo_root() -> PathBuf {
 /// the gate.
 fn build_through_cargo(args: &[&str], expect_file: &Path) -> PathBuf {
     let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".to_string());
-    let target = repo_root().join("out").join("dlopen-test-target");
+    let target = repo_root()
+        .join("out")
+        .join("scratch")
+        .join("dlopen-test-target");
     let status = Command::new(&cargo)
         .current_dir(repo_root())
         .args(args)

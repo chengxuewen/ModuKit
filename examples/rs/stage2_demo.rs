@@ -59,7 +59,10 @@ fn repo_root() -> PathBuf {
 /// shared out/ target dir; a failed build is fatal — this binary IS the gate.
 fn cargo_build(args: &[&str]) {
     let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".to_string());
-    let target = repo_root().join("out").join("dlopen-test-target");
+    let target = repo_root()
+        .join("out")
+        .join("scratch")
+        .join("dlopen-test-target");
     let status = Command::new(&cargo)
         .current_dir(repo_root())
         .args(args)
@@ -79,7 +82,7 @@ fn main() {
 
     // [S1] Build the cdylib + BOTH modukit-runtime bins (cargo, stage1 helper).
     cargo_build(&["build", "-p", "example-plugin", "-p", "modukit-runtime"]);
-    let target = repo_root().join("out").join("dlopen-test-target").join("debug");
+    let target = repo_root().join("out").join("scratch").join("dlopen-test-target").join("debug");
     let so = target.join("libexample_plugin.so");
     let runner = target.join("modukit-run");
     let host = target.join("modukit-host");
@@ -104,7 +107,7 @@ fn main() {
     // artifact and the runner (both live OUTSIDE the install tree in V0 —
     // absolute paths; the checklist still names them as bundle members via
     // the runner copy inside the bundle dir).
-    let root = repo_root().join("out").join("m85-demo");
+    let root = repo_root().join("out").join("scratch").join("m85-demo");
     let _ = std::fs::remove_dir_all(&root);
     let installer = BundleInstaller::open(&root, None).expect("demo gate: installer open");
     stage_exe_bundle(installer.staging_dir(), GOOD_ID, &so, &runner_path, false);
@@ -292,7 +295,7 @@ fn main() {
     if count_runner_procs() != 0 {
         fail("runner census non-zero before the orphan-proof (leak from an earlier scene)");
     }
-    let host_manifest = repo_root().join("out").join("m85-demo-host.toml");
+    let host_manifest = repo_root().join("out").join("scratch").join("m85-demo-host.toml");
     std::fs::write(&host_manifest, format!(
         "id = \"{GOOD_ID}\"\nversion = \"0.1.0\"\n[entry]\nkind = \"exe\"\nartifact = \"{}\"\nrunner = \"{}\"\n",
         so.display(), runner.display()

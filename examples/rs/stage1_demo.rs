@@ -44,7 +44,10 @@ fn repo_root() -> PathBuf {
 /// the skip escape: this binary IS the gate, an unbuilt fixture is fatal.
 fn build_so(crate_name: &str, lib_stem: &str) -> PathBuf {
     let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".to_string());
-    let target = repo_root().join("out").join("dlopen-test-target");
+    let target = repo_root()
+        .join("out")
+        .join("scratch")
+        .join("dlopen-test-target");
     let status = Command::new(&cargo)
         .current_dir(repo_root())
         .args(["build", "-p", crate_name, "--target-dir"])
@@ -123,7 +126,7 @@ fn main() {
 
     // [2] D28 install protocol over a fresh host tree: staging -> verify
     // all listed hashes -> inode-dedupe >1MiB -> atomic rename (D31/D55).
-    let root = repo_root().join("out").join("m8-demo");
+    let root = repo_root().join("out").join("scratch").join("m8-demo");
     let _ = fs::remove_dir_all(&root);
     let installer = BundleInstaller::open(&root, None).expect("demo gate: installer open");
     let id = PluginId::new(GOOD_ID.to_string());
