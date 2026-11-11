@@ -11,7 +11,7 @@
       "displayName": "Pixi-mirror configure (out/build)",
       "description": "Mirrors the pixi tasks: cmake -S . -B out/build -G Ninja (D65); MODUKIT_USE_PIXI stays at its option() default ON.",
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build",
+      "binaryDir": "${sourceDir}/out/presets/${presetName}",
       "cacheVariables": {
         "MODUKIT_USE_PIXI": "ON"
       }
@@ -21,14 +21,14 @@
       "displayName": "Stage-4 cpp demo tree (out/build-stage4)",
       "description": "Mirrors scripts/demo-stage4-m1.sh/m2.sh: cmake -S . -B out/build-stage4 -G Ninja, no -D flags.",
       "inherits": ["default"],
-      "binaryDir": "${sourceDir}/out/build-stage4"
+      "binaryDir": "${sourceDir}/out/presets/${presetName}"
     },
     {
       "name": "release",
       "displayName": "Release (out/build-release)",
       "description": "One tree per preset; Release build with compile commands.",
       "inherits": ["default"],
-      "binaryDir": "${sourceDir}/out/build-release",
+      "binaryDir": "${sourceDir}/out/presets/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
@@ -39,7 +39,7 @@
       "displayName": "Debug (out/build-debug)",
       "description": "One tree per preset; Debug build with compile commands.",
       "inherits": ["default"],
-      "binaryDir": "${sourceDir}/out/build-debug",
+      "binaryDir": "${sourceDir}/out/presets/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
@@ -50,7 +50,7 @@
       "displayName": "CI strict (out/build-ci)",
       "description": "Release, all lanes explicit, warnings are errors (cmake-smoke owns the cold tree).",
       "inherits": ["default"],
-      "binaryDir": "${sourceDir}/out/build-ci",
+      "binaryDir": "${sourceDir}/out/presets/${presetName}",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",

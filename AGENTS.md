@@ -137,7 +137,7 @@ pixi run vendor-test                     # vendor-shm lane (17-18s cold, not in 
 pixi run -e cov cargo llvm-cov --workspace   # D79 80-line at stage boundaries
 
 # cmake graph (IDE/ctest surface) - presets mirror the pixi routes (D104)
-pixi run configure && pixi run build && pixi run ctest --test-dir out/build
+pixi run configure && pixi run build && pixi run ctest --test-dir out/presets/default
 pixi run cmake --preset default && pixi run cmake --build --preset default
 ```
 

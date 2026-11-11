@@ -284,8 +284,8 @@ else note "skip cargo-deny (no deny.toml or no workspace)"; fi
 # PIT-17 class - a warm stale tree once fabricated a false 9/9). Incremental rebuild
 # THEN full ctest every run, so changed sources cannot hide behind old binaries.
 # Skip-when-absent like the D50 legs: no tree (fresh clone) = green, no cost.
-if [ -d out/build-stage4 ] && command -v pixi >/dev/null 2>&1; then
-  if ! pixi run cmake --build out/build-stage4 > out/ctest-build.log 2>&1; then
+if [ -d out/presets/stage4 ] && command -v pixi >/dev/null 2>&1; then
+  if ! pixi run cmake --build out/presets/stage4 > out/ctest-build.log 2>&1; then
     note "FAIL ctest-stage4 (build red; see out/ctest-build.log)"; status=1
   else
     # census (benchmark batch 1 / D104): since the CTEST keyword mints the six
@@ -294,7 +294,7 @@ if [ -d out/build-stage4 ] && command -v pixi >/dev/null 2>&1; then
     # The thirteen twin names joined 2026-11-05 (repo-audit HIGH): existence is
     # gated here, execution is acceptance-grade `ctest -L demo-twin` - the run
     # below EXCLUDES the twins to keep this leg fast.
-    pixi run ctest --test-dir out/build-stage4 -N > out/ctest-census.log 2>&1 || true
+    pixi run ctest --test-dir out/presets/stage4 -N > out/ctest-census.log 2>&1 || true
     census_missing=""
     for _t in modukit-core-test modukit-transport-test modukit-codegen-test \
               example-plugin-test bad-plugin-test example_stage1_demo \
@@ -308,14 +308,14 @@ if [ -d out/build-stage4 ] && command -v pixi >/dev/null 2>&1; then
     done
     if [ -n "$census_missing" ]; then
       note "FAIL ctest-stage4 census (missing:${census_missing})"; status=1
-    elif pixi run ctest --test-dir out/build-stage4 --output-on-failure -LE demo-twin > out/ctest-run.log 2>&1; then
+    elif pixi run ctest --test-dir out/presets/stage4 --output-on-failure -LE demo-twin > out/ctest-run.log 2>&1; then
       note "ok ctest-stage4 ($(grep -E 'tests passed' out/ctest-run.log | tail -1))"
     else
-      cp -f out/build-stage4/Testing/Temporary/LastTest.log out/ctest-lasttest.log 2>/dev/null || true
+      cp -f out/presets/stage4/Testing/Temporary/LastTest.log out/ctest-lasttest.log 2>/dev/null || true
       note "FAIL ctest-stage4 (tests red; see out/ctest-build.log + out/ctest-run.log + out/ctest-lasttest.log)"; status=1
     fi
   fi
-else note "skip ctest-stage4 (no out/build-stage4 tree or no pixi)"; fi
+else note "skip ctest-stage4 (no out/presets/stage4 tree or no pixi)"; fi
 
 # leg: cmake-smoke (B4b-2): configure + two negative paths in ci; the full cold
 # build/ctest is the `pixi run cmake-smoke` acceptance task.

@@ -168,9 +168,9 @@ The local equivalent is `pixi run ci`; the workflow adds no second gate definiti
 
 | Path | Owner |
 |---|---|
-| `out/build/` | CMake/Ninja IDE build. |
+| `out/presets/default/` | CMake/Ninja IDE build. |
 | `build/book-src/` + `build/book/en/` | mdBook assembly and English site output (ignored). |
-| `out/build-<demo>/` | Demo-specific CMake builds. |
+| `out/presets/<demo>/` | Demo-specific CMake builds. |
 | `target/` | Cargo build and coverage. |
 | `.pixi/envs/` | Pixi environments. |
 | `.serena/cache/` | Serena LSP cache (ignored). |
