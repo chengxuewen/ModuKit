@@ -76,14 +76,17 @@ fi
 # Negative 2: a stale PolyOrch sentinel must trip the 0.7.1 floor with the
 # actionable message (the supplier CTEST keyword is what the lanes depend on).
 mkdir -p "$HOST"
-cat > "$HOST/CMakeLists.txt" <<'EOF'
+cat > "$HOST/CMakeLists.txt" <<EOF
 cmake_minimum_required(VERSION 3.25)
 project(neg_floor LANGUAGES CXX)
 add_library(PolyOrch::PolyOrch INTERFACE IMPORTED GLOBAL)
 set_property(TARGET PolyOrch::PolyOrch PROPERTY INTERFACE_POLYORCH_VERSION "0.1.1")
 function(polyorch_rust_setup)
 endfunction()
-add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../.." modukit)
+# PWD is the repo root (set at the top); a fixed ../.. would break the moment
+# the scratch host dir changes depth (it did - hearing #46 moved it under
+# out/scratch/, and the probe silently stopped firing).
+add_subdirectory("${PWD}" modukit)
 EOF
 "$CM" -S "$HOST" -B "$NEG2" -G Ninja >out/scratch/cmake-smoke-neg-floor.log 2>&1
 rc2=$?

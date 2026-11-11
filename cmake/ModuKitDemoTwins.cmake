@@ -20,6 +20,7 @@ function(modukit_add_demo_twins)
                   "TMPDIR=${CMAKE_SOURCE_DIR}/out/scratch/tmp"
                   bash -c "bash ${CMAKE_SOURCE_DIR}/scripts/${_leg}.sh 2>/dev/null | grep -q '${_leg}: PASS'")
       set_tests_properties(twin-${_leg} PROPERTIES
+          RUN_SERIAL TRUE
           WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
           SKIP_RETURN_CODE 77
           LABELS "demo-twin;acceptance")
