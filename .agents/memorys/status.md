@@ -60,6 +60,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 - [ ] Benchmark volume: plan §7 debts = egress switches, Windows first-run, mirror slot (register 9/10)
 - [x] MediaServo governance-face hearing #34-37 ruled 2026-11-09 (ve-parity-plan §2.7); gate-i18n self-test leg landed in check.sh same day (backlog P6 DONE); skip-credential / CHANGELOG / P-mode deferrals stay trigger-armed
 - [x] MediaServo engineering-face hearing #38-43 ruled 2026-11-10 (ve-parity-plan §2.8, donor pinned 9d22cba) and executed same day (agents-engineering-plan B1-B6; backlog P12-P16 all DONE): scripts/agents/ aggregation complete (21 files), dispatcher tests in gate-agents (10), abs-path gate + selftests runner legs in check.sh (--list 40), IDE folder grouping machine-verified; e2e naming discarded
+- [ ] out/ layout hearing #44-47 ruled 2026-11-11 (ve-parity-plan §2.9): purge 13 orphans + out/presets yard + scratch convention + preset slimming land as backlog P17; cmake/ four-file structure and IDE grouping explicitly not touched
 - [ ] Maintainer calls pending (`docs/reference/00-overview.md` §4); A6 wording ratified as D63; §5 fork wording adopted by D25
 
 ## History

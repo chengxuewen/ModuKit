@@ -1,5 +1,18 @@
 # ModuKit — History Archive
 
+## 2026-11-11 - out/ layout hearing #44-47
+
+- Maintainer-called cmake/target/preset review against `.refinfo/MediaServo`
+  @ 9d22cba; diagnosis: cmake/ files clean (donor's eight include five
+  non-goal faces), the mess is out/ (21 entries, 13 git-ignored debris) and
+  the preset table (three axes, three zero-reference presets).
+- Four rulings walked one by one: #44 purge 13 (zero-ref grep per entry),
+  #45 out/presets/${presetName} yard with references retargeted, #46 light
+  scratch/ prefix convention (no forced auto-clean - failure scenes are a
+  feature), #47 drop release/debug/ci-strict (second grep incl. workflows:
+  CI runs pixi run ci, never a preset). Explicitly not touched: cmake/
+  four-file structure, IDE grouping (#42 landed), PolyOrch shim.
+
 ## 2026-11-10 - MediaServo engineering-face hearing #38-43
 
 - repo-audit 2C pass over `.refinfo/MediaServo` @ 9d22cba (agent governance /

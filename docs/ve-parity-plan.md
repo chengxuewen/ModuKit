@@ -8,7 +8,7 @@
 > external-practice-scan #27-30 are in section 2.6, plus the P2 trio #31-33
 > adjudicated 2026-11-06; MediaServo governance-face #34-37 are in section 2.7.
 > B6 follows VE D46 (English-only book, reader-side browser translation).
-> Adjudications #1-#43 are recorded in sections 2 through 2.8; each was walked
+> Adjudications #1-#47 are recorded in sections 2 through 2.9; each was walked
 > one by one with the maintainer. Functional code, contracts, binding
 > implementations, demo assertions, and project memory entries are out of scope.
 > Reference clone: `.refinfo/VisiaEngine` (read-only, git-ignored).
@@ -161,6 +161,30 @@ already held by the gate-agents round-trip plus 16 self-tests), selective
 self-test wiring (killed by measurement), and - from the pattern-card stage -
 the donor CLI shape and the cmake eight-way split (modukit.sh is a 50-line
 passthrough vs the donor's 1671-line shell; our four cmake files fit our face).
+
+### 2.9 out/ layout adjudications (2026-11-11, user-adjudicated one by one)
+
+Source: the maintainer-called cmake/target/preset review against
+`.refinfo/MediaServo` @ 9d22cba (same donor, layout face). Diagnosis: the
+cmake/ files themselves are clean (four files, one job each; the donor's
+eight include five faces that are ModuKit non-goals - web/pack/deploy/
+app-tree/gui-deps); the mess lives in out/ (21 entries, 13 orphan/debris,
+all git-ignored) and the preset table (three classification axes mixed,
+three presets with zero references).
+
+| # | Decision | Ruling | Key note |
+|---|---|---|---|
+| 44 | out/ orphan purge | **A: purge 13** | 7 historical demo trees (m8-demo, m85-demo, build-m3, build-n2, legacy-www-book, cppbuild, dlopen-test-target) + 6 probe debris (cross-target x3, memory-probe, rule-ref-probe, mcp-cli-stale-*, tmp); all git-ignored; per-entry zero-reference grep before deletion, list rides the commit |
+| 45 | preset tree yard | **A: out/presets/${presetName}** | donor template shape, one template for every tree; references follow (demo-stage4 m1/m2, check.sh ctest leg, docs); old trees mv to keep caches |
+| 46 | scratch-tree convention | **B: light - prefix only** | one-off trees live under out/scratch/<name>, no forced auto-clean (a failure scene is a feature, not garbage); recurring purge is the backstop; env.md records the convention |
+| 47 | preset table slimming | **A: drop 3, keep default+stage4** | release/debug/ci-strict all zero-reference (second grep incl. the workflows: CI runs pixi run ci, never a preset; release/debug trees never even configured once); ten JSON lines re-mint if ever needed |
+
+Rejected with record: the full auto-clean convention (would sweep failure
+scenes; the half-scenario benefit does not pay for per-script complexity) and
+keeping ci-strict for a CI day (CI's route is pixi run ci - the premise does
+not hold). Explicitly NOT touched: the cmake/ four-file structure (N8-class
+ruling, our face is narrower), the IDE folder grouping (landed as hearing #42),
+and the PolyOrch shim (75 lines, version-floor gate is the shared highlight).
 
 ## 3. Work breakdown
 
