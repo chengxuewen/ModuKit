@@ -171,11 +171,20 @@ The local equivalent is `pixi run ci`; the workflow adds no second gate definiti
 | `out/presets/default/` | CMake/Ninja IDE build. |
 | `build/book-src/` + `build/book/en/` | mdBook assembly and English site output (ignored). |
 | `out/presets/<demo>/` | Demo-specific CMake builds. |
+| `out/scratch/` | One-off build trees and probe roots (see the convention below). |
 | `target/` | Cargo build and coverage. |
 | `.pixi/envs/` | Pixi environments. |
 | `.serena/cache/` | Serena LSP cache (ignored). |
 | `.codegraph/` | CodeGraph index (ignored). |
 | `node_modules/` | Root MCP npm echo (ignored). |
+
+Scratch-tree convention (hearing #46, ve-parity-plan 2.9): any script that
+needs a one-off build tree or probe root puts it under `out/scratch/<name>`
+(gate logs redirected to files belong there too). No forced auto-clean - a
+failure scene stays for debugging; a recurring purge (grep-then-delete,
+out-layout-plan S1 shape) is the backstop. The numbering mktemp trees stay
+at `out/numbering.*` (self-cleaning by trap, exempt).
+
 
 Do not add a new root-level build/bin directory; `docs/modules/10-observability-and-debugging.md`
 and the `.gitignore` treat these as the only writer classes.

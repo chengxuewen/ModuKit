@@ -29,31 +29,31 @@ if [ -x "$ENV_BIN/x86_64-conda-linux-gnu-cc" ]; then
     export CXX="$ENV_BIN/x86_64-conda-linux-gnu-c++"
 fi
 
-B=out/cmake-smoke
-NEG1=out/cmake-smoke-neg-polyorch
-NEG2=out/cmake-smoke-neg-floor
-HOST=out/cmake-smoke-neg-floor-host
+B=out/scratch/cmake-smoke
+NEG1=out/scratch/cmake-smoke-neg-polyorch
+NEG2=out/scratch/cmake-smoke-neg-floor
+HOST=out/scratch/cmake-smoke-neg-floor-host
 rm -rf "$B" "$NEG1" "$NEG2" "$HOST"
 
 configure() {  # $1 = build dir, $2 = log
     "$CM" -S . -B "$1" -G Ninja -DCMAKE_BUILD_TYPE=Debug >"$2" 2>&1
 }
 
-if ! configure "$B" out/cmake-smoke-configure.log; then
+if ! configure "$B" out/scratch/cmake-smoke-configure.log; then
     echo "CMAKE-SMOKE ✗ bare configure"
-    tail -5 out/cmake-smoke-configure.log
+    tail -5 out/scratch/cmake-smoke-configure.log
     exit 1
 fi
 
 if [ "$MODE" = "full" ]; then
-    if ! "$CM" --build "$B" >out/cmake-smoke-build.log 2>&1; then
+    if ! "$CM" --build "$B" >out/scratch/cmake-smoke-build.log 2>&1; then
         echo "CMAKE-SMOKE ✗ build"
-        tail -5 out/cmake-smoke-build.log
+        tail -5 out/scratch/cmake-smoke-build.log
         exit 1
     fi
-    if ! "$CT" --test-dir "$B" --output-on-failure >out/cmake-smoke-ctest.log 2>&1; then
+    if ! "$CT" --test-dir "$B" --output-on-failure >out/scratch/cmake-smoke-ctest.log 2>&1; then
         echo "CMAKE-SMOKE ✗ ctest"
-        tail -8 out/cmake-smoke-ctest.log
+        tail -8 out/scratch/cmake-smoke-ctest.log
         exit 1
     fi
 fi
@@ -62,12 +62,12 @@ fi
 if [ -d PolyOrch ]; then
     mv PolyOrch PolyOrch.smoke-hidden
     trap 'mv "$PWD/PolyOrch.smoke-hidden" "$PWD/PolyOrch" 2>/dev/null || true' EXIT INT TERM
-    configure "$NEG1" out/cmake-smoke-neg-polyorch.log
+    configure "$NEG1" out/scratch/cmake-smoke-neg-polyorch.log
     rc1=$?
     mv PolyOrch.smoke-hidden PolyOrch 2>/dev/null || true
     trap - EXIT INT TERM
     rm -rf "$NEG1"
-    if [ "$rc1" -eq 0 ] || ! grep -q "PolyOrch submodule missing" out/cmake-smoke-neg-polyorch.log; then
+    if [ "$rc1" -eq 0 ] || ! grep -q "PolyOrch submodule missing" out/scratch/cmake-smoke-neg-polyorch.log; then
         echo "CMAKE-SMOKE ✗ missing-PolyOrch negative path did not state the fix"
         exit 1
     fi
@@ -85,10 +85,10 @@ function(polyorch_rust_setup)
 endfunction()
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../.." modukit)
 EOF
-"$CM" -S "$HOST" -B "$NEG2" -G Ninja >out/cmake-smoke-neg-floor.log 2>&1
+"$CM" -S "$HOST" -B "$NEG2" -G Ninja >out/scratch/cmake-smoke-neg-floor.log 2>&1
 rc2=$?
 rm -rf "$NEG2" "$HOST"
-if [ "$rc2" -eq 0 ] || ! grep -q "needs PolyOrch >= 0.7.1" out/cmake-smoke-neg-floor.log; then
+if [ "$rc2" -eq 0 ] || ! grep -q "needs PolyOrch >= 0.7.1" out/scratch/cmake-smoke-neg-floor.log; then
     echo "CMAKE-SMOKE ✗ stale-PolyOrch floor negative path did not fire"
     exit 1
 fi

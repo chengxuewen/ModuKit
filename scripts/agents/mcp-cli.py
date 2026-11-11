@@ -34,7 +34,7 @@ except ModuleNotFoundError:  # direct run from scripts/agents/ (batch one layout
     import agent_common as ac
 
 PREFIX = "MCP"
-SPECS = os.path.join("scripts", "mcp-servers.json")
+SPECS = os.path.join("scripts", "agents", "mcp-servers.json")
 NODE_HINT = "node not found on PATH -- run via: pixi run mcp <subcommand>"
 NPM_HINT = "npm not found on PATH -- run via: pixi run mcp setup"
 
@@ -113,7 +113,7 @@ def _unblock(pkg):
     if not os.path.isdir(scope_dir):
         return 0
     name = parts[-1]
-    out_dir = os.path.join(ac.ROOT, "out")
+    out_dir = os.path.join(ac.ROOT, "out", "scratch")
     os.makedirs(out_dir, exist_ok=True)
     stale_root = tempfile.mkdtemp(prefix="mcp-cli-stale-", dir=out_dir)
     moved = 0

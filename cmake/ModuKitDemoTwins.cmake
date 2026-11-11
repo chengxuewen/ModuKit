@@ -14,9 +14,10 @@ set(_modukit_demo_twins
 function(modukit_add_demo_twins)
   foreach(_leg ${_modukit_demo_twins})
     if(EXISTS "${CMAKE_SOURCE_DIR}/scripts/${_leg}.sh")
+      file(MAKE_DIRECTORY "${CMAKE_SOURCE_DIR}/out/scratch/tmp")
       add_test(NAME twin-${_leg}
           COMMAND ${CMAKE_COMMAND} -E env
-                  "TMPDIR=${CMAKE_SOURCE_DIR}/out/tmp"
+                  "TMPDIR=${CMAKE_SOURCE_DIR}/out/scratch/tmp"
                   bash -c "bash ${CMAKE_SOURCE_DIR}/scripts/${_leg}.sh 2>/dev/null | grep -q '${_leg}: PASS'")
       set_tests_properties(twin-${_leg} PROPERTIES
           WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"

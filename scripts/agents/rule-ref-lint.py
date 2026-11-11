@@ -73,7 +73,7 @@ def main():
     local = local_ids()
     allow = allow_ids()
     if "--self-test" in sys.argv:
-        probe = ROOT / "out" / "rule-ref-probe"
+        probe = ROOT / "out" / "scratch" / "rule-ref-probe"
         probe.mkdir(parents=True, exist_ok=True)
         (probe / "probe.md").write_text("- planted PIT-999\n")
         findings = scan(probe, local, allow)
