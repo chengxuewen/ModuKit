@@ -132,5 +132,14 @@ final full `bash scripts/check.sh` (with --list 40) closes the batch.
 
 ## 8. Change log
 
+- 2026-11-11 execution complete: all four steps landed same day, one commit
+  each, full check.sh all green (--list 40). Beyond-plan finds folded in:
+  rule-ref-probe and mcp-cli-stale turned out to be LIVE scratch mechanisms
+  (moved into the yard instead of purged); rs demo artifacts proved live and
+  moved under out/scratch/ (the "orphans" regenerated because they are
+  stage1/stage2 outputs); two move regressions caught by the full gate and
+  fixed - twins raced the stage4 reconfigures (RUN_SERIAL added) and the
+  neg-floor probe's ../.. hop broke on the deeper scratch dir (heredoc
+  rebuilt on PWD). Gate count unchanged at 40.
 - 2026-11-11 revision 1: drawn from hearing #44-47 (ve-parity-plan section
   2.9); four steps S1-S4, ledger, before/after diagrams.
