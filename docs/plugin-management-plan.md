@@ -67,7 +67,7 @@ against the frozen list at implementation time.
 - C0: planted malformed filter reddens; match/non-match fixtures; liar fixture
   for a filter that claims a property the service never declared.
 
-### S2 - tracker + service events + version ranges (P1-b/c/d)
+### S2 - tracker + service events + version ranges (P1-b/c/d) — LANDED 2026-11-23
 
 - ServiceTracker: core Rust helper (track filter + add/set/remove callbacks)
   riding the existing `subscribe`; per-language THIN sugar above the generated
@@ -156,9 +156,17 @@ proves a genuinely new surface (then recorded, not silent).
   trigger-gated); celix lifecycle-handler isolation is the reference.
 - D4 single-instance stands (A5); ServiceFactory would need a hearing.
 - RSA blueprint recorded (A6), implementation deferred with Stage 5.
+- Cascade-start of a matching `requires` provider (the CTK Require-Plugin
+  behavior, S2-3 option B) is trigger-gated: S2 ships the version-range check
+  only; auto-starting another plugin is a resolve-behavior expansion that needs
+  a real consumer and a ruling.
 
 ## 9. Change log
 
+- 2026-11-23 revision 4: S2 LANDED - Modified events + modify_props +
+  subscribe_filtered (2ba6a95), bounded ServiceTracker (87063db), requires
+  version ranges + service.version convention (S2-3 A). Cascade-start recorded
+  trigger-gated (§8). S3-S4 remain.
 - 2026-11-23 revision 3: S1 LANDED (9d96f5c filter.rs + registry.find;
   df5f2df modukit_embed_find_services D83 tail-add + three skins + count pins
   24->25 / rung-0 16->17). Full ci all green. S2-S4 remain.

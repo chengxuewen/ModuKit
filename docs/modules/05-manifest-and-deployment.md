@@ -72,7 +72,7 @@ word, forms verified at the D7 cross-check).
 
 ```text
 requires: [
-  { service = "com.yourco.hmi.CanBus",    required = true,  policy = wait(10s) },
+  { service = "com.yourco.hmi.CanBus",    required = true,  policy = wait(10s), version = ">=1.2,<2" },
   { service = "com.yourco.hmi.Telemetry", required = false, policy = fallback, on_down = block },
 ]
 provides: [ { service = "com.yourco.hmi.NavEngine", ranking = 100, parallel_ok = false } ]
@@ -87,6 +87,10 @@ export = []                          # bridged planes see NOTHING unless listed 
 
 - `requires` is validated at `RESOLVING` (03 §1) for `required = true` — missing = deterministic
   boot failure before any plugin code runs; the boot graph can say "who waits on whom".
+- `requires.version` (S2, ruling S2-3 A) is an optional comparator range (`>=1.2,<2`; operators
+  `>=`/`<=`/`>`/`<`/`=`, comma-conjoined, zero-padded numeric compare). The provider's version
+  rides the `service.version` property; an absent or non-matching version is a deterministic
+  resolve failure. Cascade-start of a matching provider is NOT built (trigger-gated, plan §8).
 - Service strings are canonical reverse-DNS ids (D9, 02 §1); `aliases` map short names to
   canonical ids within this bundle's parse scope only — resolution happens at manifest read
   time, everything downstream (cross-check, wire, registry) sees canonical strings.
