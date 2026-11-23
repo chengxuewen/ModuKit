@@ -33,6 +33,7 @@ pub mod bus;
 pub mod bus_wire;
 pub mod clock;
 pub mod counters;
+pub mod dm;
 pub mod edge_ledger;
 pub mod embed;
 pub mod embed_abi;
