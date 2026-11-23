@@ -1,5 +1,7 @@
 # 07 — Transport Architecture: Narrow Seam, Per-Plane Slots, Bridges
 
+<!-- module-status: partial - local planes shipped (socketpair/memfd/SCM_RIGHTS, iceoryx2, vendor-shm D76/D90); remote carrier and streaming slots stay trigger-gated (D89-K3) -->
+
 D11. Kernel owns the communication semantics; vendors are swappable porters.
 
 ## 1. The rule

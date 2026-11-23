@@ -107,6 +107,27 @@ if [ -f build/book-src/SUMMARY.md ]; then
   book_note="book: ${chapters} chapters"
 fi
 
+# 6 module-status headers (repo-audit 2C P1, AccessBase pattern 2026-11-23):
+# pages that CARRY a machine-readable status line must use the enum verbatim
+# (implemented|partial|design-only|superseded); lacking one is legal while the
+# rollout is staged, and 00-overview.md is an index page, exempt by design.
+ms_bad=0
+for f in docs/modules/[0-9][0-9]-*.md; do
+  case "$f" in *00-overview.md) continue ;; esac
+  mline=$(sed -n '1,5p' "$f" | grep -o 'module-status: *[a-z-]*' | head -1)
+  [ -z "$mline" ] && continue
+  menum=${mline#module-status: }
+  menum=${menum%% *}
+  case "$menum" in
+    implemented|partial|design-only|superseded) ;;
+    *)
+      echo "GATE-DOCS ✗ $f: module-status enum '$menum' is not implemented|partial|design-only|superseded"
+      ms_bad=1
+      ;;
+  esac
+done
+[ "$ms_bad" -eq 0 ] || fail=1
+
 if [ "$fail" -eq 0 ]; then
   echo "GATE-DOCS ✓ (root purity / gitlink aligned / cli ${cli_tasks:+$(printf '%s\n' "$cli_tasks" | grep -c .)} tasks / links / ${book_note})"
 fi

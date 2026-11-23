@@ -1,5 +1,7 @@
 # 06 — Topics and the Object Table
 
+<!-- module-status: implemented - v2/clock doors and the parent pump landed (D96/D99/D108/D110); section 7 is the pre-v2 historical snapshot -->
+
 D10. Cross-plugin communication is one object table with four kinds of handles.
 
 ## 1. One table, four handle kinds

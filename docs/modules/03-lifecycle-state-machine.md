@@ -1,5 +1,7 @@
 # 03 — Lifecycle State Machine
 
+<!-- module-status: implemented - D3 as-built in modukit-core (stages 2-3); no hard-RT or fn-safety surface by ruling -->
+
 D3. Six OSGi-style states plus a `Failed` edge; availability grade in-vehicle-B: tiered
 parallel boot, supervised restart with backoff, consumer policies (02 §2) — and explicitly no
 hard real-time and no functional-safety surface.
