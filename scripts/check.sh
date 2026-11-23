@@ -296,6 +296,19 @@ if [ "$HAS_WS" -eq 1 ] && [ -f deny.toml ]; then
   fi
 else note "skip cargo-deny (no deny.toml or no workspace)"; fi
 
+# leg-adjacent guard: credential-shaped tracked filenames (repo-audit 2C P1,
+# dora lesson 2026-11-23). Zero-dependency: NAME forms only, never file
+# content; new shapes join the list as one line. The committed baseline was
+# proven clean on 2026-11-23 (zero hits).
+cred_bad=$(git ls-files | grep -Ei '(^|/)\.env($|\.)|credential|secret|private[-_]?key|(^|/)id_(rsa|ed25519|ecdsa)|\.pem$|\.p12$|\.pfx$|\.keystore$|\.kdbx$' || true)
+if [ -n "$cred_bad" ]; then
+  printf '%s\n' "$cred_bad"
+  note "FAIL credential-filenames (tracked names match credential forms; untrack them or extend this comment with the reason)"
+  status=1
+else
+  note "ok credential-filenames (no tracked credential-shaped names)"
+fi
+
 # leg: ctest bridge over the dedicated Stage-4 tree (gate escalation 2026-10-21;
 # PIT-17 class - a warm stale tree once fabricated a false 9/9). Incremental rebuild
 # THEN full ctest every run, so changed sources cannot hide behind old binaries.
