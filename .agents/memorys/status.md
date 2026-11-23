@@ -45,6 +45,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 - Active remainders: codegraph 1.6.2 advisory, gate-mcp O5 WARN, CodeBuddy IDE restart visibility, MediaServo donor gitlink drift (refinfo-sync FAILs it until resolved upstream-side). Next scan re-checks this list first; last recorded scan: Full 2026-11-04.
 - Settled rows (2026-11-04 Quick; 11-05 HIGH cleanup; 11-06 P2 #31-33, #31 LANDED, EMBED-02, D65 re-check; hearings #34-37 / #38-43 / #44-47 executed) moved verbatim to `history-archive.md` (2026-11-23 entry).
+- 2026-11-23 MediaServo scan @ f589e8f4 (refinfo FAIL drift stands; 210-commit delta over the 9d22cba baseline): donor findings = mcp dual-list drift, /home/ literal in scripts/agents/mcp-servers.json, 3 naming outliers. Pattern cards 8: adopt = tracked-intersect-ignored leak gate, shadcn execution trio, smoke hardening trio (TMPDIR pin, dual-face env control, bootstrap assertions), localized .gitignore discipline; consider = STRUCTURE generator (P2, ship with the donor's Full#2 fixes), 2D collector script, fail-closed pure-function template, three-tier config ladder; hold = per-recipient roster trimming (no consumer). Ported-echo: donor landed aggregation batch-2 (dispatcher chain into scripts/agents/), 10+ agent test files, FOLDER hierarchy plan; abs-path gate / selftests runner / e2e naming unchanged. Dismissal log: "ModuKit has no leak gate" corrected - credential guard (b6ab6fb) is name-form complementary, the tracked-intersect-ignored check is still missing and stays the P1 adopt.
 
 ## Open Items
 
