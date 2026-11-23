@@ -164,6 +164,18 @@ default and `msrv` envs, runs `agents sync`, `pixi run ci`, the explicit MSRV ch
 and `spec-trace`. Pin both actions to a commit SHA before enabling it for real.
 The local equivalent is `pixi run ci`; the workflow adds no second gate definition.
 
+## Toolchain escape hatch (system toolchain)
+
+`MODUKIT_USE_PIXI=OFF` at configure time switches the rust face to the system
+toolchain (`polyorch_rust_setup(FROM system REQUIRED)`). What you gain: the
+build works without a pixi env. What you lose: the pinned cmake / ninja /
+protobuf versions - `pixi.toml` deliberately does not trust a system cmake
+(3.16-class installs break the graph), and the MSRV / cov / serena
+environments stay pixi-only regardless of this switch. The default remains
+ON; when the pixi route is selected but its default env has no cargo,
+configure prints a WARNING with the two fixes (`bash bootstrap.sh` or this
+switch) before the required toolchain call fails.
+
 ## Output territory
 
 | Path | Owner |

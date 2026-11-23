@@ -68,6 +68,17 @@ function(modukit_ensure_polyorch_rust)
       message(FATAL_ERROR "MODUKIT_USE_PIXI needs the PolyOrch pixi helper face")
     endif()
     polyorch_pixi_setup(COPY_SCRIPTS REPORT)
+    # failure guidance (dual-track plan T2, 2026-11-23): make the route visible and
+    # hand the user the two fixes BEFORE the REQUIRED call fails with its own
+    # message - MediaServo's bootstrap_hint spirit, zero behavior change.
+    if(EXISTS "${CMAKE_SOURCE_DIR}/.pixi/envs/default/bin/cargo")
+      message(STATUS "modukit: rust route = pixi default env (${CMAKE_SOURCE_DIR}/.pixi/envs/default/bin/cargo)")
+    else()
+      message(WARNING
+        "pixi default env has no cargo candidate at .pixi/envs/default/bin/cargo - "
+        "run `bash bootstrap.sh` to provision it, or configure with MODUKIT_USE_PIXI=OFF "
+        "for the system toolchain (pinned cmake/ninja/protobuf are lost on that route)")
+    endif()
     polyorch_rust_setup(FROM pixi REQUIRED)
   else()
     polyorch_rust_setup(FROM system REQUIRED)
