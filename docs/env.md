@@ -199,6 +199,12 @@ running in (PIT-7 class). This ruling supersedes the #47 preset slimming
 (same tree template, more named residents); `MinSizeRel` has no scenario here
 and stays out until one appears.
 
+**First build in a fresh tree (or after switching build types)**: the cargo
+`.a` files are ninja inputs without a producer edge (cargo rides a lane
+stamp), so ninja cannot parse the graph until the artifacts exist on disk.
+`pixi run build` handles this via the `warm` step; IDE builders should run
+`pixi run warm` once before the first full Build of a cold tree.
+
 ## Output territory
 
 | Path | Owner |

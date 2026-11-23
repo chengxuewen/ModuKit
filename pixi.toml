@@ -21,7 +21,8 @@ clang_win-64 = "*"       # windows-side compiler shim (conda convention: activat
 
 [feature.tools.tasks]
 configure = "cmake --preset default"
-build = { cmd = "cmake --build --preset default", depends-on = ["configure"] }
+warm = "cmake --build --preset default --target modukit-rust-build"
+build = { cmd = "cmake --build --preset default", depends-on = ["configure", "warm"] }
 ci = "bash scripts/check.sh"                                   # the local gate; CONSTRAINTS is generated from --list
 docs-gen = "bash scripts/gen-llms-txt.sh"                        # regenerate llms.txt (committed)
 gate-abi = "bash scripts/gate-abi.sh"                            # exported symbol set vs contracts/modukit_embed.h
