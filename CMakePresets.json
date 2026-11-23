@@ -7,49 +7,94 @@
   },
   "configurePresets": [
     {
-      "name": "default",
-      "displayName": "Pixi-mirror configure (out/presets/default)",
-      "description": "Mirrors the pixi tasks: cmake -S . -B out/build -G Ninja (D65); MODUKIT_USE_PIXI stays at its option() default ON.",
+      "name": "_base",
+      "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/presets/${presetName}",
+      "binaryDir": "${sourceDir}/out/presets/${presetName}"
+    },
+    {
+      "name": "_pixi",
+      "hidden": true,
+      "inherits": "_base",
       "cacheVariables": {
         "MODUKIT_USE_PIXI": "ON"
       }
     },
     {
-      "name": "stage4",
-      "displayName": "Stage-4 cpp demo tree (out/presets/stage4)",
-      "description": "Mirrors scripts/demo-stage4-m1.sh/m2.sh: cmake -S . -B out/build-stage4 -G Ninja, no -D flags.",
-      "inherits": [
-        "default"
-      ],
-      "binaryDir": "${sourceDir}/out/presets/${presetName}"
+      "name": "_system",
+      "hidden": true,
+      "inherits": "_base",
+      "cacheVariables": {
+        "MODUKIT_USE_PIXI": "OFF"
+      }
+    },
+    {
+      "name": "default",
+      "displayName": "pixi / RelWithDebInfo (daily)",
+      "description": "Daily tree; the pixi configure/build tasks run this preset. One command per lane: cmake --preset default.",
+      "inherits": "_pixi",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "pixi / Debug",
+      "description": "Full symbols, no optimization - for crash-diving the C++ faces. Own tree: switching presets never re-flavors an existing one.",
+      "inherits": "_pixi",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "pixi / Release",
+      "description": "Optimized - for benchmark numbers (the D104 lane family).",
+      "inherits": "_pixi",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "system",
+      "displayName": "system toolchain / RelWithDebInfo (escape hatch)",
+      "description": "No pixi: system cmake/ninja/cargo (MODUKIT_USE_PIXI=OFF; the pinned cmake/ninja/protobuf are lost on this route - see docs/env.md). Own tree, so a system configure never pollutes a pixi tree.",
+      "inherits": "_system",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "system-debug",
+      "displayName": "system toolchain / Debug",
+      "inherits": "_system",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "system-release",
+      "displayName": "system toolchain / Release",
+      "inherits": "_system",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     }
   ],
   "buildPresets": [
-    {
-      "name": "default",
-      "configurePreset": "default"
-    },
-    {
-      "name": "stage4",
-      "configurePreset": "stage4"
-    }
+    { "name": "default", "configurePreset": "default" },
+    { "name": "debug", "configurePreset": "debug" },
+    { "name": "release", "configurePreset": "release" },
+    { "name": "system", "configurePreset": "system" },
+    { "name": "system-debug", "configurePreset": "system-debug" },
+    { "name": "system-release", "configurePreset": "system-release" }
   ],
   "testPresets": [
-    {
-      "name": "default",
-      "configurePreset": "default",
-      "output": {
-        "outputOnFailure": true
-      }
-    },
-    {
-      "name": "stage4",
-      "configurePreset": "stage4",
-      "output": {
-        "outputOnFailure": true
-      }
-    }
+    { "name": "default", "configurePreset": "default", "output": { "outputOnFailure": true } },
+    { "name": "debug", "configurePreset": "debug", "output": { "outputOnFailure": true } },
+    { "name": "release", "configurePreset": "release", "output": { "outputOnFailure": true } },
+    { "name": "system", "configurePreset": "system", "output": { "outputOnFailure": true } },
+    { "name": "system-debug", "configurePreset": "system-debug", "output": { "outputOnFailure": true } },
+    { "name": "system-release", "configurePreset": "system-release", "output": { "outputOnFailure": true } }
   ]
 }
