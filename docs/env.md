@@ -174,15 +174,38 @@ protobuf versions - `pixi.toml` deliberately does not trust a system cmake
 environments stay pixi-only regardless of this switch. The default remains
 ON; when the pixi route is selected but its default env has no cargo,
 configure prints a WARNING with the two fixes (`bash bootstrap.sh` or this
-switch) before the required toolchain call fails.
+switch) before the required toolchain call fails. The `system*` presets below
+pre-fill this switch; everything else stays your command line's business.
+
+## CMake presets (official shape, 2026-11-23 ruling)
+
+Preset = route (pixi/system) x build type, one tree per preset
+(`out/presets/<name>`, declared in `CMakePresets.json`, built on first use):
+
+| Preset | Route | Type | Use |
+|---|---|---|---|
+| `default` | pixi | RelWithDebInfo | daily; the pixi `configure`/`build` tasks run it |
+| `debug` | pixi | Debug | crash-diving the C++ faces |
+| `release` | pixi | Release | benchmark numbers |
+| `system` | system | RelWithDebInfo | escape hatch, default type |
+| `system-debug` / `system-release` | system | Debug / Release | same, on the system route |
+
+Division of labor: presets own the tree + generator + toolchain route + a
+type default; the C++ faces are the `MODUKIT_BUILD_CPP` option (GUI / `-D` /
+preset, ON by default); `-D` always overrides a preset. The gate/demo tree
+(`out/presets/demo`) is script-private (`-B` in the demo legs) and never
+appears in the preset menu - IDE reconfigures must not touch a tree a gate is
+running in (PIT-7 class). This ruling supersedes the #47 preset slimming
+(same tree template, more named residents); `MinSizeRel` has no scenario here
+and stays out until one appears.
 
 ## Output territory
 
 | Path | Owner |
 |---|---|
-| `out/presets/default/` | CMake/Ninja IDE build. |
+| `out/presets/default/` | CMake/Ninja IDE build (preset `default`; type per preset table). |
 | `build/book-src/` + `build/book/en/` | mdBook assembly and English site output (ignored). |
-| `out/presets/<demo>/` | Demo-specific CMake builds. |
+| `out/presets/demo/` | Gate/demo territory: the demo-stage4 legs and the ctest census run here (script-private, not a preset). |
 | `out/scratch/` | One-off build trees and probe roots (see the convention below). |
 | `target/` | Cargo build and coverage. |
 | `.pixi/envs/` | Pixi environments. |
