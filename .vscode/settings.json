@@ -2,5 +2,13 @@
   "cmake.cmakePath": "${workspaceFolder}/.pixi/envs/default/bin/cmake",
   "cmake.useCMakePresets": true,
   "cmake.configurePreset": "default",
+  "cmake.configureEnvironment": {
+    "PATH": "${workspaceFolder}/.pixi/envs/default/bin:${env:PATH}",
+    "CC": "${workspaceFolder}/.pixi/envs/default/bin/x86_64-conda-linux-gnu-cc",
+    "CXX": "${workspaceFolder}/.pixi/envs/default/bin/x86_64-conda-linux-gnu-g++"
+  },
+  "cmake.buildEnvironment": {
+    "PATH": "${workspaceFolder}/.pixi/envs/default/bin:${env:PATH}"
+  },
   "ctest.useCMakePresets": true
 }
