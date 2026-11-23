@@ -83,3 +83,32 @@ When creating PRs:
 3. Draft comprehensive PR summary
 4. Include test plan with TODOs
 5. Push with `-u` flag if new branch
+
+## Execution discipline for improvement batches (shadcn/improve pattern)
+
+Ported from the MediaServo donor (2026-11-23, MediaServo scan @ f589e8f4;
+originally adopted there from shadcn/improve). Three pieces, all prose - they
+govern HOW a plan is executed, not what the gates check:
+
+1. **Weakest-executor plan standard**: a plan should name the least powerful
+   mechanism that can do the job. Prefer an existing gate, then a script, then
+   a rule, then a new process - never reach for a heavier institution first.
+2. **Reconcile-before-start** (four questions before touching anything): does
+   the plan still match the repo's live state? which gates cover the touched
+   surface? what did the previous audit round say about this area? is anything
+   already landed that the plan does not know about?
+3. **Bounded send-back**: a reviewer may (a) approve, or (b) send back at most
+   twice with concrete findings, or (c) block and demand the plan be refined.
+   Round 3 is not a review round - it is a plan defect, and the plan goes back
+   to the drawing stage.
+
+## Ignore-rule locality
+
+Runtime artifacts are ignored **where they are produced**: a subdirectory that
+generates lockfiles, caches, or harness output carries its own local
+`.gitignore`; the root `.gitignore` keeps only anchored entries and territory
+declarations. An unanchored pattern in the root file can swallow same-named
+tracked files anywhere in the tree (the MediaServo donor nearly lost its root
+`package-lock.json` to exactly this shape, 2026-11-23). When adding ignore
+rules, ask: which directory produces this? The `check-leaks.sh` gate (tracked
+intersected with ignore rules) is the backstop if the answer goes wrong.
