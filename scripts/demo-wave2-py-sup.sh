@@ -103,7 +103,7 @@ rm -rf "$scratch"
 # neither tree carries it the demo has nothing to install - the host_demo.cc
 # skip rule (exit 77), kept honest.
 so=""
-for c in out/presets/stage4/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so \
+for c in out/presets/demo/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so \
          out/presets/default/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so; do
   if [ -f "$c" ]; then so="$c"; break; fi
 done

@@ -5,7 +5,7 @@
 # SIGKILLed and the runner must self-reap (ORPHAN-PROOF transplanted from
 # S2-M5a, now under a C++-authored host). NO skip-when-absent on the gate
 # itself; cargo and cmake legs route through pixi per D65. Reuses the
-# dedicated out/presets/stage4 tree from demo-stage4-m1 (warm).
+# dedicated out/presets/demo tree from demo-stage4-m1 (warm).
 #
 # C0 observed-RED levers (two named points, still ONE leg):
 #   DEMO_STAGE4_M2_SABOTAGE=1 - parent stops instead of kills: the census
@@ -43,14 +43,14 @@ pixi run cargo build -p modukit-runtime --target-dir out/cargo-target \
 runner="$PWD/out/cargo-target/debug/modukit-run"
 
 {
-  pixi run cmake -S . -B out/presets/stage4 -G Ninja &&
-  pixi run cmake --build out/presets/stage4 --target modukit-cpp-host-sup-demo
+  pixi run cmake -S . -B out/presets/demo -G Ninja &&
+  pixi run cmake --build out/presets/demo --target modukit-cpp-host-sup-demo
 } >"$log" 2>&1 || {
   echo "demo-stage4-m2: RED (cmake build failed; last lines:)"; tail -10 "$log"; exit 1
 }
 
-so="out/presets/stage4/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so"
-demo="out/presets/stage4/examples/cpp/modukit-cpp-host-sup-demo"
+so="out/presets/demo/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so"
+demo="out/presets/demo/examples/cpp/modukit-cpp-host-sup-demo"
 if [ ! -x "$demo" ] && grep -qE "cpp shelf/env incomplete|cpp fixture band skipped|bindings/cpp: no protoc|shelf skipped" "$log"; then
   echo "demo-stage4-m2: SKIP (cpp band auto-skipped: no env protoc / lanes off)"
   exit 0

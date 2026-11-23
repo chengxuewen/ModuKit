@@ -7,7 +7,7 @@
 # this gate never does). Cargo/cmake legs route through pixi per D65 (same
 # rule as demo-stage1/2).
 #
-# Build tree note: this gate runs in a DEDICATED out/presets/stage4 Ninja
+# Build tree note: this gate runs in a DEDICATED out/presets/demo Ninja
 # tree (target-scoped build), not the shared out/build - the shared tree is
 # also reconfigured by IDE tooling (the PIT-7 class) and a generator flip
 # mid-run would make this gate undeterministic. Warm incremental cost after
@@ -33,7 +33,7 @@ if ! command -v pixi >/dev/null 2>&1; then
   exit 1
 fi
 
-bd="out/presets/stage4"
+bd="out/presets/demo"
 log=$(mktemp)
 trap 'rm -f "$log"' EXIT
 
