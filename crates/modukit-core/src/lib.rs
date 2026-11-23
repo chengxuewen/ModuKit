@@ -42,6 +42,7 @@ pub mod error;
 pub mod events;
 pub mod executor;
 mod executor_proc;
+pub mod filter;
 mod host_v2;
 mod host_v3;
 pub mod identity;

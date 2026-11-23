@@ -8,8 +8,9 @@
 //! `ranking` used as tie-break only (4); `Registered`/`Unregistered` event
 //! pairs beside `snapshot()` (5 — `Modified` is a documented additive
 //! extension, deliberately not shipped in year 1); acquire/release call shape
-//! with internal refcount (6). No property filters, no tracker, no factory,
-//! no leases (modules/02 §5 non-goals).
+//! with internal refcount (6). Property-filter query (`find`) ships in
+//! plugin-management-plan S1; no tracker, no factory, no leases yet
+//! (modules/02 §5 non-goals; tracker/events follow in S2).
 
 use std::any::{Any, TypeId};
 use std::cell::Cell;
@@ -19,6 +20,7 @@ use std::sync::mpsc::{Receiver, SyncSender, TrySendError, sync_channel};
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
 use crate::events::{ObsEvent, Observatory};
+use crate::filter::{Filter, FilterError};
 use crate::identity::ServiceId;
 pub use crate::registry_types::{
     Properties, PropertyValue, RegisteredService, RegistrationId, ServiceEvent,
@@ -264,6 +266,31 @@ impl Registry {
         let store = lock(&self.storage);
         store.entries.values().map(view).collect()
     }
+
+    /// Property-filter query (plugin-management-plan S1, ruling A2): parse an
+    /// RFC1960-subset filter and return the matching registrations best-first
+    /// (ranking descending, then registration order - the `acquire` tie-break).
+    /// A well-formed filter naming an undeclared property simply yields no
+    /// match; it never panics.
+    ///
+    /// # Errors
+    ///
+    /// `FilterError` when the filter string is malformed.
+    pub fn find(&self, filter: &str) -> Result<Vec<RegisteredService>, FilterError> {
+        let parsed = Filter::parse(filter)?;
+        let store = lock(&self.storage);
+        let mut hits: Vec<&Entry> = store
+            .entries
+            .values()
+            .filter(|e| parsed.matches(&e.props))
+            .collect();
+        hits.sort_by(|a, b| {
+            b.ranking
+                .cmp(&a.ranking)
+                .then(a.id.value().cmp(&b.id.value()))
+        });
+        Ok(hits.into_iter().map(view).collect())
+    }
 }
 
 impl Clone for Registry {
@@ -341,5 +368,48 @@ impl<S> Drop for ServiceRef<S> {
                 entry.holds -= 1;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod find_tests {
+    use super::*;
+
+    struct Svc;
+
+    fn reg(r: &Registry, id: &str, ranking: i64) {
+        let mut p = Properties::new();
+        p.insert("service.id", PropertyValue::Str(id.into()));
+        p.insert("ranking", PropertyValue::Int(ranking));
+        r.register(Arc::new(Svc), p).unwrap();
+    }
+
+    #[test]
+    fn find_matches_and_orders_best_first() {
+        let r = Registry::new();
+        reg(&r, "com.acme.Nav", 10);
+        reg(&r, "com.acme.Nav", 100);
+        reg(&r, "com.acme.Log", 50);
+        let hits = r.find("(service.id=com.acme.Nav)").unwrap();
+        assert_eq!(hits.len(), 2);
+        assert_eq!(hits[0].ranking, 100); // best-first
+        assert_eq!(hits[1].ranking, 10);
+        let ge = r.find("(&(service.id=com.acme.Nav)(ranking>=50))").unwrap();
+        assert_eq!(ge.len(), 1);
+        assert_eq!(ge[0].ranking, 100);
+    }
+
+    #[test]
+    fn find_undeclared_property_is_empty_not_panic() {
+        let r = Registry::new();
+        reg(&r, "com.acme.Nav", 1);
+        assert!(r.find("(ghost=x)").unwrap().is_empty());
+    }
+
+    #[test]
+    fn find_malformed_filter_redds() {
+        let r = Registry::new();
+        assert!(r.find("(service.id=").is_err());
+        assert!(r.find("(&)").is_err());
     }
 }
