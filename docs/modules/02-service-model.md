@@ -133,15 +133,17 @@ generations during hot-update (old plugin passes state to the new one before exi
 defined - year-1 update is stop-then-start, cold state, by D8; named for the fleet-update
 trigger.
 
-`ServiceTracker` as a public type; `ServiceFactory` (per-consumer
+`ServiceFactory` (per-consumer
 instances); per-bundle lease accounting beyond internal refcount; service registry queries
 across namespaces/tenants; multi-instance version routing for `parallel_ok` services
 (D8 — the declaration field ships inert; the routing mechanism arrives with exe placement).
 
 Progress (plugin-management-plan): the LDAP-subset property filter (`find`) shipped
 in S1; `Modified` events (`modify_props`, canonical `service.id` immutable) and
-filtered subscription (`subscribe_filtered`) shipped in S2. `ServiceTracker` as a
-public type is the remaining S2 item; the factory refusal above stands (D4, ruling A5).
+filtered subscription (`subscribe_filtered`) and a bounded callback-driven
+`ServiceTracker` (`tracker.rs`, `ServiceCustomizer`) shipped in S2. The factory
+refusal above stands (D4, ruling A5); version ranges on `requires` are the
+remaining S2 item.
 
 
 **Node factories and work units (D70, 2026-10-15).** The kind+formats+priority capability query rides the plugin family's own contract, not the registry - the refusal above stands unchanged (kernel routes, does not interpret, D46). A plugin's work unit (per-session pipeline instance, e.g. one encoder instance per stream) is a plain object by default; it registers an EPHEMERAL service record - deregistering on completion - when it needs observation (hot-swap drain, D21 counts, leases). Default rule: drainable or countable -> must register. No new registry syntax; per-unit records are ordinary entries.
