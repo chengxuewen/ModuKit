@@ -55,7 +55,7 @@ against the frozen list at implementation time.
 
 ## 3. Steps
 
-### S1 - property filter + filtered query (P1-a)
+### S1 - property filter + filtered query (P1-a) — LANDED 2026-11-23 (9d96f5c + df5f2df)
 
 - New `crates/modukit-core/src/filter.rs`: RFC1960 subset parser + matcher
   (`=`, `&`, `|`, `!`, comparisons, `*` wildcard, present-test). Pure, no deps.
@@ -159,6 +159,9 @@ proves a genuinely new surface (then recorded, not silent).
 
 ## 9. Change log
 
+- 2026-11-23 revision 3: S1 LANDED (9d96f5c filter.rs + registry.find;
+  df5f2df modukit_embed_find_services D83 tail-add + three skins + count pins
+  24->25 / rung-0 16->17). Full ci all green. S2-S4 remain.
 - 2026-11-23 revision 2: A1-A6 walked one by one, all RESOLVED A. P1 four items
   confirmed (S1 hand-rolled RFC1960 filter subset, zero new deps; S2
   tracker+events+ranges); P2 = S3 DM-lite+ConfigAdmin, S4 ops face, lazy
