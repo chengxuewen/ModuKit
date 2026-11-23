@@ -176,7 +176,8 @@ fn plugin_wrapper_tracks_the_v2_slots() {
 #[test]
 fn embed_wrapper_tracks_the_real_header_verbs() {
     // Structural pin: the wrapper must carry one method per header verb, in
-    // declaration order (16 verbs at HostEmbedV1; D83 tail-add keeps order).
+    // declaration order (25 verbs after the S1 find_services tail-add; D83
+    // tail-add keeps order and increments this pin deliberately).
     let root = repo_root();
     let header = std::fs::read_to_string(root.join("contracts/modukit_embed.h")).unwrap();
     let produced = emit_embed_hpp(&header).unwrap();
@@ -185,7 +186,7 @@ fn embed_wrapper_tracks_the_real_header_verbs() {
         .filter_map(|l| l.strip_prefix("int32_t modukit_"))
         .map(|l| l.split('(').next().expect("verb name before ("))
         .collect();
-    assert_eq!(header_verbs.len(), 24, "HostEmbedV1 verb count moved");
+    assert_eq!(header_verbs.len(), 25, "HostEmbedV1 verb count moved");
     for verb in header_verbs {
         assert!(
             produced.contains(&format!("modukit_{verb}(")),

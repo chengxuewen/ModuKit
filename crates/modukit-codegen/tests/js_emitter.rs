@@ -99,16 +99,20 @@ fn emitter_is_deterministic() {
 }
 
 #[test]
-fn emitted_bridge_forwarders_equal_all_24_verbs() {
+fn emitted_bridge_forwarders_equal_all_25_verbs() {
     let header = embed_header();
     let all = all_verbs(&header);
-    assert_eq!(all.len(), 24, "verb count moved (24 at M2)");
+    assert_eq!(all.len(), 25, "verb count moved (25 after S1 tail-add)");
     let sup = all.iter().filter(|n| n.starts_with("modukit_sup_")).count();
     assert_eq!(sup, 8, "sup verb count moved (8 at M2)");
     let rung0 = rung0_verbs(&header);
-    assert_eq!(rung0.len(), 16, "rung-0 verb count moved (16 at M1)");
+    assert_eq!(
+        rung0.len(),
+        17,
+        "rung-0 verb count moved (17 after S1 find_services)"
+    );
     let produced = emit_embed_js_bridge(&header).unwrap();
-    // Set-equality over the js_name exports: all 24 verbs (both rungs) have
+    // Set-equality over the js_name exports: all 25 verbs (both rungs) have
     // exactly one forwarder and the bridge exports no other modukit_* name.
     let want: BTreeSet<String> = all.iter().cloned().collect();
     let mut got = BTreeSet::new();
@@ -121,10 +125,10 @@ fn emitted_bridge_forwarders_equal_all_24_verbs() {
     }
     assert_eq!(
         got, want,
-        "bridge forwarder names must equal the full 24-verb set (both rungs)"
+        "bridge forwarder names must equal the full 25-verb set (both rungs)"
     );
-    // The rung-0 subset pin (the M1 assertion, kept): every one of the 16
-    // non-sup verbs is present among the 24 forwarders.
+    // The rung-0 subset pin (the M1 assertion, kept): every one of the 17
+    // non-sup verbs is present among the 25 forwarders.
     for v in &rung0 {
         assert!(got.contains(v), "bridge lost the rung-0 verb {v}");
     }
@@ -170,7 +174,11 @@ fn facade_functions_equal_bridge_forwarders() {
         facade_names, bridge_names,
         "facade re-exports must be 1:1 with the bridge forwarders"
     );
-    assert_eq!(facade_names.len(), 24, "facade verb count moved (24 at M2)");
+    assert_eq!(
+        facade_names.len(),
+        25,
+        "facade verb count moved (25 after S1 tail-add)"
+    );
 }
 
 #[test]

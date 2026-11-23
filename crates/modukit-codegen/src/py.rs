@@ -8,7 +8,7 @@
 //! parallel-surface drift D63 forbids.
 //!
 //! Output: `modukit_embed.py` - the GENERATED ctypes floor over the full
-//! 24-verb face (16 rung-0 verbs + the 8 `modukit_sup_*` verbs, D100 R1):
+//! 25-verb face (16 rung-0 + 8 `modukit_sup_*` + S1 find_services, D100 R1):
 //! - module-level class mirrors of the header's five C enums (values verbatim,
 //!   the `MODUKIT_` prefix drops inside the class scope, like the C++ enum
 //!   classes),

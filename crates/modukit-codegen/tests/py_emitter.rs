@@ -55,7 +55,7 @@ fn emitter_is_deterministic() {
 }
 
 #[test]
-fn emitted_prototypes_equal_all_24_verbs() {
+fn emitted_prototypes_equal_all_25_verbs() {
     // Structural pin (cpp_emitter.rs:183 pattern): one PROTOTYPES key per
     // header verb of BOTH rungs, in declaration order - the M2 flip: the 8
     // modukit_sup_* verbs now ride the floor (D100 R1 two-rung scope).
@@ -66,7 +66,7 @@ fn emitted_prototypes_equal_all_24_verbs() {
         .filter_map(|l| l.strip_prefix("int32_t modukit_"))
         .map(|l| "modukit_".to_string() + l.split('(').next().expect("verb name before ("))
         .collect();
-    assert_eq!(all.len(), 24, "verb count moved (24 at M2)");
+    assert_eq!(all.len(), 25, "verb count moved (25 after S1 tail-add)");
     let sup_count = all.iter().filter(|n| n.starts_with("modukit_sup_")).count();
     assert_eq!(sup_count, 8, "sup verb count moved (8 at M2)");
     // Rung-0 subset pin (the M1 assertion, kept): the 16 non-sup verbs.
@@ -74,7 +74,11 @@ fn emitted_prototypes_equal_all_24_verbs() {
         .iter()
         .filter(|n| !n.starts_with("modukit_sup_"))
         .collect();
-    assert_eq!(rung0.len(), 16, "rung-0 verb count moved (16 at M1)");
+    assert_eq!(
+        rung0.len(),
+        17,
+        "rung-0 verb count moved (17 after S1 find_services)"
+    );
     for verb in &all {
         assert!(
             produced.contains(&format!("\"{verb}\": (c_int32, ")),

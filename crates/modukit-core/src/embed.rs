@@ -496,6 +496,35 @@ pub extern "C" fn modukit_introspect_events(
     })
 }
 
+#[unsafe(no_mangle)]
+/// Property-filter query (plugin-management-plan S1, D83 tail-add): parse an
+/// RFC1960-subset filter and serialize the matching registrations (best-first)
+/// in the line codec. NULL buffer = size query. A malformed filter returns
+/// `NEG_SCHEMA_INVALID`; an undeclared property simply yields an empty result.
+#[allow(clippy::not_unsafe_ptr_arg_deref)] // FFI: contract-pinned signature; every deref is null-checked.
+pub extern "C" fn modukit_embed_find_services(
+    filter: *const c_char,
+    out_buf: *mut u8,
+    buf_cap: usize,
+    out_len: *mut usize,
+) -> i32 {
+    codec::guard(|| {
+        if out_len.is_null() {
+            return codec::NEG_SCHEMA_INVALID;
+        }
+        let Some(filter_str) = cstr_arg(filter) else {
+            return codec::NEG_SCHEMA_INVALID;
+        };
+        let k = ambient();
+        let hits = match k.0.registry().find(filter_str) {
+            Ok(hits) => hits,
+            Err(_) => return codec::NEG_SCHEMA_INVALID,
+        };
+        let bytes = codec::render_find(&hits);
+        copy_out(&bytes, out_buf, buf_cap, out_len)
+    })
+}
+
 #[cfg(test)]
 #[path = "embed_tests.rs"]
 mod tests;

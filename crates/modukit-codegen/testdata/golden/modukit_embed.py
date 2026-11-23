@@ -7,7 +7,7 @@ Regen: cargo run -q -p modukit-codegen --bin protoc-gen-modukit --
   @contracts/org.modukit.runtime.proto.fdset @contracts/com.modukit.demo.proto.fdset
   --embed_header contracts/modukit_embed.h --py_out <dir> --output_dir <dir>
 
-Python EMBED FLOOR (24 verbs = 16 rung-0 (the free ABI probe +
+Python EMBED FLOOR (25 verbs = 17 rung-0 (the free ABI probe +
 the 15 vtable slots) + 8 modukit_sup_* exe-rung verbs,
 D100 R1): enum mirrors with values verbatim, one ctypes prototype per verb,
 the i32 return-channel error
@@ -190,6 +190,8 @@ PROTOTYPES = {
     "modukit_sup_uninstall": (c_int32, [c_char_p]),
     # int32_t modukit_sup_service_call(const char *service_id, const char *method, const uint8_t *input, size_t input_len, uint8_t *response, size_t response_cap)
     "modukit_sup_service_call": (c_int32, [c_char_p, c_char_p, c_void_p, c_size_t, c_void_p, c_size_t]),
+    # int32_t modukit_embed_find_services(const char *filter, uint8_t *out_buf, size_t buf_cap, size_t *out_len)
+    "modukit_embed_find_services": (c_int32, [c_char_p, c_void_p, c_size_t, POINTER(c_size_t)]),
 }
 
 

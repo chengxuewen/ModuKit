@@ -165,6 +165,31 @@ pub(crate) fn event_payload(event: &ObsEvent) -> String {
 /// lexicographically inside each section; sections in the documented
 /// order plugin/service/topic/edge/counter). Field separator: TAB.
 #[must_use]
+/// Render a property-filter query result (plugin-management-plan S1): one
+/// `service\t<id>\t<service_id>\t<ranking>` line per match, sorted for a
+/// deterministic byte image (the `find_services` verb's line codec, same
+/// family as `render_snapshot`).
+pub(crate) fn render_find(hits: &[crate::registry_types::RegisteredService]) -> Vec<u8> {
+    let mut lines: Vec<String> = hits
+        .iter()
+        .map(|s| {
+            format!(
+                "service\t{}\t{}\t{}",
+                s.id.value(),
+                s.service_id.as_str(),
+                s.ranking
+            )
+        })
+        .collect();
+    lines.sort();
+    let mut out = String::new();
+    for line in lines {
+        out.push_str(&line);
+        out.push('\n');
+    }
+    out.into_bytes()
+}
+
 pub(crate) fn render_snapshot(view: &HostView) -> Vec<u8> {
     let mut out = String::new();
     let mut lines: Vec<String> = view

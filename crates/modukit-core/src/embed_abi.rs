@@ -49,6 +49,8 @@ pub const EMBED_VERBS: &[&str] = &[
     "modukit_sup_uninstall",
     // M3 tail-add (D94): the service-call door on the exe rung.
     "modukit_sup_service_call",
+    // S1 tail-add (plugin-management-plan, D83 record): property-filter query.
+    "modukit_embed_find_services",
 ];
 
 /// `abi::PluginAbiV1` fields in declaration order - the third parity

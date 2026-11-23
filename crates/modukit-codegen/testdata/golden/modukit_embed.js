@@ -8,7 +8,7 @@
 *   @contracts/org.modukit.runtime.proto.fdset @contracts/com.modukit.demo.proto.fdset
 *   --embed_header contracts/modukit_embed.h --js_out <dir> --output_dir <dir>
 *
-* JS EMBED FLOOR (24 verbs = 16 rung-0 + 8 modukit_sup_* exe-rung verbs, both rungs, D102 M2): loads the generated napi bridge (.node) from
+* JS EMBED FLOOR (25 verbs = 17 rung-0 + 8 modukit_sup_* exe-rung verbs, both rungs, D102 M2): loads the generated napi bridge (.node) from
  * MODUKIT_JS_BRIDGE or argv[2], re-exports the verb functions 1:1 (each doc
  * line cites its header declaration), mirrors the enums as frozen objects
  * and the D51 error dictionary with codes as data. No async, no sugar
@@ -99,6 +99,9 @@ exports.modukit_sup_uninstall = addon.modukit_sup_uninstall;
 
 /** int32_t modukit_sup_service_call(const char *service_id, const char *method, const uint8_t *input, size_t input_len, uint8_t *response, size_t response_cap) - contracts/modukit_embed.h:356 */
 exports.modukit_sup_service_call = addon.modukit_sup_service_call;
+
+/** int32_t modukit_embed_find_services(const char *filter, uint8_t *out_buf, size_t buf_cap, size_t *out_len) - contracts/modukit_embed.h:370 */
+exports.modukit_embed_find_services = addon.modukit_embed_find_services;
 
 /** mirror of `modukit_kernel_code` - values verbatim, MODUKIT_ prefix dropped */
 exports.KernelCode = Object.freeze({

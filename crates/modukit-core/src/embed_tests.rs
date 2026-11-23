@@ -335,6 +335,53 @@ fn snapshot_probe_then_exact_copy() {
 }
 
 #[test]
+fn find_services_probe_copy_and_redden_malformed() {
+    let _serial = ambient_lock();
+    let filter = std::ffi::CString::new("(service.id=org.modukit.snapshot)").unwrap();
+    let mut len = 0usize;
+    // null out_len and null filter both refuse schema-invalid.
+    assert_eq!(
+        modukit_embed_find_services(
+            filter.as_ptr(),
+            std::ptr::null_mut(),
+            0,
+            std::ptr::null_mut()
+        ),
+        codec::NEG_SCHEMA_INVALID
+    );
+    assert_eq!(
+        modukit_embed_find_services(std::ptr::null(), std::ptr::null_mut(), 0, &raw mut len),
+        codec::NEG_SCHEMA_INVALID
+    );
+    // size query: the platform snapshot service matches.
+    let need = modukit_embed_find_services(filter.as_ptr(), std::ptr::null_mut(), 0, &raw mut len);
+    assert!(need > 0, "the platform snapshot service rides the table");
+    assert_eq!(len, need as usize);
+    // exact copy.
+    let mut buf = vec![0u8; need as usize];
+    assert_eq!(
+        modukit_embed_find_services(filter.as_ptr(), buf.as_mut_ptr(), buf.len(), &raw mut len),
+        need
+    );
+    let text = String::from_utf8(buf).expect("line codec is UTF-8");
+    assert!(text.contains("service\t"));
+    assert!(text.contains("org.modukit.snapshot"));
+    // malformed filter reddens schema-invalid.
+    let bad = std::ffi::CString::new("(service.id=").unwrap();
+    assert_eq!(
+        modukit_embed_find_services(bad.as_ptr(), std::ptr::null_mut(), 0, &raw mut len),
+        codec::NEG_SCHEMA_INVALID
+    );
+    // undeclared property: empty result (0 bytes), never an error (liar family).
+    let none = std::ffi::CString::new("(ghost=x)").unwrap();
+    assert_eq!(
+        modukit_embed_find_services(none.as_ptr(), std::ptr::null_mut(), 0, &raw mut len),
+        0
+    );
+    assert_eq!(len, 0);
+}
+
+#[test]
 fn events_encode_walk_resume_and_refuse_a_future_cursor() {
     let _serial = ambient_lock();
     let marker = format!(

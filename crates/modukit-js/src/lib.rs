@@ -7,7 +7,7 @@
 //!   @contracts/org.modukit.runtime.proto.fdset @contracts/com.modukit.demo.proto.fdset
 //!   --embed_header contracts/modukit_embed.h --js_out <dir> --output_dir <dir>
 //!
-//! JS EMBED BRIDGE (24 verbs = 16 rung-0 + 8 modukit_sup_* exe-rung verbs, both rungs, D102 M2): a napi addon embedding the kernel through the C door
+//! JS EMBED BRIDGE (25 verbs = 17 rung-0 + 8 modukit_sup_* exe-rung verbs, both rungs, D102 M2): a napi addon embedding the kernel through the C door
 //! ONLY. The kernel .so path is read from MODUKIT_CORE_SO at init and
 //! dlopened at exactly ONE site ([`load_kernel`]); every symbol lands once
 //! in a typed table; every forwarder body calls through the table. Linking
@@ -210,6 +210,7 @@ pub struct EmbedSymbols {
     pub sup_restart: extern "C" fn(*const c_char, *mut i32) -> i32,
     pub sup_uninstall: extern "C" fn(*const c_char) -> i32,
     pub sup_service_call: extern "C" fn(*const c_char, *const c_char, *const u8, usize, *mut u8, usize) -> i32,
+    pub embed_find_services: extern "C" fn(*const c_char, *mut u8, usize, *mut usize) -> i32,
 }
 
 pub struct Kernel {
@@ -381,6 +382,12 @@ fn load_kernel() -> Result<Kernel> {
             let s: Symbol<'_, extern "C" fn(*const c_char, *const c_char, *const u8, usize, *mut u8, usize) -> i32> = lib
                 .get(b"modukit_sup_service_call\0")
                 .map_err(|e| Error::new(Status::GenericFailure, format!("symbol modukit_sup_service_call: {e}")))?;
+            *s
+        },
+        embed_find_services: unsafe {
+            let s: Symbol<'_, extern "C" fn(*const c_char, *mut u8, usize, *mut usize) -> i32> = lib
+                .get(b"modukit_embed_find_services\0")
+                .map_err(|e| Error::new(Status::GenericFailure, format!("symbol modukit_embed_find_services: {e}")))?;
             *s
         },
     };
@@ -804,5 +811,32 @@ pub fn modukit_sup_service_call(env: Env, service_id: String, method: String, in
         Vec::new()
     };
     o.set("response", Buffer::from(response))?;
+    Ok(o)
+}
+
+/// forwarder for `modukit_embed_find_services` (contracts/modukit_embed.h:370) - calls the
+/// typed table ONLY (the C door). The raw i32 channel rides `raw`; C
+/// out-params ride named properties as data.
+#[napi(js_name = "modukit_embed_find_services")]
+pub fn modukit_embed_find_services(env: Env, filter: String, buf_cap: i64) -> Result<JsObject> {
+    let k = kernel()?;
+    let c_filter = CString::new(filter).map_err(|e| Error::new(Status::InvalidArg, format!("modukit_embed_find_services: filter has an interior NUL ({e})")))?;
+    let buf_cap: usize = usize::try_from(buf_cap).map_err(|e| Error::new(Status::InvalidArg, format!("modukit_embed_find_services: buf_cap is not a size_t ({e})")))?;
+    let mut out_buf: Vec<u8> = vec![0u8; buf_cap];
+    // cap 0 = the header's NULL size-query mode (out_buf NULL).
+    let out_buf_ptr: *mut u8 = if buf_cap == 0 { ptr::null_mut() } else { out_buf.as_mut_ptr() };
+    let mut out_buf_out_len: usize = 0;
+
+    let raw = (k.sym.embed_find_services)(c_filter.as_ptr(), out_buf_ptr, buf_cap, &mut out_buf_out_len);
+    let mut o = env.create_object()?;
+    o.set("raw", raw)?;
+    let out_buf: Vec<u8> = if raw >= 0 {
+        out_buf.truncate((out_buf_out_len).min(out_buf.len()));
+        out_buf
+    } else {
+        Vec::new()
+    };
+    o.set("out_buf", Buffer::from(out_buf))?;
+    o.set("out_len", out_buf_out_len as i64)?;
     Ok(o)
 }

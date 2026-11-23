@@ -357,6 +357,19 @@ int32_t modukit_sup_service_call(const char *service_id, const char *method,
                                   const uint8_t *input, size_t input_len,
                                   uint8_t *response, size_t response_cap);
 
+/* Property-filter query (plugin-management-plan S1, D83 tail-add; v1 major
+ * unchanged). Parses an RFC1960-subset filter (see modukit-core filter.rs:
+ * &/|/!, =/>=/<=/~=, presence, substring wildcard) and serializes the
+ * matching registrations best-first (ranking desc, then registration order)
+ * as `service\t<id>\t<service_id>\t<ranking>` lines. If out_buf is non-NULL,
+ * at most buf_cap bytes are written; if out_buf is NULL, *out_len receives
+ * the required size without writing. A malformed filter (or NULL filter)
+ * returns SCHEMA_INVALID(11); a well-formed filter naming an undeclared
+ * property yields an empty result, never an error. Returns bytes written
+ * (>= 0) or a negative code. */
+int32_t modukit_embed_find_services(const char *filter, uint8_t *out_buf,
+                                    size_t buf_cap, size_t *out_len);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
