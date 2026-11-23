@@ -8,7 +8,17 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 status=0
-note() { printf '%s\n' "$*"; }
+# skip census (repo-audit 2C P1, MediaServo lesson 2026-11-23): a SKIP must stay
+# visible and countable, never silently green; the tail line reports the split.
+ok_n=0; skip_n=0; fail_n=0
+note() {
+  printf '%s\n' "$*"
+  case "$1" in
+    ok*)   ok_n=$((ok_n + 1)) ;;
+    skip*) skip_n=$((skip_n + 1)) ;;
+    FAIL*) fail_n=$((fail_n + 1)) ;;
+  esac
+}
 
 # --list: the single source for CONSTRAINTS.md (one leg per line). Keep this list
 # in step with the legs below; the constraints gate compares counts only.
@@ -404,5 +414,9 @@ if command -v pixi >/dev/null 2>&1; then
   pixi run gate-mcp || { note "FAIL gate-mcp"; status=1; }
 else note "skip gate-mcp (no pixi)"; fi
 
-if [ "$status" -eq 0 ]; then note "check.sh: all green"; else note "check.sh: RED"; fi
+if [ "$status" -eq 0 ]; then
+  note "check.sh: all green (ok=$ok_n skip=$skip_n fail=$fail_n)"
+else
+  note "check.sh: RED (ok=$ok_n skip=$skip_n fail=$fail_n); a skip is not a green - rerun with output redirected to keep failure evidence"
+fi
 exit "$status"
