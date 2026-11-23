@@ -355,7 +355,7 @@ per D11, only backend/vendor selection remains open).
    authority remains `docs/ve-parity-plan.md` and `status.md`.
 8. **Parent-to-child bus push (D108/D110)** — COMPLETE 2026-11-03. The general
    publish hook, bounded wall outbox, and HOST PUSH proof are accepted; the authority
-   remains `docs/wave-3-parent-push-plan.md` and `docs/modules/06` §8.
+   remains `docs/wave-3-parent-push-plan.md` and `docs/modules/06-topics-and-bus.md` §8.
 
 ## 13. Module documentation index
 

@@ -55,13 +55,13 @@ source pixi.sh         # daily shell activation
 | `msrv` | `cargo check --workspace` in the 1.88 env (`pixi run -e msrv msrv`). |
 | `vendor-test` | Vendor-shm lane (cold, not in the fast gate). |
 | `deny` | `cargo deny check licenses bans` when the tool resolves. |
-| `configure` / `build` | CMake/IDE surface under `out/build`. |
+| `configure` / `build` | CMake/IDE surface under `out/presets/default`. |
 
 ## Gate contract
 
 `pixi run ci` and `bash scripts/check.sh` are the same gate. `bash scripts/check.sh
 --list` is the single source for the gate list; `CONSTRAINTS.md` is generated from
-it by `scripts/constraints-index.py` (do not hand-edit that region).
+it by `scripts/agents/constraints-index.py` (do not hand-edit that region).
 
 The named gates:
 
@@ -114,10 +114,10 @@ Generation rules:
   not a gate failure. `.codebuddy/teams/` is host-owned session state and is
   never generated, checked, or pruned.
 - Copy mode (`.codebuddy/skills` on Windows) writes a per-target
-  `.codebuddy/skills-link-map.json`; link mode does not need it.
-- Forbidden paths (`CODEBUDDY.md`, `.codebuddy/mcp.json`, shadow host skill
-  directories) are checked by `gate-agents`; one red observation is recorded in
-  the plan review trail.
+  `skills-link-map.json` under `.codebuddy/`; link mode does not need it.
+- Forbidden paths (`CODEBUDDY.md`, the `mcp.json` mirror under `.codebuddy/`,
+  shadow host skill directories) are checked by `gate-agents`; one red
+  observation is recorded in the plan review trail.
 - Activation policy: **full inventory (live count; 42 on 2026-11-04)** (H2b, 2026-10-30).
   H3 confirmed the host cost is acceptable; no `skills_allowlist` is active.
   Revisit only if the skill surface grows or routing noise appears.
@@ -191,7 +191,7 @@ and the `.gitignore` treat these as the only writer classes.
 
 ## MCP lifecycle
 
-- Pins live in `scripts/mcp-servers.json`; the canonical server list is
+- Pins live in `scripts/agents/mcp-servers.json`; the canonical server list is
   `.agents/mcp.json`. `scripts/mcp-links.py sync` generates the root `.mcp.json`
   and merges the opencode `mcp{}`.
 - `pixi run mcp setup` installs the two npm pins and verifies the serena env;

@@ -3,14 +3,20 @@
 # Extract backtick-quoted repo-relative paths AND markdown-link targets from the six
 # instruction-scope files (root AGENTS.md, .agents/AGENTS.md, conventions.md, status.md,
 # README.md since M3S-2, + llms.txt since the 2026-11-05 HIGH cleanup - the generated
-# index had no liveness owner). The link pass closed a blind spot a planted defect proved
-# on 2026-11-05 (PIT-37: `[x](dead.md)` sailed through the backtick-only extractor).
+# index had no liveness owner). Since the 2026-11-23 blind-spot fix the docs-scope five
+# (architecture, capability-ledger, codegraph-bootstrap, env, whitepaper) are scanned
+# too - plan/hearing records stay OUT (they cite then-current filenames on purpose).
+# The link pass closed a blind spot a planted defect proved on 2026-11-05 (PIT-37:
+# `[x](dead.md)` sailed through the backtick-only extractor).
 # Scope is tight on purpose - on-demand docs are not scanned.
 # Filter bias: SKIP the candidate when in doubt, never FAIL on a guess. So anything that
 # looks like a command (spaces, shell metachars), prose, an absolute/home path, a pure
 # range shorthand (docs/modules/00-11), or a bare filename (no slash - ambiguous to
-# resolve) is skipped. Glob candidates are informational: match passes, no-match skips.
-# Fenced code blocks are skipped entirely (they hold commands and trees, not pointers).
+# resolve) is skipped. Candidates with a slash must have an EXISTING top segment -
+# concept/field/package shapes (`resources/`, `host_id/name`, `getstream/rtc`) skip.
+# Paths resolve dual-base: repo root first, then the file's own directory (so
+# architecture.md may cite `modules/xx.md` relatively). Glob candidates are
+# informational: match passes, no-match skips. Fenced code blocks are skipped entirely.
 set -uo pipefail
 SELF=$(realpath "$0") # absolute for the self-test re-exec below
 cd "$(dirname "$0")/.."
@@ -23,10 +29,12 @@ IN="${MODUKIT_GATE_INPUT_DIR:-}"; [ -n "$IN" ] && IN="${IN%/}/"
 # repo root (only the scanned-file location is redirected). Repo files untouched.
 if [ "${1:-}" = "--self-test" ]; then
   seed_scratch() {
-    mkdir -p "$1/.agents/memorys"
+    mkdir -p "$1/.agents/memorys" "$1/docs"
     cp AGENTS.md README.md llms.txt "$1/"
     cp .agents/AGENTS.md "$1/.agents/"
     cp .agents/memorys/conventions.md .agents/memorys/status.md "$1/.agents/memorys/"
+    cp docs/architecture.md docs/capability-ledger.md docs/codegraph-bootstrap.md \
+       docs/env.md docs/whitepaper.md "$1/docs/"
   }
   s=$(mktemp -d)
   trap 'rm -rf "$s"' EXIT
@@ -43,16 +51,22 @@ if [ "${1:-}" = "--self-test" ]; then
     exit 1
   fi
   rm -rf "$s"; mkdir -p "$s"; seed_scratch "$s"
+  printf 'Self-test dead docs-scope pointer: `docs/self-test-defect-in-scope-file.md`.\n' >> "$s/docs/env.md"
+  if MODUKIT_GATE_INPUT_DIR="$s" bash "$SELF" > /dev/null 2>&1; then
+    echo "self-test FAIL (check-doc-refs.sh): planted docs-scope defect NOT caught"
+    exit 1
+  fi
+  rm -rf "$s"; mkdir -p "$s"; seed_scratch "$s"
   if ! MODUKIT_GATE_INPUT_DIR="$s" bash "$SELF" > /dev/null 2>&1; then
     echo "self-test FAIL (check-doc-refs.sh): clean copies went RED"
     exit 1
   fi
   rm -rf "$s"
-  echo "self-test OK (check-doc-refs.sh): backtick red, link red, clean green"
+  echo "self-test OK (check-doc-refs.sh): backtick red, link red, docs-scope red, clean green"
   exit 0
 fi
 
-FILES=("${IN}AGENTS.md" "${IN}.agents/AGENTS.md" "${IN}.agents/memorys/conventions.md" "${IN}.agents/memorys/status.md" "${IN}README.md" "${IN}llms.txt")
+FILES=("${IN}AGENTS.md" "${IN}.agents/AGENTS.md" "${IN}.agents/memorys/conventions.md" "${IN}.agents/memorys/status.md" "${IN}README.md" "${IN}llms.txt" "${IN}docs/architecture.md" "${IN}docs/capability-ledger.md" "${IN}docs/codegraph-bootstrap.md" "${IN}docs/env.md" "${IN}docs/whitepaper.md")
 
 missing=0
 checked=0
@@ -93,21 +107,27 @@ cands=$(awk '
 
 if [ -n "$cands" ]; then
   while IFS=$'\t' read -r kind file cand; do
+    rel=${file#"$IN"}; dir=${rel%/*}; [ "$dir" = "$rel" ] && dir=.
     case "$kind" in
       GLOB)
         compgen -G "$cand" > /dev/null 2>&1 && checked=$((checked + 1))
         ;;
       PATH)
+        first=${cand%%/*}
+        [ -e "$first" ] || continue   # top segment must exist - concept/field shapes skip
         checked=$((checked + 1))
-        if [ ! -e "$cand" ]; then
-          printf 'dead doc-ref: %s -> `%s` (no such path from repo root)\n' "$file" "$cand"
+        if [ ! -e "$cand" ] && [ ! -e "$dir/$cand" ]; then
+          printf 'dead doc-ref: %s -> `%s` (no such path from repo root or %s)\n' "$file" "$cand" "$dir"
           missing=$((missing + 1))
         fi
         ;;
       LINK)
+        case "$cand" in
+          */*) first=${cand%%/*}; [ -e "$first" ] || continue ;;
+        esac
         checked=$((checked + 1))
-        if [ ! -e "$cand" ]; then
-          printf 'dead doc-link: %s -> (%s) target missing from repo root\n' "$file" "$cand"
+        if [ ! -e "$cand" ] && [ ! -e "$dir/$cand" ]; then
+          printf 'dead doc-link: %s -> (%s) target missing from repo root or %s\n' "$file" "$cand" "$dir"
           missing=$((missing + 1))
         fi
         ;;

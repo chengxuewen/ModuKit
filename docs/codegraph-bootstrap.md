@@ -9,7 +9,7 @@
 
 ## 1. Problem
 
-The repo's original CodeGraph wrapper (`.opencode/init-mcp-codegraph.mjs`, ported) ran under the system `node` — which on this machine is **v10 and dies on ESM syntax**. The MCP therefore never started: the binary was never installed, the project graph never built, and every session spawn crashed. The user-facing symptom was "I have to start codegraph manually."
+The repo's original CodeGraph wrapper (an `.mjs` entry, since replaced by the `.opencode/init-mcp-codegraph.sh` / `.bat` twins below) ran under the system `node` — which on this machine is **v10 and dies on ESM syntax**. The MCP therefore never started: the binary was never installed, the project graph never built, and every session spawn crashed. The user-facing symptom was "I have to start codegraph manually."
 
 ## 2. Decision summary
 
