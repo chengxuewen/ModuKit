@@ -47,7 +47,7 @@ source pixi.sh         # daily shell activation
 | `mcp setup/status/index/sync` | Install/verify pins, show versions, rebuild indexes. |
 | `docs-gen` | `cargo doc` + regenerate the committed `llms.txt` (book merges `target/doc`). |
 | `markdownlint` | Manual Markdown check using `.markdownlint.json` (not in fast ci). |
-| `book-build` / `book-check` | Assemble `build/book-src` and build/check `build/book/en`. |
+| `book-build` / `book-check` | Assemble build/book-src and build/check build/book/en. |
 | `book-serve` | Foreground LAN server with a rebuild watcher. |
 | `book-graph` | Refresh `graph.json`/`meta.json` only (no mdbook build). |
 | `spec-trace` | SDD clause numbers ↔ `spec:` test tags (5 pairs). |
@@ -55,7 +55,7 @@ source pixi.sh         # daily shell activation
 | `msrv` | `cargo check --workspace` in the 1.88 env (`pixi run -e msrv msrv`). |
 | `vendor-test` | Vendor-shm lane (cold, not in the fast gate). |
 | `deny` | `cargo deny check licenses bans` when the tool resolves. |
-| `configure` / `build` | CMake/IDE surface under `out/presets/default`. |
+| `configure` / `build` | CMake/IDE surface under `build/presets/default`. |
 
 ## Gate contract
 
@@ -66,7 +66,7 @@ it by `scripts/agents/constraints-index.py` (do not hand-edit that region).
 The named gates:
 
 - `gate-docs`: root CMake purity, PolyOrch gitlink three-way, CLI task names,
-  front-door book output path (`build/book/en`), relative links (delegated to
+  front-door book output path (build/book/en), relative links (delegated to
   `check-doc-refs.sh`), book SUMMARY when built.
 - `gate-rules`: every C/D/PIT citation in `.agents/rules` resolves to a local
   entry or the external allowlist.
@@ -150,7 +150,7 @@ Generation rules:
 Book sources are English-only (VE D46, 2026-10-30). Other languages are covered by
 reader-side browser translation (Edge/Chrome built-in, Immersive Translate): there
 are no PO catalogs, no `BOOK_LANG` builds, no gettext preprocessor, and no
-per-release translation maintenance. `book-build` writes `build/book/en` only;
+per-release translation maintenance. `book-build` writes build/book/en only;
 `book-serve` is a foreground LAN server with a rebuild watcher; `book-graph`
 refreshes `graph.json`/`meta.json` without rebuilding the site. The SDD clauses
 under `docs/sdd/` are index entries; `scripts/spec-trace.sh` proves each one has a
@@ -180,7 +180,7 @@ pre-fill this switch; everything else stays your command line's business.
 ## CMake presets (official shape, 2026-11-23 ruling)
 
 Preset = route (pixi/system) x build type, one tree per preset
-(`out/presets/<name>`, declared in `CMakePresets.json`, built on first use):
+(`build/presets/<name>`, declared in `CMakePresets.json`, built on first use):
 
 | Preset | Route | Type | Use |
 |---|---|---|---|
@@ -193,7 +193,7 @@ Preset = route (pixi/system) x build type, one tree per preset
 Division of labor: presets own the tree + generator + toolchain route + a
 type default; the C++ faces are the `MODUKIT_BUILD_CPP` option (GUI / `-D` /
 preset, ON by default); `-D` always overrides a preset. The gate/demo tree
-(`out/presets/demo`) is script-private (`-B` in the demo legs) and never
+(`build/presets/demo`) is script-private (`-B` in the demo legs) and never
 appears in the preset menu - IDE reconfigures must not touch a tree a gate is
 running in (PIT-7 class). This ruling supersedes the #47 preset slimming
 (same tree template, more named residents); `MinSizeRel` has no scenario here
@@ -203,10 +203,11 @@ and stays out until one appears.
 
 | Path | Owner |
 |---|---|
-| `out/presets/default/` | CMake/Ninja IDE build (preset `default`; type per preset table). |
-| `build/book-src/` + `build/book/en/` | mdBook assembly and English site output (ignored). |
-| `out/presets/demo/` | Gate/demo territory: the demo-stage4 legs and the ctest census run here (script-private, not a preset). |
-| `out/scratch/` | One-off build trees and probe roots (see the convention below). |
+| `build/presets/default/` | CMake/Ninja IDE build (preset `default`; type per preset table). |
+| build/book-src/ + build/book/en/ | mdBook assembly and English site output (runtime-created, ignored). |
+| `build/presets/demo/` | Gate/demo territory: the demo-stage4 legs and the ctest census run here (script-private, not a preset). |
+| build/scratch/ | One-off build trees and probe roots (runtime-created; see the convention below). |
+| build/cargo-target/ | Shared cargo cache for every lane surface (runtime-created). |
 | `target/` | Cargo build and coverage. |
 | `.pixi/envs/` | Pixi environments. |
 | `.serena/cache/` | Serena LSP cache (ignored). |
@@ -214,7 +215,7 @@ and stays out until one appears.
 | `node_modules/` | Root MCP npm echo (ignored). |
 
 Scratch-tree convention (hearing #46, ve-parity-plan 2.9): any script that
-needs a one-off build tree or probe root puts it under `out/scratch/<name>`
+needs a one-off build tree or probe root puts it under `build/scratch/<name>`
 (gate logs redirected to files belong there too). No forced auto-clean - a
 failure scene stays for debugging; a recurring purge (grep-then-delete,
 out-layout-plan S1 shape) is the backstop. The numbering mktemp trees stay

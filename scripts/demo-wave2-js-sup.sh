@@ -72,19 +72,19 @@ trap 'rm -f "$log"' EXIT
   exit 1
 }
 core_so=""
-for c in target/debug/libmodukit_core.so out/cargo-target/debug/libmodukit_core.so; do
+for c in target/debug/libmodukit_core.so build/cargo-target/debug/libmodukit_core.so; do
   if [ -f "$c" ]; then core_so="$c"; break; fi
 done
 [ -n "$core_so" ] || { echo "demo-wave2-js-sup: RED (no libmodukit_core.so after a green build)"; exit 1; }
 
 # The shadow runner (the exe manifest's `runner` = the demo's argv[4]) - the
-# dedicated out/cargo-target tree, same as scripts/demo-wave2-py-sup.sh:67.
-"${CARGO[@]}" build -p modukit-runtime --offline --target-dir out/cargo-target >>"$log" 2>&1 || {
+# dedicated build/cargo-target tree, same as scripts/demo-wave2-py-sup.sh:67.
+"${CARGO[@]}" build -p modukit-runtime --offline --target-dir build/cargo-target >>"$log" 2>&1 || {
   echo "demo-wave2-js-sup: RED (runner build failed; last lines:)"
   tail -10 "$log"
   exit 1
 }
-runner="$PWD/out/cargo-target/debug/modukit-run"
+runner="$PWD/build/cargo-target/debug/modukit-run"
 [ -x "$runner" ] || { echo "demo-wave2-js-sup: RED (runner binary missing: $runner)"; exit 1; }
 
 # The live faces are REGENERATED here through the emission door - the sup_*
@@ -129,8 +129,8 @@ cp "$addon_js" target/js/modukit_js.node
 # demo dlopens it through the SAME kernel); when neither tree carries it the
 # demo has nothing to install - the host_sup_demo.cc skip rule (exit 77).
 so=""
-for c in out/presets/demo/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so \
-         out/presets/default/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so; do
+for c in build/presets/demo/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so \
+         build/presets/default/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so; do
   if [ -f "$c" ]; then so="$c"; break; fi
 done
 if [ -z "$so" ]; then

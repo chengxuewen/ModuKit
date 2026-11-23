@@ -10,7 +10,7 @@
       "name": "_base",
       "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/presets/${presetName}"
+      "binaryDir": "${sourceDir}/build/presets/${presetName}"
     },
     {
       "name": "_pixi",

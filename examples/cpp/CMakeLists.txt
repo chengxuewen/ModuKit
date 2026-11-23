@@ -19,8 +19,12 @@ set_target_properties(modukit-cpp-host-demo PROPERTIES
     FOLDER "${MODUKIT_IDE_ROOT}examples/cpp")
 target_link_libraries(modukit-cpp-host-demo PRIVATE
     modukit_cpp modukit-core-static ${CMAKE_DL_LIBS})
-# the demo dlopens the real built fixture - it must exist before the test runs
-add_dependencies(modukit-cpp-host-demo cpp-example-plugin)
+# the demo dlopens the real built fixture - it must exist before the test runs;
+# the core staticlib comes from the lane mediator, so a single-target cold
+# build (cmake --build --target <demo>) reaches the cargo rule too - found
+# cold on 2026-11-23 when the shared cargo-target tree moved and no warm
+# artifact could silently satisfy the ninja edge anymore.
+add_dependencies(modukit-cpp-host-demo cpp-example-plugin modukit-core-build)
 
 # ctest bridge follows the crates-face grammar: real target = name = test
 # entry, SKIP_RETURN_CODE 77 (fixture absent -> host_demo returns 77), and
@@ -43,7 +47,7 @@ set_target_properties(modukit-cpp-host-sup-demo PROPERTIES
     FOLDER "${MODUKIT_IDE_ROOT}examples/cpp")
 target_link_libraries(modukit-cpp-host-sup-demo PRIVATE
     modukit_cpp modukit-core-static ${CMAKE_DL_LIBS})
-add_dependencies(modukit-cpp-host-sup-demo cpp-example-plugin)
+add_dependencies(modukit-cpp-host-sup-demo cpp-example-plugin modukit-core-build)
 add_test(NAME modukit-cpp-host-sup-demo
     COMMAND modukit-cpp-host-sup-demo --proof "$<TARGET_FILE:cpp-example-plugin>")
 set_tests_properties(modukit-cpp-host-sup-demo PROPERTIES

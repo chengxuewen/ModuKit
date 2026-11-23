@@ -15,7 +15,7 @@ cd "$(dirname "$0")/.."
 # repo-internal TMPDIR (MediaServo smoke lesson 2026-11-23): sandbox hosts
 # sometimes mount /tmp read-only and mktemp then silently returns junk; pin
 # scratch into the out/ territory instead (ignored, self-cleaning).
-export TMPDIR="$(pwd)/out/tmp-scratch"
+export TMPDIR="$(pwd)/build/tmp-scratch"
 mkdir -p "$TMPDIR"
 
 export PATH="$HOME/.pixi/bin:$PATH"

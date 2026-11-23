@@ -37,8 +37,8 @@ function(modukit_polyorch_crates)
   endif()
 
   # Shared cargo cache for every lane surface (build/test/clean ride ONE dir;
-  # git-ignored by the out/ rule, D66: no artifacts outside out/).
-  set(_base "${CMAKE_SOURCE_DIR}/out/cargo-target")
+  # git-ignored by the build/ rule; territory moved out/ -> build/ 2026-11-23).
+  set(_base "${CMAKE_SOURCE_DIR}/build/cargo-target")
   set(_mediators "")
 
   foreach(_entry ${MODUKIT_RUST_LANES})

@@ -319,9 +319,9 @@ bash scripts/check-leaks.sh || { note "FAIL leaks"; status=1; }
 # PIT-17 class - a warm stale tree once fabricated a false 9/9). Incremental rebuild
 # THEN full ctest every run, so changed sources cannot hide behind old binaries.
 # Skip-when-absent like the D50 legs: no tree (fresh clone) = green, no cost.
-if [ -d out/presets/demo ] && command -v pixi >/dev/null 2>&1; then
-  if ! pixi run cmake --build out/presets/demo > out/ctest-build.log 2>&1; then
-    note "FAIL ctest-stage4 (build red; see out/ctest-build.log)"; status=1
+if [ -d build/presets/demo ] && command -v pixi >/dev/null 2>&1; then
+  if ! pixi run cmake --build build/presets/demo > build/ctest-build.log 2>&1; then
+    note "FAIL ctest-stage4 (build red; see build/ctest-build.log)"; status=1
   else
     # census (benchmark batch 1 / D104): since the CTEST keyword mints the six
     # rust-side entries, a dropped keyword would SHRINK the list while plain
@@ -329,7 +329,7 @@ if [ -d out/presets/demo ] && command -v pixi >/dev/null 2>&1; then
     # The thirteen twin names joined 2026-11-05 (repo-audit HIGH): existence is
     # gated here, execution is acceptance-grade `ctest -L demo-twin` - the run
     # below EXCLUDES the twins to keep this leg fast.
-    pixi run ctest --test-dir out/presets/demo -N > out/ctest-census.log 2>&1 || true
+    pixi run ctest --test-dir build/presets/demo -N > build/ctest-census.log 2>&1 || true
     census_missing=""
     for _t in modukit-core-test modukit-transport-test modukit-codegen-test \
               example-plugin-test bad-plugin-test example_stage1_demo \
@@ -338,19 +338,19 @@ if [ -d out/presets/demo ] && command -v pixi >/dev/null 2>&1; then
               twin-demo-wave2-clock twin-demo-wave2-py twin-demo-wave2-py-sup \
               twin-demo-wave2-js twin-demo-wave2-js-sup \
               twin-demo-wave2-plugin-py twin-demo-wave2-plugin-js; do
-      grep -Eq "Test +#[0-9]+: ${_t}( |$)" out/ctest-census.log \
+      grep -Eq "Test +#[0-9]+: ${_t}( |$)" build/ctest-census.log \
         || census_missing="${census_missing} ${_t}"
     done
     if [ -n "$census_missing" ]; then
       note "FAIL ctest-stage4 census (missing:${census_missing})"; status=1
-    elif pixi run ctest --test-dir out/presets/demo --output-on-failure -LE demo-twin > out/ctest-run.log 2>&1; then
-      note "ok ctest-stage4 ($(grep -E 'tests passed' out/ctest-run.log | tail -1))"
+    elif pixi run ctest --test-dir build/presets/demo --output-on-failure -LE demo-twin > build/ctest-run.log 2>&1; then
+      note "ok ctest-stage4 ($(grep -E 'tests passed' build/ctest-run.log | tail -1))"
     else
-      cp -f out/presets/demo/Testing/Temporary/LastTest.log out/ctest-lasttest.log 2>/dev/null || true
-      note "FAIL ctest-stage4 (tests red; see out/ctest-build.log + out/ctest-run.log + out/ctest-lasttest.log)"; status=1
+      cp -f build/presets/demo/Testing/Temporary/LastTest.log build/ctest-lasttest.log 2>/dev/null || true
+      note "FAIL ctest-stage4 (tests red; see build/ctest-build.log + build/ctest-run.log + build/ctest-lasttest.log)"; status=1
     fi
   fi
-else note "skip ctest-stage4 (no out/presets/demo tree or no pixi)"; fi
+else note "skip ctest-stage4 (no build/presets/demo tree or no pixi)"; fi
 
 # leg: cmake-smoke (B4b-2): configure + two negative paths in ci; the full cold
 # build/ctest is the `pixi run cmake-smoke` acceptance task.

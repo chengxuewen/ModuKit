@@ -65,7 +65,7 @@ trap 'rm -f "$log"' EXIT
   exit 1
 }
 core_so=""
-for c in target/debug/libmodukit_core.so out/cargo-target/debug/libmodukit_core.so; do
+for c in target/debug/libmodukit_core.so build/cargo-target/debug/libmodukit_core.so; do
   if [ -f "$c" ]; then core_so="$c"; break; fi
 done
 [ -n "$core_so" ] || { echo "demo-wave2-py: RED (no libmodukit_core.so after a green build)"; exit 1; }
@@ -91,8 +91,8 @@ rm -rf "$scratch"
 # built by the stage4 cmake lanes; when neither tree carries it the demo has
 # nothing to install - the host_demo.cc skip rule (exit 77), kept honest.
 so=""
-for c in out/presets/demo/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so \
-         out/presets/default/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so; do
+for c in build/presets/demo/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so \
+         build/presets/default/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so; do
   if [ -f "$c" ]; then so="$c"; break; fi
 done
 if [ -z "$so" ]; then

@@ -79,7 +79,7 @@ trap 'rm -f "$log" "$dlog" "$sablog" "$hplog"; rm -rf "$stage"' EXIT
   exit 1
 }
 core_so=""
-for c in target/debug/libmodukit_core.so out/cargo-target/debug/libmodukit_core.so; do
+for c in target/debug/libmodukit_core.so build/cargo-target/debug/libmodukit_core.so; do
   if [ -f "$c" ]; then core_so="$c"; break; fi
 done
 [ -n "$core_so" ] || { echo "demo-wave2-plugin-py: RED (no libmodukit_core.so after a green build)"; exit 1; }

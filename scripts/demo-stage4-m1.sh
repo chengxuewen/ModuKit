@@ -7,7 +7,7 @@
 # this gate never does). Cargo/cmake legs route through pixi per D65 (same
 # rule as demo-stage1/2).
 #
-# Build tree note: this gate runs in a DEDICATED out/presets/demo Ninja
+# Build tree note: this gate runs in a DEDICATED build/presets/demo Ninja
 # tree (target-scoped build), not the shared out/build - the shared tree is
 # also reconfigured by IDE tooling (the PIT-7 class) and a generator flip
 # mid-run would make this gate undeterministic. Warm incremental cost after
@@ -24,7 +24,7 @@ cd "$(dirname "$0")/.."
 # repo-internal TMPDIR (MediaServo smoke lesson 2026-11-23): sandbox hosts
 # sometimes mount /tmp read-only and mktemp then silently returns junk; pin
 # scratch into the out/ territory instead (ignored, self-cleaning).
-export TMPDIR="$(pwd)/out/tmp-scratch"
+export TMPDIR="$(pwd)/build/tmp-scratch"
 mkdir -p "$TMPDIR"
 
 export PATH="$HOME/.pixi/bin:$PATH"
@@ -33,12 +33,17 @@ if ! command -v pixi >/dev/null 2>&1; then
   exit 1
 fi
 
-bd="out/presets/demo"
+bd="build/presets/demo"
 log=$(mktemp)
 trap 'rm -f "$log"' EXIT
 
 {
   pixi run cmake -S . -B "$bd" -G Ninja &&
+  # Warm the shared cargo tree first: the .a is a plain ninja input with no
+  # producer edge (cargo rides a stamp), so a cold single-target build dies at
+  # ninja parse time. Found when the territory moved out/ -> build/ and no
+  # stale artifact could silently satisfy the edge (2026-11-23).
+  pixi run cmake --build "$bd" --target modukit-core-build &&
   pixi run cmake --build "$bd" --target modukit-cpp-host-demo
 } >"$log" 2>&1 || {
   echo "demo-stage4-m1: RED (cmake build failed; last lines:)"

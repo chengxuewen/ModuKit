@@ -56,8 +56,8 @@ Thumbs.db
 
 # --- Build and test outputs -------------------------------------------------
 # out/ is the assembly root; build/ holds the book and other derived trees.
-/out/
 /build/
+/out/
 /target/
 /dist/
 /install/
