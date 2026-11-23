@@ -1,14 +1,15 @@
 ---
 name: repo-audit
-description: Whole-repo 10-domain engineering audit + ecosystem scan; formerly ecosystem-scan.
+description: Whole-repo 10-domain engineering audit + six-asset governance inventory (2D) + increment table (3D) + gatekeeper pass + ecosystem scan; formerly ecosystem-scan.
 ---
 
 # repo-audit — Whole-Repo Engineering Audit + Ecosystem Scan
 
-> Two-tier scan (Quick daily / Full deep) across **10 engineering domains**, quality scoring, security-audit gate.
+> Two-tier scan (Quick daily / Full deep) across **10 engineering domains**, a six-asset
+> governance inventory (2D), an increment table (3D), quality scoring, security-audit gate.
 > Governing principle: **gates-first** -- this repo runs its full ci gate chain in `pixi run ci` (live count: `bash scripts/check.sh --list`); the scan never re-checks by hand
-> what a gate proves. The scan (a) verifies every surface HAS an enforcement owner, (b) runs gap checks where no
-> gate exists, (c) spends deep analysis only where judgment is needed.
+> what a gate proves. The scan (a) verifies every surface HAS an enforcement owner,
+> (b) runs gap checks where no gate exists, (c) spends deep analysis only where judgment is needed.
 > Reference precedents: [autoskills](https://github.com/B143KC47/autoskills), [agent-skill-discovery](https://github.com/ericgandrade/claude-superskills), [skill-update-team](https://github.com/franktsai2008-eng/skill-update-team), [agent-self-audit](https://github.com/Xxt-XN/agent-self-audit).
 
 ## Trigger Conditions
@@ -40,6 +41,11 @@ description: Whole-repo 10-domain engineering audit + ecosystem scan; formerly e
 The scan's local value concentrates in domains 4, 9, 10 (thin/no gate coverage), domain 6's nesting consistency
 (toc<->SUMMARY<->sidebar has NO gate -- gate-docs book SUMMARY only resolves entries), and the judgment checks of 1-3, 5-8.
 
+**Deliberately absent domain (agents/teams)**: the donor repo audits an `.agents/agents/` role
+tree and `.agents/teams/` files. This repo has no such substrate -- adding an always-SKIP
+domain would be exactly the paper-gate shape this repo rejects. If a role tree ever lands,
+the domain is a design decision for the maintainer, not a self-expansion.
+
 ## Entry Menu
 
 With no arguments, pop up:
@@ -58,7 +64,7 @@ With no arguments, pop up:
 | Feature | Quick | Full |
 |------|:-----:|:----:|
 | Local audit | 1 fast check per domain (10) | deep checks per domain (24 items) |
-| External scan | 3-5 known high-star repos | websearch + GitHub search + practice scan (2C, 4 lanes) |
+| External scan | 3-5 known high-star repos | websearch + GitHub search + practice scan (2C, 5 lanes) |
 | Scoring | 3-dimension fast | 5-dimension full scoring |
 | Security audit | none | 6 safety checks |
 | Duration | < 30s | 3-5min |
@@ -156,7 +162,7 @@ Fetch READMEs with `webfetch`; 3-dimension quick scoring: tech-stack fit / alrea
 
 ### 2C: Practice scan -- study HOW other projects work (Full mode)
 
-2B asks "what can we install?"; 2C asks "how do the good repos DO it?". Four
+2B asks "what can we install?"; 2C asks "how do the good repos DO it?". Five
 sub-lanes, each producing **pattern cards** (adoptable practices, not artifacts):
 
 | Lane | Looks at | Example questions |
@@ -165,6 +171,24 @@ sub-lanes, each producing **pattern cards** (adoptable practices, not artifacts)
 | P-2 documentation system | docs-as-code, audit loops, decision-record formats | how do others mark superseded decisions? do they run doc audits? |
 | P-3 repo structure / naming | tree conventions, ownership territories, generated-dir policy | how do others fence generated output? who documents hidden dirs? |
 | P-4 tooling choices | task runners, env/lock strategy, auxiliary tooling | what do Rust-heavy repos pair with pixi-style envs? |
+| P-5 product form | shipped agent products: packaging, routing, permission dialect, local config precedence | how do agent products package experts? how do they route by category? how is read-only expressed? |
+
+**P-5 observation targets** (mechanism only, never content; adapt to THIS repo's
+ecosystem -- the donor's WorkBuddy/oh-my-openagent examples stay donor-side):
+
+| Target | Mechanism to collect |
+|--------|----------------------|
+| CodeBuddy (in use here) | project-level vs user-level dirs, frontmatter dialect, read-only permission expression |
+| opencode (in use here) | `instructions[]` hand-maintained face vs the generated `mcp{}` projection |
+| `.omo/` local config | source-priority probe: locally installed config > official docs > third-party articles |
+| VoltAgent collections | the category taxonomy itself (do NOT port role counts) |
+
+**P-5 guardrails**: (1) CSR trap -- client-rendered doc sites return an empty shell to
+plain fetch; render first, then extract. (2) Borrow mechanism, not content. (3) Fit --
+a pattern conflicting with the constitution (C1 English / append-only memorys /
+gates-first) is `rewrite-to-fit` or discard. (4) Source priority -- locally installed
+config outranks official docs; the donor precedent is a local measurement overturning
+an official "7 categories" claim (measured 8).
 
 **Pattern card** (the unit of output):
 
@@ -189,9 +213,50 @@ run `pixi run refinfo-sync` and paste the SHA it prints into the citing row
 (PIT-35, adjudication #31); HELD donors are one-shot snapshots cited at their
 recorded pin, FAIL donors go to the maintainer before any claim is drawn.
 
+### 2D: Six-Asset Governance Inventory (Full mode)
+
+The 10 domains audit engineering health; 2D inventories the governance asset classes.
+Each class splits a **mechanical column** (proven by an existing gate -- never
+re-implement) and a **judgment column** (give a conclusion). Mechanical cells cite the
+gate; a class with no gate is a coverage hole fed to 3D. The donor carries eight
+classes; this repo has no role/team substrate, so experts and teams are out -- six
+classes cover the real surface.
+
+| Asset | True source | Mechanical (gate/script) | Judgment (conclusion) |
+|---|---|---|---|
+| skills | `.agents/skills/*` | gate-skills, skill-lint (incl. TRIGGERS coverage), gate-agents SKILLS-INDEX | duplicate? promote or retire? |
+| rules | `.agents/rules/**` | gate-rules, gate-i18n | semantic dup? stale? |
+| constraints | `CONSTRAINTS.md` (generated from `check.sh --list`) | gate-docs constraints-region match | bypassable? |
+| config | `scripts/agent-targets.json` / `scripts/agents/mcp-servers.json` / `.opencode/opencode.json` | gate-agents (single source + projection), gate-mcp MCP-FILE | over-configured? |
+| scripts | `scripts/**` | check.sh syntax legs, credential-filename guard, tail census | merge? missing gate? |
+| MCP | `.agents/mcp.json` + pins | gate-mcp (shape/lock/probe) | worth installing? permission scope? |
+
+**Substrate six-dimension lens** (judgment overlay): cross-map the six assets onto
+tool / memory / reasoning / policy / context / coordination. `memory` has no 2D home
+-> report the hole as a 3D candidate; widening the asset list is a design decision
+requiring user ruling -- do not self-expand the taxonomy.
+
+**Enforcement coverage**: classify each constraint prose-only vs mechanically enforced
+(gate / host permission); output the coverage ratio + the prose-only list. The
+"coverage hole, not a pass" red flag is this table's input, not its conclusion.
+
+**memorys bloat note** (report-only): size proxy (wc/bytes; the 8000-byte status.md
+budget is the live example) + stale entries (superseded but unarchived). Never prune
+(append-only iron rule). Ownership split with doc-audit: repo-audit owns size +
+staleness; doc-audit owns duplication + conflict coverage + growth rate; a finding is
+counted once with an owner tag. Numbering / cross-reference self-consistency belongs
+to doc-audit.
+
 ---
 
 ## Phase 3: Synthesis & Recommendation
+
+### Gatekeeper pass + dismissal log (shadcn/improve pattern)
+
+Before the report ships, re-verify every finding against its cited evidence yourself
+-- remove false positives and RECORD each dismissal with its reason in the repo-audit
+paragraph (3C). The next audit consults past dismissals BEFORE re-investigating: the
+same false positive is checked once, ever.
 
 ### 3A: Cross-comparison
 
@@ -224,12 +289,41 @@ recorded pin, FAIL donors go to the maintainer before any claim is drawn.
 
 #### Patterns (2C)
 | # | Pattern | Source | Here | Fit | Cost | Verdict |
-|---|---------|--------|------|:---:|:---:|:---:|
+|---|---------|--------|------|------|------|---------|
+
+#### Governance increments (3D)
+| Asset | Current | Gap | Candidate | Landing | Gate |
+|-------|---------|-----|-----------|---------|------|
 
 #### Rejected
 | Item | Reason | Security |
 |------|------|:---:|
 ```
+
+### 3D: Governance Increment Table (candidates, not a schedule)
+
+Output format that feeds PLAN directly:
+
+| Asset | Current | Gap | Candidate (source + pattern) | Landing (specific file) | Gate (new/reuse) |
+|---|---|---|---|---|---|
+
+**Hard rule**: missing Landing OR Gate -> the row demotes to backlog; writing "no
+gate" must attach a reason. 3D gives suggestions; it never replaces PLAN scheduling
+and it never modifies files. (The donor pairs this table with per-round and quota
+columns from its batch/quota governance; this repo has neither institution, so those
+columns are n/a here -- do not import the quota numbers.)
+
+**Evolution proposal card**: a candidate row with ruling value upgrades to a
+proposal card -- add "2-3 options + recommendation" and "source evidence" columns,
+plus a strategy tag {harden, repair-only, innovate} (default harden; innovate must
+name the new judgment path) and a pre-registered recheck criterion (gap anchor +
+baseline + closure command + verification round; may only cite existing gates/audit
+rows, no invented metrics). A row without options is a finding, not a proposal --
+stays in backlog. Proposal cards enter PLAN only after maintainer ruling.
+
+**Proposal-card meta audit** (self-check on 3D output): sample cards for completeness
+-- options / recommendation / evidence / landing+gate / strategy tag / recheck
+criterion. A card missing a required field demotes to backlog.
 
 ### 3C: Persistence
 
@@ -238,6 +332,11 @@ surface is a fixed four-file set, and new files change the agent-links sync face
 - each scan's findings, scores, decisions; the next scan first checks whether last time's issues were fixed
 - the Quick-run counter lives in the same paragraph
 - >=5 Quick runs -> automatically suggest Full
+- **gap closure rate**: when a previous 3D table exists, report closure against its
+  pre-registered criteria (closed / previous gaps); unclosed -> flag for
+  lesson-review, re-propose or drop next round
+- **dismissal log**: every false positive caught in the gatekeeper pass is recorded
+  here with its reason; the next audit consults past dismissals before re-investigating
 
 ---
 
@@ -251,7 +350,8 @@ roles, so the engine's mandatory core two need not be instantiated as separate
 members; dedupe, severity ordering, and conflict escalation still follow the
 engine's merge pass. On a host without team tools, run the roster as the engine's
 sequential track: each domain freezes its own findings with `file:line` evidence
-before the next domain starts.
+before the next domain starts. 2D/3D and the gatekeeper pass belong to the main
+session's synthesis, not to a member.
 
 ```
 member 1: structure-analyst (deep) -- domains 9+10 + scripts syntax sweep
@@ -259,7 +359,7 @@ member 2: content-auditor (deep)   -- domains 1+2+5 (skills/rules/docs content)
 member 3: platform-auditor (deep)  -- domains 3+6+7+8 (mcp/book/cli/tests)
 member 4: repo-audit scanner (deep) -- Phase 2B external, 4 lanes parallel
 member 5: security-auditor (deep)  -- Phase 2B security audit
-member 6: synthesizer (deep)       -- Phase 3 synthesis (waits for 1-5; may be the main session)
+member 6: synthesizer (deep)       -- Phase 3 synthesis (waits for 1-5; usually the main session)
 ```
 
 ## Community references
@@ -275,6 +375,7 @@ This skill's composite design borrows from the following community precedents:
 | [claude-ecosystem](https://github.com/melodic-software/claude-code-plugins) | meta-skill architecture, audit agents, component health |
 | [skill-optimizer](https://github.com/hqhq1025/skill-optimizer) | skill lifecycle (miner -> personalizer -> generalizer) |
 | [large-codebase-audit](https://github.com/MJWNA/large-codebase-audit-skill) | multi-surface AI-layer audit, aligned with Anthropic best practices |
+| [shadcn/improve](https://github.com/shadcn/improve) | gatekeeper pass with a false-positive dismissal log; reconcile-before-start |
 
 ## Adapting to any project
 
@@ -291,12 +392,17 @@ Replace the variables:
 
 ## Boundary with doc-audit
 
-- **repo-audit** (this skill): audits the **whole engineering surface** (10 domains above) and scans the
-  **external** ecosystem for adoptable content.
+- **repo-audit** (this skill): audits the **whole engineering surface** (10 domains above), inventories
+  the six governance assets (2D), emits increment candidates (3D), and scans the
+  **external** ecosystem for adoptable content (2B/2C).
 - **doc-audit**: audits **project documentation** consistency (architecture/design/decision records) in depth;
   it already carries the "Division of labor with repo-audit" table.
 - Rule of thumb: adopting/optimizing skills or rules, or a periodic whole-repo checkup -> this skill;
   docs/architecture consistency deep-dive -> `doc-audit`.
+- **Governance boundary**: 3D only emits candidates, never schedules and never modifies
+  files; execution of an adopted candidate belongs to the normal PLAN/review flow.
+  repo-audit finds + judges + inventories + emits increments. Memory ownership split
+  with doc-audit: size + staleness here; duplication + conflict + growth rate there.
 
 ## Rationalizations (anti-excuse)
 
@@ -307,6 +413,7 @@ Replace the variables:
 | "one quick scan is enough" | Quick misses duplicates/security; escalate to Full periodically. |
 | "the gates are green, nothing to scan" | Gates prove mechanical health per surface; they do NOT prove coverage (a surface without a gate is invisible), nor naming/structure/duplication quality -- that is exactly the scan's gap analysis. |
 | "audit .agents only, the rest is product code" | Scripts, CLI, tests and tree structure ARE the agent system's execution surface -- the incidents that motivated this split lived outside .agents/. |
+| "add a domain for the donor's role tree so the matrices match" | A domain with no substrate is an always-SKIP paper gate -- exactly the shape this repo rejects; absence is recorded, not simulated. |
 
 ## Red Flags
 
@@ -315,6 +422,7 @@ Replace the variables:
 - Duplicated skills competing for the same trigger.
 - No record of the scan result in memory.
 - A domain in the matrix whose enforcement owner column is empty AND has no scan finding -- that is a coverage hole, not a pass.
+- A 3D row with an empty Landing or Gate cell shipped as a recommendation instead of demoting to backlog.
 
 ## Verification (evidence)
 
@@ -322,3 +430,7 @@ Replace the variables:
 - `GATE-SKILLS` and the gate-agents SKILLS-INDEX segment cover every skill (inventory consistent); the full ci chain green (live count via `bash scripts/check.sh --list`).
 - 2C pattern cards cite source repo + path and pass the constitutional Fit check.
 - Gap findings cite file:line and name the enforcement owner that should own them.
+- 2D: every mechanical cell cites a real gate or script; a class with none is reported as a coverage hole feeding 3D, never silently filled.
+- 3D: a sample of 5 rows has Landing and Gate non-empty; removing either column makes the report fail.
+- A P-5 pattern card carries all six fields and its Fit cites this repo's constitution.
+- The dismissal log exists whenever the gatekeeper pass removed at least one finding.
