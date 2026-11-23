@@ -80,8 +80,14 @@ if [ -d crates ]; then
   fi
 fi
 
-# 1. cargo fmt --check
+# 1. cargo fmt --check, gated on lock freshness (repo-audit 2C P1, dora lesson
+#    2026-11-23): a stale Cargo.lock must redden before any build silently
+#    re-resolves; metadata --locked is local-only and costs ~0.2s.
 if [ "$HAS_WS" -eq 1 ]; then
+  "${CARGO[@]}" metadata --format-version 1 --locked > /dev/null 2>&1 || {
+    note "FAIL lock-freshness (Cargo.lock out of sync with Cargo.toml; regenerate and commit both)"
+    status=1
+  }
   "${CARGO[@]}" fmt --all --check || { note "FAIL fmt"; status=1; }
 else note "skip fmt (no crates/ workspace)"; fi
 
