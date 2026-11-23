@@ -148,6 +148,9 @@ pub(crate) fn event_payload(event: &ObsEvent) -> String {
         ObsEvent::Registry(ServiceEvent::Unregistered { id, service_id, .. }) => {
             format!("unregistered {} rid={}", service_id.as_str(), id.value())
         }
+        ObsEvent::Registry(ServiceEvent::Modified { id, service_id, .. }) => {
+            format!("modified {} rid={}", service_id.as_str(), id.value())
+        }
         ObsEvent::ModuleLoaded {
             plugin,
             artifact,

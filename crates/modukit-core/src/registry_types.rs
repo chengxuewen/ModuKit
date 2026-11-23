@@ -56,7 +56,9 @@ impl Properties {
     }
 }
 
-/// Presence event (invariant 5). `Modified` is reserved-additive, not shipped.
+/// Presence event (invariant 5). The full documented vocabulary ships:
+/// `Registered` / `Unregistered` / `Modified` (S2 - module 02 §3 already
+/// named `Modified`; the code now matches the doc).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ServiceEvent {
     Registered {
@@ -65,6 +67,13 @@ pub enum ServiceEvent {
         props: Properties,
     },
     Unregistered {
+        id: RegistrationId,
+        service_id: ServiceId,
+        props: Properties,
+    },
+    /// A registration's properties changed (S2). The canonical `service.id`
+    /// is immutable; `modify_props` refuses to change it.
+    Modified {
         id: RegistrationId,
         service_id: ServiceId,
         props: Properties,

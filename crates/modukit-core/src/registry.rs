@@ -5,12 +5,12 @@
 //! Option<ServiceRef<S>>`, `release(&ServiceRef<S>)`, `subscribe()`,
 //! `snapshot()`. The six invariants carried here: handles not instances (1);
 //! monotonic `i64` ids (2); case-insensitive flat property map (3); reserved
-//! `ranking` used as tie-break only (4); `Registered`/`Unregistered` event
-//! pairs beside `snapshot()` (5 — `Modified` is a documented additive
-//! extension, deliberately not shipped in year 1); acquire/release call shape
-//! with internal refcount (6). Property-filter query (`find`) ships in
-//! plugin-management-plan S1; no tracker, no factory, no leases yet
-//! (modules/02 §5 non-goals; tracker/events follow in S2).
+//! `ranking` used as tie-break only (4); `Registered`/`Unregistered`/`Modified`
+//! events beside `snapshot()` (5 — `Modified` ships in S2 via `modify_props`,
+//! the canonical `service.id` immutable); acquire/release call shape with
+//! internal refcount (6). Property-filter query (`find`) ships in S1;
+//! filtered subscription (`subscribe_filtered`) in S2; no tracker, no factory,
+//! no leases yet (modules/02 §5 non-goals; tracker follows in S2).
 
 use std::any::{Any, TypeId};
 use std::cell::Cell;
@@ -35,6 +35,9 @@ pub enum RegistryError {
     UnknownRegistration { id: i64 },
     /// The same handle released twice — call sites owe exactly one release.
     AlreadyReleased { id: i64 },
+    /// `modify_props` tried to change the canonical `service.id` (S2: the
+    /// identity is immutable; only the surrounding properties may change).
+    ServiceIdImmutable { id: i64 },
 }
 
 impl std::fmt::Display for RegistryError {
@@ -48,6 +51,12 @@ impl std::fmt::Display for RegistryError {
             }
             RegistryError::AlreadyReleased { id } => {
                 write!(f, "handle for registration {id} was already released")
+            }
+            RegistryError::ServiceIdImmutable { id } => {
+                write!(
+                    f,
+                    "registration {id}: the canonical service.id is immutable"
+                )
             }
         }
     }
@@ -70,7 +79,9 @@ struct Entry {
 struct Storage {
     entries: BTreeMap<i64, Entry>,
     next_id: i64,
-    senders: Vec<SyncSender<ServiceEvent>>,
+    /// Subscribers with an optional property filter (S2): `None` receives
+    /// every event; `Some(f)` receives only events whose props match `f`.
+    senders: Vec<(SyncSender<ServiceEvent>, Option<Filter>)>,
     /// Shared observatory ring (M6): the kernel wires it at boot; a
     /// standalone `Registry::new()` has none and behaves exactly as before.
     observability: Option<Arc<Observatory>>,
@@ -88,9 +99,21 @@ impl Storage {
         if let Some(obs) = &self.observability {
             obs.emit(ObsEvent::Registry(event.clone()));
         }
-        self.senders.retain(|tx| match tx.try_send(event.clone()) {
-            Ok(()) | Err(TrySendError::Full(_)) => true,
-            Err(TrySendError::Disconnected(_)) => false,
+        self.senders.retain(|(tx, filter)| {
+            if let Some(f) = filter {
+                let props = match &event {
+                    ServiceEvent::Registered { props, .. }
+                    | ServiceEvent::Unregistered { props, .. }
+                    | ServiceEvent::Modified { props, .. } => props,
+                };
+                if !f.matches(props) {
+                    return true; // keep the subscriber; this event is not its business
+                }
+            }
+            match tx.try_send(event.clone()) {
+                Ok(()) | Err(TrySendError::Full(_)) => true,
+                Err(TrySendError::Disconnected(_)) => false,
+            }
         });
     }
 }
@@ -257,8 +280,59 @@ impl Registry {
     #[must_use]
     pub fn subscribe(&self) -> Receiver<ServiceEvent> {
         let (tx, rx) = sync_channel::<ServiceEvent>(EVENT_QUEUE);
-        lock(&self.storage).senders.push(tx);
+        lock(&self.storage).senders.push((tx, None));
         rx
+    }
+
+    /// Filtered subscription (S2): only events whose properties match the
+    /// RFC1960-subset filter are delivered. Late-join discipline is the
+    /// caller's: take `find(filter)` first, then subscribe, exactly as
+    /// `snapshot()` + `subscribe()` pair for the unfiltered stream.
+    ///
+    /// # Errors
+    ///
+    /// `FilterError` when the filter string is malformed.
+    pub fn subscribe_filtered(&self, filter: &str) -> Result<Receiver<ServiceEvent>, FilterError> {
+        let parsed = Filter::parse(filter)?;
+        let (tx, rx) = sync_channel::<ServiceEvent>(EVENT_QUEUE);
+        lock(&self.storage).senders.push((tx, Some(parsed)));
+        Ok(rx)
+    }
+
+    /// Change a registration's properties (S2): emits `Modified`. The
+    /// canonical `service.id` is immutable - the new props must carry the
+    /// same id; ranking is re-derived from the reserved property.
+    ///
+    /// # Errors
+    ///
+    /// `UnknownRegistration` for an absent id; `MissingServiceId` when the
+    /// new props lack a string `service.id`; `ServiceIdImmutable` when the
+    /// id differs from the registered one.
+    pub fn modify_props(&self, id: RegistrationId, props: Properties) -> Result<(), RegistryError> {
+        let mut store = lock(&self.storage);
+        let entry = store
+            .entries
+            .get_mut(&id.value())
+            .ok_or(RegistryError::UnknownRegistration { id: id.value() })?;
+        let new_id = match props.get("service.id") {
+            Some(PropertyValue::Str(s)) if !s.is_empty() => ServiceId::new(s.clone()),
+            _ => return Err(RegistryError::MissingServiceId),
+        };
+        if new_id != entry.service_id {
+            return Err(RegistryError::ServiceIdImmutable { id: id.value() });
+        }
+        entry.ranking = match props.get("ranking") {
+            Some(PropertyValue::Int(r)) => *r,
+            _ => 0,
+        };
+        entry.props = props.clone();
+        let service_id = entry.service_id.clone();
+        store.emit(ServiceEvent::Modified {
+            id,
+            service_id,
+            props,
+        });
+        Ok(())
     }
 
     #[must_use]
@@ -411,5 +485,80 @@ mod find_tests {
         let r = Registry::new();
         assert!(r.find("(service.id=").is_err());
         assert!(r.find("(&)").is_err());
+    }
+}
+
+#[cfg(test)]
+mod s2_tests {
+    use super::*;
+
+    struct Svc;
+
+    fn props(id: &str, ranking: i64) -> Properties {
+        let mut p = Properties::new();
+        p.insert("service.id", PropertyValue::Str(id.into()));
+        p.insert("ranking", PropertyValue::Int(ranking));
+        p
+    }
+
+    #[test]
+    fn modify_props_emits_modified_and_updates() {
+        let r = Registry::new();
+        let id = r.register(Arc::new(Svc), props("com.acme.Nav", 1)).unwrap();
+        let rx = r.subscribe();
+        r.modify_props(id, props("com.acme.Nav", 9)).unwrap();
+        let ev = rx.try_recv().expect("a Modified event");
+        match ev {
+            ServiceEvent::Modified { id: mid, props, .. } => {
+                assert_eq!(mid, id);
+                assert_eq!(props.get("ranking"), Some(&PropertyValue::Int(9)));
+            }
+            other => panic!("expected Modified, got {other:?}"),
+        }
+        assert_eq!(
+            r.lookup(&ServiceId::new("com.acme.Nav".into()))
+                .unwrap()
+                .ranking,
+            9
+        );
+    }
+
+    #[test]
+    fn modify_props_refuses_unknown_id_and_id_change() {
+        let r = Registry::new();
+        let id = r.register(Arc::new(Svc), props("com.acme.Nav", 1)).unwrap();
+        // unknown id
+        assert!(matches!(
+            r.modify_props(RegistrationId::at(999), props("com.acme.Nav", 1)),
+            Err(RegistryError::UnknownRegistration { .. })
+        ));
+        // changing the canonical id is refused
+        assert!(matches!(
+            r.modify_props(id, props("com.acme.Other", 1)),
+            Err(RegistryError::ServiceIdImmutable { .. })
+        ));
+        // missing service.id is refused
+        assert!(matches!(
+            r.modify_props(id, Properties::new()),
+            Err(RegistryError::MissingServiceId)
+        ));
+    }
+
+    #[test]
+    fn filtered_subscription_only_delivers_matches() {
+        let r = Registry::new();
+        let rx = r.subscribe_filtered("(service.id=com.acme.Nav)").unwrap();
+        r.register(Arc::new(Svc), props("com.acme.Log", 1)).unwrap();
+        r.register(Arc::new(Svc), props("com.acme.Nav", 1)).unwrap();
+        let ev = rx.try_recv().expect("the Nav registration");
+        match ev {
+            ServiceEvent::Registered { service_id, .. } => {
+                assert_eq!(service_id.as_str(), "com.acme.Nav");
+            }
+            other => panic!("expected Nav Registered, got {other:?}"),
+        }
+        assert!(rx.try_recv().is_err(), "the Log event must not arrive");
+        // malformed filter reddens
+        assert!(r.subscribe_filtered("(service.id=").is_err());
     }
 }
