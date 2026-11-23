@@ -309,6 +309,12 @@ else
   note "ok credential-filenames (no tracked credential-shaped names)"
 fi
 
+# leg: leak-liveness (repo-audit 2C P1, MediaServo pattern): a tracked file an
+# ignore rule covers is invisible to status and leaks on every commit; the
+# credential guard checks name shapes, this checks tracking state. Ships with
+# an injected self-test (planted force-add red, clean tree green).
+bash scripts/check-leaks.sh || { note "FAIL leaks"; status=1; }
+
 # leg: ctest bridge over the dedicated Stage-4 tree (gate escalation 2026-10-21;
 # PIT-17 class - a warm stale tree once fabricated a false 9/9). Incremental rebuild
 # THEN full ctest every run, so changed sources cannot hide behind old binaries.
