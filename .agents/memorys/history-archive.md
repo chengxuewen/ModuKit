@@ -1,5 +1,17 @@
 # ModuKit — History Archive
 
+## 2026-11-23 - status offload II (preset / territory / plan rows)
+
+- Moved verbatim from status.md (budget pressure: 7913 bytes): the MediaServo
+  scan row, scan follow-up row, preset-overhaul row, territory-move row, and
+  plugin-management-plan row. Active remainders + parked consider cards stay
+  condensed in status.md.
+- 2026-11-23 MediaServo scan @ f589e8f4 (refinfo FAIL drift stands; 210-commit delta over the 9d22cba baseline): donor findings = mcp dual-list drift, /home/ literal in scripts/agents/mcp-servers.json, 3 naming outliers. Pattern cards 8: adopt = tracked-intersect-ignored leak gate, shadcn execution trio, smoke hardening trio (TMPDIR pin, dual-face env control, bootstrap assertions), localized .gitignore discipline; consider = STRUCTURE generator (P2, ship with the donor's Full#2 fixes), 2D collector script, fail-closed pure-function template, three-tier config ladder; hold = per-recipient roster trimming (no consumer). Ported-echo: donor landed aggregation batch-2 (dispatcher chain into scripts/agents/), 10+ agent test files, FOLDER hierarchy plan; abs-path gate / selftests runner / e2e naming unchanged. Dismissal log: "ModuKit has no leak gate" corrected - credential guard (b6ab6fb) is name-form complementary, the tracked-intersect-ignored check is still missing and stays the P1 adopt.
+- 2026-11-23 scan follow-up (directed continuation, all four adopt cards landed same day): leak gate `scripts/check-leaks.sh` as check.sh leg 41 (injected self-test: planted force-add red, clean green); demo TMPDIR pins x5 into out/tmp-scratch (five legs re-PASS); shadcn execution trio + ignore-locality section appended to development-workflow.md. Consider cards stay parked in the table above for the next round.
+- 2026-11-23 preset overhaul (maintainer ruling, supersedes the #47 slimming; same tree template): official hidden-base shape - `_base`/`_pixi`/`_system` + 2 routes x 3 types (`default`/`debug`/`release`/`system`/`system-debug`/`system-release`), one tree per preset, `RelWithDebInfo` fills the long-empty build-type vacuum; `MODUKIT_BUILD_CPP` option owns the C++ faces; pixi tasks and `.vscode` moved to `--preset` (the dead out/build IDE path died with it); gate tree renamed `stage4`->`demo`, script-private, out of the menu. A post-mv cache-path hiccup in demo-stage4-m1 self-healed on first reconfigure (retry PASS); full ci green after.
+- 2026-11-23 territory move (maintainer ruling, third in the chain): CMake trees out/presets -> build/presets (family-verbatim with MediaServo), scratch/ctest logs follow, shared cargo cache -> build/cargo-target, /out/ rule retired. Two latent gaps surfaced cold and closed the same day: single-target demo builds leaned on warm .a artifacts (no ninja producer edge - the legs now warm the modukit-core-build mediator first; true-cold m1/m2 PASS observed), and runtime-created territory dirs (book/scratch) were quoted as doc pointers (unquoted now; cmake-smoke mkdirs its own scratch). ci all green after (ok=16 skip=2 fail=0).
+- 2026-11-23 plugin-management-plan rev2 (docs/plugin-management-plan.md): 3-framework gap audit, A1-A6 all A, S1-S4 ready; update/D4/RSA trigger-gated.
+
 ## 2026-11-23 - status offload (settled audit rows)
 
 - Moved verbatim from status.md (budget pressure: 7679 bytes): the
