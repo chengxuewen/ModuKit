@@ -60,4 +60,5 @@ pub mod sha256;
 pub mod testhost;
 pub mod topic;
 pub mod tracker;
+pub mod version;
 mod wiring;

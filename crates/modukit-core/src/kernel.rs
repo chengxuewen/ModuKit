@@ -499,10 +499,24 @@ fn resolve_inner(
     // artifact — the kernel stays placement-agnostic. Both gates remain
     // code-free and run before any plugin code executes (03 §1).
     for req in record.manifest.requires.iter().filter(|r| r.required) {
-        if registry.lookup(&req.service).is_none() {
+        let Some(provider) = registry.lookup(&req.service) else {
             return Err(KernelError::DependencyMissing {
                 service: req.service.as_str().to_string(),
             });
+        };
+        // S2 (ruling S2-3 A): a declared version range must be satisfied by
+        // the provider's `service.version` property; an absent or non-matching
+        // version is a deterministic resolve failure before any plugin code.
+        if let Some(range) = &req.version {
+            let satisfied = match provider.props.get("service.version") {
+                Some(PropertyValue::Str(v)) => range.matches(v),
+                _ => false,
+            };
+            if !satisfied {
+                return Err(KernelError::DependencyMissing {
+                    service: req.service.as_str().to_string(),
+                });
+            }
         }
     }
     let handle = executor.load(&record.manifest)?;

@@ -75,6 +75,9 @@ pub struct Requires {
     pub required: bool,
     pub policy: DepPolicy,
     pub on_down: Option<OnDown>,
+    /// Optional version range (S2, ruling S2-3 A): the provider's
+    /// `service.version` property must satisfy it at resolve time.
+    pub version: Option<crate::version::VersionRange>,
 }
 
 /// One `[[provides]]` declaration. `ranking` is reserved storage (invariant
@@ -287,6 +290,8 @@ struct RawRequires {
     policy: Option<String>,
     #[serde(default)]
     on_down: Option<String>,
+    #[serde(default)]
+    version: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -326,6 +331,13 @@ impl RawManifest {
                     },
                     on_down: match &r.on_down {
                         Some(o) => Some(parse_on_down(o)?),
+                        None => None,
+                    },
+                    version: match &r.version {
+                        Some(v) => Some(
+                            crate::version::VersionRange::parse(v)
+                                .map_err(|e| ManifestError::BadVersionRange(e.0))?,
+                        ),
                         None => None,
                     },
                 })
@@ -390,5 +402,45 @@ impl RawManifest {
             requires,
             provides,
         })
+    }
+}
+
+#[cfg(test)]
+mod version_range_tests {
+    use super::*;
+
+    const BASE: &str = r#"
+id = "com.acme.consumer"
+version = "1.0.0"
+[entry]
+kind = "dl"
+artifact = "libfoo.so"
+[[requires]]
+service = "com.acme.Nav"
+required = true
+"#;
+
+    #[test]
+    fn requires_version_range_parses_and_matches() {
+        let toml = format!("{BASE}version = \">=1.2,<2\"\n");
+        let m = Manifest::from_toml_str(&toml).unwrap();
+        let range = m.requires[0].version.as_ref().expect("range parsed");
+        assert!(range.matches("1.5"));
+        assert!(!range.matches("2.0"));
+    }
+
+    #[test]
+    fn requires_without_version_is_none() {
+        let m = Manifest::from_toml_str(BASE).unwrap();
+        assert!(m.requires[0].version.is_none());
+    }
+
+    #[test]
+    fn malformed_requires_version_redds() {
+        let toml = format!("{BASE}version = \">=abc\"\n");
+        assert!(matches!(
+            Manifest::from_toml_str(&toml),
+            Err(ManifestError::BadVersionRange(_))
+        ));
     }
 }

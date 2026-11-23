@@ -40,6 +40,8 @@ pub enum ManifestError {
     BadRestartPolicy(String),
     /// `backoff` outside `"<min>..<max>"` (05 §2).
     BadBackoff(String),
+    /// `requires.version` is not a valid comparator range (S2, e.g. `>=1.2,<2`).
+    BadVersionRange(String),
 }
 
 impl ManifestError {
@@ -83,6 +85,12 @@ impl std::fmt::Display for ManifestError {
                 write!(
                     f,
                     "backoff must be `<min>..<max>` durations, got {s:?} (05 §2)"
+                )
+            }
+            ManifestError::BadVersionRange(s) => {
+                write!(
+                    f,
+                    "requires.version must be a comparator range (e.g. `>=1.2,<2`), got {s:?} (S2)"
                 )
             }
         }
