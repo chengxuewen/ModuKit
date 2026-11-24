@@ -1,0 +1,49 @@
+# ModuKit Tutorials
+
+Hands-on learning paths. Every command below runs a standing gate leg - the
+repo replays them nightly, so what you copy is what CI proves. Code blocks
+are quoted verbatim from compiled fixtures, with `file:line` provenance (the
+A5 discipline of `docs/onboarding-plan.md`).
+
+## Who this is for
+
+| You are | Start at | Then |
+|---|---|---|
+| A newcomer ("what is this thing?") | chapter 01 | the [feature gallery](../features.md) once it lands |
+| A plugin author (C / C++ / Python / JS) | chapter 02 | chapters 03-04, then 06 if you write script plugins |
+| An embedder (your app drives the kernel) | chapter 05 | chapters 03-04 for the model behind the verbs |
+
+## Platform note
+
+Supported: Linux native, Windows (pixi env; the bash demo legs run under
+WSL, the cmake/build face works natively). macOS is not a pixi platform
+today - `pixi.toml` declares linux-64/win-64 only.
+
+## The band-choice table
+
+| Band | Plugin face | Host/embed face | Placement |
+|---|---|---|---|
+| C | `test-plugins/c/c-example-plugin` (pure C, one file) | `examples/c/host_demo.c` | dl |
+| C++ | `test-plugins/cpp/cpp-example-plugin` (generated shelf) | `examples/cpp/host_demo.cc` | dl |
+| Python | `test-plugins/py/py_echo.py` (script, exe wall) | `examples/py/host_demo.py` (ctypes) | exe |
+| JS | `test-plugins/js/js_echo.mjs` (script, exe wall) | `examples/js/host_demo.js` (napi) | exe |
+
+## Chapters
+
+1. [First run](01-first-run.md) - 60 seconds, full lifecycle.
+2. [Your first plugin](02-first-plugin.md) - manifest, install gates, the
+   sabotage levers (C and C++ bands).
+3. [The bus](03-the-bus.md) - topics, late-join, the clock bell.
+4. [The exe wall](04-the-exe-wall.md) - processes, crash/revive,
+   ORPHAN-PROOF.
+5. Embed from your language (C, C++, Python, JS hosts) - lands with E4.
+6. Script plugins (the Python/JS plugin door, the four hidden contracts) -
+   lands with E4.
+
+## Where to go next
+
+- The deep-dive canon: [../modules/00-overview.md](../modules/00-overview.md)
+  (reading order for newcomer / plugin author / comm-stack).
+- The environment: [../env.md](../env.md).
+- Everything the kernel can do: the feature gallery (landing with E6 as
+  docs/features.md) and [../capability-ledger.md](../capability-ledger.md).

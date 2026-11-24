@@ -6,6 +6,8 @@
 # index had no liveness owner). Since the 2026-11-23 blind-spot fix the docs-scope five
 # (architecture, capability-ledger, codegraph-bootstrap, env, whitepaper) are scanned
 # too - plan/hearing records stay OUT (they cite then-current filenames on purpose).
+# Since 2026-11-24 the tutorials tree rides the scan as well (onboarding-plan A2:
+# tutorials link canon heavily and are exactly the rot class this gate fights).
 # The link pass closed a blind spot a planted defect proved on 2026-11-05 (PIT-37:
 # `[x](dead.md)` sailed through the backtick-only extractor).
 # Scope is tight on purpose - on-demand docs are not scanned.
@@ -29,12 +31,13 @@ IN="${MODUKIT_GATE_INPUT_DIR:-}"; [ -n "$IN" ] && IN="${IN%/}/"
 # repo root (only the scanned-file location is redirected). Repo files untouched.
 if [ "${1:-}" = "--self-test" ]; then
   seed_scratch() {
-    mkdir -p "$1/.agents/memorys" "$1/docs"
+    mkdir -p "$1/.agents/memorys"
     cp AGENTS.md README.md llms.txt "$1/"
     cp .agents/AGENTS.md "$1/.agents/"
     cp .agents/memorys/conventions.md .agents/memorys/status.md "$1/.agents/memorys/"
-    cp docs/architecture.md docs/capability-ledger.md docs/codegraph-bootstrap.md \
-       docs/env.md docs/whitepaper.md "$1/docs/"
+    # the whole docs tree: tutorials link canon relatively (../modules/...),
+    # so every linked file must resolve in the scratch exactly as in-repo.
+    cp -r docs "$1/docs"
   }
   s=$(mktemp -d)
   trap 'rm -rf "$s"' EXIT
@@ -57,16 +60,32 @@ if [ "${1:-}" = "--self-test" ]; then
     exit 1
   fi
   rm -rf "$s"; mkdir -p "$s"; seed_scratch "$s"
+  printf 'Self-test dead tutorials pointer: `docs/self-test-defect-tutorials.md`.\n' >> "$s/docs/tutorials/README.md"
+  if MODUKIT_GATE_INPUT_DIR="$s" bash "$SELF" > /dev/null 2>&1; then
+    echo "self-test FAIL (check-doc-refs.sh): planted tutorials defect NOT caught"
+    exit 1
+  fi
+  rm -rf "$s"; mkdir -p "$s"; seed_scratch "$s"
   if ! MODUKIT_GATE_INPUT_DIR="$s" bash "$SELF" > /dev/null 2>&1; then
     echo "self-test FAIL (check-doc-refs.sh): clean copies went RED"
     exit 1
   fi
   rm -rf "$s"
-  echo "self-test OK (check-doc-refs.sh): backtick red, link red, docs-scope red, clean green"
+  echo "self-test OK (check-doc-refs.sh): backtick red, link red, docs-scope red, tutorials red, clean green"
   exit 0
 fi
 
 FILES=("${IN}AGENTS.md" "${IN}.agents/AGENTS.md" "${IN}.agents/memorys/conventions.md" "${IN}.agents/memorys/status.md" "${IN}README.md" "${IN}llms.txt" "${IN}docs/architecture.md" "${IN}docs/capability-ledger.md" "${IN}docs/codegraph-bootstrap.md" "${IN}docs/env.md" "${IN}docs/whitepaper.md")
+
+# A2 (onboarding-plan): the tutorials tree rides the scan. The glob is
+# expanded here so an empty tutorials tree degrades VISIBLY (the skip-census
+# discipline: a silent zero-scan is a blind spot, never a pass). When
+# docs/features.md lands (E6) it joins as a fixed entry.
+if compgen -G "${IN}docs/tutorials/"'*.md' > /dev/null; then
+  for f in ${IN}docs/tutorials/*.md; do FILES+=("$f"); done
+else
+  echo "check-doc-refs: note: docs/tutorials glob matched nothing (tree absent)" >&2
+fi
 
 missing=0
 checked=0

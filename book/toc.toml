@@ -54,6 +54,11 @@ type = "explanation"
 visibility = "internal"
 
 [[group]]
+title = "Tutorials"
+type = "how-to"
+glob = "docs/tutorials/*.md"
+
+[[group]]
 title = "Modules"
 type = "explanation"
 glob = "docs/modules/*.md"
