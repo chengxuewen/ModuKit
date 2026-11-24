@@ -271,6 +271,27 @@ function main() {
   }
   check(sawLifecycle && tiled, '[10] introspect_events: LE records tile the buffer; lifecycle rows found');
 
+  /* [10b] the consumer scene (example-volume sweep B1): DISCOVER with the
+   * S1 filter, then call - the dictionaryclient3 discipline in the js
+   * band. The unmatched filter answers an EMPTY set, never an error. */
+  const fProbe = skin.modukit_embed_find_services(
+    '(service.id=org.modukit.snapshot)', 0); // cap 0 = the NULL size query
+  check(
+    fProbe.raw > 0 && Number(fProbe.out_len) === fProbe.raw,
+    '[10b] find_services size probe (NULL buffer)',
+  );
+  const fTake = skin.modukit_embed_find_services(
+    '(service.id=org.modukit.snapshot)', fProbe.out_len);
+  check(
+    fTake.raw > 0 && fTake.out_buf.toString('utf8').includes('org.modukit.snapshot'),
+    '[10b] the filter query names the snapshot service',
+  );
+  const ghost = skin.modukit_embed_find_services('(service.id=com.example.ghost)', 0);
+  check(
+    ghost.raw === 0 && Number(ghost.out_len) === 0,
+    '[10b] an unmatched filter is an empty set (0 bytes), never an error',
+  );
+
   /* [11] stop + uninstall close the walk (and the plugin's services). */
   check(skin.modukit_stop(pid) === 0, '[11] stop -> RESOLVED');
   const stR = skin.modukit_state(pid);

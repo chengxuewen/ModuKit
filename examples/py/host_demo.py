@@ -291,6 +291,35 @@ def main():
     check(saw_lifecycle and tiled,
           "[10] introspect_events: LE records tile the buffer; lifecycle rows found")
 
+    # [10b] the consumer scene (example-volume sweep B1): DISCOVER the
+    # platform snapshot service with the S1 filter, then call it - the
+    # dictionaryclient3 discipline in the py band. The unmatched filter
+    # answers an EMPTY set (0 bytes), never an error (absence is data).
+    find_len = ctypes.c_size_t(0)
+    rc = lib.modukit_embed_find_services(
+        b"(service.id=org.modukit.snapshot)", None, 0, ctypes.byref(find_len)
+    )
+    check(
+        rc > 0 and find_len.value == rc,
+        "[10b] find_services size probe (NULL buffer)",
+    )
+    buf = ctypes.create_string_buffer(find_len.value + 1)
+    rc = lib.modukit_embed_find_services(
+        b"(service.id=org.modukit.snapshot)", buf, find_len.value, ctypes.byref(find_len)
+    )
+    check(
+        rc > 0 and b"org.modukit.snapshot" in buf.raw,
+        "[10b] the filter query names the snapshot service",
+    )
+    ghost_len = ctypes.c_size_t(123)
+    rc = lib.modukit_embed_find_services(
+        b"(service.id=com.example.ghost)", None, 0, ctypes.byref(ghost_len)
+    )
+    check(
+        rc == 0 and ghost_len.value == 0,
+        "[10b] an unmatched filter is an empty set (0 bytes), never an error",
+    )
+
     # [11] stop + uninstall close the walk (and the plugin's services).
     check(lib.modukit_stop(pid) == 0, "[11] stop -> RESOLVED")
     check(
