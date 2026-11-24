@@ -9,8 +9,8 @@
  * in libmodukit_core.so (the D100 M0 cdylib). Fixture leg: the same real
  * C++ plugin .so the cpp and Python M1 demos drive (argv[3]).
  *
- * Word list, one line per verb, in one honest chain (16 rung-0 verbs over
- * 11 scenes - some scenes merge verbs, exactly like the cpp demo):
+ * Word list, one line per verb, in one honest chain (a 16-verb rung-0 walk
+ * over 11 scenes - the rung-0 face is 17 post-S1, exactly like the cpp demo):
  *     embed_abi_version -> install -> resolve -> start -> state
  *     -> service_call (EchoRequest/EchoReply over the demo contract)
  *     -> bus_publish -> bus_subscribe -> bus_recv -> bus_unsubscribe

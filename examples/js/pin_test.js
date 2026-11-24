@@ -21,7 +21,7 @@ if (!fs.existsSync(process.env.MODUKIT_JS_BRIDGE) || !fs.existsSync(process.env.
 }
 const skin = require(path.join(REPO, 'target', 'js', 'modukit_embed.js'));
 
-/* the 16 rung-0 verbs, names verbatim from contracts/modukit_embed.h
+/* all 17 rung-0 verbs, names verbatim from contracts/modukit_embed.h
  * (declaration lines cited; re-derived independently of the emitter) */
 const RUNG0_VERBS = [
   ['modukit_embed_abi_version', 128],
@@ -40,10 +40,11 @@ const RUNG0_VERBS = [
   ['modukit_clock_advance', 217],
   ['modukit_introspect_snapshot', 227],
   ['modukit_introspect_events', 235],
+  ['modukit_embed_find_services', 370],
 ];
 
-test('facade exports all 16 rung-0 verbs', () => {
-  assert.strictEqual(RUNG0_VERBS.length, 16, 'rung-0 verb count moved (16 at M1)');
+test('facade exports all 17 rung-0 verbs', () => {
+  assert.strictEqual(RUNG0_VERBS.length, 17, 'rung-0 verb count moved (17 after the S1 tail-add)');
   for (const [name, line] of RUNG0_VERBS) {
     assert.strictEqual(typeof skin[name], 'function', `facade lacks ${name} (embed.h:${line})`);
     const decl = fs
