@@ -5,6 +5,9 @@
 # as fd 0 (executor_proc.rs CHILD_CONTROL_FD) and stdout/stderr nulled -
 # there is NO console: diagnostics ride the RESULT channel or die with the
 # exit code (plan section 0; no log() on purpose).
+# The four contracts a script plugin must honor are canonical in
+# docs/tutorials/06-script-plugins.md: absolute runner path, no-print, the
+# MODUKIT_PY_SKIN resolution, and generated skins are DO-NOT-EDIT.
 #
 # PYTHON 3.8 FLOOR (pinned by the plan: no walrus, no match, no 3.9+ APIs).
 # stdlib only: socket, struct, os, sys.

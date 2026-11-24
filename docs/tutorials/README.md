@@ -32,13 +32,15 @@ today - `pixi.toml` declares linux-64/win-64 only.
 
 1. [First run](01-first-run.md) - 60 seconds, full lifecycle.
 2. [Your first plugin](02-first-plugin.md) - manifest, install gates, the
-   sabotage levers (C and C++ bands).
+   sabotage levers (C and C++ bands). Sample manifest:
+   [fixtures/manifest-sample.toml](fixtures/manifest-sample.toml).
 3. [The bus](03-the-bus.md) - topics, late-join, the clock bell.
 4. [The exe wall](04-the-exe-wall.md) - processes, crash/revive,
    ORPHAN-PROOF.
-5. Embed from your language (C, C++, Python, JS hosts) - lands with E4.
-6. Script plugins (the Python/JS plugin door, the four hidden contracts) -
-   lands with E4.
+5. [Embed from your language](05-embed-from-your-language.md) - C, C++,
+   Python, JS hosts on the same verb walk.
+6. [Script plugins](06-script-plugins.md) - the Python/JS plugin door and
+   the four hidden contracts.
 
 ## Where to go next
 

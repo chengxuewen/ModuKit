@@ -5,6 +5,9 @@
 // as fd 0 (executor_proc.rs CHILD_CONTROL_FD) and stdout/stderr nulled -
 // there is NO console: diagnostics ride the RESULT channel or die with the
 // exit code (plan section 0; no console.log on purpose).
+// The contracts a script plugin must honor are canonical in
+// docs/tutorials/06-script-plugins.md: absolute runner path, no-print, the
+// repo-relative skin resolution, and generated skins are DO-NOT-EDIT.
 //
 // Node 22 floor, ESM only (no CommonJS dual path until asked). Stdlib only:
 // node:net / node:process - offline box, no npm.

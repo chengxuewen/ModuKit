@@ -1,0 +1,35 @@
+# manifest-sample.toml - a commented copy of the v0 manifest grammar, in
+# the shape the repo's own demos build at runtime. Documentation copy:
+# the grammar authority is docs/modules/05-manifest-and-deployment.md, and
+# compiled instances live in the fixture bands (A5 provenance: this file
+# mirrors examples/cpp/host_demo.cc manifest_for + the optional fields the
+# E2/S2 rulings added - requires.version, on_down, config_live).
+#
+# Docs tutorials home: docs/tutorials/README.md (chapter 02 walks it).
+
+id = "com.example.my-plugin"        # canonical reverse-DNS id (D9)
+version = "0.1.0"
+
+[entry]
+kind = "dl"                          # dl (in-process) | exe (process wall)
+artifact = "libmy-plugin.so"         # path as the installer sees it
+# runner = "/abs/path/modukit-run"   # exe placements ONLY; must be an
+#                                    # ABSOLUTE existing path (hidden contract 1)
+
+# Optional: required dependencies (S1/S2/S3 face). A required dep missing
+# at resolve = deterministic boot failure; version is an RFC1960-companion
+# comparator range checked against the provider's service.version.
+[[requires]]
+service = "com.acme.dep"
+required = true
+on_down = "block"                    # block | restart-self | fail-self
+version = ">=1.0,<2"
+
+# Optional: what this plugin offers (ranking breaks ties, best-first).
+[[provides]]
+service = "com.example.my-plugin.echo"
+ranking = 100
+
+# Optional: D29 hot-lane opt-in (S3-2) - these keys accept live change
+# events on config/<plugin-id>; undeclared keys are refused outright.
+config_live = ["interval", "threshold"]
