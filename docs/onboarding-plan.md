@@ -259,6 +259,18 @@ extension rides E3 so every later chapter is link-protected from day one.
 
 ## 11. Change log
 
+- 2026-11-24 revision 6: EXECUTED. E1-E7 landed in order (E1 four fixes;
+  E2 the C band - Route A, m1 ride, stamp self-heal; E3 tutorials 01-04 +
+  gate extension + book group; E4 chapters 05-06 + manifest sample +
+  binding pointers; E5 discoverability triple + examples router; E6 the
+  feature gallery wired into doc-refs and the book). E7 rehearsal:
+  bootstrap idempotent, bare demo = stage1, router list and unknown leg
+  (13 legs, exit 2), stage4-m1 green (cpp+c), both sabotage levers RED as
+  documented, stage5-n2 / wave2-clock / stage2 / stage4-m2 / wave2-py /
+  wave2-js / wave2-plugin-py / wave2-plugin-js all exit 0. Honest label:
+  warm-cache Linux rehearsal; a true fresh machine touches the network
+  exactly at bootstrap (submodule + pixi install). Zero rehearsal bites.
+  The volume is DONE; the trigger-gated remainders in section 9 stand.
 - 2026-11-24 revision 5: maintainer review question "automated tests / docs
   coverage?" surfaced one unspecified recurring proof: the new C artifacts
   (E2) had a one-time walk but no nightly regression. Amended: the E2
