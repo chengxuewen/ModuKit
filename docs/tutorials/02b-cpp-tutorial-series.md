@@ -13,6 +13,8 @@ truth (read each file top to bottom, it is all there is).
 | t2 | `t2-echo-plugin/` | a service is ONE register call through the borrowed host table; the call slot is your whole protocol | `t2.cpp` |
 | t3 | `t3-bus-plugin/` | the v2 door: subscribe-your-own-topic first, publish, read the self-echo back - all inside start | `t3.cpp` |
 | t4 | `t4-driver/` | the HOST side: the generated wrapper walks install -> resolve -> start -> state -> service_call -> stop -> uninstall | `t4_driver.cc` |
+| t5 | `t5-consumer-poll/` | the NAIVE consumer: call by well-known id; the typed NOT_FOUND while the provider is absent is the lesson (dictionaryclient) | `t5_consumer.cc` |
+| t6 | `t6-consumer-filter/` | the FILTER consumer: discover with the S1 query first (empty set = data, never an error), then call (dictionaryclient3) | `t6_consumer.cc` |
 
 ## Run it
 
@@ -20,10 +22,11 @@ truth (read each file top to bottom, it is all there is).
 bash scripts/demo-stage4-m1.sh    # ends: PASS (cpp + c + tutorial)
 ```
 
-The leg builds the whole series and runs the t4 driver twice: against t2
-(the echo scene exercises `service_call`) and against t1 (the bare
-lifecycle walk - the driver's echo scene self-skips because t1 registers
-nothing). Each run prints `T4-DRIVER PASS`.
+The leg builds the whole series and runs the drivers four times: t4
+against t2 (the echo scene exercises `service_call`) and t1 (the bare
+lifecycle walk - the echo scene self-skips because t1 registers nothing),
+then the consumer evolution t5 (typed absence -> same call round-trips)
+and t6 (discover, then call). Each run prints its own PASS line.
 
 ## What each step teaches (quoted, with provenance)
 

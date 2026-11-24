@@ -56,8 +56,11 @@ trap 'rm -f "$log"' EXIT
   # is asserted by the host demo's optional argv[2] scene.
   pixi run cmake --build "$bd" --target cpp-busv2-plugin &&
   # Tutorial series ride (progressive C++ examples): the t4 driver pulls
-  # the t1/t2/t3 plugins through its own dependency edges.
+  # the t1/t2/t3 plugins through its own dependency edges; the consumer
+  # evolution t5/t6 rides the same t2 provider.
   pixi run cmake --build "$bd" --target t4-driver &&
+  pixi run cmake --build "$bd" --target t5-consumer &&
+  pixi run cmake --build "$bd" --target t6-consumer &&
   # E2 C-band ride (onboarding-plan, ruling A1): the C fixture + C host demo
   # ride THIS leg as a content extension (zero new legs) - their host-demo
   # target pulls the C fixture and the core mediator through its own
@@ -126,6 +129,20 @@ fi
 "$t4" "$t1so" 2>&1 | tee "$log"
 if [ "${PIPESTATUS[0]}" -ne 0 ] || ! grep -qx 'T4-DRIVER PASS' "$log"; then
   echo "demo-stage4-m1: RED (t4/t1 walk failed)"
+  exit 1
+fi
+t5="$bd/examples/cpp/tutorial/t5-consumer-poll/t5-consumer"
+t6="$bd/examples/cpp/tutorial/t6-consumer-filter/t6-consumer"
+[ -x "$t5" ] || { echo "demo-stage4-m1: RED (t5 consumer missing: $t5)"; exit 1; }
+[ -x "$t6" ] || { echo "demo-stage4-m1: RED (t6 consumer missing: $t6)"; exit 1; }
+"$t5" "$t2so" 2>&1 | tee "$log"
+if [ "${PIPESTATUS[0]}" -ne 0 ] || ! grep -qx 'T5-CONSUMER PASS' "$log"; then
+  echo "demo-stage4-m1: RED (t5 consumer walk failed)"
+  exit 1
+fi
+"$t6" "$t2so" 2>&1 | tee "$log"
+if [ "${PIPESTATUS[0]}" -ne 0 ] || ! grep -qx 'T6-CONSUMER PASS' "$log"; then
+  echo "demo-stage4-m1: RED (t6 consumer walk failed)"
   exit 1
 fi
 echo "demo-stage4-m1: PASS (cpp + c + tutorial)"
