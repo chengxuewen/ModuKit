@@ -1,5 +1,6 @@
 # 09 — Recording and Replay
 
+<!-- module-status: design-only - the archive format and replay semantics are recorded (D12/D16/D19/D21); no file recorder exists yet (the ring half ships via observability) -->
 D16. The bus is the instrument (06 §3): a recorder is an ordinary `export`-gated subscriber,
 replay re-enters through a virtual publisher. No side channels, no kernel additions.
 

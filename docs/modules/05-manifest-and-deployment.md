@@ -1,5 +1,6 @@
 # 05 — Manifest and Deployment
 
+<!-- module-status: partial - manifest grammar and install shipped; the deploy-tier file type and TOML seeder are recorded waits; the config hot lane landed (S3-2) -->
 Fields and semantics are adjudicated (D2/D3/D4); the file format is **TOML** per D7 (single
 format — JSON rejected as policy debt). Where each field physically lives, and how file-vs-
 binary lying is policed: §6.

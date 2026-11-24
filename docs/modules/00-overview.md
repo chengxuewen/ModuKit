@@ -2,7 +2,9 @@
 
 Engineering deep-dives complementing [../architecture.md](../architecture.md). Adjudication
 provenance: the decision ledger (`.agents/memorys/decisions.md`; index: docs/architecture.md §11),
-walked one-by-one with the maintainer since 2026-10-10.
+walked one-by-one with the maintainer since 2026-10-10. Every page carries a machine-readable
+status line on row 3 (`module-status: implemented|partial|design-only|superseded`, enum-checked
+by `gate-docs`); this index page is the one exemption.
 
 | # | Document | Covers | Status |
 |---|---|---|---|

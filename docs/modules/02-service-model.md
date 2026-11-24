@@ -1,5 +1,6 @@
 # 02 — Service Model: C+ (static binding, dynamic events)
 
+<!-- module-status: implemented - registry, S1 filter/find and S2 events/tracker/ranges landed; the factory refusal stands (D4) -->
 D4. Type-safe discovery and dependency injection (whitepaper §4.1), operationalized as:
 **dependencies declared in the manifest, validated at resolve; a dynamic event stream for
 presence; a frozen object model so OSGi-grade vocabulary can arrive later without touching

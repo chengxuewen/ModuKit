@@ -1,5 +1,6 @@
 # 10 — Observability & Debugging
 
+<!-- module-status: implemented - observatory ring, logger, counters, introspect trio and the debug-reader bin shipped (M6 and wave-2) -->
 D17. The kernel publishes itself; every tool is a downstream consumer. No custom UI, no
 custom protocol, no back doors.
 

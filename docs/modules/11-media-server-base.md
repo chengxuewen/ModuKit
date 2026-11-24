@@ -1,5 +1,6 @@
 # 11 - Media-Server Base (Doctrine Card)
 
+<!-- module-status: implemented - the doctrine card is adjudicated (D68-D73); MediaServo integration stays declared-intent-only -->
 > Deliberately thin: pointers only, never restates normative text (placement ruling 7
 > of the 2026-10-15 walkthrough). Rulings were user-adjudicated one by one on 2026-10-15 (votes A / A'' /
 > C / C / C / C). Full records: `.agents/memorys/decisions.md` D68-D73.

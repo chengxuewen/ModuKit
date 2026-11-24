@@ -1,5 +1,6 @@
 # 04 — Contract and Codegen: Single Source, Two Transports
 
+<!-- module-status: implemented - the codegen crate, fdset ledger and golden gates shipped (M1 and later) -->
 D2/D4. One interface definition generates everything; the process boundary is not written by
 hand any more than a language binding is.
 

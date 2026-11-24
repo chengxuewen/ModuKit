@@ -1,5 +1,6 @@
 # 08 — End-to-End Walkthrough: One Video Frame
 
+<!-- module-status: design-only - the walkthrough assembles pieces that are individually implemented, but the media frame path rides the trigger-gated I420 plane (D89-K3) -->
 The worked example that stitches modules 01-07 together. Subject: a 1080p I420 frame from
 the cabin camera, consumed by a same-process renderer, a subprocess widget, and a rear-seat
 display on another host. Everything here is already adjudicated (D2-D15); this document only

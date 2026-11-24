@@ -1,5 +1,6 @@
 # 01 — Plugin Placement Model
 
+<!-- module-status: partial - dl and exe placements shipped (S2-M1/M5); the wasm placement stays a stage-5 slot -->
 D2. Placement is a deployment property; language is orthogonal.
 
 ## 1. The closed executor set
