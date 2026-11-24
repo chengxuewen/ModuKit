@@ -33,10 +33,34 @@ bash scripts/demo-stage5-n2.sh
 
 The Stage-5 N2 leg hosts the `busv2` fixture
 (`test-plugins/rs/busv2-plugin`) on the OTHER side of the process wall:
-the plugin publishes through the mailbox slots of the v2 host table
-(D96), the host pump forwards it kernel-side, and the demo asserts the
-topic arrives. This is the exe-wall preview - chapter 04 explains the
-wall itself.
+the plugin declares ABI v2 (D96), the kernel hands the `HostAbiV2` table
+(the v1 prefix plus four mailbox slots), and the plugin publishes through
+the mailbox. The self-echo discipline is quoted from
+`test-plugins/rs/busv2-plugin/src/lib.rs:73-88`:
+
+```rust
+fn mailbox_walk(h: &HostAbiV2) -> Result<(), i32> {
+    // 1. subscribe first: the publisher must hear its own publish (ruling 6).
+    let qid = h.bus_subscribe(TOPIC).map_err(|_| -101)?;
+    if qid <= 0 {
+        return Err(-101);
+    }
+    // 2. publish latest-value bytes -> 0 (broadcast, never blocks).
+    if h.bus_publish(TOPIC, QOS_LATEST, b"self-echo") != 0 {
+        return Err(-102);
+    }
+    // 3. self-echo is visible on the same call, no second publisher anywhere.
+    let mut buf = [0u8; 32];
+    let written = h.bus_recv(qid, &mut buf).map_err(|_| -103)?;
+    if written != 9 || &buf[..written] != b"self-echo" {
+        return Err(-103);
+    }
+```
+
+A v2 plugin that publishes at start is the chapter 02 shape plus four
+slots - the C++ twin (`test-plugins/cpp/cpp-busv2-plugin`) shows the same
+door in 70 lines, and the cpp host demo's scene [11] reads its seed back
+via late-join.
 
 ## The timer bell
 
@@ -47,8 +71,22 @@ bash scripts/demo-wave2-clock.sh
 A v3 plugin schedules one absolute-deadline job (`timer_schedule`, D99);
 the kernel fires it on the clock's own authority law and rings the per-
 plugin topic `org.modukit.timer.<plugin-id>` (payload: token u64 LE ++
-label UTF-8, `Lossy(16)`). There is no cancel verb - the kernel releases
-a stopped plugin's tokens itself (D99 §3). The fixture is
+label UTF-8, `Lossy(16)`). The schedule call is quoted from
+`test-plugins/rs/timerv3-plugin/src/lib.rs:100-106`:
+
+```rust
+    // 3. Schedule the one job the census and the bell ride on. The token is
+    //    the kernel clock's monotonic counter; the door test decodes the
+    //    exact value from the bell payload, this cell proves it came back.
+    let token = h3.timer_schedule(deadline, JOB_LABEL).map_err(|_| -107)?;
+    if token == 0 {
+        return Err(-108);
+    }
+```
+
+There is no cancel verb - the kernel releases a stopped plugin's tokens
+itself (D99 §3), and the door must never half-schedule on bad input
+(the fixture's refusal cells prove it). The fixture is
 `test-plugins/rs/timerv3-plugin`.
 
 ## Configuration rides the same rails

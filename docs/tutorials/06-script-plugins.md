@@ -65,6 +65,38 @@ await rt.serve({
 });
 ```
 
+## The callbacks are where your plugin lives
+
+The `serve` shape is the doorway; the callbacks are the plugin. The echo
+implementation and the bus derivative, quoted from
+`test-plugins/py/py_echo.py:59-76`:
+
+```python
+def on_call(method, inp):
+    if method == "echo":
+        return (0, inp)
+    if method == "caps":
+        return (0, b"\x01")
+    if method == "seen":
+        return (0, state["seen"])
+    return (-1, b"")  # the child's own code is the unknown-method authority
+
+
+def on_bus(topic, payload):
+    state["seen"] = payload
+    if topic == TOPIC and not state["republished"]:
+        # Republish exactly once: the derivative rides the same topic and
+        # re-enters through the same self-echo - an unguarded callback would
+        # loop the start window against its own drain.
+        state["republished"] = True
+        rt.publish(TOPIC, payload + DERIV)
+```
+
+Two disciplines to copy: the unknown-method answer is YOUR code's
+authority (a typed `(code, bytes)` pair, never a crash), and a callback
+that republishes must guard itself - the comment names the loop it
+prevents.
+
 ## Run the door (both languages)
 
 ```bash

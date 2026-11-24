@@ -28,7 +28,22 @@ bash scripts/demo-stage2.sh
 The transcript walks: exe bundle -> HELLO cross-check -> proxy echo
 kernel-side -> wire dial -> crash/revive budget -> ORPHAN-PROOF (SIGKILL
 the host, the runner self-dies, zero stray processes). The census at the
-end is the point: a killed host leaves zero orphans.
+end is the point: a killed host leaves zero orphans. The proof's own
+arrangement is quoted from `examples/rs/stage2_demo.rs:291-298`:
+
+```rust
+    // [12] ORPHAN-PROOF (new proof, nothing like it anywhere): modukit-host
+    // as a REAL child process; its runner grandchild must die ALONE when the
+    // host is SIGKILLed (runner control-EOF exit; F1 semantics).
+    // Arrange: a fresh manifest for the host + a clean runner census.
+    if count_runner_procs() != 0 {
+        fail("runner census non-zero before the orphan-proof (leak from an earlier scene)");
+    }
+```
+
+The census is checked BEFORE the kill (a leak from an earlier scene must
+fail the proof, not silently pass into it) and again after - the demo
+does not trust its own hygiene, it counts.
 
 ## See it from a C++-authored host
 

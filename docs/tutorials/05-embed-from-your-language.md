@@ -62,6 +62,17 @@ at gate time; DO NOT EDIT, D63). Run:
 bash scripts/demo-wave2-py.sh     # the M1 walk (auto-skips without the cpp fixture)
 ```
 
+The bind is quoted from `examples/py/host_demo.py:146-150` - the ctypes
+floor wraps the loaded kernel in one call:
+
+```python
+    try:
+        lib = skin.bind(ctypes.CDLL(core_so))
+    except OSError as exc:
+        print("SKIP: kernel .so not loadable (%s)" % exc)
+        return 77
+```
+
 The manifest build point is quoted from `examples/py/host_demo.py:119-132`
 (`manifest_for`, including the `DEMO_PY_SABOTAGE` lever). Note the auto-
 SKIP copy on the leg: it tells you to run chapter 02's m1 first - the py
@@ -74,6 +85,21 @@ D102) through the generated facade `target/js/modukit_embed.js`. Run:
 
 ```bash
 bash scripts/demo-wave2-js.sh     # the M1 walk (its SKIP copy names the prerequisite)
+```
+
+The import chain is quoted from `examples/js/host_demo.js:6-8` and
+`:35-37` - the facade over the napi bridge, loaded like any module:
+
+```js
+ * facade (target/js/modukit_embed.js, re-emitted from
+ * contracts/modukit_embed.h by scripts/demo-wave2-js.sh) over the generated
+ * napi bridge (.node), which dlopens the ambient Rust process-global kernel
+```
+
+```js
+const fs = require('node:fs');
+const path = require('node:path');
+const { Buffer } = require('node:buffer');
 ```
 
 The word-list comment quoted from `examples/js/host_demo.js:12-16`
