@@ -1,12 +1,15 @@
 # Developer-onboarding plan - tutorials, examples, bindings, discoverability
 
-> STATUS: PLAN OF RECORD, 2026-11-24 (revision 1). Drawn from a four-lens
-> expert panel (correctness / evidence / docs / developer-experience, frozen
-> lenses, merged with preserved disagreement) plus a community survey of five
-> local-clone donors (CppMicroServices, celix, CTK, dora, and the in-repo
-> PolyOrch precedent). Maintainer direction: make it easy for a user to
-> quickly learn the usage and to discover ALL features, functions, use cases,
-> and patterns across the multi-language bands (C / C++ / Python / JS).
+> STATUS: PLAN OF RECORD, 2026-11-24 (revision 2, adjudications closed). Drawn
+> from a four-lens expert panel (correctness / evidence / docs /
+> developer-experience, frozen lenses, merged with preserved disagreement)
+> plus a community survey of five local-clone donors (CppMicroServices, celix,
+> CTK, dora, and the in-repo PolyOrch precedent). Maintainer direction: make
+> it easy for a user to quickly learn the usage and to discover ALL features,
+> functions, use cases, and patterns across the multi-language bands
+> (C / C++ / Python / JS). Adjudication points A1-A6 walked one by one and
+> ALL RESOLVED (2026-11-24; A1 = B-expanded by maintainer requirement: the
+> full 3x2 host+plugin matrix ships in v1); execution-ready, W0 first.
 
 ## 0. Discussion anchors
 
@@ -78,16 +81,16 @@ hot-lane chapter (S3-2 has no demo leg yet - canon link only, chapter waits
 for its leg); i18n translations (book is English-source by D46; readers use
 browser translation).
 
-## 3. Adjudication points (ARMED - walked one by one before W1 starts)
+## 3. Adjudication points (ALL RESOLVED 2026-11-24)
 
 | # | Question | Recommendation |
 |---|---|---|
-| A1 | C band: mint the first C plugin fixture (`test-plugins/c/`, rides cmake + census = a real CI-face change) vs embed-C-only chapter (zero new surface) | Embed-C-only in v1; the fixture is its own small volume with a hearing |
-| A2 | Extend `check-doc-refs` FILES with `docs/tutorials/*.md` (breaks the "on-demand docs not scanned" design on purpose) | Yes - tutorials link canon heavily; dead links there are exactly the rot class this plan fights |
-| A3 | `pixi demo-*` tasks: one per band (`demo-cpp`, `demo-py`, ...) or one router (`demo = bash scripts/demo-...`)? | Router task `demo <leg>` is one line and advertises the gallery; per-band tasks multiply parity surface. Router. |
-| A4 | Feature gallery home: `docs/tutorials/README.md` section vs own `docs/features.md` | Own page - the gallery serves ALL readers (not just learners) and gets its own book slot |
-| A5 | Tutorial code blocks: verbatim from fixtures vs freshly written | Verbatim-from-fixture only (CI compiles what we teach); any code not in a fixture is a link, not a block |
-| A6 | A tiny tutorial-lint (every `bash scripts/...` mention resolves to an existing leg) | Fold into the doc-refs extension instead (path liveness already covers it) - no new gate |
+| A1 | C band: mint the first C plugin fixture (`test-plugins/c/`, rides cmake + census = a real CI-face change) vs embed-C-only chapter (zero new surface) | **RESOLVED B-expanded** (2026-11-24, maintainer requirement): the FULL 3x2 matrix ships in v1 - host/embed AND plugin faces in C, C++, AND Python. New cells: `examples/c/host_demo.c` (links libmodukit_core.so, embed verbs) + `test-plugins/c/` fixture (mirrors the cpp band; census/lane-table accounting is an explicit W1 sub-task). Prerequisite verified: `x86_64-conda-linux-gnu-cc` compiles and runs in the pixi env. W6 dissolves into W1 |
+| A2 | Extend `check-doc-refs` FILES with `docs/tutorials/*.md` (breaks the "on-demand docs not scanned" design on purpose) | **RESOLVED A** (2026-11-24): extend the FILES glob by one line, restate the header comment to the new boundary, add a tutorials-round to the self-test (three reds, clean green) |
+| A3 | `pixi demo-*` tasks: one per band (`demo-cpp`, `demo-py`, ...) or one router (`demo = bash scripts/demo-...`)? | **RESOLVED A** (2026-11-24): one router task `demo <leg>`, default stage1, unknown-leg error lists the gallery; one USAGE line, one parity surface |
+| A4 | Feature gallery home: `docs/tutorials/README.md` section vs own `docs/features.md` | **RESOLVED A** (2026-11-24): own `docs/features.md` page with its own book slot; README links tutorials and features as two separate doors (learners vs assessors) |
+| A5 | Tutorial code blocks: verbatim from fixtures vs freshly written | **RESOLVED A** (2026-11-24): verbatim-from-fixture only, every block carries a `file:line-range` provenance note; code that no fixture compiles is a link, never a block; manifests excerpt real instances too |
+| A6 | A tiny tutorial-lint (every `bash scripts/...` mention resolves to an existing leg) | **RESOLVED A** (2026-11-24): no new gate - the A2 doc-refs extension already covers script-path liveness; semantic drift stays with review, where every gate stops |
 
 ## 4. Work streams
 
@@ -113,10 +116,10 @@ leg; every code block is verbatim from a CI-compiled fixture.
 |---|---|---|
 | README (index) | 3-reader routing: newcomer / plugin author / embedder + band-choice table | modules/00 reading order, env.md |
 | 01-first-run | env three steps -> `demo-stage1` (full lifecycle in 60s) | modules/03 |
-| 02-first-plugin | manifest + install gates + sabotage lever (red then green) -> `demo-stage4-m1`; fixture cpp-example-plugin | modules/05, 02, 08 §9 |
+| 02-first-plugin | manifest + install gates + sabotage lever (red then green) -> `demo-stage4-m1`; fixtures: cpp-example-plugin AND the new `test-plugins/c/` band (A1: C authors get a runnable path in v1) | modules/05, 02, 08 §9 |
 | 03-the-bus | topics, late-join, clock bell -> `busv2` leg | modules/06 |
 | 04-the-exe-wall | supervisor, crash/revive, ORPHAN-PROOF -> `demo-stage2`, `demo-stage4-m2` | modules/01 |
-| 05-embed-from-your-language | ONE file, band subsections: C++ (m1) / Python (wave2-py) / JS (wave2-js) / C (embed face, links libmodukit_core.so) | capability-ledger, contracts headers, module 07 |
+| 05-embed-from-your-language | ONE file, band subsections: C++ (m1) / Python (wave2-py) / JS (wave2-js) / C (the NEW `examples/c/host_demo.c` links libmodukit_core.so - A1) | capability-ledger, contracts headers, module 07 |
 | 06-script-plugins | py/js plugin door + the FOUR hidden contracts + liar fixtures -> `demo-wave2-plugin-{py,js}` | modules/04, D106/D107 |
 
 Domain thread: the echo/sensor family already in fixtures. Progression
@@ -223,5 +226,12 @@ every stream.
 
 ## 10. Change log
 
+- 2026-11-24 revision 2: A1-A6 walked one by one, all resolved. A1 =
+  B-expanded (maintainer requirement): the full 3x2 matrix - host/embed AND
+  plugin faces in C, C++ AND Python - ships in v1 (`examples/c/host_demo.c` +
+  `test-plugins/c/` fixture; cc verified in the pixi env; W6 dissolved into
+  W1). A2 doc-refs extension; A3 one `demo <leg>` router task; A4 own
+  features page; A5 verbatim-from-fixture code blocks; A6 no new gate.
+  Execution-ready, W0 first.
 - 2026-11-24 revision 1: drawn from the four-lens panel + five-donor survey;
   W0-W6 streams; adjudication points A1-A6 ARMED for the one-by-one walk.
