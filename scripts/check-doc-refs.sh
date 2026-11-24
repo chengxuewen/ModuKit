@@ -75,12 +75,12 @@ if [ "${1:-}" = "--self-test" ]; then
   exit 0
 fi
 
-FILES=("${IN}AGENTS.md" "${IN}.agents/AGENTS.md" "${IN}.agents/memorys/conventions.md" "${IN}.agents/memorys/status.md" "${IN}README.md" "${IN}llms.txt" "${IN}docs/architecture.md" "${IN}docs/capability-ledger.md" "${IN}docs/codegraph-bootstrap.md" "${IN}docs/env.md" "${IN}docs/whitepaper.md")
+FILES=("${IN}AGENTS.md" "${IN}.agents/AGENTS.md" "${IN}.agents/memorys/conventions.md" "${IN}.agents/memorys/status.md" "${IN}README.md" "${IN}llms.txt" "${IN}docs/architecture.md" "${IN}docs/capability-ledger.md" "${IN}docs/codegraph-bootstrap.md" "${IN}docs/env.md" "${IN}docs/whitepaper.md" "${IN}docs/features.md")
 
 # A2 (onboarding-plan): the tutorials tree rides the scan. The glob is
 # expanded here so an empty tutorials tree degrades VISIBLY (the skip-census
-# discipline: a silent zero-scan is a blind spot, never a pass). When
-# docs/features.md lands (E6) it joins as a fixed entry.
+# discipline: a silent zero-scan is a blind spot, never a pass). features.md
+# joined as a fixed entry when it landed (E6).
 if compgen -G "${IN}docs/tutorials/"'*.md' > /dev/null; then
   for f in ${IN}docs/tutorials/*.md; do FILES+=("$f"); done
 else

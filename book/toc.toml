@@ -31,6 +31,16 @@ source = "docs/capability-ledger.md"
 type = "reference"
 
 [[chapter]]
+title = "Feature Gallery"
+source = "docs/features.md"
+type = "reference"
+
+[[group]]
+title = "Tutorials"
+type = "how-to"
+glob = "docs/tutorials/*.md"
+
+[[chapter]]
 title = "Call & Dependency Graph"
 source = "web/graph.md"
 type = "reference"
@@ -52,11 +62,6 @@ title = "Agent Governance Borrow Plan"
 source = "docs/agent-governance-borrow-plan.md"
 type = "explanation"
 visibility = "internal"
-
-[[group]]
-title = "Tutorials"
-type = "how-to"
-glob = "docs/tutorials/*.md"
 
 [[group]]
 title = "Modules"

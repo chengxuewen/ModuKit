@@ -10,6 +10,7 @@
 - [modules](docs/modules/00-overview.md) — reading order for the 00-11 deep dives
 - [capability ledger](docs/capability-ledger.md) — embed/plugin verb map
 - [tutorials](docs/tutorials/README.md) — hands-on paths: first run, first plugin per band, embedding
+- [feature gallery](docs/features.md) — every capability: where it runs and how to use it per band
 - [VE-parity plan](docs/ve-parity-plan.md) — non-functional port, B0-B8
 - [agent host plan](docs/agent-host-parity-plan.md) — host links, skill surface
 - [agent governance plan](docs/agent-governance-borrow-plan.md) — borrowed governance practices

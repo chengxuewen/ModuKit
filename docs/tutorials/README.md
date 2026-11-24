@@ -47,5 +47,5 @@ today - `pixi.toml` declares linux-64/win-64 only.
 - The deep-dive canon: [../modules/00-overview.md](../modules/00-overview.md)
   (reading order for newcomer / plugin author / comm-stack).
 - The environment: [../env.md](../env.md).
-- Everything the kernel can do: the feature gallery (landing with E6 as
-  docs/features.md) and [../capability-ledger.md](../capability-ledger.md).
+- Everything the kernel can do: the [feature gallery](../features.md) and
+  [../capability-ledger.md](../capability-ledger.md).
