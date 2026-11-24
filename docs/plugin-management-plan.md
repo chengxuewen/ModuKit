@@ -80,7 +80,7 @@ against the frozen list at implementation time.
   (CTK Require-Plugin precedent). D7 cross-check extended; liar fixture for a
   range that no installed provider satisfies.
 
-### S3 - DM-lite + ConfigAdmin landing (P2-a/b) — S3-1 DM-lite LANDED 2026-11-23 (c6d3d14 + e7b26f8); ConfigAdmin (S3-2) remains
+### S3 - DM-lite + ConfigAdmin landing (P2-a/b) — S3 LANDED 2026-11-24 (S3-1: c6d3d14 + e7b26f8; S3-2 ConfigAdmin: 1d2fabe)
 
 - DM-lite (plugin-level granularity recommended; celix DM is the reference,
   lighter than CppMS SCR): a plugin's `requires` drives its lifecycle -
@@ -163,6 +163,10 @@ proves a genuinely new surface (then recorded, not silent).
 
 ## 9. Change log
 
+- 2026-11-24 revision 6: S3-2 ConfigAdmin LANDED (1d2fabe): config_live grammar,
+  typed NotLive refusal, build/config-live persistence, config/<plugin> topic on
+  LatestValue; strings until the proto schema, TOML seeder waits for the deploy
+  type (trigger recorded in module 05 §6). S4 ops face remains.
 - 2026-11-23 revision 5: S3-1 DM-lite LANDED (c6d3d14 DependencyMonitor core;
   e7b26f8 kernel wiring - dep_lost stops+per-policy parking, dep_restored
   clears markers and auto-restarts restart-self, DependencyBlocked refusal,
