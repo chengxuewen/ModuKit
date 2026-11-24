@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bootstrap.sh — one-time dev setup (pixi only; user-level, no sudo).
+# bootstrap.sh — one-time dev setup (pixi only; user-level, no sudo). Linux-64 win-64 pixi platforms; run the bash demo legs under WSL on Windows.
 #
 # Steps:
 #   1. submodule guard for the PolyOrch pixi-init vendor

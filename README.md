@@ -93,7 +93,7 @@ Live view - the whitepaper §7 platform table stays the frozen v1.0 snapshot; in
 
 As-built: five shipped crates — `crates/modukit-core`, `crates/modukit-runtime`, `crates/modukit-transport`, `crates/modukit-codegen`, `crates/modukit-js` (v1 API surface frozen STABLE per `docs/architecture.md` §11, D87; test totals are volatile and live in the plans of record) — plus the Stage-4/wave-2 bindings line: `contracts/modukit_embed.h` (HostEmbedV1, 25 verbs over two rungs incl. the sup service-call door and the S1 find_services tail-add; counts live in `docs/capability-ledger.md`), `contracts/modukit_plugin.h`, the generated C++ faces and the `bindings/cpp` shelf (M1/M2/M3 closed; the volume was accepted and closed 2026-10-21, D95), the generated Python ctypes floor `bindings/py` (D100/D101) and the generated napi bridge `crates/modukit-js` (D102/D103). Stages 1-4 are closed (D88, D91, D95); wave-2 volumes accepted through D107; wave-3 parent-push accepted by D108/D110; VE-parity B0-B8 complete (D109). Crate naming and layout authority: `docs/whitepaper.md` §2 and §4.
 
-First-time machine setup (user-level, pixi only; idempotent): `./bootstrap.sh` (Linux/macOS) or `bootstrap.bat` (Windows native). Pins live in `pixi.toml` + `pixi.lock`; mise is retired.
+First-time machine setup (user-level, pixi only; idempotent): `./bootstrap.sh` (Linux; macOS is NOT a pixi platform today - `pixi.toml` declares linux-64/win-64 only) or `bootstrap.bat` (Windows native). Pins live in `pixi.toml` + `pixi.lock`; mise is retired. The demo gallery is bash-shaped (LD_PRELOAD, /proc): on Windows run the legs under WSL - the cmake/build face works natively via the presets.
 
 ## Runnable examples
 
