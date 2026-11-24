@@ -93,7 +93,7 @@ against the frozen list at implementation time.
   itself does not persist - we surpass it). Deploy-TOML stays the value source.
 - C0: a `config_live` plugin fixture + a liar that hot-applies an undeclared key.
 
-### S4 - ops command face (+ lazy if A3 includes it) (P2-c/d)
+### S4 - ops command face (+ lazy if A3 includes it) (P2-c/d) — LANDED 2026-11-24 (c99054a); PLAN COMPLETE: S1-S4 all landed
 
 - Ops face: extend the debug-reader into "commands as services" (celix shape:
   lb / start / stop / query(filter) / dm-diagnose), exposed as `modukit-host`
@@ -163,6 +163,11 @@ proves a genuinely new surface (then recorded, not silent).
 
 ## 9. Change log
 
+- 2026-11-24 revision 7: S4 ops face LANDED (c99054a) - modukit-host --ops=
+  lb|query:<filter>|dm (boot-one-shot-print, read-only by design; mutating ops
+  stay with the host lifecycle), kernel dm_report feeds the dm diagnose; 4 bin
+  tests. **PLAN COMPLETE: S1-S4 all landed; P1/P2 delivered.** Trigger-gated
+  remainders live in §8 (update, D4-factory, RSA, lazy, cascade-start).
 - 2026-11-24 revision 6: S3-2 ConfigAdmin LANDED (1d2fabe): config_live grammar,
   typed NotLive refusal, build/config-live persistence, config/<plugin> topic on
   LatestValue; strings until the proto schema, TOML seeder waits for the deploy
