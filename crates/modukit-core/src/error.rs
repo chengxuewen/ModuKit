@@ -42,6 +42,8 @@ pub enum ManifestError {
     BadBackoff(String),
     /// `requires.version` is not a valid comparator range (S2, e.g. `>=1.2,<2`).
     BadVersionRange(String),
+    /// `config_live` violates the D29 grammar (S3-2: empty or duplicate key).
+    BadConfigLive(String),
 }
 
 impl ManifestError {
@@ -91,6 +93,12 @@ impl std::fmt::Display for ManifestError {
                 write!(
                     f,
                     "requires.version must be a comparator range (e.g. `>=1.2,<2`), got {s:?} (S2)"
+                )
+            }
+            ManifestError::BadConfigLive(s) => {
+                write!(
+                    f,
+                    "config_live keys must be unique and non-empty: {s} (05 §6)"
                 )
             }
         }

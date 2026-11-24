@@ -148,6 +148,7 @@ fn internal_manifest(artifact: &str, id: String, version: String) -> Manifest {
         restart: RestartPolicy::None,
         requires: Vec::new(),
         provides: Vec::new(),
+        config_live: Vec::new(),
     }
 }
 

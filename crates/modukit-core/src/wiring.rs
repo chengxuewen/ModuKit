@@ -93,6 +93,9 @@ impl Kernel {
         register_platform(&registry, Arc::new(clock.clone()), "org.modukit.clock");
         register_platform(&registry, Arc::clone(&logger), "org.modukit.logger");
         let dm = crate::dm::DependencyMonitor::new(&registry);
+        let config_admin = crate::config::ConfigAdmin::new()
+            .with_bus(Arc::clone(&bus))
+            .with_persistence(std::path::PathBuf::from("build/config-live"));
         Self {
             registry,
             bus,
@@ -107,6 +110,7 @@ impl Kernel {
             dm: Mutex::new(dm),
             dm_state: Mutex::new(crate::kernel::DmState::default()),
             dm_depth: std::sync::atomic::AtomicU32::new(0),
+            config: config_admin,
         }
     }
 

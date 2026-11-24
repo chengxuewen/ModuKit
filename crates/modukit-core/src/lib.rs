@@ -32,6 +32,7 @@ mod bundle_files;
 pub mod bus;
 pub mod bus_wire;
 pub mod clock;
+pub mod config;
 pub mod counters;
 pub mod dm;
 pub mod edge_ledger;

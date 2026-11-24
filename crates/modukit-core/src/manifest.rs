@@ -108,6 +108,10 @@ pub struct Manifest {
     pub restart: RestartPolicy,
     pub requires: Vec<Requires>,
     pub provides: Vec<Provides>,
+    /// D29 hot-lane opt-in (05 §6, landed S3-2): keys a plugin declares for
+    /// live change events. Undeclared keys never hot-apply — `set` refuses
+    /// them with a typed error (the liar-family enforcement point).
+    pub config_live: Vec<String>,
 }
 
 impl Manifest {
@@ -161,6 +165,7 @@ impl Manifest {
             restart: RestartPolicy::None,
             requires: Vec::new(),
             provides: Vec::new(),
+            config_live: Vec::new(),
         }
     }
 }
@@ -255,6 +260,8 @@ struct RawManifest {
     requires: Vec<RawRequires>,
     #[serde(default)]
     provides: Vec<RawProvides>,
+    #[serde(default)]
+    config_live: Option<Vec<String>>,
 }
 
 #[derive(Deserialize)]
@@ -401,6 +408,25 @@ impl RawManifest {
             restart,
             requires,
             provides,
+            config_live: match &self.config_live {
+                Some(keys) => {
+                    let mut seen = std::collections::BTreeSet::new();
+                    for k in keys {
+                        if k.is_empty() {
+                            return Err(ManifestError::BadConfigLive(
+                                "config_live keys must be non-empty".into(),
+                            ));
+                        }
+                        if !seen.insert(k.clone()) {
+                            return Err(ManifestError::BadConfigLive(format!(
+                                "duplicate config_live key {k:?}"
+                            )));
+                        }
+                    }
+                    keys.clone()
+                }
+                None => Vec::new(),
+            },
         })
     }
 }

@@ -211,8 +211,13 @@ Configuration is data, so it goes through doors that already exist:
   assumes hot-apply without declaring it is a liar fixture (same family as the D7 liar).
 
 Year 1 implements schema declaration + value read + cross-check only. The hot-lane event
-specification is recorded here and implemented when the first `config_live` plugin arrives
-(trigger-gated).
+specification above is now LANDED (S3-2, 2026-11-24 — the maintainer plan was the trigger):
+`config_live` parses (unique non-empty keys), `set_config` refuses undeclared keys with a
+typed error (the liar enforcement point), accepted keys persist under `build/config-live/`
+(CTK precedent — CppMicroServices has no persistence) and publish on `config/<plugin-id>`
+with `QoS::LatestValue` (a late joiner reads the current value immediately). Values are
+strings until the proto `Config` schema lands; the deploy-TOML seeder arrives with the
+deploy-tier file type (M7+) and stays the value source.
 
 ## 6.1 Layout, precedence, and effect timing (D37)
 

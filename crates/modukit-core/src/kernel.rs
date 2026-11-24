@@ -77,6 +77,10 @@ pub struct Kernel {
     pub(crate) dm: Mutex<crate::dm::DependencyMonitor>,
     pub(crate) dm_state: Mutex<DmState>,
     pub(crate) dm_depth: std::sync::atomic::AtomicU32,
+    /// S3-2 ConfigAdmin: the D29 hot-lane door (declare at install, set/get
+    /// for hosts; undeclared keys refuse outright). Persistence rides
+    /// build/config-live; the deploy-TOML seeds it once that type lands.
+    pub(crate) config: crate::config::ConfigAdmin,
 }
 
 /// The DM-lite marker sets (S3-1b): one lock, three per-plugin flags.
@@ -279,6 +283,8 @@ impl Kernel {
                 })
             })
             .collect();
+        // S3-2: the D29 hot-lane declaration rides the same install tail.
+        let config_live = manifest.config_live.clone();
         let mut table = lock(&self.plugins);
         if let Some(record) = table.get_mut(&id) {
             if !matches!(
@@ -313,6 +319,7 @@ impl Kernel {
         let record = table.get_mut(&id).ok_or_else(|| unknown(&id))?;
         self.mv(record, &id, PluginState::Installed)?;
         self.dm_register_dependents(&id, dm_deps);
+        self.config.declare(id.clone(), config_live);
         Ok(id)
     }
 
@@ -514,7 +521,31 @@ impl Kernel {
         record.handle = None;
         let res = self.mv(record, id, PluginState::Uninstalled);
         self.dm_forget(id);
+        self.config.forget(id);
         res
+    }
+
+    /// Hot-apply one config key (S3-2, D29 hot lane): only keys the plugin
+    /// declared in `config_live` are accepted; accepted keys are stored,
+    /// persisted to build/config-live, and published on `config/<plugin>`.
+    ///
+    /// # Errors
+    ///
+    /// `ConfigError::NotLive` for an undeclared key (the liar-family
+    /// refusal); `ConfigError::Persist` when the disk write fails.
+    pub fn set_config(
+        &self,
+        plugin: &PluginId,
+        key: &str,
+        value: &str,
+    ) -> Result<(), crate::config::ConfigError> {
+        self.config.set(plugin, key, value)
+    }
+
+    /// Read one config value (the year-1 value read path, 05 §6).
+    #[must_use]
+    pub fn get_config(&self, plugin: &PluginId, key: &str) -> Option<String> {
+        self.config.get(plugin, key)
     }
 
     /// Current state of a tracked plugin.
