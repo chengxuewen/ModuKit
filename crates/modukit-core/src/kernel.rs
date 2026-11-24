@@ -95,6 +95,16 @@ pub(crate) struct DmState {
     pub(crate) failed: std::collections::BTreeSet<PluginId>,
 }
 
+/// One `dm_report` row (S4 ops face): a required dependency, its loss
+/// policy, and whether the service is present right now.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DmRow {
+    pub plugin: String,
+    pub service: String,
+    pub on_down: String,
+    pub present: bool,
+}
+
 fn lock(
     plugins: &Mutex<HashMap<PluginId, PluginRecord>>,
 ) -> MutexGuard<'_, HashMap<PluginId, PluginRecord>> {
@@ -546,6 +556,39 @@ impl Kernel {
     #[must_use]
     pub fn get_config(&self, plugin: &PluginId, key: &str) -> Option<String> {
         self.config.get(plugin, key)
+    }
+
+    /// S4 ops face: one row per REQUIRED dependency, with its loss policy
+    /// and current presence — the `dm` diagnose command's data source
+    /// (plugin-management-plan S4; the celix `dm wtf` shape).
+    #[must_use]
+    pub fn dm_report(&self) -> Vec<DmRow> {
+        let table = lock(&self.plugins);
+        let mut rows = Vec::new();
+        for record in table.values() {
+            let plugin = record.manifest.id.as_str().to_string();
+            for req in &record.manifest.requires {
+                if !req.required {
+                    continue;
+                }
+                let on_down = req
+                    .on_down
+                    .as_ref()
+                    .map_or("stop".to_string(), |o| match o {
+                        OnDown::FailSelf => "fail-self".to_string(),
+                        OnDown::Block => "block".to_string(),
+                        OnDown::RestartSelf => "restart-self".to_string(),
+                    });
+                rows.push(DmRow {
+                    plugin: plugin.clone(),
+                    service: req.service.as_str().to_string(),
+                    on_down,
+                    present: self.registry.lookup(&req.service).is_some(),
+                });
+            }
+        }
+        rows.sort_by(|a, b| a.plugin.cmp(&b.plugin).then(a.service.cmp(&b.service)));
+        rows
     }
 
     /// Current state of a tracked plugin.
