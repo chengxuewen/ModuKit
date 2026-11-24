@@ -24,3 +24,19 @@ path = "rs/stage5_n2_demo.rs"
 [[example]]
 name = "wave2_clock_demo"
 path = "rs/wave2_clock_demo.rs"
+
+[[example]]
+name = "tracker_demo"
+path = "rs/tracker_demo.rs"
+
+[[example]]
+name = "dm_demo"
+path = "rs/dm_demo.rs"
+
+[[example]]
+name = "config_demo"
+path = "rs/config_demo.rs"
+
+[[example]]
+name = "ops_demo"
+path = "rs/ops_demo.rs"

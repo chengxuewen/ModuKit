@@ -40,6 +40,7 @@ demo-stage2
 demo-stage4-m1
 demo-stage4-m2
 demo-stage5-n2
+demo-rs-examples
 demo-wave2-reader
 demo-wave2-clock
 demo-wave2-py
@@ -196,6 +197,9 @@ if [ -f scripts/demo-stage4-m2.sh ]; then
 else note "skip demo-stage4-m2 (no script)"; fi
 # Stage-5 N2 cross-wall demo leg (D96 ruling 6): same PASS/SKIP grammar as
 # the stage4 legs - SKIP (no build toolchain at all) is green, RED fails.
+if [ -f scripts/demo-rs-examples.sh ]; then
+  if bash scripts/demo-rs-examples.sh 2>/dev/null | grep -q "demo-rs-examples: PASS"; then note "ok demo-rs-examples"; else note "FAIL demo-rs-examples (gate did not print PASS)"; status=1; fi
+else note "skip demo-rs-examples (no script)"; fi
 if [ -f scripts/demo-stage5-n2.sh ]; then
   s5=$(bash scripts/demo-stage5-n2.sh 2>/dev/null)
   if echo "$s5" | grep -q "demo-stage5-n2: PASS"; then note "ok demo-stage5-n2";
