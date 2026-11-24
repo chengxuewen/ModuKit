@@ -1,11 +1,12 @@
 # Plugin-management parity plan - service query, declarative components, ops face
 
-> STATUS: PLAN OF RECORD, 2026-11-23 (revision 2). Drawn from a three-framework
+> STATUS: PLAN OF RECORD, 2026-11-23 (revision 8). Drawn from a three-framework
 > capability audit (`.refinfo/CppMicroServices` v3.8.x, `.refinfo/celix` 3.0.0-dev,
 > `.refinfo/CTK` PluginFramework - all local-clone-verified, file:line in the
 > audit trail). Maintainer direction: focus plugin management + polyglot plugins,
 > Stage 5 (remote WebRTC) explicitly out. Adjudication points A1-A6 walked one by
-> one and ALL RESOLVED A (2026-11-23); execution-ready, S1-S4 below.
+> one and ALL RESOLVED A (2026-11-23); S1-S4 all LANDED (plan complete); the
+> example-volume sweep (B1-B6, 2026-11-24) rides as rev8.
 
 ## 0. Discussion anchors (the gap audit's conclusions)
 
@@ -93,7 +94,7 @@ against the frozen list at implementation time.
   itself does not persist - we surpass it). Deploy-TOML stays the value source.
 - C0: a `config_live` plugin fixture + a liar that hot-applies an undeclared key.
 
-### S4 - ops command face (+ lazy if A3 includes it) (P2-c/d) — LANDED 2026-11-24 (c99054a); PLAN COMPLETE: S1-S4 all landed
+### S4 - ops command face (+ lazy if A3 includes it) (P2-c/d) — LANDED 2026-11-24 (c99054a); PLAN COMPLETE: S1-S4 all landed; example-volume sweep rides B1-B6 (rev7)
 
 - Ops face: extend the debug-reader into "commands as services" (celix shape:
   lb / start / stop / query(filter) / dm-diagnose), exposed as `modukit-host`
@@ -160,9 +161,30 @@ proves a genuinely new surface (then recorded, not silent).
   behavior, S2-3 option B) is trigger-gated: S2 ships the version-range check
   only; auto-starting another plugin is a resolve-behavior expansion that needs
   a real consumer and a ruling.
+- Example-volume sweep (2026-11-24, rulings B1-B6 all A): the four
+  "engine-without-driver-school" capabilities (tracker, DM-lite, config,
+  ops) get rs-band examples on ONE merged leg; cpp tutorial gains t7
+  (bus-mediated composition); py/js consumers extend existing wave2 legs.
+  Structure: dual namespace (progressive t-series takes EVOLUTION steps
+  only, admission = executed by a standing leg; topic dirs kebab-case).
+  Provenance: symbol anchors replace file:line ranges; rehearsal greps
+  quote sources. ops teaching rides chapter 01; chapter 07 (operating a
+  deployment) has a recorded trigger (third ops command or deployment-doc
+  demand). Not pursued, recorded: HTTP admin face, three-tier config
+  deploy tier, service factory (D4), CTK app scaffolding shape - the full
+  matrix lives in docs/reference/framework-gap-matrix.md.
 
 ## 9. Change log
 
+- 2026-11-24 revision 8: example-volume sweep adjudicated (B1-B6 all A,
+  three-lens panel over the donor example inventories): B1 scope = rs
+  merged leg (tracker/DM/config/ops) + cpp t7 composition + py/js
+  consumer extensions, zero new check.sh legs; B2 dual namespace +
+  executed-admission + ceilings; B3 symbol-anchor provenance; B4 the 02b
+  "not yet" honesty block; B5 ops teaching rides chapter 01, chapter 07
+  trigger recorded; B6 the gap matrix archived to
+  docs/reference/framework-gap-matrix.md ((b) product gaps stay
+  trigger-gated, (c) shape differences deliberately not pursued).
 - 2026-11-24 revision 7: S4 ops face LANDED (c99054a) - modukit-host --ops=
   lb|query:<filter>|dm (boot-one-shot-print, read-only by design; mutating ops
   stay with the host lifecycle), kernel dm_report feeds the dm diagnose; 4 bin
