@@ -55,6 +55,9 @@ trap 'rm -f "$log"' EXIT
   # E4 deepening (D2): the D96 v2-door twin rides the same graph; its seed
   # is asserted by the host demo's optional argv[2] scene.
   pixi run cmake --build "$bd" --target cpp-busv2-plugin &&
+  # Tutorial series ride (progressive C++ examples): the t4 driver pulls
+  # the t1/t2/t3 plugins through its own dependency edges.
+  pixi run cmake --build "$bd" --target t4-driver &&
   # E2 C-band ride (onboarding-plan, ruling A1): the C fixture + C host demo
   # ride THIS leg as a content extension (zero new legs) - their host-demo
   # target pulls the C fixture and the core mediator through its own
@@ -106,4 +109,23 @@ if ! grep -qx 'C-DEMO PASS' "$log"; then
   echo "demo-stage4-m1: RED (no C-DEMO PASS line in the transcript)"
   exit 1
 fi
-echo "demo-stage4-m1: PASS (cpp + c)"
+
+# Tutorial series ride: the t4 driver against BOTH tutorial plugins
+# (t2 exercises the echo scene; t1 the bare lifecycle walk).
+t4="$bd/examples/cpp/tutorial/t4-driver/t4-driver"
+t2so="$bd/examples/cpp/tutorial/t2-echo-plugin/libt2-echo-plugin.so"
+t1so="$bd/examples/cpp/tutorial/t1-hello-plugin/libt1-hello-plugin.so"
+[ -x "$t4" ] || { echo "demo-stage4-m1: RED (t4 driver missing: $t4)"; exit 1; }
+[ -f "$t2so" ] || { echo "demo-stage4-m1: RED (t2 plugin missing: $t2so)"; exit 1; }
+[ -f "$t1so" ] || { echo "demo-stage4-m1: RED (t1 plugin missing: $t1so)"; exit 1; }
+"$t4" "$t2so" 2>&1 | tee "$log"
+if [ "${PIPESTATUS[0]}" -ne 0 ] || ! grep -qx 'T4-DRIVER PASS' "$log"; then
+  echo "demo-stage4-m1: RED (t4/t2 walk failed)"
+  exit 1
+fi
+"$t4" "$t1so" 2>&1 | tee "$log"
+if [ "${PIPESTATUS[0]}" -ne 0 ] || ! grep -qx 'T4-DRIVER PASS' "$log"; then
+  echo "demo-stage4-m1: RED (t4/t1 walk failed)"
+  exit 1
+fi
+echo "demo-stage4-m1: PASS (cpp + c + tutorial)"

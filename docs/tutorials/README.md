@@ -34,6 +34,8 @@ today - `pixi.toml` declares linux-64/win-64 only.
 2. [Your first plugin](02-first-plugin.md) - manifest, install gates, the
    sabotage levers (C and C++ bands). Sample manifest:
    [fixtures/manifest-sample.toml](fixtures/manifest-sample.toml).
+2b. [The C++ tutorial series](02b-cpp-tutorial-series.md) - four minimal
+   projects (hello / echo / bus / driver), CppMS-style progressive steps.
 3. [The bus](03-the-bus.md) - topics, late-join, the clock bell.
 4. [The exe wall](04-the-exe-wall.md) - processes, crash/revive,
    ORPHAN-PROOF.

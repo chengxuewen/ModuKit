@@ -26,6 +26,11 @@ target_link_libraries(modukit-cpp-host-demo PRIVATE
 # artifact could silently satisfy the ninja edge anymore.
 add_dependencies(modukit-cpp-host-demo cpp-example-plugin cpp-busv2-plugin modukit-core-build)
 
+# The progressive tutorial series (onboarding deepening follow-up): rides
+# the same cmake graph and environment guards; its own ctest entries run
+# the t4 driver against the t2 (echo) and t1 (bare lifecycle) plugins.
+add_subdirectory(tutorial)
+
 # ctest bridge follows the crates-face grammar: real target = name = test
 # entry, SKIP_RETURN_CODE 77 (fixture absent -> host_demo returns 77), and
 # the fixture path rides argv[1] (the probe bakes it via a define; the demo
