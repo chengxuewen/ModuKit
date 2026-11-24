@@ -1,7 +1,8 @@
 # Developer-onboarding plan - tutorials, examples, bindings, discoverability
 
-> STATUS: PLAN OF RECORD, 2026-11-24 (revision 3 - adjudications closed,
-> execution schedule E1-E7 queued). Drawn
+> STATUS: PLAN OF RECORD, 2026-11-24 (revision 4 - panel-reviewed: a second
+> expert panel audited rev3 and its findings are folded in; execution-ready).
+> Drawn
 > from a four-lens expert panel (correctness / evidence / docs /
 > developer-experience, frozen lenses, merged with preserved disagreement)
 > plus a community survey of five local-clone donors (CppMicroServices, celix,
@@ -75,7 +76,7 @@ docs-only example that nothing compiles.
 IN: W0 quick fixes; W1 tutorial suite (6 chapters + index); W2 discoverability
 triple; W3 examples-as-code hygiene (manifest sample, band contracts doc,
 examples/ pointer README that only routes); W4 feature gallery page; W5 book
-integration; W6 the C-plugin hearing. OUT: new product features; new CI legs
+integration. OUT: new product features; new CI legs
 beyond the doc-refs one-line extension; the video-frame domain (module 08 is
 design-only - teaching it would teach something that cannot run); a config
 hot-lane chapter (S3-2 has no demo leg yet - canon link only, chapter waits
@@ -86,12 +87,12 @@ browser translation).
 
 | # | Question | Recommendation |
 |---|---|---|
-| A1 | C band: mint the first C plugin fixture (`test-plugins/c/`, rides cmake + census = a real CI-face change) vs embed-C-only chapter (zero new surface) | **RESOLVED B-expanded** (2026-11-24, maintainer requirement): the FULL 3x2 matrix ships in v1 - host/embed AND plugin faces in C, C++, AND Python. New cells: `examples/c/host_demo.c` (links libmodukit_core.so, embed verbs) + `test-plugins/c/` fixture (mirrors the cpp band; census/lane-table accounting is an explicit W1 sub-task). Prerequisite verified: `x86_64-conda-linux-gnu-cc` compiles and runs in the pixi env. W6 dissolves into W1 |
-| A2 | Extend `check-doc-refs` FILES with `docs/tutorials/*.md` (breaks the "on-demand docs not scanned" design on purpose) | **RESOLVED A** (2026-11-24): extend the FILES glob by one line, restate the header comment to the new boundary, add a tutorials-round to the self-test (three reds, clean green) |
+| A1 | C band: mint the first C plugin fixture (`test-plugins/c/`, rides cmake + census = a real CI-face change) vs embed-C-only chapter (zero new surface) | **RESOLVED B-expanded** (2026-11-24, maintainer requirement): the FULL 3x2 matrix ships in v1 - host/embed AND plugin faces in C, C++, AND Python. New cells: `examples/c/host_demo.c` (embed verbs; links the STATIC `modukit-core-static` handle exactly as examples/cpp does - no .so handle exists in the lane table) + `test-plugins/c/` fixture (mirrors the cpp band's guard STYLE; rev4 panel: mirroring the cpp band literally means ZERO new ctest/census entries - proof rides the host demo the way m1 proves the cpp fixture; the lane table is rust-only, untouched). Prerequisite verified: `x86_64-conda-linux-gnu-cc` compiles and runs in the pixi env. W6 dissolves into W1 |
+| A2 | Extend `check-doc-refs` FILES with `docs/tutorials/*.md` (breaks the "on-demand docs not scanned" design on purpose) | **RESOLVED A** (2026-11-24, rev4-widened): extend FILES with BOTH `docs/tutorials/*.md` AND `docs/features.md` (the gallery is link-dense too); restate the header comment to the new boundary; add a tutorials-round to the self-test (three reds, clean green) |
 | A3 | `pixi demo-*` tasks: one per band (`demo-cpp`, `demo-py`, ...) or one router (`demo = bash scripts/demo-...`)? | **RESOLVED A** (2026-11-24): one router task `demo <leg>`, default stage1, unknown-leg error lists the gallery; one USAGE line, one parity surface |
 | A4 | Feature gallery home: `docs/tutorials/README.md` section vs own `docs/features.md` | **RESOLVED A** (2026-11-24): own `docs/features.md` page with its own book slot; README links tutorials and features as two separate doors (learners vs assessors) |
 | A5 | Tutorial code blocks: verbatim from fixtures vs freshly written | **RESOLVED A** (2026-11-24): verbatim-from-fixture only, every block carries a `file:line-range` provenance note; code that no fixture compiles is a link, never a block; manifests excerpt real instances too |
-| A6 | A tiny tutorial-lint (every `bash scripts/...` mention resolves to an existing leg) | **RESOLVED A** (2026-11-24): no new gate - the A2 doc-refs extension already covers script-path liveness; semantic drift stays with review, where every gate stops |
+| A6 | A tiny tutorial-lint (every `bash scripts/...` mention resolves to an existing leg) | **RESOLVED A** (2026-11-24; premise corrected rev4): no new gate. doc-refs covers INLINE backtick paths only - its extractor skips fenced code blocks and space-containing command candidates, so fenced `bash scripts/...` blocks are NOT gate-covered. The honest command-liveness check is the E7 rehearsal running every chapter command verbatim; semantic drift stays with review, where every gate stops |
 
 ## 4. Work streams
 
@@ -118,7 +119,7 @@ leg; every code block is verbatim from a CI-compiled fixture.
 | README (index) | 3-reader routing: newcomer / plugin author / embedder + band-choice table | modules/00 reading order, env.md |
 | 01-first-run | env three steps -> `demo-stage1` (full lifecycle in 60s) | modules/03 |
 | 02-first-plugin | manifest + install gates + sabotage lever (red then green) -> `demo-stage4-m1`; fixtures: cpp-example-plugin AND the new `test-plugins/c/` band (A1: C authors get a runnable path in v1) | modules/05, 02, 08 §9 |
-| 03-the-bus | topics, late-join, clock bell -> `busv2` leg | modules/06 |
+| 03-the-bus | topics, late-join, clock bell -> `demo-stage5-n2` (hosts the busv2 fixture cross-wall; rev4 fix: 'busv2' is a fixture name, not a leg), late-join via `demo-stage1`, clock bell via `demo-wave2-clock` | modules/06 |
 | 04-the-exe-wall | supervisor, crash/revive, ORPHAN-PROOF -> `demo-stage2`, `demo-stage4-m2` | modules/01 |
 | 05-embed-from-your-language | ONE file, band subsections: C++ (m1) / Python (wave2-py) / JS (wave2-js) / C (the NEW `examples/c/host_demo.c` links libmodukit_core.so - A1) | capability-ledger, contracts headers, module 07 |
 | 06-script-plugins | py/js plugin door + the FOUR hidden contracts + liar fixtures -> `demo-wave2-plugin-{py,js}` | modules/04, D106/D107 |
@@ -162,11 +163,11 @@ ledger. This is the "discover ALL features" deliverable.
 page slot. type=how-to makes check-prose require shell blocks or numbered
 steps in every chapter (report-only today, honest).
 
-### W6 - C-plugin hearing (post-v1)
+### W6 - dissolved into W1 by the A1 ruling (rev2)
 
-Mint `test-plugins/c/` as its own volume: cmake band mirroring cpp,
-census/lane-table accounting, tutorial 02 gains a C variant. Requires A1
-ruling + hearing; not in v1's critical path.
+The C-plugin hearing is closed: A1 (B-expanded) ships the C band in v1 via
+the E2 slice. Kept as a tombstone so the history reads straight; no separate
+volume remains.
 
 ## 5. Verification ledger
 
@@ -174,10 +175,10 @@ ruling + hearing; not in v1's critical path.
 |---|---|
 | fresh-clone rehearsal of chapter 01 commands | install->uninstall walk PASS, no dead command |
 | sabotage lever in chapter 02 as written | RED observed, then green on rerun |
-| every `bash scripts/...` in tutorials | path exists (doc-refs extension, A2) |
+| tutorial command blocks | fenced commands verified by the E7 rehearsal (runs each verbatim); inline backtick paths by doc-refs (A2) |
 | README quickstart links | doc-refs green (already in scope) |
 | llms.txt regen | tutorials + features lines present, committed |
-| book-build | Tutorials group renders between Environment and Modules, no Appendix WARN |
+| book-build | Tutorials group renders (as the FIRST group - book-build emits chapters before groups, so 'right after Environment' would need a code change we do not take; accepted rev4), no Appendix WARN |
 | counts anywhere in new prose | link capability-ledger; grep finds no bare "24 verbs"-class restatement |
 | full check.sh after each stream | all green, leg count unchanged |
 
@@ -198,47 +199,53 @@ flowchart TD
 ## 7. Risks
 
 - **Drift is the #1 enemy**: the README 24-verb drift happened THIS WEEK.
-  Mitigations baked in: chapters quote leg commands (CI replays them), code
-  blocks from compiled fixtures, counts link the ledger, doc-refs covers the
-  new tree (A2).
+  Mitigations: chapters quote leg commands (the legs are CI-replayed and E7
+  re-runs the chapter text verbatim), code blocks from compiled fixtures,
+  counts link the ledger, doc-refs covers inline links in the new trees
+  (A2). Known residual (accepted rev4): fenced command blocks and
+  features.md ROW completeness are review-discipline, not gate-covered.
 - macOS claim vs pixi platforms: honest note in W0; do not promise.
 - Scope creep: six chapters is the ceiling (donor parity is 7); the gallery
   is one page; anything more needs a hearing.
 - Maintenance owner: tutorials are hand-written by the D-recorded boundary
   (reference-class output is generated; narrative stays hand-written) - each
-  chapter names its backing leg so a leg rename reddens the docs grep.
+  chapter names its backing leg so a leg rename reddens the docs grep for
+  inline mentions; fenced blocks surface at the next E7-style rehearsal.
 
 ## 8. Gate plan
 
-No new check.sh legs. The only gate-surface change is the one-line doc-refs
-FILES extension (A2) plus the toc group (existing book gates pick it up) and
-the llms.txt regen (existing generator). Full `bash scripts/check.sh` closes
-every stream.
+No new check.sh legs. The only gate-surface change is the doc-refs FILES
+extension covering tutorials + features.md (A2) plus the toc group (existing
+book gates pick it up) and the llms.txt regen (existing generator). Full
+`bash scripts/check.sh` closes every stream.
 
 ## 9. Deviations and debts
 
 - Config hot-lane chapter deferred until it has a demo leg (S3-2 shipped
   code-first; the leg is the missing proof).
-- C plugin fixture deferred to W6 hearing (A1); v1 teaches embed-C only.
+- C band ships in v1 (A1 B-expanded): test-plugins/c + examples/c host demo,
+  Route A accounting (zero new legs; static link; subdirectory-level C
+  language enablement so the root stays CXX-only and OFF-switches never
+  probe a C compiler).
 - Windows demo gallery = WSL note, not native legs (bash legs are
   Linux-shaped: LD_PRELOAD, /proc).
 - dora-style scenario examples (log-aggregator-class) stay a future volume
   once the tutorial layer proves the covenant.
 
-## 10. Execution schedule (rev3 - ordered slices, each leaves the tree green)
+## 10. Execution schedule (rev4 - panel-reviewed, ordered slices, each leaves the tree green)
 
 Seven slices; every slice ends with `bash scripts/check.sh` green and its own
 atomic commits, so the work is interruptible and resumable at any boundary.
 
 | Slice | Delivers | Key verification | Commits |
 |---|---|---|---|
-| **E1** W0 quick fixes | README counts 24->25 / 16->17 (ledger-linked); wave2 SKIP copy points at build/ + m1; honest platform note (Linux native / Windows via WSL for demo legs / macOS not a pixi platform); `pixi run demo <leg>` router (default stage1, unknown-leg lists the gallery) + one USAGE line each in modukit.sh/.bat (parity gate) | doc-refs + gate-docs 3/3b + full check.sh | 4 (one per fix) |
-| **E2** C band foundations (A1) | `test-plugins/c/` fixture band (cmake subdirectory enabling the C language, mirroring the cpp band's skip rules; census + ctest twin accounting via the existing lane table); `examples/c/host_demo.c` (embed face: link `libmodukit_core.so`, drive install/resolve/start/service_call/find/stop, modeled on host_demo.cc's verb walk) | the C .so builds under the pinned `x86_64-conda-linux-gnu-cc`; the twin runs clean and sabotages red; host_demo.c compiles and completes its walk | 2 (fixture+accounting; host demo) |
-| **E3** tutorials core + gate extension (A2) | `docs/tutorials/` index + chapters 01-04 (first-run / first-plugin with sabotage lever / the bus / the exe wall); doc-refs FILES glob + header-comment restatement + self-test tutorials round; `book/toc.toml` Tutorials group (type=how-to) | doc-refs three-reds-one-green self-test incl. the tutorials round; book-build renders the group with no Appendix WARN; every `bash scripts/...` in the chapters resolves | 2-3 |
+| **E1** W0 quick fixes | README count fixes at ALL SIX stale spots (:94/:106/:108/:109/:110/:111, rev4 panel count) + four code-comment pockets (examples/js/host_demo.js:12, examples/py/host_demo.py:11, examples/js/pin_test.js:24,45); wave2 SKIP copy points at build/ + m1; honest platform note; `pixi run demo <leg>` router as ONE atomic commit (pixi task + modukit.sh USAGE + modukit.bat USAGE + router body + README line together - gate 3b diffs the sh/bat ad SETS) | doc-refs + gate-docs 3/3b + full check.sh | 4 (counts / SKIP copy / platform note / router) |
+| **E2** C band foundations (A1, Route A per rev4 panel) | FIRST a one-line alias proof: `pixi run sh -c 'command -v x86_64-conda-linux-gnu-cc'`. Then: `test-plugins/c/` fixture (subdirectory-level `enable_language(C)` behind a `MODUKIT_BUILD_C` option, default ON - root stays CXX-only; guard style mirrors cpp but keys on its own conditions, NOT the modukit_cpp target); `examples/c/host_demo.c` (embed face; links `modukit-core-static` exactly like examples/cpp - no .so lane handle exists; drives install/resolve/start/service_call/find_services/stop modeled on host_demo.cc); ZERO new demo legs / twins / census entries (cpp-band parity: proof = the host demo driving the C fixture, the way m1 proves the cpp fixture); capability-ledger cells for the C band update in the SAME commit | the C fixture builds and the host demo completes its walk driving it; full check.sh green, leg count UNCHANGED at 13 | 2 (fixture band + wiring; host demo + ledger cells) |
+| **E3** tutorials core + gate extension (A2) | `docs/tutorials/` index + chapters 01-04; doc-refs FILES glob (with a nullglob/dir guard so an empty tree degrades visibly, no awk noise) + header restatement + self-test tutorials round - the glob edit and >=1 tutorial .md land in the SAME commit (else the self-test reds or the domain silently skips); `book/toc.toml` Tutorials group (type=how-to; renders as the FIRST group - accepted position, rev4) | doc-refs three-reds-one-green self-test incl. the tutorials round; book-build renders the group, no Appendix WARN; inline `bash scripts/...` mentions resolve | 2-3 |
 | **E4** tutorials language bands | chapter 05 embed-from-your-language (C++ m1 / py wave2 / js wave2 / **C = the E2 host demo**); chapter 06 script plugins + the four-contract table + binding-header pointer lines; `docs/tutorials/fixtures/manifest-sample.toml` (commented copy of a real fixture manifest, A5 provenance note) | chapters' code blocks each carry file:line provenance (A5); doc-refs green on the new links | 2 |
 | **E5** discoverability triple | README Quickstart section (bootstrap -> `pixi run demo` -> tutorials -> features -> book; platform note); `gen-llms-txt.sh` lines + regen; `docs/modules/00-overview.md` reading-order note; `examples/README.md` router (bands -> legs -> tutorials, no teaching prose) | README links live (already in doc-refs scope); llms.txt regenerated and committed | 1-2 |
-| **E6** features gallery (W4/W5) | `docs/features.md`: one row per shipped capability (verb families, filter/tracker/events/ranges, DM-lite, ConfigAdmin, bus v1/v2, clock v3, parent push, supervisor, observability trio, ops face) x three columns (run-it leg / canon / band face); counts link `docs/capability-ledger.md`; Features slot in toc | no bare counts (grep for restated numbers); book renders the slot | 1 |
-| **E7** rehearsal + closure | fresh-clone golden-path rehearsal of the README Quickstart exactly as written (bootstrap -> demo -> chapter 01 commands); fix what the rehearsal bites; full gate; plan closure note | the rehearsal log IS the acceptance evidence; check.sh all green, leg count unchanged except the E2 twin accounting | 1 |
+| **E6** features gallery (W4/W5) | `docs/features.md`: one row per shipped capability (verb families, filter/tracker/events/ranges, DM-lite, ConfigAdmin, bus v1/v2, clock v3, parent push, supervisor, observability trio, ops face) x three columns (run-it leg / canon / band face); counts link `docs/capability-ledger.md`; the ConfigAdmin row explicitly marked 'no demo leg yet (S3-2)'; features.md rides the A2 FILES extension (path liveness); the Features toc slot lands in the SAME commit | no bare counts (grep); book renders the slot; doc-refs green incl. features.md | 1 |
+| **E7** rehearsal + closure | golden-path rehearsal of the README Quickstart AND every chapter's fenced commands verbatim (this IS the command-liveness check, H1); isolated HOME + fresh clone where feasible, else labeled warm-cache honestly; record network touchpoints (the submodule fetch is by-design online); fix what it bites; full gate; plan closure note | the rehearsal log IS the acceptance evidence; check.sh all green, leg count unchanged (E2 added none) | 1 |
 
 Ordering rationale: E1 is independent shippable value; E2 precedes E4 because
 chapter 05's C subsection and chapter 02's C variant cite the E2 artifacts
@@ -247,6 +254,17 @@ extension rides E3 so every later chapter is link-protected from day one.
 
 ## 11. Change log
 
+- 2026-11-24 revision 4: second expert panel (correctness / evidence /
+  CI-ops) audited rev3; folded in: B1 W6 + deviations remnants cleared (the
+  C band is v1 scope); B2 E2 rewritten to Route A (static link,
+  subdirectory enable_language(C) + MODUKIT_BUILD_C, zero new legs/census,
+  cpp-band proof shape, ledger cells same-commit); B3 ch03 leg names
+  corrected (stage5-n2 / stage1 / wave2-clock); H1 fenced-command honesty
+  (the E7 rehearsal is the check); H2 features.md joins doc-refs + the
+  ConfigAdmin no-leg marker; H3 rehearsal honesty (isolated HOME or labeled
+  warm cache + network touchpoints); H4 E1 widened to six README spots +
+  four comment pockets + the router atomic unit; book group position
+  accepted as first-group; nullglob guard on the glob.
 - 2026-11-24 revision 3: execution schedule added (E1-E7, ordered, per-slice
   verification and commit boundaries); no scope change - this is the HOW for
   the rev2 rulings.
