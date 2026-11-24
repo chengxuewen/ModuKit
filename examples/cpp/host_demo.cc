@@ -15,7 +15,10 @@
         silent no-op - the header's rule, asserted as an expected code)
      -> introspect_snapshot -> introspect_events (the opaque-bytes codec
         documented in embed.rs/ embed_codec.rs is parsed field by field)
-     -> stop -> uninstall.
+     -> [11] the D96 v2-door twin (argv[2], optional): a second plugin
+        declaring ABI v2 is installed/started and its start-time mailbox
+        seed is read back via late-join
+     -> [12] stop -> uninstall.
    Prints `CPP-DEMO PASS` only when every step asserted clean; exit 77 =
    skip when the fixture is absent; DEMO_STAGE4_SABOTAGE=1 corrupts the
    manifest at exactly ONE named point (scene [2]) so the gate must RED. */
@@ -82,6 +85,7 @@ int main(int argc, char **argv) {
     return 77;
   }
   const std::string so_path = argv[1];
+  const std::string busv2_path = argc >= 3 ? argv[2] : "";
   if (!std::filesystem::exists(so_path)) {
     std::printf("SKIP: fixture .so missing at %s\n", so_path.c_str());
     return 77;
@@ -219,17 +223,48 @@ int main(int argc, char **argv) {
   check(saw_lifecycle && tiled,
         "[10] introspect_events: LE records tile the buffer; lifecycle rows found");
 
-  /* [11] stop + uninstall close the walk (and the plugin's services). */
-  check(kernel.stop(plugin_id).ok(), "[11] stop -> RESOLVED");
+  /* [11] the D96 v2-door twin (onboarding D2): install + start a plugin
+     declaring ABI v2 - its start publishes a seed through the mailbox
+     slots, and this host's late-join subscribe reads it (LatestValue).
+     Optional: argv[2] carries the twin's .so path; without it the scene
+     is skipped with a visible note. */
+  if (!busv2_path.empty() && std::filesystem::exists(busv2_path)) {
+    const std::string toml2 =
+        "id = \"com.example.cpp.busv2\"\nversion = \"0.1.0\"\n"
+        "[entry]\nkind = \"dl\"\nartifact = \"" + busv2_path + "\"\n";
+    const char *busv2_id = nullptr;
+    check(kernel.install(toml2.c_str(), &busv2_id).ok() &&
+              busv2_id != nullptr &&
+              std::strcmp(busv2_id, "com.example.cpp.busv2") == 0,
+          "[11] busv2 twin install");
+    check(kernel.resolve(busv2_id).ok() && kernel.start(busv2_id).ok(),
+          "[11] busv2 twin start (mailbox seed published at start)");
+    const std::string topic2 = "com.example.cpp.busv2";
+    int32_t q2 = -1;
+    check(kernel.bus_subscribe(topic2.c_str(), &q2).ok(),
+          "[11] busv2 topic late-join subscribe");
+    size_t len2 = 0;
+    std::vector<uint8_t> seed(64, 0);
+    check(kernel.bus_recv(q2, seed.data(), seed.size(), &len2).ok() &&
+              std::memcmp(seed.data(), "cpp-busv2-seed", len2) == 0,
+          "[11] the start-time seed arrives via LatestValue late-join");
+    check(kernel.stop(busv2_id).ok() && kernel.uninstall(busv2_id).ok(),
+          "[11] busv2 twin closed");
+  } else {
+    std::printf("note: [11] skipped (no busv2 twin passed as argv[2])\n");
+  }
+
+  /* [12] stop + uninstall close the walk (and the plugin's services). */
+  check(kernel.stop(plugin_id).ok(), "[12] stop -> RESOLVED");
   check(kernel.state(plugin_id, &state).ok() &&
             state == static_cast<int32_t>(modukit::PluginState::STATE_RESOLVED),
-        "[11] state == RESOLVED (6)");
-  check(kernel.uninstall(plugin_id).ok(), "[11] uninstall -> UNINSTALLED");
+        "[12] state == RESOLVED (6)");
+  check(kernel.uninstall(plugin_id).ok(), "[12] uninstall -> UNINSTALLED");
   check(kernel.state(plugin_id, &state).ok() &&
             state == static_cast<int32_t>(modukit::PluginState::STATE_UNINSTALLED),
-        "[11] state == UNINSTALLED (0)");
+        "[12] state == UNINSTALLED (0)");
   check(kernel.resolve(plugin_id).code() == modukit::KernelCode::CONTRACT_VIOLATION,
-        "[11] resolve from UNINSTALLED -> CONTRACT_VIOLATION (table guard)");
+        "[12] resolve from UNINSTALLED -> CONTRACT_VIOLATION (table guard)");
 
   if (failures != 0) {
     std::printf("CPP-DEMO FAIL (%d)\n", failures);

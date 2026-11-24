@@ -13,4 +13,5 @@ if(NOT TARGET modukit_cpp)
 endif()
 
 add_subdirectory(cpp-example-plugin)
+add_subdirectory(cpp-busv2-plugin)   # onboarding D2: the D96 v2-door twin (mailbox slots at start)
 add_subdirectory(cpp-bad-plugin)

@@ -24,14 +24,15 @@ target_link_libraries(modukit-cpp-host-demo PRIVATE
 # build (cmake --build --target <demo>) reaches the cargo rule too - found
 # cold on 2026-11-23 when the shared cargo-target tree moved and no warm
 # artifact could silently satisfy the ninja edge anymore.
-add_dependencies(modukit-cpp-host-demo cpp-example-plugin modukit-core-build)
+add_dependencies(modukit-cpp-host-demo cpp-example-plugin cpp-busv2-plugin modukit-core-build)
 
 # ctest bridge follows the crates-face grammar: real target = name = test
 # entry, SKIP_RETURN_CODE 77 (fixture absent -> host_demo returns 77), and
 # the fixture path rides argv[1] (the probe bakes it via a define; the demo
 # takes it as the documented argument so a manual run works identically).
 add_test(NAME modukit-cpp-host-demo
-    COMMAND modukit-cpp-host-demo "$<TARGET_FILE:cpp-example-plugin>")
+    COMMAND modukit-cpp-host-demo "$<TARGET_FILE:cpp-example-plugin>"
+        "$<TARGET_FILE:cpp-busv2-plugin>")
 set_tests_properties(modukit-cpp-host-demo PROPERTIES
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     SKIP_RETURN_CODE 77

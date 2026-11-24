@@ -52,6 +52,9 @@ trap 'rm -f "$log"' EXIT
   # stale artifact could silently satisfy the edge (2026-11-23).
   pixi run cmake --build "$bd" --target modukit-core-build &&
   pixi run cmake --build "$bd" --target modukit-cpp-host-demo &&
+  # E4 deepening (D2): the D96 v2-door twin rides the same graph; its seed
+  # is asserted by the host demo's optional argv[2] scene.
+  pixi run cmake --build "$bd" --target cpp-busv2-plugin &&
   # E2 C-band ride (onboarding-plan, ruling A1): the C fixture + C host demo
   # ride THIS leg as a content extension (zero new legs) - their host-demo
   # target pulls the C fixture and the core mediator through its own
@@ -75,7 +78,7 @@ fi
 [ -x "$demo" ] || { echo "demo-stage4-m1: RED (demo binary missing: $demo)"; exit 1; }
 [ -f "$so" ]   || { echo "demo-stage4-m1: RED (fixture .so missing: $so)"; exit 1; }
 
-"$demo" "$so" 2>&1 | tee "$log"
+"$demo" "$so" "$bd/test-plugins/cpp/cpp-busv2-plugin/libcpp-busv2-plugin.so" 2>&1 | tee "$log"
 status=${PIPESTATUS[0]}
 if [ "$status" -ne 0 ]; then
   echo "demo-stage4-m1: RED (demo exited $status)"
