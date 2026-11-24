@@ -123,7 +123,7 @@ for c in build/presets/demo/test-plugins/cpp/cpp-example-plugin/libcpp-example-p
   if [ -f "$c" ]; then so="$c"; break; fi
 done
 if [ -z "$so" ]; then
-  echo "demo-wave2-js: SKIP (cpp fixture band not built: no libcpp-example-plugin.so under out/)"
+  echo "demo-wave2-js: SKIP (cpp fixture band not built: no libcpp-example-plugin.so under build/presets/demo - run scripts/demo-stage4-m1.sh first)"
   exit 0
 fi
 # Runtime libstdc++ fix (measured 2026-10-23): the cpp fixture's dependency

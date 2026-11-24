@@ -96,7 +96,7 @@ for c in build/presets/demo/test-plugins/cpp/cpp-example-plugin/libcpp-example-p
   if [ -f "$c" ]; then so="$c"; break; fi
 done
 if [ -z "$so" ]; then
-  echo "demo-wave2-py: SKIP (cpp fixture band not built: no libcpp-example-plugin.so under out/)"
+  echo "demo-wave2-py: SKIP (cpp fixture band not built: no libcpp-example-plugin.so under build/presets/demo - run scripts/demo-stage4-m1.sh first)"
   exit 0
 fi
 
