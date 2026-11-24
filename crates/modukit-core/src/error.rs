@@ -165,6 +165,10 @@ pub enum KernelError {
         expected: String,
         found: String,
     },
+    /// DM-lite (S3-1b): a dependency was lost while the plugin carried
+    /// `on_down = block` - start stays refused until the dependency is
+    /// restored and the host clears the block.
+    DependencyBlocked { plugin: String },
 }
 
 impl KernelError {
@@ -186,6 +190,7 @@ impl KernelError {
             | KernelError::WireVersionMismatch { .. }
             | KernelError::HandshakeIncomplete { .. } => "ABI_MISMATCH",
             KernelError::DependencyMissing { .. } => "DEPENDENCY_MISSING",
+            KernelError::DependencyBlocked { .. } => "DEPENDENCY_MISSING",
             // A supervised crash is transient in the D27 sense: the policy
             // engine may restart it inside the D3 budget; the identity lie
             // is input-shaped. Both live in the contract/handshake families.
@@ -285,6 +290,11 @@ impl fmt::Display for KernelError {
             } => write!(
                 f,
                 "handshake self-report {what} mismatch: manifest says {expected:?}, artifact says {found:?}"
+            ),
+            KernelError::DependencyBlocked { plugin } => write!(
+                f,
+                "plugin {plugin} is DM-blocked: a required dependency was lost \
+                 (on_down = block); start stays refused until it is restored"
             ),
         }
     }

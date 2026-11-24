@@ -15,6 +15,7 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use crate::abi::{HostAbiV1, NativeService, ServiceCallFn, cstr_to_string};
 use crate::bus::Bus;
 use crate::clock::{Clock, ClockDomain};
+use crate::dm::{DmHandler, RequiredDep};
 use crate::edge_ledger::EdgeLedger;
 use crate::error::KernelError;
 use crate::events::{ObsEvent, Observatory};
@@ -23,8 +24,9 @@ use crate::identity::{PluginId, ServiceId};
 use crate::introspect::LoadStamp;
 use crate::lifecycle::{PluginState, StateMachine};
 use crate::logger::Logger;
-use crate::manifest::Manifest;
+use crate::manifest::{Manifest, OnDown};
 use crate::registry::{Properties, PropertyValue, RegistrationId, Registry, RegistryError};
+use std::sync::atomic::Ordering;
 
 /// One tracked plugin: its manifest, state machine, loaded handle (while
 /// resolved/started) and the service registrations it produced.
@@ -67,6 +69,26 @@ pub struct Kernel {
     /// tokens; drained at stop/uninstall by `release_plugin_timers` (the
     /// "token never re-fires" census). Host-owned timers are NOT in it.
     pub(crate) plugin_timers: Mutex<HashMap<u64, PluginId>>,
+    /// S3-1b DM-lite wiring (plugin-management-plan): the dependency
+    /// monitor plus the blocked / deferred-restart / dm-failed markers.
+    /// Drained at lifecycle-verb tails outside the plugins lock; the depth
+    /// guard keeps nested drains (dep_lost, then stop, then drain) from
+    /// double-dispatching.
+    pub(crate) dm: Mutex<crate::dm::DependencyMonitor>,
+    pub(crate) dm_state: Mutex<DmState>,
+    pub(crate) dm_depth: std::sync::atomic::AtomicU32,
+}
+
+/// The DM-lite marker sets (S3-1b): one lock, three per-plugin flags.
+#[derive(Debug, Default)]
+pub(crate) struct DmState {
+    /// `on_down = block`: start is refused until the dep is restored.
+    pub(crate) blocked: std::collections::BTreeSet<PluginId>,
+    /// `on_down = restart-self`: auto-started on dep restore.
+    pub(crate) restart_pending: std::collections::BTreeSet<PluginId>,
+    /// `on_down = fail-self`: parked on the Resolved tier with a failed
+    /// marker (the Failed state is a start-time edge, 03 §2).
+    pub(crate) failed: std::collections::BTreeSet<PluginId>,
 }
 
 fn lock(
@@ -198,6 +220,36 @@ impl Kernel {
         Ok(())
     }
 
+    /// S3-1b: pump the dependency monitor into the kernel actions. Drained
+    /// at lifecycle-verb tails; a nested call (dep_lost -> stop -> drain)
+    /// returns immediately and the outer pump converges - the depth guard
+    /// keeps this recursion bounded and deadlock-free.
+    // Hosts and the embed face poll this after registry mutations (S3-1b):
+    // the monitor dispatches dep_lost/dep_restored to the kernel actions.
+    pub fn dm_drain(&self) {
+        if self.dm_depth.fetch_add(1, Ordering::SeqCst) != 0 {
+            self.dm_depth.fetch_sub(1, Ordering::SeqCst);
+            return; // already draining deeper in this call stack
+        }
+        let mut dm = self.dm.lock().unwrap_or_else(PoisonError::into_inner);
+        let mut handler = KernelDm { kernel: self };
+        dm.drain(&mut handler);
+        self.dm_depth.fetch_sub(1, Ordering::SeqCst);
+    }
+
+    /// Register a plugin's required dependencies for DM-lite watching
+    /// (install tail). Only `required` deps carrying an `on_down` policy
+    /// are watched - optional deps have no lifecycle consequence.
+    pub(crate) fn dm_register_dependents(&self, id: &PluginId, deps: Vec<RequiredDep>) {
+        let mut dm = self.dm.lock().unwrap_or_else(PoisonError::into_inner);
+        dm.register_dependent(id.clone(), deps);
+    }
+
+    pub(crate) fn dm_forget(&self, id: &PluginId) {
+        let mut dm = self.dm.lock().unwrap_or_else(PoisonError::into_inner);
+        dm.forget(id);
+    }
+
     /// UNINSTALLED -> INSTALLED. §2 guard: manifest valid (already parsed)
     /// and artifact present.
     ///
@@ -214,6 +266,19 @@ impl Kernel {
             });
         }
         let id = manifest.id.clone();
+        // S3-1b: declare the watched dependencies before the manifest moves
+        // into the record (only required deps with a policy drive DM-lite).
+        let dm_deps: Vec<RequiredDep> = manifest
+            .requires
+            .iter()
+            .filter(|r| r.required)
+            .filter_map(|r| {
+                r.on_down.map(|on_down| RequiredDep {
+                    service: r.service.clone(),
+                    on_down,
+                })
+            })
+            .collect();
         let mut table = lock(&self.plugins);
         if let Some(record) = table.get_mut(&id) {
             if !matches!(
@@ -247,6 +312,7 @@ impl Kernel {
         }
         let record = table.get_mut(&id).ok_or_else(|| unknown(&id))?;
         self.mv(record, &id, PluginState::Installed)?;
+        self.dm_register_dependents(&id, dm_deps);
         Ok(id)
     }
 
@@ -302,6 +368,17 @@ impl Kernel {
     /// `KernelError::PluginStartFailed` on a non-zero status (FAILED edge
     /// taken); `InvalidTransition` from any other state.
     pub fn start(&self, id: &PluginId) -> Result<(), KernelError> {
+        // S3-1b: a DM-blocked plugin refuses start until its dependency is
+        // restored and the block is cleared (the requires check below would
+        // refuse anyway, but the typed error names the DM state).
+        {
+            let state = self.dm_state.lock().unwrap_or_else(PoisonError::into_inner);
+            if state.blocked.contains(id) {
+                return Err(KernelError::DependencyBlocked {
+                    plugin: id.as_str().to_string(),
+                });
+            }
+        }
         let mut table = lock(&self.plugins);
         let record = table.get_mut(id).ok_or_else(|| unknown(id))?;
         let handle = record
@@ -435,7 +512,9 @@ impl Kernel {
         // Drop the handle before the state move so the artifact is released
         // exactly once.
         record.handle = None;
-        self.mv(record, id, PluginState::Uninstalled)
+        let res = self.mv(record, id, PluginState::Uninstalled);
+        self.dm_forget(id);
+        res
     }
 
     /// Current state of a tracked plugin.
@@ -522,4 +601,61 @@ fn resolve_inner(
     let handle = executor.load(&record.manifest)?;
     record.handle = Some(handle);
     Ok(())
+}
+
+/// The kernel-side `DmHandler` (S3-1b): loss stops the dependent and parks it
+/// per policy; a restore clears the markers and auto-restarts the
+/// `restart-self` dependents. Every action re-enters the public verbs, which
+/// drain the monitor at their tails - the depth guard keeps this recursion
+/// bounded and the pump converges (transition-only notifications).
+struct KernelDm<'a> {
+    kernel: &'a Kernel,
+}
+
+impl DmHandler for KernelDm<'_> {
+    fn dep_lost(&mut self, plugin: &PluginId, dep: &RequiredDep) {
+        // Stop first: the plugin's own services leave the table, which is
+        // exactly what feeds the other dependents' edges. stop lands in
+        // Resolved; the Failed state is a start-time edge (03 §2), so
+        // fail-self parks Resolved with a dm-failed marker rather than
+        // bending the machine.
+        let _ = self.kernel.stop(plugin);
+        {
+            let mut state = self
+                .kernel
+                .dm_state
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner);
+            match dep.on_down {
+                OnDown::FailSelf => {
+                    state.failed.insert(plugin.clone());
+                }
+                OnDown::Block => {
+                    state.blocked.insert(plugin.clone());
+                }
+                OnDown::RestartSelf => {
+                    state.restart_pending.insert(plugin.clone());
+                }
+            }
+        }
+        self.kernel.dm_drain();
+    }
+
+    fn dep_restored(&mut self, plugin: &PluginId, _dep: &RequiredDep) {
+        let auto_restart;
+        {
+            let mut state = self
+                .kernel
+                .dm_state
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner);
+            state.blocked.remove(plugin);
+            state.failed.remove(plugin);
+            auto_restart = state.restart_pending.remove(plugin);
+        }
+        if auto_restart {
+            let _ = self.kernel.start(plugin);
+        }
+        self.kernel.dm_drain();
+    }
 }

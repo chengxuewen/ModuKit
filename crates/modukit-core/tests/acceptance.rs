@@ -58,6 +58,18 @@ fn build_fixture(crate_name: &str, lib_stem: &str) -> Option<PathBuf> {
     so.exists().then_some(so)
 }
 
+/// S3-1b: a plain C-call service the test controls (register/unregister at
+/// will), standing in for a provider whose lifecycle the DM watches.
+unsafe extern "C" fn noop_call(
+    _method: *const std::ffi::c_char,
+    _input: *const u8,
+    _input_len: usize,
+    _output: *mut u8,
+    _output_cap: usize,
+) -> i32 {
+    0
+}
+
 fn manifest_toml(id: &str, artifact: &Path) -> String {
     format!(
         "id = \"{id}\"\nversion = \"0.1.0\"\n[entry]\nkind = \"dl\"\nartifact = \"{}\"\n",
@@ -265,4 +277,96 @@ fn ledger_equality_bad_plugin_is_the_red_fixture_staying_red() {
         "the D27-shaped record stays visible"
     );
     assert_eq!(entry.abi_stamps.expected, modukit_core::abi::ABI_VERSION);
+}
+
+/// S3-1b (plugin-management-plan): the DM-lite wiring end to end — a real
+/// dlopen dependent parked by `on_down = block` when its provider leaves,
+/// start refused while blocked, and startable again once the provider is
+/// restored and the block clears.
+#[test]
+fn dm_lite_blocks_a_dependent_when_its_provider_leaves_and_restores() {
+    let kernel = Kernel::new();
+
+    // The provider: a test-controlled service with a version property.
+    let mut provider_props = modukit_core::registry::Properties::new();
+    provider_props.insert(
+        "service.id",
+        modukit_core::registry::PropertyValue::Str("com.acme.dep".into()),
+    );
+    provider_props.insert(
+        "service.version",
+        modukit_core::registry::PropertyValue::Str("1.5".into()),
+    );
+    let provider = modukit_core::abi::NativeService::new(
+        ServiceId::new("com.acme.dep".to_string()),
+        noop_call,
+    );
+    let dep_reg = kernel
+        .registry()
+        .register(std::sync::Arc::new(provider), provider_props)
+        .expect("provider registers");
+
+    // The dependent: the demo fixture requiring it, with on_down = block.
+    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+        eprintln!("SKIPPING: fixture build failed");
+        return;
+    };
+    let manifest = format!(
+        "{}\n[[requires]]\nservice = \"com.acme.dep\"\nrequired = true\n\
+         on_down = \"block\"\nversion = \">=1.0\"\n",
+        manifest_toml(EXAMPLE_ID, &so)
+    );
+    let m = Manifest::from_toml_str(&manifest).expect("manifest parses");
+    let consumer = kernel.install(m).expect("install");
+    kernel.resolve(&consumer).expect("resolve");
+    kernel.start(&consumer).expect("start with the dep present");
+
+    // The provider leaves: DM parks the dependent per on_down = block.
+    let _ = kernel.registry().unregister(dep_reg);
+    kernel.dm_drain();
+    let (snap, ..) = acquire_trio(&kernel);
+    let state = snap
+        .all()
+        .plugins
+        .iter()
+        .find(|p| p.id == EXAMPLE_ID)
+        .map(|p| p.state.clone())
+        .expect("the consumer stays tracked");
+    assert_eq!(
+        state,
+        PluginState::Resolved.to_string(),
+        "on_down = block parks the consumer on the Resolved tier"
+    );
+    assert!(
+        kernel.start(&consumer).is_err(),
+        "start refuses while the DM block holds"
+    );
+
+    // The provider returns: the block clears, start works again.
+    let mut back = modukit_core::registry::Properties::new();
+    back.insert(
+        "service.id",
+        modukit_core::registry::PropertyValue::Str("com.acme.dep".into()),
+    );
+    back.insert(
+        "service.version",
+        modukit_core::registry::PropertyValue::Str("1.5".into()),
+    );
+    let provider2 = modukit_core::abi::NativeService::new(
+        ServiceId::new("com.acme.dep".to_string()),
+        noop_call,
+    );
+    let _ = kernel
+        .registry()
+        .register(std::sync::Arc::new(provider2), back)
+        .expect("provider re-registers");
+    kernel.dm_drain();
+    // From RESOLVED the legal restart lane is uninstall -> install -> resolve
+    // -> start (the machine has no Resolved -> Resolving edge; D8 restart is
+    // cold by design).
+    let m2 = Manifest::from_toml_str(&manifest).expect("manifest re-parses");
+    kernel.uninstall(&consumer).expect("uninstall");
+    let consumer = kernel.install(m2).expect("re-install");
+    kernel.resolve(&consumer).expect("resolve");
+    kernel.start(&consumer).expect("start after the restore");
 }

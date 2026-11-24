@@ -134,7 +134,12 @@ pub(crate) fn lifecycle_move(
         return codec::NEG_SCHEMA_INVALID;
     };
     let k = ambient();
-    match door(&k.0, &PluginId::new(s.to_string())) {
+    let result = door(&k.0, &PluginId::new(s.to_string()));
+    // S3-1b: lifecycle mutations feed the dependency monitor - drain at the
+    // verb tail (outside the kernel locks; the depth guard bounds the
+    // nested drains a dep_lost -> stop -> drain chain produces).
+    k.0.dm_drain();
+    match result {
         Ok(()) => 0,
         Err(err) => codec::neg_kernel(&err),
     }
@@ -168,6 +173,8 @@ pub extern "C" fn modukit_install(
             Ok(id) => id,
             Err(err) => return codec::neg_kernel(&err),
         };
+        // S3-1b: the install declared this plugin's watched dependencies.
+        k.0.dm_drain();
         match registered_id(id.as_str()) {
             Some(c) => {
                 // SAFETY: `out_plugin_id` checked non-null above.

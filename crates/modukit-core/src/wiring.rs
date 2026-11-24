@@ -92,6 +92,7 @@ impl Kernel {
         );
         register_platform(&registry, Arc::new(clock.clone()), "org.modukit.clock");
         register_platform(&registry, Arc::clone(&logger), "org.modukit.logger");
+        let dm = crate::dm::DependencyMonitor::new(&registry);
         Self {
             registry,
             bus,
@@ -103,6 +104,9 @@ impl Kernel {
             plugins,
             plugin_timers: Mutex::new(HashMap::new()),
             contract_ledger,
+            dm: Mutex::new(dm),
+            dm_state: Mutex::new(crate::kernel::DmState::default()),
+            dm_depth: std::sync::atomic::AtomicU32::new(0),
         }
     }
 
