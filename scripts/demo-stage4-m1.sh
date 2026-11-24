@@ -37,6 +37,13 @@ bd="build/presets/demo"
 log=$(mktemp)
 trap 'rm -f "$log"' EXIT
 
+# stamp-vs-artifact self-heal: `cargo clean` removes the lane artifacts but
+# leaves the mediator stamp fresh, and the warm target then reports "no
+# work" with the .a still missing (the artifact is not a ninja node, only a
+# plain input). Deleting the stale stamp forces cargo to re-materialize.
+[ -f build/cargo-target/debug/libmodukit_core.a ] ||
+  rm -f "$bd/.polyorch-rust-stamps/modukit-core-build.stamp"
+
 {
   pixi run cmake -S . -B "$bd" -G Ninja &&
   # Warm the shared cargo tree first: the .a is a plain ninja input with no
@@ -44,7 +51,12 @@ trap 'rm -f "$log"' EXIT
   # ninja parse time. Found when the territory moved out/ -> build/ and no
   # stale artifact could silently satisfy the edge (2026-11-23).
   pixi run cmake --build "$bd" --target modukit-core-build &&
-  pixi run cmake --build "$bd" --target modukit-cpp-host-demo
+  pixi run cmake --build "$bd" --target modukit-cpp-host-demo &&
+  # E2 C-band ride (onboarding-plan, ruling A1): the C fixture + C host demo
+  # ride THIS leg as a content extension (zero new legs) - their host-demo
+  # target pulls the C fixture and the core mediator through its own
+  # dependency edges.
+  pixi run cmake --build "$bd" --target c-host-demo
 } >"$log" 2>&1 || {
   echo "demo-stage4-m1: RED (cmake build failed; last lines:)"
   tail -10 "$log"
@@ -73,4 +85,22 @@ if ! grep -qx 'CPP-DEMO PASS' "$log"; then
   echo "demo-stage4-m1: RED (no CPP-DEMO PASS line in the transcript)"
   exit 1
 fi
-echo "demo-stage4-m1: PASS"
+
+# E2 C-band ride: same falsifiable grammar - the C host demo must print
+# C-DEMO PASS against the real C fixture (its own sabotage lever,
+# DEMO_C_SABOTAGE=1, corrupts the manifest at its scene [2]).
+cso="$bd/test-plugins/c/c-example-plugin/libc-example-plugin.so"
+cdemo="$bd/examples/c/c-host-demo"
+[ -x "$cdemo" ] || { echo "demo-stage4-m1: RED (c demo binary missing: $cdemo - MODUKIT_BUILD_C off?)"; exit 1; }
+[ -f "$cso" ]   || { echo "demo-stage4-m1: RED (c fixture .so missing: $cso)"; exit 1; }
+"$cdemo" "$cso" 2>&1 | tee "$log"
+cstatus=${PIPESTATUS[0]}
+if [ "$cstatus" -ne 0 ]; then
+  echo "demo-stage4-m1: RED (c demo exited $cstatus)"
+  exit 1
+fi
+if ! grep -qx 'C-DEMO PASS' "$log"; then
+  echo "demo-stage4-m1: RED (no C-DEMO PASS line in the transcript)"
+  exit 1
+fi
+echo "demo-stage4-m1: PASS (cpp + c)"

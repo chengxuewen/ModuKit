@@ -68,14 +68,14 @@ by `scripts/check-capability-ledger.sh` (check.sh leg "capability-ledger").
 
 | Capability | C | C++ | Rust | Python | JS |
 |---|---|---|---|---|---|
-| `modukit_embed_abi_version` | header | generated | native | generated | generated |
-| `modukit_install` | header | generated | native | generated | generated |
-| `modukit_uninstall` | header | generated | native | generated | generated |
-| `modukit_resolve` | header | generated | native | generated | generated |
-| `modukit_start` | header | generated | native | generated | generated |
-| `modukit_stop` | header | generated | native | generated | generated |
-| `modukit_state` | header | generated | native | generated | generated |
-| `modukit_service_call` | header | generated | native | generated | generated |
+| `modukit_embed_abi_version` | hand-written (c band) | generated | native | generated | generated |
+| `modukit_install` | hand-written (c band) | generated | native | generated | generated |
+| `modukit_uninstall` | hand-written (c band) | generated | native | generated | generated |
+| `modukit_resolve` | hand-written (c band) | generated | native | generated | generated |
+| `modukit_start` | hand-written (c band) | generated | native | generated | generated |
+| `modukit_stop` | hand-written (c band) | generated | native | generated | generated |
+| `modukit_state` | hand-written (c band) | generated | native | generated | generated |
+| `modukit_service_call` | hand-written (c band) | generated | native | generated | generated |
 | `modukit_bus_publish` | header | generated | native | generated | generated |
 | `modukit_bus_subscribe` | header | generated | native | generated | generated |
 | `modukit_bus_recv` | header | generated | native | generated | generated |
@@ -92,7 +92,7 @@ by `scripts/check-capability-ledger.sh` (check.sh leg "capability-ledger").
 | `modukit_sup_restart` | header | generated | native | generated | generated |
 | `modukit_sup_uninstall` | header | generated | native | generated | generated |
 | `modukit_sup_service_call` | header | generated | native | generated | generated |
-| `modukit_embed_find_services` | header | generated | native | generated | generated |
+| `modukit_embed_find_services` | hand-written (c band) | generated | native | generated | generated |
 
 ## B. Plugin-side surface (contracts/modukit_plugin.h <-> abi::PluginAbiV1/HostAbiV1)
 
@@ -104,15 +104,15 @@ The Rust column here is the frozen v1 truth: `abi.rs` layout, consumed by
 
 | Capability | C | C++ | Rust | Python | JS |
 |---|---|---|---|---|---|
-| `modukit_plugin_init` (entry symbol) | header | planned | native | planned | planned |
-| `abi_version` (PluginAbiV1) | header | planned | native | planned | planned |
-| `size` (PluginAbiV1) | header | planned | native | planned | planned |
-| `name` (PluginAbiV1) | header | planned | native | planned | planned |
-| `id` (PluginAbiV1) | header | planned | native | planned | planned |
-| `version` (PluginAbiV1) | header | planned | native | planned | planned |
-| `start` (PluginAbiV1) | header | planned | native | planned | planned |
-| `stop` (PluginAbiV1) | header | planned | native | planned | planned |
-| `register_service` (HostAbiV1 slot) | header | planned | native | planned | planned |
+| `modukit_plugin_init` (entry symbol) | hand-written (c band) | planned | native | planned | planned |
+| `abi_version` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `size` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `name` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `id` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `version` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `start` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `stop` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `register_service` (HostAbiV1 slot) | hand-written (c band) | planned | native | planned | planned |
 | `modukit_service_call_fn_t` (service-call slot) | header | generated | native | planned | planned |
 
 

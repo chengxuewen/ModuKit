@@ -46,6 +46,10 @@ runner="$PWD/build/cargo-target/debug/modukit-run"
   pixi run cmake -S . -B build/presets/demo -G Ninja &&
   # Warm the shared cargo tree first (same cold-parse reason as m1): the .a
   # has no ninja producer edge; the mediator stamp materializes it on disk.
+  # Stamp-vs-artifact self-heal first: cargo clean removes artifacts but
+  # leaves the stamp fresh, and the warm target then reports no work.
+  [ -f build/cargo-target/debug/libmodukit_core.a ] ||
+    rm -f build/presets/demo/.polyorch-rust-stamps/modukit-core-build.stamp
   pixi run cmake --build build/presets/demo --target modukit-core-build &&
   pixi run cmake --build build/presets/demo --target modukit-cpp-host-sup-demo
 } >"$log" 2>&1 || {
