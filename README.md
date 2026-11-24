@@ -97,7 +97,9 @@ First-time machine setup (user-level, pixi only; idempotent): `./bootstrap.sh` (
 
 ## Runnable examples
 
-The stage demos are the gallery - runnable ground truth, no docs-only promises:
+The stage demos are the gallery - runnable ground truth, no docs-only promises.
+One command runs any of them: `pixi run demo <leg>` (bare = `stage1`, the
+60-second lifecycle; an unknown leg lists the gallery), e.g. `pixi run demo stage4-m1`:
 
 | Demo | Proves | Run |
 |---|---|---|

@@ -17,6 +17,7 @@ cd "$ROOT"
 USAGE='usage: ./modukit.sh <task> [args...]
 
 common:
+  ./modukit.sh demo <leg>      run a gallery demo (bare = stage1; unknown lists all)
   ./modukit.sh mcp status      MCP: pin/installed versions + index state
   ./modukit.sh mcp setup       install/repair MCP packages at the pin
   ./modukit.sh mcp sync        incremental MCP sync

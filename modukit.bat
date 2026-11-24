@@ -31,6 +31,7 @@ exit /b %ERRORLEVEL%
 echo usage: modukit.bat ^<task^> [args...]
 echo.
 echo common:
+echo   modukit.bat demo ^<leg^>      run a gallery demo (bare = stage1; unknown lists all)
 echo   modukit.bat mcp status      MCP: pin/installed versions + index state
 echo   modukit.bat mcp setup       install/repair MCP packages at the pin
 echo   modukit.bat mcp sync        incremental MCP sync
