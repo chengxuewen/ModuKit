@@ -61,6 +61,7 @@ trap 'rm -f "$log"' EXIT
   pixi run cmake --build "$bd" --target t4-driver &&
   pixi run cmake --build "$bd" --target t5-consumer &&
   pixi run cmake --build "$bd" --target t6-consumer &&
+  pixi run cmake --build "$bd" --target t8-compose &&
   # E2 C-band ride (onboarding-plan, ruling A1): the C fixture + C host demo
   # ride THIS leg as a content extension (zero new legs) - their host-demo
   # target pulls the C fixture and the core mediator through its own
@@ -143,6 +144,15 @@ fi
 "$t6" "$t2so" 2>&1 | tee "$log"
 if [ "${PIPESTATUS[0]}" -ne 0 ] || ! grep -qx 'T6-CONSUMER PASS' "$log"; then
   echo "demo-stage4-m1: RED (t6 consumer walk failed)"
+  exit 1
+fi
+t8="$bd/examples/cpp/tutorial/t8-compose-walk/t8-compose"
+t7so="$bd/examples/cpp/tutorial/t7-compose-plugin/libt7-compose-plugin.so"
+[ -x "$t8" ] || { echo "demo-stage4-m1: RED (t8 walk missing: $t8)"; exit 1; }
+[ -f "$t7so" ] || { echo "demo-stage4-m1: RED (t7 composer missing: $t7so)"; exit 1; }
+"$t8" "$t7so" 2>&1 | tee "$log"
+if [ "${PIPESTATUS[0]}" -ne 0 ] || ! grep -qx 'T8-COMPOSE PASS' "$log"; then
+  echo "demo-stage4-m1: RED (t8 composition walk failed)"
   exit 1
 fi
 echo "demo-stage4-m1: PASS (cpp + c + tutorial)"

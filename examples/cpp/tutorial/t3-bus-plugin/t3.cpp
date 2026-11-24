@@ -48,7 +48,9 @@ extern "C" int32_t t3_start(const modukit_host_abi_v1 *host) {
 
   /* 1. subscribe first: the publisher must hear its own publish. */
   int32_t queue = -1;
-  if (v2->bus_subscribe(v2->user, kTopic, &queue) != 0 || queue < 1) {
+  /* the contract: bus_subscribe RETURNS the queue id (embed.h:186). */
+  const int32_t sub_q = v2->bus_subscribe(v2->user, kTopic, &queue);
+  if (sub_q != queue || queue < 1) {
     return kSub;
   }
   /* 2. publish the latest-value payload. */
