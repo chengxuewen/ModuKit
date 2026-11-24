@@ -203,8 +203,12 @@ flowchart TD
   Mitigations: chapters quote leg commands (the legs are CI-replayed and E7
   re-runs the chapter text verbatim), code blocks from compiled fixtures,
   counts link the ledger, doc-refs covers inline links in the new trees
-  (A2). Known residual (accepted rev4): fenced command blocks and
-  features.md ROW completeness are review-discipline, not gate-covered.
+  (A2). Known residual (accepted rev4; automation direction trigger-gated
+  rev5): fenced command blocks and features.md ROW completeness are
+  review-discipline, not gate-covered - automating them (a fence-command
+  scanner or a features-row completeness check) is a recorded trigger, to be
+  ruled on only if tutorials or the gallery grow beyond E7's rehearsal
+  cadence.
 - macOS claim vs pixi platforms: honest note in W0; do not promise.
 - Scope creep: six chapters is the ceiling (donor parity is 7); the gallery
   is one page; anything more needs a hearing.
