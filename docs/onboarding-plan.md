@@ -1,8 +1,9 @@
 # Developer-onboarding plan - tutorials, examples, bindings, discoverability
 
-> STATUS: PLAN OF RECORD, 2026-11-24 (revision 4 - panel-reviewed: a second
-> expert panel audited rev3 and its findings are folded in; execution-ready).
-> Drawn
+> STATUS: PLAN OF RECORD, 2026-11-24 (revision 5 - rev4 + the recurring-proof
+> amendment: the new C artifacts ride the existing m1 leg for nightly
+> regression; the fenced-command automation direction is recorded
+> trigger-gated). Drawn
 > from a four-lens expert panel (correctness / evidence / docs /
 > developer-experience, frozen lenses, merged with preserved disagreement)
 > plus a community survey of five local-clone donors (CppMicroServices, celix,
@@ -240,7 +241,7 @@ atomic commits, so the work is interruptible and resumable at any boundary.
 | Slice | Delivers | Key verification | Commits |
 |---|---|---|---|
 | **E1** W0 quick fixes | README count fixes at ALL SIX stale spots (:94/:106/:108/:109/:110/:111, rev4 panel count) + four code-comment pockets (examples/js/host_demo.js:12, examples/py/host_demo.py:11, examples/js/pin_test.js:24,45); wave2 SKIP copy points at build/ + m1; honest platform note; `pixi run demo <leg>` router as ONE atomic commit (pixi task + modukit.sh USAGE + modukit.bat USAGE + router body + README line together - gate 3b diffs the sh/bat ad SETS) | doc-refs + gate-docs 3/3b + full check.sh | 4 (counts / SKIP copy / platform note / router) |
-| **E2** C band foundations (A1, Route A per rev4 panel) | FIRST a one-line alias proof: `pixi run sh -c 'command -v x86_64-conda-linux-gnu-cc'`. Then: `test-plugins/c/` fixture (subdirectory-level `enable_language(C)` behind a `MODUKIT_BUILD_C` option, default ON - root stays CXX-only; guard style mirrors cpp but keys on its own conditions, NOT the modukit_cpp target); `examples/c/host_demo.c` (embed face; links `modukit-core-static` exactly like examples/cpp - no .so lane handle exists; drives install/resolve/start/service_call/find_services/stop modeled on host_demo.cc); ZERO new demo legs / twins / census entries (cpp-band parity: proof = the host demo driving the C fixture, the way m1 proves the cpp fixture); capability-ledger cells for the C band update in the SAME commit | the C fixture builds and the host demo completes its walk driving it; full check.sh green, leg count UNCHANGED at 13 | 2 (fixture band + wiring; host demo + ledger cells) |
+| **E2** C band foundations (A1, Route A per rev4 panel) | FIRST a one-line alias proof: `pixi run sh -c 'command -v x86_64-conda-linux-gnu-cc'`. Then: `test-plugins/c/` fixture (subdirectory-level `enable_language(C)` behind a `MODUKIT_BUILD_C` option, default ON - root stays CXX-only; guard style mirrors cpp but keys on its own conditions, NOT the modukit_cpp target); `examples/c/host_demo.c` (embed face; links `modukit-core-static` exactly like examples/cpp - no .so lane handle exists; drives install/resolve/start/service_call/find_services/stop modeled on host_demo.cc); ZERO new demo legs / twins / census entries; RECURRING PROOF (rev5): the host-demo build+walk rides the EXISTING m1 leg as a content extension (m1 already warms the mediator and builds a host target - it gains the C fixture + C host demo), so one-time acceptance becomes nightly regression with the leg count still 13; capability-ledger cells for the C band update in the SAME commit | the C fixture builds and the host demo completes its walk driving it INSIDE the m1 leg; full check.sh green, leg count UNCHANGED at 13 | 2 (fixture band + wiring + m1 extension; host demo + ledger cells) |
 | **E3** tutorials core + gate extension (A2) | `docs/tutorials/` index + chapters 01-04; doc-refs FILES glob (with a nullglob/dir guard so an empty tree degrades visibly, no awk noise) + header restatement + self-test tutorials round - the glob edit and >=1 tutorial .md land in the SAME commit (else the self-test reds or the domain silently skips); `book/toc.toml` Tutorials group (type=how-to; renders as the FIRST group - accepted position, rev4) | doc-refs three-reds-one-green self-test incl. the tutorials round; book-build renders the group, no Appendix WARN; inline `bash scripts/...` mentions resolve | 2-3 |
 | **E4** tutorials language bands | chapter 05 embed-from-your-language (C++ m1 / py wave2 / js wave2 / **C = the E2 host demo**); chapter 06 script plugins + the four-contract table + binding-header pointer lines; `docs/tutorials/fixtures/manifest-sample.toml` (commented copy of a real fixture manifest, A5 provenance note) | chapters' code blocks each carry file:line provenance (A5); doc-refs green on the new links | 2 |
 | **E5** discoverability triple | README Quickstart section (bootstrap -> `pixi run demo` -> tutorials -> features -> book; platform note); `gen-llms-txt.sh` lines + regen; `docs/modules/00-overview.md` reading-order note; `examples/README.md` router (bands -> legs -> tutorials, no teaching prose) | README links live (already in doc-refs scope); llms.txt regenerated and committed | 1-2 |
@@ -254,6 +255,12 @@ extension rides E3 so every later chapter is link-protected from day one.
 
 ## 11. Change log
 
+- 2026-11-24 revision 5: maintainer review question "automated tests / docs
+  coverage?" surfaced one unspecified recurring proof: the new C artifacts
+  (E2) had a one-time walk but no nightly regression. Amended: the E2
+  host-demo build+walk rides the existing m1 leg (content extension, leg
+  count unchanged); the fenced-command automation direction recorded
+  trigger-gated in the risks section.
 - 2026-11-24 revision 4: second expert panel (correctness / evidence /
   CI-ops) audited rev3; folded in: B1 W6 + deviations remnants cleared (the
   C band is v1 scope); B2 E2 rewritten to Route A (static link,
