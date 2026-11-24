@@ -32,6 +32,8 @@ doc() {
   doc docs/whitepaper.md "whitepaper" "positioning and v1.0 canon"
   doc docs/modules/00-overview.md "modules" "reading order for the 00-11 deep dives"
   doc docs/capability-ledger.md "capability ledger" "embed/plugin verb map"
+  doc docs/tutorials/README.md "tutorials" "hands-on paths: first run, first plugin per band, embedding"
+  doc docs/features.md "feature gallery" "every capability: where it runs and how to use it per band"
   doc docs/ve-parity-plan.md "VE-parity plan" "non-functional port, B0-B8"
   doc docs/agent-host-parity-plan.md "agent host plan" "host links, skill surface"
   doc docs/agent-governance-borrow-plan.md "agent governance plan" "borrowed governance practices"

@@ -13,6 +13,23 @@ It does not try to be a single "do-it-all engine". A layered architecture decoup
 Full rationale, architecture, risks and references: **[whitepaper](docs/whitepaper.md)** (v1.0).
 Adjudicated architecture baseline (2026-10-15, records specific post-v1.0 deltas — delta table: its §9): **[architecture](docs/architecture.md)** · [module docs](docs/modules/00-overview.md) · decision ledger (full index: architecture.md §11).
 
+## Quickstart
+
+```bash
+./bootstrap.sh          # one-time: pixi + pinned toolchain (Linux; WSL on Windows)
+pixi run demo stage1    # 60-second full plugin lifecycle - no cmake needed
+```
+
+- **Learn by doing**: the [tutorials](docs/tutorials/README.md) - first run,
+  your first plugin (C/C++/Python/JS bands), the bus, the process wall,
+  embedding from your language, script plugins.
+- **See everything it can do**: the [capability ledger](docs/capability-ledger.md)
+  (verb/capability map; counts live there, never in prose).
+- **Deep dives**: the [module docs](docs/modules/00-overview.md) and the book
+  (`book/toc.toml`; build with `pixi run book-build`).
+- **Platform**: macOS is not a pixi platform today (linux-64/win-64); the bash
+  demo legs run under WSL on Windows. Details: [docs/env.md](docs/env.md).
+
 ## Key capabilities
 
 | Capability | Notes |

@@ -20,8 +20,10 @@ by `gate-docs`); this index page is the one exemption.
 | 10 | [observability-and-debugging.md](10-observability-and-debugging.md) | introspect trio, logger, edge ledger + counters + resources, testhost, graph views + analyzer, status/watch/ctl, DAP/Foxglove lanes, check gate + live-bridge consumer | D17/D18/D19/D21/D22/D24/D32/D44/D50/D61 |
 | 11 | [media-server-base.md](11-media-server-base.md) | doctrine card: P1 posture, frame clause pointers, factories + work units, coexistence doorbell, vocab audit, integration status | D68-D73 |
 
-Reading order for a newcomer: 03 -> 02 -> 01 -> 05 -> 04.
-Reading order for a plugin author: 05 -> 02 -> 04 -> 06.
+Reading order for a newcomer: run the [tutorials](../tutorials/README.md) first,
+then 03 -> 02 -> 01 -> 05 -> 04.
+Reading order for a plugin author: the [tutorials](../tutorials/README.md)
+chapters 02 and 06, then 05 -> 02 -> 04 -> 06.
 Communication stack reading order: 06 (semantics) -> 07 (mechanics).
 End-to-end picture (video-frame worked example): [08-end-to-end-walkthrough.md](08-end-to-end-walkthrough.md).
 
