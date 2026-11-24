@@ -1,6 +1,7 @@
 # Developer-onboarding plan - tutorials, examples, bindings, discoverability
 
-> STATUS: PLAN OF RECORD, 2026-11-24 (revision 2, adjudications closed). Drawn
+> STATUS: PLAN OF RECORD, 2026-11-24 (revision 3 - adjudications closed,
+> execution schedule E1-E7 queued). Drawn
 > from a four-lens expert panel (correctness / evidence / docs /
 > developer-experience, frozen lenses, merged with preserved disagreement)
 > plus a community survey of five local-clone donors (CppMicroServices, celix,
@@ -224,8 +225,31 @@ every stream.
 - dora-style scenario examples (log-aggregator-class) stay a future volume
   once the tutorial layer proves the covenant.
 
-## 10. Change log
+## 10. Execution schedule (rev3 - ordered slices, each leaves the tree green)
 
+Seven slices; every slice ends with `bash scripts/check.sh` green and its own
+atomic commits, so the work is interruptible and resumable at any boundary.
+
+| Slice | Delivers | Key verification | Commits |
+|---|---|---|---|
+| **E1** W0 quick fixes | README counts 24->25 / 16->17 (ledger-linked); wave2 SKIP copy points at build/ + m1; honest platform note (Linux native / Windows via WSL for demo legs / macOS not a pixi platform); `pixi run demo <leg>` router (default stage1, unknown-leg lists the gallery) + one USAGE line each in modukit.sh/.bat (parity gate) | doc-refs + gate-docs 3/3b + full check.sh | 4 (one per fix) |
+| **E2** C band foundations (A1) | `test-plugins/c/` fixture band (cmake subdirectory enabling the C language, mirroring the cpp band's skip rules; census + ctest twin accounting via the existing lane table); `examples/c/host_demo.c` (embed face: link `libmodukit_core.so`, drive install/resolve/start/service_call/find/stop, modeled on host_demo.cc's verb walk) | the C .so builds under the pinned `x86_64-conda-linux-gnu-cc`; the twin runs clean and sabotages red; host_demo.c compiles and completes its walk | 2 (fixture+accounting; host demo) |
+| **E3** tutorials core + gate extension (A2) | `docs/tutorials/` index + chapters 01-04 (first-run / first-plugin with sabotage lever / the bus / the exe wall); doc-refs FILES glob + header-comment restatement + self-test tutorials round; `book/toc.toml` Tutorials group (type=how-to) | doc-refs three-reds-one-green self-test incl. the tutorials round; book-build renders the group with no Appendix WARN; every `bash scripts/...` in the chapters resolves | 2-3 |
+| **E4** tutorials language bands | chapter 05 embed-from-your-language (C++ m1 / py wave2 / js wave2 / **C = the E2 host demo**); chapter 06 script plugins + the four-contract table + binding-header pointer lines; `docs/tutorials/fixtures/manifest-sample.toml` (commented copy of a real fixture manifest, A5 provenance note) | chapters' code blocks each carry file:line provenance (A5); doc-refs green on the new links | 2 |
+| **E5** discoverability triple | README Quickstart section (bootstrap -> `pixi run demo` -> tutorials -> features -> book; platform note); `gen-llms-txt.sh` lines + regen; `docs/modules/00-overview.md` reading-order note; `examples/README.md` router (bands -> legs -> tutorials, no teaching prose) | README links live (already in doc-refs scope); llms.txt regenerated and committed | 1-2 |
+| **E6** features gallery (W4/W5) | `docs/features.md`: one row per shipped capability (verb families, filter/tracker/events/ranges, DM-lite, ConfigAdmin, bus v1/v2, clock v3, parent push, supervisor, observability trio, ops face) x three columns (run-it leg / canon / band face); counts link `docs/capability-ledger.md`; Features slot in toc | no bare counts (grep for restated numbers); book renders the slot | 1 |
+| **E7** rehearsal + closure | fresh-clone golden-path rehearsal of the README Quickstart exactly as written (bootstrap -> demo -> chapter 01 commands); fix what the rehearsal bites; full gate; plan closure note | the rehearsal log IS the acceptance evidence; check.sh all green, leg count unchanged except the E2 twin accounting | 1 |
+
+Ordering rationale: E1 is independent shippable value; E2 precedes E4 because
+chapter 05's C subsection and chapter 02's C variant cite the E2 artifacts
+(A5 verbatim rule needs the compiled fixtures to exist first); the gate
+extension rides E3 so every later chapter is link-protected from day one.
+
+## 11. Change log
+
+- 2026-11-24 revision 3: execution schedule added (E1-E7, ordered, per-slice
+  verification and commit boundaries); no scope change - this is the HOW for
+  the rev2 rulings.
 - 2026-11-24 revision 2: A1-A6 walked one by one, all resolved. A1 =
   B-expanded (maintainer requirement): the full 3x2 matrix - host/embed AND
   plugin faces in C, C++ AND Python - ships in v1 (`examples/c/host_demo.c` +
