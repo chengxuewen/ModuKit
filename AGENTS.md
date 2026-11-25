@@ -72,7 +72,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 - **C1**: all artifacts English; chat follows user. (CJK scan is the canonical block below — keep it synced with conventions.md verbatim.)
 - **C0**: every constraint carries a runnable check, observed red once before trusted.
-- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D112/C6/PIT-44; the prose re-sync at every mint covers high-water AND index ranges (doc-audit 2026-10-23 fixed three missed sites); numbering gate in status.md guards bounds.
+- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D112/C6/PIT-48; the prose re-sync at every mint covers high-water AND index ranges (doc-audit 2026-10-23 fixed three missed sites); numbering gate in status.md guards bounds.
 - **C2**: ModuKit lands on master; PolyOrch edits on dev-modukit, tests blessed on main; pin = fresh dev-modukit tip via standalone bumps.
 - **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
 - `Cargo.lock` commits with `Cargo.toml`.
@@ -262,11 +262,7 @@ file. Read the source file before acting on a rule you are unsure about.
 
 ### pitfalls
 - full text: `.agents/memorys/pitfalls.md`
-- ... 29 older entries omitted (read the full file)
-- PIT-30: warm clippy fingerprint serves false green to re-verification (2026-10-23)
-- PIT-31: worktree edits can vanish between green verification and commit under parallel agents (2026-10-23)
-- PIT-32: gate cold window times out transport's dead-lane assertion (2026-10-27)
-- PIT-33: a warm CMake tree hides the cold compiler/include/link contract (2026-10-30)
+- ... 33 older entries omitted (read the full file)
 - PIT-34: hardcoded /tmp scratch turns a green gate red on read-only /tmp (2026-10-30)
 - PIT-35: .refinfo is a moving donor clone, not a frozen snapshot (2026-10-30)
 - PIT-36: registry meta keys must strip label suffixes, or sync/check never agree (2026-10-30)
@@ -278,6 +274,10 @@ file. Read the source file before acting on a rule you are unsure about.
 - PIT-42 (trivial): subdirectory-level `enable_language(C)` leaves `CMAKE_C_COMPILE_OBJECT` unset (configure-time death); a guarded ROOT-scope enable is the working shape (2026-11-24, comment in test-plugins/c/CMakeLists.txt).
 - PIT-43: answer the SLICE asked - an aggregate that offsets a per-slice gap is spin (2026-11-24/25, corrected x3)
 - PIT-44: when the user scopes the analysis ("ignore sunk costs"), in-repo status quo facts are not arguments (2026-11-25, x2 same day)
+- PIT-45: a plan's mechanism can be fiction - three of nine adjudicated rulings rested on things that do not exist (2026-11-25, x3 in one session)
+- PIT-46: CLI flags outrank env vars - a spec-baked flag silently disables every env-driven fallback (2026-11-25)
+- PIT-47: npm bin shims re-resolve `node` from PATH - a stale system node shadows your toolchain (2026-11-25, hit twice)
+- PIT-48: acceptance checks that take `$?` after `test`/`echo` inside `&&` chains report false FAILs (2026-11-25, x2 same session)
 
 ### status
 - full text: `.agents/memorys/status.md`

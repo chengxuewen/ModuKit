@@ -314,6 +314,7 @@
 - **Forbidden**: healing only the path that fired this time; calling a class fixed from one green instance.
 
 ## PIT-40 (trivial): sed replacement `&` expands to the whole match - a replacement containing `2>&1` corrupted the target line; use python for replacements carrying `&` (2026-11-24).
+- **Recurrence (2026-11-25)**: hit again in the SAME session that wrote PIT-48 - a `sed -i` that appended a digest line containing `&&` produced `` `- PIT-44: ... - PIT-44: ...` `` on the target line. The lesson did not transfer because the forbidden token (`&`) was not in the author's attention while writing the command. Rule of thumb: any sed replacement whose text contains `&`, `&&`, or `\1` goes through python, no exceptions.
 
 ## PIT-41: after a cancelled/skipped command, verify file state BEFORE conclusions (2026-11-25)
 - **Symptom**: a user-backgrounded command never ran (the tool reported skipped); later greps matched `"out"` in SOURCE files; I misattributed them to build-tree copies, concluded the sed had executed, and shipped a fix commit on that false premise - a corrective batch followed.
@@ -337,3 +338,35 @@
 - **Solution**: before answering a scoped question, re-derive the analysis with the excluded class removed ("greenfield: what survives?"); only facts that survive may decide. Sunk-cost facts may appear ONLY as an implementation price tag, never as the recommendation's reason.
 - **Verification**: a recommendation whose top-3 reasons include an existing-artifact fact, under an explicit exclusion, is a red flag - re-derive before shipping the answer.
 - **Forbidden**: "the ABI is already frozen" as a first-principles argument; "39 files already say X" inside a greenfield comparison.
+
+## PIT-45: a plan's mechanism can be fiction - three of nine adjudicated rulings rested on things that do not exist (2026-11-25, x3 in one session)
+
+- **Symptom**: a nine-point design for MCP browser resolution was adjudicated, panel-reviewed twice, and planned to ~250 lines. Implementation probes then killed three of the nine: (1) ruling 8 assumed Chrome-for-Testing publishes sha256 - it does not (`known-good-versions-with-downloads.json` carries `url` only; `.sha256` / `.sha256.txt` both 404); (2) ruling 6 assumed a self-built per-platform URL table was needed - Playwright's OWN installer already carries a fallback build behind `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE`; (3) ruling 9 assumed a zip/dir cache pairing needed GC - no zip is downloaded at all. The as-built surface is ~110 lines, not ~250.
+- **Root cause**: the design was derived from "what the artifact list implies" (a distribution URL, a version field) instead of "what a command actually returns". Adjudication and two review panels all audited the PLAN'S INTERNAL CONSISTENCY - none of them could detect that the plan's premises were unmeasured, because consistency is not truth. The cheaper the premise seemed, the more confidently it was written down.
+- **Solution**: before adjudicating a mechanism-level ruling, run the one curl / one --help / one probe that proves the mechanism exists. Treat "we can fetch X's hash" and "the installer refuses this host" as two separate facts, each needing its own evidence. If a probe contradicts a ruling that is already adjudicated, the ruling's INTENT gets restated and the MECHANISM gets replaced in writing (a rev-N "as-built" section), never silently dropped.
+- **Verification**: every design artefact that names an external mechanism carries the command that proved it (`curl ... | grep`, `<tool> --help`, a probe log path). A plan section with no such anchor is a hypothesis, not a ruling.
+- **Forbidden**: "the spec says the endpoint exists" as evidence for the endpoint; rewriting an adjudicated plan in place so the contradiction disappears (history surfaces are append-only - add a rev-N as-built section).
+
+## PIT-46: CLI flags outrank env vars - a spec-baked flag silently disables every env-driven fallback (2026-11-25)
+
+- **Symptom**: `local-playwright` carried `"args": ["--browser","chromium"]` in the server registry. The browser ladder then designed to fall back via `PLAYWRIGHT_MCP_BROWSER` / `PLAYWRIGHT_MCP_EXECUTABLE_PATH` could never take effect: `@playwright/mcp` resolves `cliOptions.x ?? env`, so the baked flag won every time and no env could reach rung 2 or 3.
+- **Root cause**: an argument was added when a single fixed mode was the whole story, then the mode became conditional - and the flag's precedence was never re-examined. The registry row looked declarative ("it just says chromium"), hiding that it was also an override.
+- **Solution**: keep the spec declarative (a `browser` family field, not a flag) and let the launcher export the mode through env. Where a parameter must override, only the launcher may pass it, and it must be derived from state (a resolution record), not from the manifest.
+- **Verification**: for every spec arg, ask "does any code path need to override this at launch?" If yes, move it to env. `grep -c 'PLAYWRIGHT_MCP_BROWSER' <launcher>` must be >= 1 and the spec's `args` must not contain a browser selector.
+- **Forbidden**: putting a selector/override in the spec because "it documents the intent"; deleting the ladder instead of the flag when the two conflict.
+
+## PIT-47: npm bin shims re-resolve `node` from PATH - a stale system node shadows your toolchain (2026-11-25, hit twice)
+
+- **Symptom**: `mcp-serve.mjs` spawned `node_modules/.bin/playwright-mcp` and got `Cannot find module` tracebacks from `internal/modules/cjs/loader` - the shim's `#!/usr/bin/env node` resolved the box's v10 system node, not the pixi v22 the packages were installed for. The same class produced a false red from `node --check` on an ESM file.
+- **Root cause**: `spawn(binPath)` inherits PATH, and `.bin/*` shims are `env node` scripts. The launcher ran under the right node but handed the child an environment where a DIFFERENT node came first.
+- **Solution**: prepend `dirname(process.execPath)` to the child PATH before spawning any `.bin` shim (`env.PATH = nodeDir + sep + env.PATH`). Any acceptance command that invokes `node`/`npm` shims in this repo must run under the project toolchain, never a bare system `node`.
+- **Verification**: `spawn(bin, args, { env })` must carry an env whose PATH starts with the running node's dir; a one-liner proving it: `node -e` printing `process.env.PATH.split(':')[0]` from inside the child equals the launcher's own dir.
+- **Forbidden**: `spawn(binPath, args)` with no `env` when the binary is an npm shim; blaming the package for a `cjs/loader` traceback before checking which node the shim found.
+
+## PIT-48: acceptance checks that take `$?` after `test`/`echo` inside `&&` chains report false FAILs (2026-11-25, x2 same session)
+
+- **Symptom**: a verification sweep reported "repo root unpolluted: FAIL" and "output lands in out/mcp: FAIL" against a tree that a direct check had just proved clean. The helper was `chk(){ [ "$2" = 0 ] ... }` called as `test ! -d X; chk "..." $?` inside an `&&` chain - `$?` carried the exit status of the preceding `echo`, and one variant omitted the argument entirely.
+- **Root cause**: `$?` is the status of the LAST command actually run, and `&&` chains / display `echo`s sit between the assertion and its consumer. The check itself was never wrong; the harness that reported it was.
+- **Solution**: assert with explicit branches into named variables (`ok=1; [ cond ] && ok=0; echo "$([ $ok = 0 ] && echo PASS || echo FAIL)"`), or capture `if cond; then`. Never thread `$?` through a pipeline, an `&&` chain, or a function that echoes first. When a sweep contradicts an earlier direct measurement, re-measure the thing itself before touching code.
+- **Verification**: for each acceptance line, the status consumer is the IMMEDIATE next statement after the condition; a sweep that reports FAIL for something the previous command proved PASS is a harness bug until proven otherwise.
+- **Forbidden**: "the check is red, fix the code" as a reflex; `$?` captured after `echo`, `head`, or a pipeline anywhere in the chain.
