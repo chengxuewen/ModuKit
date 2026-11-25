@@ -9,7 +9,7 @@
 |---|---|
 | Name | ModuKit |
 | Path | `~/Documents/ModuKit` |
-| Domain | Modular plugin host framework & polyglot extension toolkit (Rust core; in-process/multi-process plugins, service registry, C ABI bindings, optional UI compositor / SHM / WebRTC) |
+| Domain | Modular bundle host framework & polyglot extension toolkit (Rust core; in-process/multi-process bundles, service registry, C ABI bindings, optional UI compositor / SHM / WebRTC) |
 | Language / stack | multi-language target; `instructions[]` = common + rust only (G10 slim 2026-10-09; ts/python/web/golang/cpp unmounted) |
 | Git | master; history via `git log` (volatile counts deliberately not recorded here — 2026-10-10 audit fixed the rot class); origin=gitee, push only on explicit instruction |
 
@@ -22,7 +22,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | Module | What |
 |---|---|
 | modukit-core / -runtime / -transport / -codegen / -js | SHIPPED (workspace since 2026-10-15; test totals live in the plans of record — volatile counts unlisted per the 2026-10-10 audit; v1 frozen D87) |
-| bindings/cpp + bindings/py + bindings/js + contracts C originals | SHIPPED (Stage-4 D93/D95 + python ctypes floor D100/D101 + node plugin door D106/D107) |
+| bindings/cpp + bindings/py + bindings/js + contracts C originals | SHIPPED (Stage-4 D93/D95 + python ctypes floor D100/D101 + node bundle door D106/D107) |
 | modukit-compositor | planned — §12-3 demoted track; UI demand trigger stands (D89-K2) |
 
 ## Verification

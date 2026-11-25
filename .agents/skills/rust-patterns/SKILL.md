@@ -194,7 +194,7 @@ fn process<T: Display + Send + 'static>(item: T) -> String {
 ### Trait Objects for Dynamic Dispatch
 
 ```rust
-// Use when you need heterogeneous collections or plugin systems
+// Use when you need heterogeneous collections or bundle systems
 trait Handler: Send + Sync {
     fn handle(&self, request: &Request) -> Response;
 }

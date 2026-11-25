@@ -78,7 +78,7 @@ macro-produced items, and a text search can return a superset.
 | Wire constant (`proc_wire.rs`) | `contracts/modukit_wire.h`, `contracts/golden/wire-v1/` | `wire-parity`, `scripts/regen-golden.sh` diff |
 | Manifest key | `bundle.rs`, `docs/modules/05-manifest-and-deployment.md`, deploy trees | `spec-trace`, core tests |
 | Bus/clock behaviour | proxy face, demo legs | the matching `demo-*` leg |
-| Service registry name | `docs/modules/02-service-model.md`, plugin fixtures | `cargo test`, `ctest` |
+| Service registry name | `docs/modules/02-service-model.md`, bundle fixtures | `cargo test`, `ctest` |
 
 ## Process
 

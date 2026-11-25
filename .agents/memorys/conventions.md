@@ -52,7 +52,7 @@ git log -1 --format=%b | grep -vE '^$|^ - .{1,99}$' | grep -q . \
   && echo "C3 VIOLATION (body lines not ' - ' wrapped or over 100)" || echo "C3 body OK"
 ```
 # negative proof observed 2026-10-15: HEAD at rule-landing time (14654cf, 156-char
-# subject) -> RED; the dogfooding commit of this rule -> GREEN. Machine version live since 2026-10-21: scripts/hooks/commit-msg (core.hooksPath, installed by bootstrap.sh). Author catches by the hook: 8 by 2026-10-23, 9 by 2026-10-27 (plugin-door batch 3), plus one pre-hook subject caught by hand the same day. Reword of the 20 older
+# subject) -> RED; the dogfooding commit of this rule -> GREEN. Machine version live since 2026-10-21: scripts/hooks/commit-msg (core.hooksPath, installed by bootstrap.sh). Author catches by the hook: 8 by 2026-10-23, 9 by 2026-10-27 (bundle-door batch 3), plus one pre-hook subject caught by hand the same day. Reword of the 20 older
 # local commits deferred until the M5 agent lands (repo-wide history work while a
 # worker runs = PIT-14 class; all rewrites stay local - origin untouched).
 
@@ -98,7 +98,7 @@ bash scripts/check-memory.sh <base>..HEAD
 
 ## C6: "Examples and fixtures teach only what a standing leg executes"
 
-A compiled-but-never-run example rots silently: t3-bus-plugin carried a live
+A compiled-but-never-run example rots silently: t3-bus-bundle carried a live
 subscribe-contract bug through >24h of clean compilation; its FIRST execution
 (the m1 ride) caught it. The admission rule (onboarding-plan B2): an example
 joins a series iff a standing leg EXECUTES it and greps its PASS line. Donor

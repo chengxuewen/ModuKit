@@ -25,7 +25,7 @@ invent a parallel telemetry gate.
 ## When to Use
 
 - Adding a counter, event, or log field at the kernel/service/bus boundary.
-- Debugging "the plugin ran but I cannot see it" reports.
+- Debugging "the bundle ran but I cannot see it" reports.
 - Extending the debug-reader or a reader-style gate.
 - Designing an alert around an observable symptom.
 

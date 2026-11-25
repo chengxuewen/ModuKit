@@ -101,10 +101,10 @@ Scan for missing key documents/design sections without re-litigating functional 
 backlog; there is no rendering/UI surface):
 - Contract/docs gaps: missing SDD clauses, stale capability-ledger rows, or unowned
   cross-references?
-- Security for THIS domain: untrusted manifest/plugin input, FFI boundary invariants,
+- Security for THIS domain: untrusted manifest/bundle input, FFI boundary invariants,
   panic strategy?
 - Ops/observability: reader/event coverage, health checks, log/metrics ownership?
-- Error model: ABI negotiation, proc-wire framing, plugin-crash containment?
+- Error model: ABI negotiation, proc-wire framing, bundle-crash containment?
 - Toolchain/upgrade: pixi pins, MSRV, CMake/PolyOrch floor, migration notes?
 
 ### 5. Phase audit
