@@ -15,7 +15,7 @@
 
 ## Phase
 
-Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-11-25: D1-D112 (D53 reserved; D112 = MCP browser resolution ladder). Stages 1-3 COMPLETE/ACCEPTED (Stage-3 UI tier stays demoted, D89-K2); Stage-4 INFRA volume ACCEPTED/CLOSED (D95); wave-2 volumes ACCEPTED through D107; wave-3 parent-push ACCEPTED/CLOSED (D108 batches 0-2 + D110 acceptance); VE-parity plan D109: B0-B7 landed, B8 COMPLETE (`ve-parity-plan` rev 17 / `agent-host-parity-plan` rev 9; live counts gate-verified: 43 skills / 20 rules / 75 book chapters). Full narrative: `history-archive.md` (2026-11-05 entry). Kernel v0 parked.
+Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2026-11-25: D1-D112 (D53 reserved; D112 = MCP browser resolution ladder). Stages 1-3 COMPLETE/ACCEPTED (Stage-3 UI tier stays demoted, D89-K2); Stage-4 INFRA volume ACCEPTED/CLOSED (D95); wave-2 volumes ACCEPTED through D107; wave-3 parent-push ACCEPTED/CLOSED (D108 batches 0-2 + D110 acceptance); VE-parity plan D109: B0-B7 landed, B8 COMPLETE (`ve-parity-plan` rev 17 / `agent-host-parity-plan` rev 9; counts not frozen here - live sources: skill count = `ls -d .agents/skills/*/`, rule count = `.agents/rules/{common,rust}/*.md`, chapter count = `gate-docs`'s own `book:` note; the old 43/20/75 prose drifted and was removed 2026-11-25). Full narrative: `history-archive.md` (2026-11-05 entry). Kernel v0 parked.
 
 ## Modules
 
@@ -33,7 +33,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 | skill tree lint | `python3 scripts/agents/skill-lint.py` | pass (2026-11-04) |
 | numbering discipline | `bash scripts/check-numbering.sh` — derives max D, asserts AGENTS/status claims; `--self-test` red observed | pass (2026-11-04) |
 | memory disposition (C5) | `bash scripts/check-memory.sh <base>..HEAD` (batch close only) | pass (2026-10-30; B7 red, B2 green observed) |
-| local check gate (D50) | `bash scripts/check.sh` — leg set lives in `--list` / CONSTRAINTS.md (13 demo legs; count not frozen here), pixi per D65 | pass (2026-11-23) |
+| local check gate (D50) | `bash scripts/check.sh` — leg set lives in `--list` / CONSTRAINTS.md (count not frozen here - the leg census is the live source), pixi per D65 | pass (2026-11-23) |
 | status.md size discipline | `wc -c .agents/memorys/status.md` < 8000 — History offloaded to `history-archive.md`; red observed pre-move at 47924 bytes | pass (2026-11-04 offload) |
 | gitignore hygiene | `git ls-files -ci --exclude-standard` empty; expected `git check-ignore` hits for out/build/target/agent layers | pass (2026-10-30; VE ownership order) |
 | C2 branch discipline | command block in conventions.md C2 (negative proof observed 2026-10-15) | pass (2026-10-15) |

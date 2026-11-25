@@ -109,7 +109,12 @@ else note "skip msrv (no script)"; fi
 
 # 5. artifact-language gate (C1: tracked + untracked, whitelist in the script)
 if [ -f scripts/gate-i18n.sh ]; then
-  bash scripts/gate-i18n.sh || { note "FAIL gate-i18n"; status=1; }
+  # D111 one-word guard ARMED here (bundle-unification plan S5): the gate
+  # refuses any retired-word hit outside the recorded allowlist. Scoped here
+  # call site on purpose - the self-test leg below runs unarmed so its
+  # scratch plant cannot be masked by a vocabulary refusal.
+  MODUKIT_VOCAB_ENFORCED=1 bash scripts/gate-i18n.sh ||
+    { note "FAIL gate-i18n"; status=1; }
 else note "skip gate-i18n (no script)"; fi
 
 # 5c. gate-i18n self-test leg (adjudication #35 / backlog P6): the first

@@ -83,6 +83,21 @@ if ! grep -qE "^\| D$max \|" "$ROOT/docs/architecture.md"; then
   fail=1
 fi
 
+# Volatile-count discipline (never-hardcount, PIT-43 lineage): status.md and
+# AGENTS.md must not freeze counts that a gate can measure. The 2026-11-25
+# audit found "75 book chapters" (real 85) and "13 demo legs" (real 14) - prose
+# that nothing checked. Guard the exact classes that drifted.
+check_no_frozen_counts() {
+  local f="$1" hits
+  hits=$(grep -nE '[0-9]+ book chapters|[0-9]+ demo legs|[0-9]+ skills / [0-9]+ rules' "$f" 2>/dev/null || true)
+  if [ -n "$hits" ]; then
+    printf 'NUMBERING \u2717 %s: frozen volatile count (link the live source instead):\n%s\n' "$f" "$hits"
+    fail=1
+  fi
+}
+check_no_frozen_counts "$ROOT/AGENTS.md"
+check_no_frozen_counts "$ROOT/.agents/memorys/status.md"
+
 if [ "$fail" -eq 0 ]; then
   echo "NUMBERING ✓ max D$max; AGENTS/status claims and the section-11 row agree"
 fi
