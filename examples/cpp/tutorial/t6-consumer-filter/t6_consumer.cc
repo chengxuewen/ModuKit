@@ -35,7 +35,7 @@ std::string manifest_for(const std::string &so_path) {
 
 int main(int argc, char **argv) {
   if (argc < 2) {
-    std::printf("SKIP: usage: t6-consumer <path-to-t2-echo-plugin.so>\n");
+    std::printf("SKIP: usage: t6-consumer <path-to-t2-echo-bundle.so>\n");
     return 77;
   }
   const std::string so_path = argv[1];

@@ -125,7 +125,7 @@ function manifestFor(soPath) {
 
 function main() {
   if (process.argv.length < 5) {
-    console.log('SKIP: usage: host_demo.js <libmodukit_core.so> <modukit_js.node> <path-to-libcpp-example-plugin.so>');
+    console.log('SKIP: usage: host_demo.js <libmodukit_core.so> <modukit_js.node> <path-to-libcpp-example-bundle.so>');
     return 77;
   }
   const [coreSo, bridgeNode, fixtureSo] = process.argv.slice(2);

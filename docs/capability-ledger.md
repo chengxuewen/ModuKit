@@ -128,7 +128,7 @@ the SAME in-process `Bus` (`bus.rs`). C++ `generated` =
 `crates/modukit-codegen/testdata/golden/modukit_bundle.hpp` (one
 forwarding method per mailbox slot, behind the declared major; `size`/`user`
 are the guard's data, not verbs, so they read `header`). Proof chain:
-`test-plugins/rs/busv2-plugin` + `crates/modukit-core/tests/abi_v2_door.rs` (rs band 2026-10-23); the C++ twin `test-plugins/cpp/cpp-busv2-plugin` rides the m1 leg (2026-11-24, onboarding deepening D2).
+`test-plugins/rs/busv2-bundle` + `crates/modukit-core/tests/abi_v2_door.rs` (rs band 2026-10-23); the C++ twin `test-plugins/cpp/cpp-busv2-bundle` rides the m1 leg (2026-11-24, onboarding deepening D2).
 
 | Capability | C | C++ | Rust | Python | JS |
 |---|---|---|---|---|---|
@@ -158,7 +158,7 @@ same v2 trampolines. C++ `generated` =
 `crates/modukit-codegen/testdata/golden/modukit_bundle.hpp` (one forwarding
 method per parsed slot, the timer pair behind the v3 size guard; `size`/
 `user` are the guard's data, not verbs, so they read `header`). Proof
-chain: `test-plugins/rs/timerv3-plugin` +
+chain: `test-plugins/rs/timerv3-bundle` +
 `crates/modukit-core/tests/abi_v3_door.rs`.
 
 | Capability | C | C++ | Rust | Python | JS |

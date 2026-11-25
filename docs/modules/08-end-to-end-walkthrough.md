@@ -152,7 +152,7 @@ Plugin author: 05 → 02 → 04 → 08 (this file). Kernel resident: 01 → 03 �
 
 ## 9. Template status (D23)
 
-The `example-plugin`/`bad-plugin` fixtures hold **template standing**: their layout (crate
+The `example-bundle`/`bad-bundle` fixtures hold **template standing**: their layout (crate
 skeleton, `.proto` placement, manifest sample, contract-test stub, and the three mouth
 rules — logger (D19), clock (D20), no stdout in production) is the official plugin-starting
 answer. Changing them is a compatibility-weighted documentation act (CI compiles them

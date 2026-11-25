@@ -121,8 +121,8 @@ fn grab_trio(registry: &Registry) -> (Snapshot, EventStream, LedgerDump) {
 #[rustfmt::skip]
 fn main() {
     println!("=== ModuKit Stage-1 M8 end-to-end acceptance demo ===");
-    let good_so = build_so("example-plugin", "example_plugin");
-    let bad_so = build_so("bad-plugin", "bad_plugin");
+    let good_so = build_so("example-bundle", "example_plugin");
+    let bad_so = build_so("bad-bundle", "bad_plugin");
 
     // [2] D28 install protocol over a fresh host tree: staging -> verify
     // all listed hashes -> inode-dedupe >1MiB -> atomic rename (D31/D55).

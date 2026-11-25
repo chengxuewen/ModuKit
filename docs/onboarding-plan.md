@@ -24,7 +24,7 @@
   book; docs/env.md "three steps" is environment-facing, not pedagogical.
 - The ASSETS already exist: 13 standing demo legs (replayed by CI nightly -
   natural anti-drift teaching material), the 84-line clean author-side
-  `cpp-example-plugin`, D23's "template standing" fixtures ruling, and the
+  `cpp-example-bundle`, D23's "template standing" fixtures ruling, and the
   sabotage levers (`DEMO_STAGE4_SABOTAGE=1` - a ready-made "watch the gate
   refuse a bad manifest" teaching device).
 - Live bugs the panel caught for free (fix regardless of this plan):
@@ -119,7 +119,7 @@ leg; every code block is verbatim from a CI-compiled fixture.
 |---|---|---|
 | README (index) | 3-reader routing: newcomer / plugin author / embedder + band-choice table | modules/00 reading order, env.md |
 | 01-first-run | env three steps -> `demo-stage1` (full lifecycle in 60s) | modules/03 |
-| 02-first-plugin | manifest + install gates + sabotage lever (red then green) -> `demo-stage4-m1`; fixtures: cpp-example-plugin AND the new `test-plugins/c/` band (A1: C authors get a runnable path in v1) | modules/05, 02, 08 §9 |
+| 02-first-plugin | manifest + install gates + sabotage lever (red then green) -> `demo-stage4-m1`; fixtures: cpp-example-bundle AND the new `test-plugins/c/` band (A1: C authors get a runnable path in v1) | modules/05, 02, 08 §9 |
 | 03-the-bus | topics, late-join, clock bell -> `demo-stage5-n2` (hosts the busv2 fixture cross-wall; rev4 fix: 'busv2' is a fixture name, not a leg), late-join via `demo-stage1`, clock bell via `demo-wave2-clock` | modules/06 |
 | 04-the-exe-wall | supervisor, crash/revive, ORPHAN-PROOF -> `demo-stage2`, `demo-stage4-m2` | modules/01 |
 | 05-embed-from-your-language | ONE file, band subsections: C++ (m1) / Python (wave2-py) / JS (wave2-js) / C (the NEW `examples/c/host_demo.c` links libmodukit_core.so - A1) | capability-ledger, contracts headers, module 07 |

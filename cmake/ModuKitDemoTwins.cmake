@@ -9,7 +9,7 @@
 set(_modukit_demo_twins
     demo-stage1 demo-stage2 demo-stage4-m1 demo-stage4-m2 demo-stage5-n2
     demo-wave2-reader demo-wave2-clock demo-wave2-py demo-wave2-py-sup
-    demo-wave2-js demo-wave2-js-sup demo-wave2-plugin-py demo-wave2-plugin-js)
+    demo-wave2-js demo-wave2-js-sup demo-wave2-bundle-py demo-wave2-bundle-js)
 
 function(modukit_add_demo_twins)
   foreach(_leg ${_modukit_demo_twins})

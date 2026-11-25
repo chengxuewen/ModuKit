@@ -4,7 +4,7 @@
 # driving the C fixture band). Auto-skips unless the test-plugins/c band
 # is on AND the core staticlib target exists (the cpp band's guard
 # grammar, keyed on the C band's own targets).
-if(NOT TARGET c-example-plugin OR NOT TARGET modukit-core-static)
+if(NOT TARGET c-example-bundle OR NOT TARGET modukit-core-static)
   message(STATUS "examples/c: c band/env incomplete -- embed demo skipped (auto-skip)")
   return()
 endif()
@@ -19,13 +19,13 @@ target_include_directories(c-host-demo PRIVATE "${CMAKE_SOURCE_DIR}/contracts")
 # runs; the core staticlib comes from the lane mediator (same cold-parse
 # reason as the cpp band: the .a is a plain ninja input with no producer
 # edge, so the single-target build reaches the cargo rule through this).
-add_dependencies(c-host-demo c-example-plugin modukit-core-build)
+add_dependencies(c-host-demo c-example-bundle modukit-core-build)
 
 # ctest bridge, cpp-band grammar: real target = name = test entry,
 # SKIP_RETURN_CODE 77 (fixture absent -> host_demo returns 77), the
 # fixture path rides argv[1].
 add_test(NAME c-host-demo
-    COMMAND c-host-demo "$<TARGET_FILE:c-example-plugin>")
+    COMMAND c-host-demo "$<TARGET_FILE:c-example-bundle>")
 set_tests_properties(c-host-demo PROPERTIES
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     SKIP_RETURN_CODE 77

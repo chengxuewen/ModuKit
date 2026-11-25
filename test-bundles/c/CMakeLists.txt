@@ -10,4 +10,4 @@ if(NOT MODUKIT_BUILD_C)
   return()
 endif()
 
-add_subdirectory(c-example-plugin)
+add_subdirectory(c-example-bundle)

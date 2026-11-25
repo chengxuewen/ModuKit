@@ -8,7 +8,7 @@
 # cmake/ModuKitPolyOrchCrates.cmake) and dlopens the real cpp fixture .so -
 # the same link/environment shape the bindings/cpp probe proves.
 
-if(NOT TARGET modukit_cpp OR NOT TARGET cpp-example-plugin OR NOT TARGET modukit-core-static)
+if(NOT TARGET modukit_cpp OR NOT TARGET cpp-example-bundle OR NOT TARGET modukit-core-static)
   message(STATUS "examples/cpp: cpp shelf/env incomplete -- embed demo skipped (auto-skip)")
   return()
 endif()
@@ -24,7 +24,7 @@ target_link_libraries(modukit-cpp-host-demo PRIVATE
 # build (cmake --build --target <demo>) reaches the cargo rule too - found
 # cold on 2026-11-23 when the shared cargo-target tree moved and no warm
 # artifact could silently satisfy the ninja edge anymore.
-add_dependencies(modukit-cpp-host-demo cpp-example-plugin cpp-busv2-plugin modukit-core-build)
+add_dependencies(modukit-cpp-host-demo cpp-example-bundle cpp-busv2-bundle modukit-core-build)
 
 # The progressive tutorial series (onboarding deepening follow-up): rides
 # the same cmake graph and environment guards; its own ctest entries run
@@ -36,8 +36,8 @@ add_subdirectory(tutorial)
 # the fixture path rides argv[1] (the probe bakes it via a define; the demo
 # takes it as the documented argument so a manual run works identically).
 add_test(NAME modukit-cpp-host-demo
-    COMMAND modukit-cpp-host-demo "$<TARGET_FILE:cpp-example-plugin>"
-        "$<TARGET_FILE:cpp-busv2-plugin>")
+    COMMAND modukit-cpp-host-demo "$<TARGET_FILE:cpp-example-bundle>"
+        "$<TARGET_FILE:cpp-busv2-bundle>")
 set_tests_properties(modukit-cpp-host-demo PROPERTIES
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     SKIP_RETURN_CODE 77
@@ -53,9 +53,9 @@ set_target_properties(modukit-cpp-host-sup-demo PROPERTIES
     FOLDER "${MODUKIT_IDE_ROOT}examples/cpp")
 target_link_libraries(modukit-cpp-host-sup-demo PRIVATE
     modukit_cpp modukit-core-static ${CMAKE_DL_LIBS})
-add_dependencies(modukit-cpp-host-sup-demo cpp-example-plugin modukit-core-build)
+add_dependencies(modukit-cpp-host-sup-demo cpp-example-bundle modukit-core-build)
 add_test(NAME modukit-cpp-host-sup-demo
-    COMMAND modukit-cpp-host-sup-demo --proof "$<TARGET_FILE:cpp-example-plugin>")
+    COMMAND modukit-cpp-host-sup-demo --proof "$<TARGET_FILE:cpp-example-bundle>")
 set_tests_properties(modukit-cpp-host-sup-demo PROPERTIES
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     SKIP_RETURN_CODE 77

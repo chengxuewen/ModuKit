@@ -81,7 +81,7 @@ fn main() {
     println!("=== ModuKit Stage-2 M5 dual-placement acceptance demo ===");
 
     // [S1] Build the cdylib + BOTH modukit-runtime bins (cargo, stage1 helper).
-    cargo_build(&["build", "-p", "example-plugin", "-p", "modukit-runtime"]);
+    cargo_build(&["build", "-p", "example-bundle", "-p", "modukit-runtime"]);
     let target = repo_root().join("build").join("scratch").join("dlopen-test-target").join("debug");
     let so = target.join("libexample_plugin.so");
     let runner = target.join("modukit-run");

@@ -47,8 +47,8 @@ demo-wave2-py
 demo-wave2-py-sup
 demo-wave2-js
 demo-wave2-js-sup
-demo-wave2-plugin-py
-demo-wave2-plugin-js
+demo-wave2-bundle-py
+demo-wave2-bundle-js
 cargo-deny
 ctest-stage4
 cmake-smoke
@@ -269,26 +269,26 @@ else note "skip demo-wave2-js-sup (no script)"; fi
 # other eleven demo legs; the PASS-without-RUNNER FAIL arm below is copied
 # from the D104-census template (scripts/check.sh:130-135 pattern - the
 # runner-origin line is the census proof, its absence reds the leg).
-if [ -f scripts/demo-wave2-plugin-py.sh ]; then
-  w2pp=$(bash scripts/demo-wave2-plugin-py.sh 2>/dev/null)
-  if echo "$w2pp" | grep -q "demo-wave2-plugin-py: PASS" && echo "$w2pp" | grep -q "^RUNNER: "; then note "ok demo-wave2-plugin-py";
-  elif echo "$w2pp" | grep -q "demo-wave2-plugin-py: PASS"; then note "FAIL demo-wave2-plugin-py (PASS without RUNNER line - D104-census)"; status=1;
-  elif echo "$w2pp" | grep -q "demo-wave2-plugin-py: SKIP"; then note "skip demo-wave2-plugin-py (no python3/toolchain/fixture)";
-  else note "FAIL demo-wave2-plugin-py (gate did not print PASS)"; status=1; fi
-else note "skip demo-wave2-plugin-py (no script)"; fi
+if [ -f scripts/demo-wave2-bundle-py.sh ]; then
+  w2pp=$(bash scripts/demo-wave2-bundle-py.sh 2>/dev/null)
+  if echo "$w2pp" | grep -q "demo-wave2-bundle-py: PASS" && echo "$w2pp" | grep -q "^RUNNER: "; then note "ok demo-wave2-bundle-py";
+  elif echo "$w2pp" | grep -q "demo-wave2-bundle-py: PASS"; then note "FAIL demo-wave2-bundle-py (PASS without RUNNER line - D104-census)"; status=1;
+  elif echo "$w2pp" | grep -q "demo-wave2-bundle-py: SKIP"; then note "skip demo-wave2-bundle-py (no python3/toolchain/fixture)";
+  else note "FAIL demo-wave2-bundle-py (gate did not print PASS)"; status=1; fi
+else note "skip demo-wave2-bundle-py (no script)"; fi
 
 # Wave-2 plugin-door node leg (D106 batch 3, the thirteenth demo leg): the
 # hand-written ESM skin walks all 11 wire kinds across the exe wall (same
 # conformance + lifecycle + FIDELITY + BUS ROUNDTRIP + liar + census grammar
 # as leg twelve, sabotage lever DEMO_BUNDLE_JS_SABOTAGE=1). PASS-without-RUNNER
 # arm copied from the D104-census template, like its python twin above.
-if [ -f scripts/demo-wave2-plugin-js.sh ]; then
-  w2pj=$(bash scripts/demo-wave2-plugin-js.sh 2>/dev/null)
-  if echo "$w2pj" | grep -q "demo-wave2-plugin-js: PASS" && echo "$w2pj" | grep -q "^RUNNER: "; then note "ok demo-wave2-plugin-js";
-  elif echo "$w2pj" | grep -q "demo-wave2-plugin-js: PASS"; then note "FAIL demo-wave2-plugin-js (PASS without RUNNER line - D104-census)"; status=1;
-  elif echo "$w2pj" | grep -q "demo-wave2-plugin-js: SKIP"; then note "skip demo-wave2-plugin-js (no node/toolchain/fixture)";
-  else note "FAIL demo-wave2-plugin-js (gate did not print PASS)"; status=1; fi
-else note "skip demo-wave2-plugin-js (no script)"; fi
+if [ -f scripts/demo-wave2-bundle-js.sh ]; then
+  w2pj=$(bash scripts/demo-wave2-bundle-js.sh 2>/dev/null)
+  if echo "$w2pj" | grep -q "demo-wave2-bundle-js: PASS" && echo "$w2pj" | grep -q "^RUNNER: "; then note "ok demo-wave2-bundle-js";
+  elif echo "$w2pj" | grep -q "demo-wave2-bundle-js: PASS"; then note "FAIL demo-wave2-bundle-js (PASS without RUNNER line - D104-census)"; status=1;
+  elif echo "$w2pj" | grep -q "demo-wave2-bundle-js: SKIP"; then note "skip demo-wave2-bundle-js (no node/toolchain/fixture)";
+  else note "FAIL demo-wave2-bundle-js (gate did not print PASS)"; status=1; fi
+else note "skip demo-wave2-bundle-js (no script)"; fi
 # leg: cargo-deny (wave-2 benchmark plan T3.4): license+bans audit against
 # deny.toml. Tool present -> run it; absent (this offline box cannot install
 # it) -> loud skip, never a silent one.
@@ -336,12 +336,12 @@ if [ -d build/presets/demo ] && command -v pixi >/dev/null 2>&1; then
     pixi run ctest --test-dir build/presets/demo -N > build/ctest-census.log 2>&1 || true
     census_missing=""
     for _t in modukit-core-test modukit-transport-test modukit-codegen-test \
-              example-plugin-test bad-plugin-test example_stage1_demo \
+              example-bundle-test bad-bundle-test example_stage1_demo \
               twin-demo-stage1 twin-demo-stage2 twin-demo-stage4-m1 \
               twin-demo-stage4-m2 twin-demo-stage5-n2 twin-demo-wave2-reader \
               twin-demo-wave2-clock twin-demo-wave2-py twin-demo-wave2-py-sup \
               twin-demo-wave2-js twin-demo-wave2-js-sup \
-              twin-demo-wave2-plugin-py twin-demo-wave2-plugin-js; do
+              twin-demo-wave2-bundle-py twin-demo-wave2-bundle-js; do
       grep -Eq "Test +#[0-9]+: ${_t}( |$)" build/ctest-census.log \
         || census_missing="${census_missing} ${_t}"
     done

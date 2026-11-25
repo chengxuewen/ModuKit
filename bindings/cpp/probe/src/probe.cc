@@ -6,7 +6,7 @@
                  filled host table, one typed protobuf round-trip through
                  the register-captured ServiceCallFn, stop() twice;
      bad arm   - the abi_version guard must REFUSE the 999 descriptor before
-                 start is ever called (mirrors the rs bad-plugin intent).
+                 start is ever called (mirrors the rs bad-bundle intent).
    Also includes both generated faces (plugin skeleton + embed wrapper) in
    one TU - the header coexistence the contract header promises.
    Prints `CPP-PROBE PASS` on success; 77 = skip if a fixture is absent. */

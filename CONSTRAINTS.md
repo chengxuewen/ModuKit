@@ -44,8 +44,8 @@ Single source of truth for the local quality gate. Two parts:
 21. `demo-wave2-py-sup`
 22. `demo-wave2-js`
 23. `demo-wave2-js-sup`
-24. `demo-wave2-plugin-py`
-25. `demo-wave2-plugin-js`
+24. `demo-wave2-bundle-py`
+25. `demo-wave2-bundle-js`
 26. `cargo-deny`
 27. `ctest-stage4`
 28. `cmake-smoke`

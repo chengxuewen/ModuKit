@@ -147,7 +147,7 @@ fn trio_are_read_only_ordinary_services_in_the_reserved_namespace() {
 #[test]
 fn churn_200_cycles_snapshot_equals_the_fold_of_the_event_stream() {
     // modules/10 §3 churn: tables and events may never disagree.
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let kernel = Kernel::new();
@@ -189,7 +189,7 @@ fn step_replay_same_fixture_same_content_sequence_on_fresh_kernels() {
     // modules/10 §3 step-replay, v0 (dl-only, timing NOT promised): two
     // fresh kernels driven by the identical content sequence must produce
     // identical event CONTENT (seq/ts stripped — D16 monotonic-offset rule).
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let run = || -> Vec<String> {
@@ -234,7 +234,7 @@ fn ledger_equality_bad_plugin_is_the_red_fixture_staying_red() {
     // as a loaded module in the ledger, must have no ModuleLoaded event,
     // and must sit FAILED with the D51 code string. The fixture goes red;
     // the kernel's honesty stays green.
-    let Some(so) = build_fixture("bad-plugin", "bad_plugin") else {
+    let Some(so) = build_fixture("bad-bundle", "bad_plugin") else {
         return;
     };
     let kernel = Kernel::new();
@@ -307,7 +307,7 @@ fn dm_lite_blocks_a_dependent_when_its_provider_leaves_and_restores() {
         .expect("provider registers");
 
     // The dependent: the demo fixture requiring it, with on_down = block.
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         eprintln!("SKIPPING: fixture build failed");
         return;
     };

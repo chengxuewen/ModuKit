@@ -113,7 +113,7 @@ fn probe_rejects_missing_artifact_with_the_same_variant_as_load() {
 
 #[test]
 fn probe_rejects_bad_abi_with_the_same_variant_as_load() {
-    let Some(so) = build_fixture("bad-plugin", "bad_plugin") else {
+    let Some(so) = build_fixture("bad-bundle", "bad_plugin") else {
         return;
     };
     let manifest =
@@ -137,11 +137,11 @@ fn probe_rejects_bad_abi_with_the_same_variant_as_load() {
 // self-report id/version tuple through the probe door, handle released.
 #[test]
 fn probe_reads_self_report_for_a_good_artifact() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let report = DlopenExecutor::probe_self_report(&so).expect("probe must read the good fixture");
-    assert_eq!(report.bundle_name, "example-plugin");
+    assert_eq!(report.bundle_name, "example-bundle");
     assert_eq!(report.id.as_deref(), Some(EXAMPLE_ID));
     assert_eq!(report.version.as_deref(), Some("0.1.0"));
 }

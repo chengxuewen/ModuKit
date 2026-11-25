@@ -37,7 +37,7 @@ std::string manifest_for(const std::string &so_path) {
 
 int main(int argc, char **argv) {
   if (argc < 2) {
-    std::printf("SKIP: usage: t8-compose <path-to-t7-compose-plugin.so>\n");
+    std::printf("SKIP: usage: t8-compose <path-to-t7-compose-bundle.so>\n");
     return 77;
   }
   const std::string so_path = argv[1];

@@ -108,7 +108,7 @@ fn build_timerv3_so() -> Option<PathBuf> {
         eprintln!("SKIPPING: MODUKIT_SKIP_DLOPEN is set");
         return None;
     }
-    match cargo_build(&["build", "-p", "timerv3-plugin"]) {
+    match cargo_build(&["build", "-p", "timerv3-bundle"]) {
         Some(true) => {}
         Some(false) => {
             eprintln!("SKIPPING: fixture build failed");
@@ -174,7 +174,7 @@ fn timer_capability_grammar_is_pinned() {
         abi: 1,
         id: ID.to_string(),
         version: VERSION.to_string(),
-        name: "timerv3-plugin".to_string(),
+        name: "timerv3-bundle".to_string(),
         caps: HELLO_CAP_BUS_V2 | HELLO_CAP_TIMER_V2,
     };
     let parsed = proc_wire::parse_hello_caps(&proc_wire::hello_payload_caps(&hello))

@@ -32,11 +32,11 @@ bash scripts/demo-stage5-n2.sh
 ```
 
 The Stage-5 N2 leg hosts the `busv2` fixture
-(`test-plugins/rs/busv2-plugin`) on the OTHER side of the process wall:
+(`test-plugins/rs/busv2-bundle`) on the OTHER side of the process wall:
 the plugin declares ABI v2 (D96), the kernel hands the `HostAbiV2` table
 (the v1 prefix plus four mailbox slots), and the plugin publishes through
 the mailbox. The self-echo discipline is quoted from
-`test-plugins/rs/busv2-plugin/src/lib.rs:73-88`:
+`test-plugins/rs/busv2-bundle/src/lib.rs:73-88`:
 
 ```rust
 fn mailbox_walk(h: &HostAbiV2) -> Result<(), i32> {
@@ -58,7 +58,7 @@ fn mailbox_walk(h: &HostAbiV2) -> Result<(), i32> {
 ```
 
 A v2 plugin that publishes at start is the chapter 02 shape plus four
-slots - the C++ twin (`test-plugins/cpp/cpp-busv2-plugin`) shows the same
+slots - the C++ twin (`test-plugins/cpp/cpp-busv2-bundle`) shows the same
 door in 70 lines, and the cpp host demo's scene [11] reads its seed back
 via late-join.
 
@@ -72,7 +72,7 @@ A v3 plugin schedules one absolute-deadline job (`timer_schedule`, D99);
 the kernel fires it on the clock's own authority law and rings the per-
 plugin topic `org.modukit.timer.<plugin-id>` (payload: token u64 LE ++
 label UTF-8, `Lossy(16)`). The schedule call is quoted from
-`test-plugins/rs/timerv3-plugin/src/lib.rs:100-106`:
+`test-plugins/rs/timerv3-bundle/src/lib.rs:100-106`:
 
 ```rust
     // 3. Schedule the one job the census and the bell ride on. The token is
@@ -87,7 +87,7 @@ label UTF-8, `Lossy(16)`). The schedule call is quoted from
 There is no cancel verb - the kernel releases a stopped plugin's tokens
 itself (D99 §3), and the door must never half-schedule on bad input
 (the fixture's refusal cells prove it). The fixture is
-`test-plugins/rs/timerv3-plugin`.
+`test-plugins/rs/timerv3-bundle`.
 
 ## Configuration rides the same rails
 

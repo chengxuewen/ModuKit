@@ -5,7 +5,7 @@
  * ABI is the only cross-language exit". The kernel behind the symbols is
  * the ambient Rust process-global in libmodukit_core.a
  * (crates/modukit-core/src/embed.rs). Fixture leg: the real built C plugin
- * .so (argv[1], baked by ctest via $<TARGET_FILE:c-example-plugin>).
+ * .so (argv[1], baked by ctest via $<TARGET_FILE:c-example-bundle>).
  *
  * Walk (12 scenes, the whole rung-0 face the C band can reach):
  *   [1] embed_abi_version
@@ -81,7 +81,7 @@ static void manifest_for(const char *so_path, char *out, size_t cap) {
 
 int main(int argc, char **argv) {
   if (argc < 2) {
-    printf("SKIP: usage: host_demo <path-to-libc-example-plugin.so>\n");
+    printf("SKIP: usage: host_demo <path-to-libc-example-bundle.so>\n");
     return 77;
   }
   const char *so_path = argv[1];

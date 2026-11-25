@@ -63,7 +63,7 @@ terms, band names (C/C++/py/js "bands"), placement kinds (dl/exe).
 | root misc (CMakeLists, llms.txt, CONSTRAINTS, .gitignore, SKILL.md) | ~12 | 5 |
 | README/AGENTS/book | 40 | 3 |
 | fixtures exporting modukit_bundle_init | 13 (rs 5 + cpp 3 + c 1 + tutorial 4) | - |
-| structural names | test-plugins/, examples/cpp/tutorial/t{1,2,3,7}-*plugin/ dirs, pluginface.rs filename, docs/modules/01-plugin-placement-model.md, tutorials/02-first-plugin.md + 06-script-plugins.md, plugin-management-plan.md + wave-2-plugin-door-*.md (filenames), crate names (example-plugin, bad-plugin, busv2-plugin, timerv3-plugin, liar-plugin), cmake targets, leg names demo-wave2-plugin-* | |
+| structural names | test-plugins/, examples/cpp/tutorial/t{1,2,3,7}-*plugin/ dirs, pluginface.rs filename, docs/modules/01-plugin-placement-model.md, tutorials/02-first-plugin.md + 06-script-plugins.md, plugin-management-plan.md + wave-2-plugin-door-*.md (filenames), crate names (example-bundle, bad-bundle, busv2-bundle, timerv3-bundle, liar-bundle), cmake targets, leg names demo-wave2-plugin-* | |
 
 (rev4: the panel found the rev1-3 survey missed .agents/, bindings/, and root
 misc entirely - real total ~2900 hits / ~290 files. .agents/ is the layer that

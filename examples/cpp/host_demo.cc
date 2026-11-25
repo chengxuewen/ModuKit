@@ -5,7 +5,7 @@
    the stock protoc messages (C++-1); the kernel behind the symbols is the
    ambient Rust process-global in libmodukit_core.a (crates/modukit-core/
    src/embed.rs). Fixture leg: the real built C++ plugin .so (argv[1],
-   baked by ctest via $<TARGET_FILE:cpp-example-plugin>).
+   baked by ctest via $<TARGET_FILE:cpp-example-bundle>).
 
    Word list, one line per verb, in one honest chain:
      embed_abi_version -> install -> resolve -> start -> state
@@ -81,7 +81,7 @@ std::string manifest_for(const std::string &so_path) {
 
 int main(int argc, char **argv) {
   if (argc < 2) {
-    std::printf("SKIP: usage: host_demo <path-to-libcpp-example-plugin.so>\n");
+    std::printf("SKIP: usage: host_demo <path-to-libcpp-example-bundle.so>\n");
     return 77;
   }
   const std::string so_path = argv[1];

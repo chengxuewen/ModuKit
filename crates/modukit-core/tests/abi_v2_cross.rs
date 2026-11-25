@@ -1,5 +1,5 @@
 //! Stage-5 N2 wall-transparency suite (D96 ruling 6): the SAME mailbox walk
-//! the in-process N1 fixture runs (`tests/abi_v2_door.rs` + the busv2-plugin
+//! the in-process N1 fixture runs (`tests/abi_v2_door.rs` + the busv2-bundle
 //! fixture) driven through the REAL install door, Supervisor, shadow-runner
 //! and hosted child - wall-out; the two columns must reach identical
 //! outcomes: self-echo, need-report, non-consuming probe, late-join
@@ -83,7 +83,7 @@ fn build_busv2_so() -> Option<PathBuf> {
         eprintln!("SKIPPING: MODUKIT_SKIP_DLOPEN is set");
         return None;
     }
-    match cargo_build(&["build", "-p", "busv2-plugin"]) {
+    match cargo_build(&["build", "-p", "busv2-bundle"]) {
         Some(true) => {}
         Some(false) => {
             eprintln!("SKIPPING: fixture build failed");

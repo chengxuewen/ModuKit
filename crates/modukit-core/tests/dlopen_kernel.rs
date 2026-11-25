@@ -78,7 +78,7 @@ fn bundle_services(kernel: &Kernel) -> Vec<modukit_core::registry::RegisteredSer
 
 #[test]
 fn happy_path_walks_states_and_round_trips_the_service() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let kernel = Kernel::new();
@@ -176,7 +176,7 @@ fn happy_path_walks_states_and_round_trips_the_service() {
 
 #[test]
 fn bad_plugin_abi_mismatch_lands_failed_with_typed_error_never_a_crash() {
-    let Some(so) = build_fixture("bad-plugin", "bad_plugin") else {
+    let Some(so) = build_fixture("bad-bundle", "bad_plugin") else {
         return;
     };
     let kernel = Kernel::new();

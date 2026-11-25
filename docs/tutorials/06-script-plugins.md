@@ -15,7 +15,7 @@ verified by the door:
 1. **The manifest `runner` must be an ABSOLUTE existing path.** Bare
    `python3` is refused (the executor resolves the runner literally -
    `crates/modukit-core/src/executor_proc.rs`; the leg wiring shows the
-   shape at `scripts/demo-wave2-plugin-py.sh:103-116`).
+   shape at `scripts/demo-wave2-bundle-py.sh:103-116`).
 2. **Your plugin must NEVER print.** The control socket IS fd 0; stdout
    and stderr are nulled - any print corrupts the wire. Quoted from
    `test-plugins/py/py_echo.py:4-6`:
@@ -100,8 +100,8 @@ prevents.
 ## Run the door (both languages)
 
 ```bash
-bash scripts/demo-wave2-plugin-py.sh
-bash scripts/demo-wave2-plugin-js.sh
+bash scripts/demo-wave2-bundle-py.sh
+bash scripts/demo-wave2-bundle-js.sh
 ```
 
 The transcript proves, in order: a 14-golden-frame wire CONFORMANCE pass

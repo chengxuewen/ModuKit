@@ -94,7 +94,7 @@ fn build_example_so(tag: &str) -> Option<PathBuf> {
     }
     let so = target_dir().join("debug").join("libexample_plugin.so");
     let stem = format!("dual-{tag}");
-    match cargo_build(&["build", "-p", "example-plugin", "-p", "bad-plugin"]) {
+    match cargo_build(&["build", "-p", "example-bundle", "-p", "bad-bundle"]) {
         Some(true) => {}
         Some(false) => {
             eprintln!("SKIPPING: fixture build failed ({stem})");
@@ -306,7 +306,7 @@ fn self_report_tier_agrees_with_the_manifest_under_both_placements() {
         (Some(ID.to_string()), Some("0.1.0".to_string())),
         "dl descriptor self-report"
     );
-    assert_eq!(handle.bundle_name(), "example-plugin");
+    assert_eq!(handle.bundle_name(), "example-bundle");
     drop(handle);
 
     // exe: the same strings must arrive in the HELLO the runner sends — a

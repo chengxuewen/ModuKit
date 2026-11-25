@@ -31,14 +31,14 @@ three fields are all a first plugin needs.
 ## The plugin binary (C++ band)
 
 Quoted verbatim from
-`test-plugins/cpp/cpp-example-plugin/src/plugin.cc:68-76` - the entire
+`test-plugins/cpp/cpp-example-bundle/src/plugin.cc:68-76` - the entire
 self-report descriptor:
 
 ```cpp
 const modukit_bundle_abi_v1 DESCRIPTOR = {
     MODUKIT_ABI_VERSION,   /* abi_version - guard 2 */
     sizeof(modukit_bundle_abi_v1), /* size - guard 3 */
-    "cpp-example-plugin",  /* name */
+    "cpp-example-bundle",  /* name */
     DemoServiceImpl::kServiceId, /* id == registered service id, mirroring the rs twin (D9) */
     "0.1.0",               /* version - plugin's own semver */
     demo_start,            /* start - guard 4 */
@@ -55,7 +55,7 @@ service class above it (`plugin.cc:16-35`).
 ## The plugin binary (C band)
 
 The C twin is the whole story in one hand-written file:
-`test-plugins/c/c-example-plugin/src/hello.c` (43 lines, no generated
+`test-plugins/c/c-example-bundle/src/hello.c` (43 lines, no generated
 shelf, no C++ runtime). The descriptor is the same struct; the service is
 `com.modukit.demo.hello` with one method `hello` that echoes the request
 payload; the call slot returns a plugin-author negative code on anything
@@ -78,7 +78,7 @@ documents how to make it RED.
 
 ## The negative fixtures are canonical
 
-`test-plugins/cpp/cpp-bad-plugin` and the rust `bad-plugin` are the
+`test-plugins/cpp/cpp-bad-bundle` and the rust `bad-bundle` are the
 ABI-lie liars: a descriptor that lies about its ABI version parks the
 plugin on the FAILED edge at resolve (D3's Failed edge exists for exactly
 this). D23 ruled these fixtures the official plugin-starting answer - when

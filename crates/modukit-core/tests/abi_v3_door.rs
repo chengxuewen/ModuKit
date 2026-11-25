@@ -226,7 +226,7 @@ fn v3_table_is_the_v2_prefix_plus_two_timer_slots() {
 /// on the v3 table (the prefix read the layout test pins).
 #[test]
 fn declared_major_3_walks_the_clock_door_and_the_bell_rings_live() {
-    let Some(so) = build_fixture("timerv3-plugin", "timerv3_plugin") else {
+    let Some(so) = build_fixture("timerv3-bundle", "timerv3_plugin") else {
         return;
     };
     let host = TestHost::new();
@@ -314,7 +314,7 @@ fn declared_major_3_walks_the_clock_door_and_the_bell_rings_live() {
 /// `Lossy` arms); the hearing ACCEPTED and NAMED it for timers.
 #[test]
 fn late_join_after_a_firing_replays_the_bell_ring() {
-    let Some(so) = build_fixture("timerv3-plugin", "timerv3_plugin") else {
+    let Some(so) = build_fixture("timerv3-bundle", "timerv3_plugin") else {
         return;
     };
     let host = TestHost::new();
@@ -351,7 +351,7 @@ fn late_join_after_a_firing_replays_the_bell_ring() {
 /// register drops at the stop door itself.
 #[test]
 fn stop_releases_registered_tokens_and_the_timer_never_re_fires() {
-    let Some(so) = build_fixture("timerv3-plugin", "timerv3_plugin") else {
+    let Some(so) = build_fixture("timerv3-bundle", "timerv3_plugin") else {
         return;
     };
     let host = TestHost::new();
@@ -385,7 +385,7 @@ fn stop_releases_registered_tokens_and_the_timer_never_re_fires() {
 /// any further dial can reach the token.
 #[test]
 fn uninstall_releases_registered_tokens_and_the_timer_never_re_fires() {
-    let Some(so) = build_fixture("timerv3-plugin", "timerv3_plugin") else {
+    let Some(so) = build_fixture("timerv3-bundle", "timerv3_plugin") else {
         return;
     };
     let host = TestHost::new();

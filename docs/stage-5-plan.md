@@ -169,12 +169,12 @@ predates the openings - see the rows
   frames + the fast `wire-parity` leg; batch 2 the hand-written python skin
   `bindings/py/plugin_runtime.py` (all 11 kinds, 3.8 floor, stdlib) with fixtures
   `test-plugins/py/py_echo.py` / `py_liar.py` and leg twelve
-  `scripts/demo-wave2-plugin-py.sh` (conformance-before-launch, FIDELITY +
+  `scripts/demo-wave2-bundle-py.sh` (conformance-before-launch, FIDELITY +
   BUS ROUNDTRIP + liar typed error + orphan census, lever red-proved inline);
   batch 3 the hand-written ESM node skin `bindings/js/plugin_runtime.mjs`
   (BigInt u64, net.Socket fd-0 full duplex, pure stdlib) with fixtures
   `test-plugins/js/js_echo.mjs` / `js_liar.mjs` and leg thirteen
-  `scripts/demo-wave2-plugin-js.sh` (the python leg's five-stage mirror, lever
+  `scripts/demo-wave2-bundle-js.sh` (the python leg's five-stage mirror, lever
   red-proved inline). Plan: docs/wave-2-plugin-door-plan.md.
 
 ## 3. What this file deliberately does NOT decide

@@ -5,9 +5,9 @@ set_target_properties(t5-consumer PROPERTIES
     CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON
     FOLDER "${MODUKIT_IDE_ROOT}examples/cpp/tutorial")
 target_link_libraries(t5-consumer PRIVATE modukit_cpp modukit-core-static ${CMAKE_DL_LIBS})
-add_dependencies(t5-consumer t2-echo-plugin modukit-core-build)
+add_dependencies(t5-consumer t2-echo-bundle modukit-core-build)
 add_test(NAME t5-consumer
-    COMMAND t5-consumer "$<TARGET_FILE:t2-echo-plugin>")
+    COMMAND t5-consumer "$<TARGET_FILE:t2-echo-bundle>")
 set_tests_properties(t5-consumer PROPERTIES
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     SKIP_RETURN_CODE 77

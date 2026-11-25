@@ -10,13 +10,13 @@ the code is the truth (read each file top to bottom, it is all there is).
 
 | Step | Project | The lesson | Source |
 |---|---|---|---|
-| t1 | `t1-hello-plugin/` | a plugin is a DESCRIPTOR: entry symbol + abi_version + size + start/stop. Nothing else is required | `t1.cpp`, the `T1_DESCRIPTOR` initializer |
-| t2 | `t2-echo-plugin/` | a service is ONE register call through the borrowed host table; the call slot is your whole protocol | `t2.cpp`, the `t2_start` body |
-| t3 | `t3-bus-plugin/` | the v2 door: subscribe-your-own-topic first (the slot RETURNS the queue id), publish, read the self-echo back - all inside start | `t3.cpp`, the `t3_start` mailbox walk |
+| t1 | `t1-hello-bundle/` | a plugin is a DESCRIPTOR: entry symbol + abi_version + size + start/stop. Nothing else is required | `t1.cpp`, the `T1_DESCRIPTOR` initializer |
+| t2 | `t2-echo-bundle/` | a service is ONE register call through the borrowed host table; the call slot is your whole protocol | `t2.cpp`, the `t2_start` body |
+| t3 | `t3-bus-bundle/` | the v2 door: subscribe-your-own-topic first (the slot RETURNS the queue id), publish, read the self-echo back - all inside start | `t3.cpp`, the `t3_start` mailbox walk |
 | t4 | `t4-driver/` | the HOST side: the generated wrapper walks install -> resolve -> start -> state -> service_call -> stop -> uninstall | `t4_driver.cc`, `main` |
 | t5 | `t5-consumer-poll/` | the NAIVE consumer: call by well-known id; the typed NOT_FOUND while the provider is absent is the lesson (dictionaryclient) | `t5_consumer.cc`, `main` |
 | t6 | `t6-consumer-filter/` | the FILTER consumer: discover with the S1 query first (empty set = data, never an error), then call (dictionaryclient3) | `t6_consumer.cc`, `main` |
-| t7 | `t7-compose-plugin/` | COMPOSITION across the wire: a plugin cannot call another plugin directly (no call slot on the host table), so the topic is the seam - announce on the reply topic, subscribe the request topic, expose the aggregate service (spellcheckservice) | `t7.cpp`, the `t7_start` body |
+| t7 | `t7-compose-bundle/` | COMPOSITION across the wire: a plugin cannot call another plugin directly (no call slot on the host table), so the topic is the seam - announce on the reply topic, subscribe the request topic, expose the aggregate service (spellcheckservice) | `t7.cpp`, the `t7_start` body |
 | t8 | `t8-compose-walk/` | the composed WALK: install the composer, late-join its announcement, drive the aggregate service (request + seed), verify the request topic, close (spellcheckclient) | `t8_compose.cc`, `main` |
 
 ## Run it
@@ -40,13 +40,13 @@ Provenance anchors name the SYMBOL to read (line numbers rot; symbols do
 not - ruling B3). Every quote is verbatim from the compiled fixture.
 
 **t1** - the whole plugin, the `T1_DESCRIPTOR` initializer in
-`examples/cpp/tutorial/t1-hello-plugin/t1.cpp`:
+`examples/cpp/tutorial/t1-hello-bundle/t1.cpp`:
 
 ```cpp
 const modukit_bundle_abi_v1 T1_DESCRIPTOR = {
     MODUKIT_ABI_VERSION,           /* abi_version - handshake guard 2 */
     sizeof(modukit_bundle_abi_v1), /* size - handshake guard 3 */
-    "t1-hello-plugin",             /* name */
+    "t1-hello-bundle",             /* name */
     "com.example.t1.hello",        /* id (D9 canonical reverse-DNS) */
     "0.1.0",                       /* version */
     t1_start,                      /* start - guard 4 */
@@ -55,7 +55,7 @@ const modukit_bundle_abi_v1 T1_DESCRIPTOR = {
 ```
 
 **t2** - the activation, the `t2_start` body in
-`examples/cpp/tutorial/t2-echo-plugin/t2.cpp`:
+`examples/cpp/tutorial/t2-echo-bundle/t2.cpp`:
 
 ```cpp
 extern "C" int32_t t2_start(const modukit_host_abi_v1 *host) {
@@ -71,7 +71,7 @@ extern "C" int32_t t2_start(const modukit_host_abi_v1 *host) {
 ```
 
 **t3** - the self-echo discipline, the mailbox walk in
-`examples/cpp/tutorial/t3-bus-plugin/t3.cpp`:
+`examples/cpp/tutorial/t3-bus-bundle/t3.cpp`:
 
 ```cpp
   /* 1. subscribe first: the publisher must hear its own publish. */
@@ -93,7 +93,7 @@ extern "C" int32_t t2_start(const modukit_host_abi_v1 *host) {
 (chapter 05's C subsection); here it rides the generated wrapper.
 
 **t7** - the composition seam, the `t7_start` body in
-`examples/cpp/tutorial/t7-compose-plugin/t7.cpp`:
+`examples/cpp/tutorial/t7-compose-bundle/t7.cpp`:
 
 ```cpp
   if (v2->bus_publish(v2->user, kReplyTopic, kQosLatestValue,

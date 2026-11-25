@@ -69,7 +69,7 @@ fn build_through_cargo(args: &[&str], expect_file: &Path) -> PathBuf {
 
 fn main() {
     let so = build_through_cargo(
-        &["build", "-p", "busv2-plugin"],
+        &["build", "-p", "busv2-bundle"],
         Path::new("libbusv2_plugin.so"),
     );
     println!("[1] fixture cdylib built: {}", so.display());

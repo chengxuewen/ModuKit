@@ -118,12 +118,12 @@ cp "$addon_js" target/js/modukit_js.node
 # built by the stage4 cmake lanes; when neither tree carries it the demo has
 # nothing to install - the host_demo.cc skip rule (exit 77), kept honest.
 so=""
-for c in build/presets/demo/test-bundles/cpp/cpp-example-plugin/libcpp-example-plugin.so \
-         build/presets/default/test-bundles/cpp/cpp-example-plugin/libcpp-example-plugin.so; do
+for c in build/presets/demo/test-bundles/cpp/cpp-example-bundle/libcpp-example-bundle.so \
+         build/presets/default/test-bundles/cpp/cpp-example-bundle/libcpp-example-bundle.so; do
   if [ -f "$c" ]; then so="$c"; break; fi
 done
 if [ -z "$so" ]; then
-  echo "demo-wave2-js: SKIP (cpp fixture band not built: no libcpp-example-plugin.so under build/presets/demo - run scripts/demo-stage4-m1.sh first)"
+  echo "demo-wave2-js: SKIP (cpp fixture band not built: no libcpp-example-bundle.so under build/presets/demo - run scripts/demo-stage4-m1.sh first)"
   exit 0
 fi
 # Runtime libstdc++ fix (measured 2026-10-23): the cpp fixture's dependency

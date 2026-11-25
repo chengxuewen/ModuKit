@@ -101,7 +101,7 @@ fn v2_table_is_the_v1_prefix_plus_four_mailbox_slots() {
 /// distinct negative code, surfacing here as BundleStartFailed.
 #[test]
 fn declared_major_2_walks_the_real_door_and_the_kernel_sees_the_same_bus() {
-    let Some(so) = build_fixture("busv2-plugin", "busv2_plugin") else {
+    let Some(so) = build_fixture("busv2-bundle", "busv2_plugin") else {
         return;
     };
     let kernel = Kernel::new();
@@ -164,7 +164,7 @@ fn declared_major_2_walks_the_real_door_and_the_kernel_sees_the_same_bus() {
 /// run - the same law bad-bundle proves at 999.
 #[test]
 fn declared_major_99_still_parks_failed_at_the_v2_door() {
-    let Some(so) = build_fixture("liar-plugin", "liar_plugin") else {
+    let Some(so) = build_fixture("liar-bundle", "liar_plugin") else {
         return;
     };
     let kernel = Kernel::new();

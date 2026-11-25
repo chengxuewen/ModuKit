@@ -54,7 +54,7 @@ trap 'rm -f "$log"' EXIT
   pixi run cmake --build "$bd" --target modukit-cpp-host-demo &&
   # E4 deepening (D2): the D96 v2-door twin rides the same graph; its seed
   # is asserted by the host demo's optional argv[2] scene.
-  pixi run cmake --build "$bd" --target cpp-busv2-plugin &&
+  pixi run cmake --build "$bd" --target cpp-busv2-bundle &&
   # Tutorial series ride (progressive C++ examples): the t4 driver pulls
   # the t1/t2/t3 plugins through its own dependency edges; the consumer
   # evolution t5/t6 rides the same t2 provider.
@@ -73,7 +73,7 @@ trap 'rm -f "$log"' EXIT
   exit 1
 }
 
-so="$bd/test-bundles/cpp/cpp-example-plugin/libcpp-example-plugin.so"
+so="$bd/test-bundles/cpp/cpp-example-bundle/libcpp-example-bundle.so"
 demo="$bd/examples/cpp/modukit-cpp-host-demo"
 # The ONLY legit skip: the cpp band auto-skipped in this graph (pinned env
 # carries no protoc/libprotobuf, or the cargo lanes are off) -- mirror the
@@ -85,7 +85,7 @@ fi
 [ -x "$demo" ] || { echo "demo-stage4-m1: RED (demo binary missing: $demo)"; exit 1; }
 [ -f "$so" ]   || { echo "demo-stage4-m1: RED (fixture .so missing: $so)"; exit 1; }
 
-"$demo" "$so" "$bd/test-bundles/cpp/cpp-busv2-plugin/libcpp-busv2-plugin.so" 2>&1 | tee "$log"
+"$demo" "$so" "$bd/test-bundles/cpp/cpp-busv2-bundle/libcpp-busv2-bundle.so" 2>&1 | tee "$log"
 status=${PIPESTATUS[0]}
 if [ "$status" -ne 0 ]; then
   echo "demo-stage4-m1: RED (demo exited $status)"
@@ -99,7 +99,7 @@ fi
 # E2 C-band ride: same falsifiable grammar - the C host demo must print
 # C-DEMO PASS against the real C fixture (its own sabotage lever,
 # DEMO_C_SABOTAGE=1, corrupts the manifest at its scene [2]).
-cso="$bd/test-bundles/c/c-example-plugin/libc-example-plugin.so"
+cso="$bd/test-bundles/c/c-example-bundle/libc-example-bundle.so"
 cdemo="$bd/examples/c/c-host-demo"
 [ -x "$cdemo" ] || { echo "demo-stage4-m1: RED (c demo binary missing: $cdemo - MODUKIT_BUILD_C off?)"; exit 1; }
 [ -f "$cso" ]   || { echo "demo-stage4-m1: RED (c fixture .so missing: $cso)"; exit 1; }
@@ -117,8 +117,8 @@ fi
 # Tutorial series ride: the t4 driver against BOTH tutorial plugins
 # (t2 exercises the echo scene; t1 the bare lifecycle walk).
 t4="$bd/examples/cpp/tutorial/t4-driver/t4-driver"
-t2so="$bd/examples/cpp/tutorial/t2-echo-plugin/libt2-echo-plugin.so"
-t1so="$bd/examples/cpp/tutorial/t1-hello-plugin/libt1-hello-plugin.so"
+t2so="$bd/examples/cpp/tutorial/t2-echo-bundle/libt2-echo-bundle.so"
+t1so="$bd/examples/cpp/tutorial/t1-hello-bundle/libt1-hello-bundle.so"
 [ -x "$t4" ] || { echo "demo-stage4-m1: RED (t4 driver missing: $t4)"; exit 1; }
 [ -f "$t2so" ] || { echo "demo-stage4-m1: RED (t2 plugin missing: $t2so)"; exit 1; }
 [ -f "$t1so" ] || { echo "demo-stage4-m1: RED (t1 plugin missing: $t1so)"; exit 1; }
@@ -147,7 +147,7 @@ if [ "${PIPESTATUS[0]}" -ne 0 ] || ! grep -qx 'T6-CONSUMER PASS' "$log"; then
   exit 1
 fi
 t8="$bd/examples/cpp/tutorial/t8-compose-walk/t8-compose"
-t7so="$bd/examples/cpp/tutorial/t7-compose-plugin/libt7-compose-plugin.so"
+t7so="$bd/examples/cpp/tutorial/t7-compose-bundle/libt7-compose-bundle.so"
 [ -x "$t8" ] || { echo "demo-stage4-m1: RED (t8 walk missing: $t8)"; exit 1; }
 [ -f "$t7so" ] || { echo "demo-stage4-m1: RED (t7 composer missing: $t7so)"; exit 1; }
 "$t8" "$t7so" 2>&1 | tee "$log"

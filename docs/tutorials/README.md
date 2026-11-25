@@ -23,8 +23,8 @@ today - `pixi.toml` declares linux-64/win-64 only.
 
 | Band | Plugin face | Host/embed face | Placement |
 |---|---|---|---|
-| C | `test-plugins/c/c-example-plugin` (pure C, one file) | `examples/c/host_demo.c` | dl |
-| C++ | `test-plugins/cpp/cpp-example-plugin` (generated shelf) | `examples/cpp/host_demo.cc` | dl |
+| C | `test-plugins/c/c-example-bundle` (pure C, one file) | `examples/c/host_demo.c` | dl |
+| C++ | `test-plugins/cpp/cpp-example-bundle` (generated shelf) | `examples/cpp/host_demo.cc` | dl |
 | Python | `test-plugins/py/py_echo.py` (script, exe wall) | `examples/py/host_demo.py` (ctypes) | exe |
 | JS | `test-plugins/js/js_echo.mjs` (script, exe wall) | `examples/js/host_demo.js` (napi) | exe |
 

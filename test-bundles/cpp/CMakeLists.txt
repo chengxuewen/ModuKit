@@ -1,7 +1,7 @@
 # test-plugins/cpp/ - the C++ fixture band (Stage-4 M1: the dl fixtures the
 # bindings/cpp probe dlopens). NOT cargo members - this band rides ONLY the
 # cmake graph, mirroring test-plugins/{example,bad}-plugin one-for-one:
-# cpp-example-plugin the positive dlopen template (D23), cpp-bad-plugin the
+# cpp-example-bundle the positive dlopen template (D23), cpp-bad-bundle the
 # ABI-lie negative fixture the version guard must reject.
 #
 # The message layer and the dispatch skeleton come from the bindings/cpp
@@ -12,6 +12,6 @@ if(NOT TARGET modukit_cpp)
   return()
 endif()
 
-add_subdirectory(cpp-example-plugin)
-add_subdirectory(cpp-busv2-plugin)   # onboarding D2: the D96 v2-door twin (mailbox slots at start)
-add_subdirectory(cpp-bad-plugin)
+add_subdirectory(cpp-example-bundle)
+add_subdirectory(cpp-busv2-bundle)   # onboarding D2: the D96 v2-door twin (mailbox slots at start)
+add_subdirectory(cpp-bad-bundle)

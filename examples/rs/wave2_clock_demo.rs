@@ -101,7 +101,7 @@ fn decode_bell(payload: &[u8]) -> (u64, u64, &[u8]) {
 
 fn main() {
     let so = build_through_cargo(
-        &["build", "-p", "timerv3-plugin"],
+        &["build", "-p", "timerv3-bundle"],
         Path::new("libtimerv3_plugin.so"),
     );
     println!("[1] v3 fixture cdylib built: {}", so.display());

@@ -150,7 +150,7 @@
   CONSUMES THE LIAR - that CALL must surface a typed error host-side while the
   plugin stays alive (proves the i32 channel is a contract, not decoration).
   Bundle built by the leg with the absolute runner path templated in.
-- **T2.3** scripts/demo-wave2-plugin-py.sh stages: [0] RUNNER line; [1]
+- **T2.3** scripts/demo-wave2-bundle-py.sh stages: [0] RUNNER line; [1]
   conformance BEFORE launching anything: replay all 11 goldens both directions
   through the skin + hostile plants (length > FRAME_MAX refused pre-alloc;
   trailing bytes refused); [2] lifecycle: install -> start -> CALL echo with
@@ -186,7 +186,7 @@
   py-echo's shape exactly (services echo + caps + ONE bus topic - so REGISTER
   and SUB both flow); byte-exact Buffer echo - no toString() - fidelity constant
   survives as bytes; liar = status=-1 path.
-- **T3.3** scripts/demo-wave2-plugin-js.sh = the five-stage mirror (RUNNER,
+- **T3.3** scripts/demo-wave2-bundle-js.sh = the five-stage mirror (RUNNER,
   conformance, lifecycle+FIDELITY+BUS ROUNDTRIP+liar, /proc orphan census,
   DEMO_PLUGIN_JS_SABOTAGE=1). Leg thirteen; 5-site sweep again; ledger E rows
   gain node cells; close notes land (history + plan §9 + stage-5 lane row +

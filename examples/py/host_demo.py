@@ -134,7 +134,7 @@ def manifest_for(so_path):
 
 def main():
     if len(sys.argv) < 3:
-        print("SKIP: usage: host_demo.py <libmodukit_core.so> <path-to-libcpp-example-plugin.so>")
+        print("SKIP: usage: host_demo.py <libmodukit_core.so> <path-to-libcpp-example-bundle.so>")
         return 77
     core_so, fixture_so = sys.argv[1], sys.argv[2]
     for missing in (core_so, fixture_so):
