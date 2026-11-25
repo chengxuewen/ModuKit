@@ -1,6 +1,7 @@
 # Bundle-unification plan - the one-word terminology refactor (repo-wide)
 
-> STATUS: PLAN OF RECORD, 2026-11-25 (revision 1, adjudications ARMED). Origin:
+> STATUS: PLAN OF RECORD, 2026-11-25 (revision 2 - adjudications A1-A6 ALL
+> RESOLVED, execution-ready, W1 first). Origin:
 > the maintainer ruled (2026-11-25, two expert panels, sunk costs explicitly
 > excluded): the managed unit is named **bundle** - ONE word, everywhere the
 > user looks. The prior vocabulary split (plugin = code unit, bundle = D28
@@ -60,16 +61,16 @@ terms, band names (C/C++/py/js "bands"), placement kinds (dl/exe).
 | fixtures exporting modukit_plugin_init | 13 | - |
 | structural names | test-plugins/, docs/modules/01-plugin-placement-model.md, crate names (example-plugin, bad-plugin, busv2-plugin, timerv3-plugin, liar-plugin), cmake targets, leg names demo-wave2-plugin-* | |
 
-## 3. Adjudication points (ARMED - walk one by one before W1)
+## 3. Adjudication points (ALL RESOLVED 2026-11-25, walked one by one)
 
 | # | Point | Lean |
 |---|---|---|
-| A1 | ABI break style: clean break (repo unpushed - zero external consumers) vs dual-symbol deprecation period (executor accepts modukit_bundle_init preferred, modukit_plugin_init fallback) | clean break; D87 amendment via the ruling entry |
-| A2 | Structural rename scope: full (dirs/crates/targets/legs) vs prose-only | full (the maintainer's whole-repo instruction) |
-| A3 | History surfaces: decisions D-records stay as-written + one new ruling entry appended; plans-of-record get header rev-notes, bodies untouched | append-only |
-| A4 | Build output directory: `<binary>/bundles/<name>/` (morning ruling folded in, renamed) | bundles/ |
-| A5 | Identity copy: new README tagline framing (bundle-and-service vs module-system wording) | bundle-and-service |
-| A6 | Reintroduction guard: a plugin-word scan with an allowlist (decisions, plan bodies, history) folded into an EXISTING gate vs review-only | folded scan |
+| A1 | ABI break style: clean break vs dual-symbol deprecation period | **RESOLVED A** (2026-11-25): clean break - the repo is unpushed (zero external consumers, the only free window); a fallback would ADD mechanism to the D87-frozen loader surface, deeper than the rename itself; D87 amendment rides D111 |
+| A2 | Structural rename scope: full (dirs/crates/targets/legs) vs prose-only | **RESOLVED A** (2026-11-25): full - the maintainer's whole-repo instruction; structural names are the most user-visible layer, residue = the split vocabulary reborn |
+| A3 | History surfaces: rewrite vs append-only | **RESOLVED A + bridge notes** (2026-11-25): decisions/history-archive/plan bodies stay as-written (append-only, the value of history is original wording); each historical ENTRY POINT gains a terminology bridge note (mapping + reason + pointer: one global note atop decisions.md, one line per plan-of-record header, one in history-archive) |
+| A4 | Build output directory | **RESOLVED A** (2026-11-25): `<binary>/bundles/<name>/` per-bundle directories (the morning per-unit-dir ruling, renamed) - built bundles and installed bundles share the word and the shape (D28 `<bundles>/<id>/<version>/` unchanged) |
+| A5 | Identity copy: README tagline | **RESOLVED A** (2026-11-25): the model-signaling tagline - an OSGi-style bundle and service framework (bundle + service co-present in the first sentence; the next line's Rust kernel / C ABI / C/C++/Python/JS counters the Java smell) |
+| A6 | Reintroduction guard | **RESOLVED A** (2026-11-25): a plugin-word scan with an explicit allowlist (decisions.md, history-archive, plan-of-record bodies, docs/reference/ external profiles) folded into gate-i18n - zero new legs; written in W1, ACTIVATED in W6 (the migration waves legitimately carry the word) |
 
 ## 4. Waves (ordered; each wave lands green with atomic commits)
 
@@ -111,5 +112,11 @@ two-tier context-narrowing feature (separately trigger-gated); donor clones
 
 ## 8. Change log
 
+- 2026-11-25 revision 2: A1-A6 walked one by one, ALL RESOLVED A (A3 amended
+  with terminology bridge notes on every historical entry point). Clean-break
+  ABI rename; full structural renames; append-only history + bridges;
+  bundles/<name>/ build outputs; the OSGi-style bundle-and-service tagline;
+  the guard folded into gate-i18n with a four-class allowlist, activated W6.
+  Execution-ready: W1 (contracts + codegen) first.
 - 2026-11-25 revision 1: drawn from the terminology panels + the maintainer's
   one-word ruling (bundle); adjudication points A1-A6 ARMED for the walk.
