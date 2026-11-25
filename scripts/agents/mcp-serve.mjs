@@ -120,34 +120,74 @@ if (!existsSync(binPath) || have !== version) {
   if (res.status !== 0) process.exit(res.status ?? 1)
 }
 
-// Browser gate runs AFTER the package step: a clean clone has no cli.js yet, and the
-// first-run path above must install it before `install-browser` can be called.
-if (spec?.browser && !browserInstalled(spec.browser)) {
-  const cli = join(root, 'node_modules', ...pkg.split('/'), 'cli.js')
-  if (!existsSync(cli)) {
-    console.error(`[mcp-serve] ${spec.browser} browser missing and ${cli} absent -- run: pixi run mcp setup`)
-    process.exit(1)
-  }
-  console.error(`[mcp-serve] installing playwright browser ${spec.browser} (no system Chrome needed) ...`)
-  // stdout IS the MCP JSON-RPC channel here -- keep the installer's chatter on stderr.
-  const res = spawnSync(process.execPath, [cli, 'install-browser', spec.browser, '--no-progress'], {
-    cwd: root,
-    stdio: ['ignore', 'pipe', 'pipe'],
-  })
-  if (res.stdout && res.stdout.length) process.stderr.write(res.stdout)
-  if (res.stderr && res.stderr.length) process.stderr.write(res.stderr)
-  if (res.status !== 0 || !browserInstalled(spec.browser)) {
-    const detail = String(res.stderr || '') + String(res.stdout || '')
-    if (detail.includes('does not support')) {
-      console.error(`[mcp-serve] the pinned Playwright ships no ${spec.browser} build for this host;`)
-      console.error('[mcp-serve] run on a supported OS or set PLAYWRIGHT_MCP_EXECUTABLE_PATH to a browser')
-    } else {
-      console.error('[mcp-serve] browser install failed -- run: pixi run mcp setup')
-    }
-    process.exit(1)
-  }
+// W3 (plan: docs/mcp-browser-plan.md): resolve the browser through the record that
+// `mcp setup` wrote, and hand it to the server via the official envs. Everything here
+// is env-driven on purpose -- CLI flags outrank envs, so a flag in the spec would
+// silently pin one browser mode and block the ladder.
+const RECORD_PATH = join(root, 'out', 'mcp-browser.json')
+
+function readRecord() {
+  if (!existsSync(RECORD_PATH)) return null
+  try {
+    const parsed = JSON.parse(readFileSync(RECORD_PATH, 'utf8'))
+    const entry = parsed?.resolutions?.[name]
+    return entry && entry.mode ? entry : null
+  } catch { return null }  // torn/malformed read must never crash the launcher
 }
 
-const child = spawn(binPath, serverArgs, { stdio: 'inherit' })
+function exportedEnv() {
+  const env = { ...process.env }
+  // npm's bin shims start with `#!/usr/bin/env node`; on a box whose PATH holds an
+  // ancient system node (v10 here) that shim resolves the WRONG interpreter. Put the
+  // node that runs this launcher first so every shim sees the pinned one.
+  const nodeDir = dirname(process.execPath)
+  env.PATH = nodeDir + (process.platform === 'win32' ? ';' : ':') + (env.PATH || '')
+  if (!spec?.browser) return env   // server has no browser face: inherit untouched
+  const record = readRecord()
+  if (!record) {
+    // No resolution: point at the installer instead of re-running rung 1 semantics.
+    // On a host the pin dropped, that retry would fail with a misleading OS hint.
+    console.error('[mcp-serve] no browser resolution for this server -- run: pixi run mcp setup')
+    if (!managedBrowserPresent(spec.browser)) {
+      console.error(`[mcp-serve] ${spec.browser} has no managed build here and no recorded fallback`)
+      process.exit(1)
+    }
+    env.PLAYWRIGHT_MCP_BROWSER = spec.browser
+    delete env.PLAYWRIGHT_MCP_EXECUTABLE_PATH
+    return env
+  }
+  if (record.mode === 'playwright') {
+    env.PLAYWRIGHT_MCP_BROWSER = record.browser || spec.browser
+    delete env.PLAYWRIGHT_MCP_EXECUTABLE_PATH   // symmetric unset: a stale shell value must not win
+  } else {
+    env.PLAYWRIGHT_MCP_EXECUTABLE_PATH = record.executable
+    delete env.PLAYWRIGHT_MCP_BROWSER           // and the same in the other direction
+  }
+  return env
+}
+
+function managedBrowserPresent(family) {
+  const prefix = family === 'chromium-headless-shell' ? 'chromium_headless_shell-' : `${family}-`
+  try { return readdirSync(playwrightBrowsersDir()).some((entry) => entry.startsWith(prefix)) } catch { return false }
+}
+
+// Runtime args are derived, never inherited from the spec: the scratch output goes to
+// the repo's gitignored out/mcp (absolute -- spawn sets no cwd), and headless follows
+// the display situation so a GUI-less host works out of the box. The envs WINNING over
+// flags is not true in @playwright/mcp, so anything that must override belongs in env;
+// these two are launcher-owned and stable, hence args.
+function runtimeArgs() {
+  const args = [...serverArgs]
+  if (spec?.browser) {
+    const force = process.env.MODUKIT_MCP_FORCE_HEADLESS
+    const displayless = !process.env.DISPLAY && !process.env.WAYLAND_DISPLAY
+    const headless = force === '1' || (force !== '0' && displayless)
+    args.push('--output-dir', join(root, 'out', 'mcp'))
+    if (headless) args.push('--headless')
+  }
+  return args
+}
+
+const child = spawn(binPath, runtimeArgs(), { stdio: 'inherit', env: exportedEnv() })
 child.on('error', (err) => { console.error(`[mcp-serve] failed to start ${bin}:`, err.message); process.exit(1) })
 child.on('exit', (code) => process.exit(code ?? 1))

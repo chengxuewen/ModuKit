@@ -51,6 +51,7 @@ python = ">=3.11,<4"
 mcp = "python scripts/agents/mcp-cli.py"
 mcp-codegraph = "node scripts/agents/mcp-serve.mjs --from scripts/agents/mcp-servers.json --name local-codegraph"
 mcp-playwright = "node scripts/agents/mcp-serve.mjs --from scripts/agents/mcp-servers.json --name local-playwright"
+mcp-probe = "bash scripts/mcp-browser-probe.sh"
 gate-mcp = "python scripts/gate-mcp.py"
 
 [feature.rust.dependencies]

@@ -94,30 +94,100 @@ def _browser_installed(name):
         return False
 
 
+def _platform_fallback():
+    """The playwright platform tag to impersonate when the host OS is dropped.
+
+    Measured 2026-11-25 on Ubuntu 20.04 / glibc 2.31: Playwright refuses to install
+    for `ubuntu20.04-x64`, but its own installer carries a fallback path
+    ("BEWARE: your OS is not officially supported by Playwright; downloading
+    fallback build for ubuntu22.04-x64") that only fires when
+    PLAYWRIGHT_HOST_PLATFORM_OVERRIDE names the newer tag. The downloaded build is
+    the SAME version the pin wants (154.0.8037.0 / chromium-1246), and it runs:
+    a full MCP `browser_navigate` succeeds on this box. So the fallback is a
+    supported knob, not a hack -- it just needs the OS tag we map to.
+
+    Returns None when no override is needed or the host is not linux.
+    """
+    if not sys.platform.startswith("linux"):
+        return None
+    return os.environ.get("MODUKIT_MCP_PLATFORM_OVERRIDE", "ubuntu22.04-x64")
+
+
+def _record_path():
+    return os.path.join(ac.ROOT, "out", "mcp-browser.json")
+
+
+def _write_record(record):
+    """Atomic write (tmp + os.replace) so a concurrent launcher read never tears."""
+    path = _record_path()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    handle, tmp = tempfile.mkstemp(prefix=".mcp-browser-", dir=os.path.dirname(path))
+    try:
+        with os.fdopen(handle, "w") as stream:
+            json.dump(record, stream, indent=2, sort_keys=True)
+            stream.write("\n")
+        os.replace(tmp, path)
+    except OSError:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def _read_record():
+    """The resolution record as written by `setup`, or None when absent/unreadable.
+
+    Shape: {"record_version": 1, "resolutions": {"<server>": {mode, browser, ...}}}.
+    An entry without a mode is UNRESOLVED (W1's skeleton) and is filtered by
+    _resolution_for rather than treated as a resolution.
+    """
+    try:
+        with open(_record_path()) as handle:
+            record = json.load(handle)
+    except (OSError, ValueError):
+        return None
+    return record if isinstance(record, dict) else None
+
+
+def _resolution_for(record, server):
+    """The resolved entry for `server`, or None when missing or mode-less."""
+    if not record:
+        return None
+    entry = (record.get("resolutions") or {}).get(server)
+    return entry if isinstance(entry, dict) and entry.get("mode") else None
+
+
 def _install_browser(server, spec, node):
-    """Ensure the Playwright-managed browser for `server` is present.
+    """Resolve a browser for `server` through the three-rung ladder.
 
-    `browser` in the spec is the browser *family* (chromium/firefox/webkit), the
-    same vocabulary as `playwright install`. The MCP flag (`--browser chromium`)
-    maps to Playwright's bundled Chrome-for-Testing build, so no system browser
-    is needed once this ran.
+    Rung 1: Playwright's managed build via its own installer (this also covers the
+    dropped-host fallback through PLAYWRIGHT_HOST_PLATFORM_OVERRIDE).
+    Rung 2: system browser on PATH (absolute path only, live `--version` proof).
+    Rung 3: nothing usable -> warn, `MODUKIT_MCP_STRICT=1` reds it.
 
-    Returns "ok" | "warn" | "fail": a missing build for an unsupported host OS or
-    an offline box is a WARN (environmental, `MODUKIT_MCP_STRICT=1` makes it red);
-    a missing package is a FAIL (repo state).
+    Returns a resolution record dict, or None when no rung resolved.
     """
     name = spec.get("browser")
     if not name:
-        return "ok"
+        return None
     if _browser_installed(name):
         print("%s %-16s browser ok (%s)" % (PREFIX, server, name))
-        return "ok"
+        return {"mode": "playwright", "browser": name, "version": _playwright_browser_version(spec),
+                "executable": None, "server": server}
+
     cli = os.path.join(_pkg_dir(spec["pkg"]), "cli.js")
     if not os.path.exists(cli):
         print("%s %-16s browser %s not installed and %s absent -- install the package first" % (
             PREFIX, server, name, os.path.relpath(cli, ac.ROOT)))
-        return "fail"
-    print("%s %-16s installing browser %s (playwright-managed, no system Chrome) ..." % (PREFIX, server, name))
+        return None
+    print("%s %-16s installing browser %s (playwright-managed) ..." % (PREFIX, server, name))
+    env = dict(os.environ)
+    override = _platform_fallback()
+    if override and not env.get("PLAYWRIGHT_HOST_PLATFORM_OVERRIDE"):
+        env["PLAYWRIGHT_HOST_PLATFORM_OVERRIDE"] = override
+        print("%s %-16s host OS not served by the pin -- using Playwright's fallback build (%s)"
+              % (PREFIX, server, override))
     proc = subprocess.run(
         [node, cli, "install-browser", name, "--no-progress"],
         cwd=ac.ROOT,
@@ -125,20 +195,73 @@ def _install_browser(server, spec, node):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
+        env=env,
     )
     if proc.stdout:
         sys.stderr.write(proc.stdout)
     if proc.stderr:
         sys.stderr.write(proc.stderr)
-    if proc.returncode != 0:
-        if "does not support" in (proc.stderr or "") + (proc.stdout or ""):
-            print("%s %-16s ⚠ no bundled %s build for this host -- the pinned Playwright dropped it"
-                  % (PREFIX, server, name))
-            print("        options: run on a supported OS, or point PLAYWRIGHT_MCP_EXECUTABLE_PATH at a browser")
-        else:
-            print("%s %-16s ⚠ browser %s install failed (offline? cache not provisioned)" % (PREFIX, server, name))
-        return "warn"
-    return "ok" if _browser_installed(name) else "warn"
+    if proc.returncode == 0 and _browser_installed(name):
+        return {"mode": "playwright", "browser": name, "version": _playwright_browser_version(spec),
+                "executable": None, "server": server}
+
+    head = (proc.stderr or "") + (proc.stdout or "")
+    if "does not support" in head:
+        print("%s %-16s ⚠ the pinned Playwright has no build for this host" % (PREFIX, server))
+    else:
+        print("%s %-16s ⚠ managed browser install failed (offline?)" % (PREFIX, server))
+
+    system = _system_browser()
+    if system:
+        print("%s %-16s falling back to the system browser (%s)" % (PREFIX, server, system))
+        print("        NOTE: system browsers auto-update; Playwright only guarantees its own builds")
+        return {"mode": "system", "browser": name, "version": None, "executable": system, "server": server}
+    print("%s %-16s no usable browser: managed build unavailable and no system browser found" % (PREFIX, server))
+    return None
+
+
+def _playwright_browser_version(spec):
+    """The pin's browser version, read from the installed playwright-core manifest."""
+    core = os.path.join(ac.ROOT, "node_modules", "playwright-core", "browsers.json")
+    try:
+        with open(core) as handle:
+            for entry in json.load(handle).get("browsers", []):
+                if entry.get("name") == "chromium":
+                    return entry.get("browserVersion")
+    except (OSError, ValueError):
+        pass
+    return None
+
+
+SYSTEM_BROWSER_CANDIDATES = (
+    "google-chrome",
+    "google-chrome-stable",
+    "chromium",
+    "chromium-browser",
+    "microsoft-edge",
+    "msedge",
+)
+
+
+def _system_browser():
+    """Absolute path of the first PATH browser that survives a live `--version`."""
+    for candidate in SYSTEM_BROWSER_CANDIDATES:
+        found = shutil.which(candidate)
+        if not found:
+            continue
+        try:
+            proc = subprocess.run(
+                [found, "--version"],
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                timeout=20,
+            )
+        except (OSError, subprocess.SubprocessError):
+            continue
+        if proc.returncode == 0:
+            return os.path.realpath(found)
+    return None
 
 
 def _run_codegraph_status(node):
@@ -262,6 +385,7 @@ def cmd_setup(args):
         return 127
     failures = 0
     warnings = 0
+    resolutions = {}
     for name, spec in specs.items():
         version = spec["version"]
         if _is_pixi(spec):
@@ -280,34 +404,37 @@ def cmd_setup(args):
             continue
         pkg = spec["pkg"]
         have = _installed_version(pkg)
-        if have == version and os.path.exists(_bin_path(spec["bin"])):
+        ready = have == version and os.path.exists(_bin_path(spec["bin"]))
+        if ready:
             print("%s %-16s ok (%s@%s)" % (PREFIX, name, pkg, version))
-            browser_state = _install_browser(name, spec, node)
-            if browser_state == "fail":
-                failures += 1
-            elif browser_state == "warn":
-                warnings += 1
-            continue
-        if have is not None:
-            print("%s %-16s drift: installed %s, pin %s -- reinstalling" % (PREFIX, name, have, version))
-        unblocked = _unblock(pkg)
-        if unblocked:
-            print("%s %-16s moved %d stale staging dir(s) aside" % (PREFIX, name, unblocked))
-        if not _install(pkg, version, npm):
-            print("%s %-16s ✗ npm install failed" % (PREFIX, name))
-            failures += 1
-            continue
-        after = _installed_version(pkg)
-        if after != version or not os.path.exists(_bin_path(spec["bin"])):
-            print("%s %-16s ✗ still not at pin (installed %s)" % (PREFIX, name, after or "-"))
-            failures += 1
         else:
-            print("%s %-16s ✓ ready (%s@%s)" % (PREFIX, name, pkg, version))
-            browser_state = _install_browser(name, spec, node)
-            if browser_state == "fail":
+            if have is not None:
+                print("%s %-16s drift: installed %s, pin %s -- reinstalling" % (PREFIX, name, have, version))
+            unblocked = _unblock(pkg)
+            if unblocked:
+                print("%s %-16s moved %d stale staging dir(s) aside" % (PREFIX, name, unblocked))
+            if not _install(pkg, version, npm):
+                print("%s %-16s ✗ npm install failed" % (PREFIX, name))
                 failures += 1
-            elif browser_state == "warn":
+                continue
+            after = _installed_version(pkg)
+            if after != version or not os.path.exists(_bin_path(spec["bin"])):
+                print("%s %-16s ✗ still not at pin (installed %s)" % (PREFIX, name, after or "-"))
+                failures += 1
+                continue
+            print("%s %-16s ✓ ready (%s@%s)" % (PREFIX, name, pkg, version))
+        if spec.get("browser"):
+            record = _install_browser(name, spec, node)
+            if record is None:
                 warnings += 1
+            else:
+                resolutions[name] = record
+    if any(spec.get("browser") for spec in specs.values()):
+        try:
+            _write_record({"record_version": 1, "resolutions": resolutions})
+        except OSError as exc:
+            print("%s ✗ cannot write %s: %s" % (PREFIX, os.path.relpath(_record_path(), ac.ROOT), exc))
+            failures += 1
     if failures:
         print("%s ✗ %d server(s) not ready" % (PREFIX, failures))
         return ac.EXIT_FINDINGS
@@ -467,13 +594,78 @@ def cmd_status(args):
             % (name, spec["pkg"], version, have or "-", state)
         )
         if spec.get("browser"):
-            browser_state = "ok" if _browser_installed(spec["browser"]) else "MISSING (run: pixi run mcp setup)"
-            print("  %-16s browser=%s %s" % ("", spec["browser"], browser_state))
+            resolution = _resolution_for(_read_record(), name)
+            if resolution:
+                detail = resolution.get("mode")
+                if resolution.get("executable"):
+                    detail += " %s" % resolution["executable"]
+                if resolution.get("version"):
+                    detail += " v%s" % resolution["version"]
+                print("  %-16s browser=%s %s" % ("", spec["browser"], detail))
+            elif _browser_installed(spec["browser"]):
+                print("  %-16s browser=%s ok (managed build, no record -- run: pixi run mcp setup)"
+                      % ("", spec["browser"]))
+            else:
+                print("  %-16s browser=%s UNRESOLVED (run: pixi run mcp setup)" % ("", spec["browser"]))
     print()
     if node is None:
         print("%s %s" % (PREFIX, NODE_HINT))
         return 127
     _run_codegraph_status(node)
+    return ac.EXIT_OK
+
+
+def cmd_latest(args):
+    """Report registry latest vs the pinned versions. Never changes anything.
+
+    The ONLY registry-facing surface in this CLI: `setup` never floats a pin
+    (pin drift must fail fast in the launcher, review #4/#16). Offline is a note,
+    not a red -- a curiosity query must not break status-like ergonomics.
+    """
+    specs = _specs()
+    named = [name for name, spec in specs.items() if not _is_pixi(spec)]
+    if args.server:
+        if args.server not in named:
+            print("%s ✗ '%s' is not a registry-pinned server (have: %s)"
+                  % (PREFIX, args.server, ", ".join(named)))
+            return ac.EXIT_FINDINGS
+        named = [args.server]
+    npm = shutil.which("npm")
+    if npm is None:
+        print("%s %s" % (PREFIX, "npm not found -- run via: pixi run mcp latest"))
+        print("%s (this is an on-demand registry query; nothing to change)" % PREFIX)
+        return ac.EXIT_OK
+    stale = 0
+    for name in named:
+        spec = specs[name]
+        pkg, pin = spec["pkg"], spec["version"]
+        try:
+            proc = subprocess.run(
+                [npm, "view", pkg, "version"],
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                timeout=45,
+            )
+        except (OSError, subprocess.SubprocessError):
+            proc = None
+        latest = (proc.stdout or "").strip().splitlines()[0] if proc and proc.returncode == 0 else ""
+        if not latest:
+            print("%s %-16s %s pin=%s -- registry unreachable or timed out (no action)"
+                  % (PREFIX, name, pkg, pin))
+            continue
+        if latest == pin:
+            print("%s %-16s %s pin=%s (latest)" % (PREFIX, name, pkg, pin))
+            continue
+        stale += 1
+        print("%s %-16s %s pin=%s latest=%s" % (PREFIX, name, pkg, pin, latest))
+        print("        to bump: edit %s -> %s.version, then run: pixi run mcp setup"
+              % (SPECS, name))
+    if stale:
+        print("%s %d server(s) behind the registry -- pin bumps are a reviewed edit, never automatic"
+              % (PREFIX, stale))
+    else:
+        print("%s ✓ every registry-pinned server is at the latest published version" % PREFIX)
     return ac.EXIT_OK
 
 
@@ -491,6 +683,9 @@ def build_parser():
     sync.set_defaults(func=cmd_sync)
     status = sub.add_parser("status", help="show pin vs installed versions and each server's index/cache state")
     status.set_defaults(func=cmd_status)
+    latest = sub.add_parser("latest", help="report registry latest vs the pin (report only; never floats a pin)")
+    latest.add_argument("server", nargs="?", help="limit to one registry-pinned server name")
+    latest.set_defaults(func=cmd_latest)
     return parser
 
 

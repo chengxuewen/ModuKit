@@ -44,7 +44,8 @@ source pixi.sh         # daily shell activation
 | `gate-agents` | Verify the generated layers (markers, hub budget, MCP, constraints). |
 | `gate-rules` | C/D/PIT citation liveness (local entries + the external allowlist). |
 | `gate-memory` | Batch-close memory disposition (`<base>..HEAD`; not in fast ci). |
-| `mcp setup/status/index/sync` | Install/verify pins, show versions, rebuild indexes. |
+| `mcp setup/status/index/sync/latest` | Install/verify pins, resolve the browser, show versions, rebuild indexes, report registry latest. |
+| `mcp-probe` | End-to-end: open a page through the launched local-playwright. |
 | `docs-gen` | `cargo doc` + regenerate the committed `llms.txt` (book merges `target/doc`). |
 | `markdownlint` | Manual Markdown check using `.markdownlint.json` (not in fast ci). |
 | `book-build` / `book-check` | Assemble build/book-src and build/check build/book/en. |
@@ -251,26 +252,28 @@ and the `.gitignore` treat these as the only writer classes.
   `local-playwright`, and verifies the serena env; `mcp status` is read-only;
   `mcp index` rebuilds `.codegraph` and the serena Rust cache; `mcp sync` is
   incremental for codegraph and a full serena re-index.
-- Browser resolution is a three-rung ladder (plan of record:
-  `docs/mcp-browser-plan.md`, adjudicated 2026-11-25): rung 1 installs
-  Playwright's managed `chromium`; on hosts Playwright no longer serves
-  (Ubuntu 20.04) rung 2 downloads the version-matched Chrome-for-Testing
-  build directly (sha256-verified from Google's official known-good JSON)
-  into `~/.cache/modukit-mcp/` (zip kept beside the unpacked dir for
-  zero-download reinstall; GC removes off-pin versions); rung 3 (offline
-  fallback) probes for a live system browser. The outcome is recorded in
-  build/mcp-browser.json (atomic write) and handed to the server via the
-  official envs `PLAYWRIGHT_MCP_BROWSER` / `PLAYWRIGHT_MCP_EXECUTABLE_PATH`;
-  on a display-less host the launcher sets `PLAYWRIGHT_MCP_HEADLESS=1`
-  (`MODUKIT_MCP_FORCE_HEADLESS=0` forces headed for Xvfb/VNC).
-- `gate-mcp` observes the browser resolution read-only: a missing or
-  failed record is a SKIP-yellow with the `pixi run mcp setup` hint (same
-  convention as a missing npm package); the gate never downloads or
-  launches a browser. Playwright publishes no build for hosts it dropped
-  and the box is offline: `mcp setup` WARNs (strict:
-  `MODUKIT_MCP_STRICT=1` turns it red) with manual guidance. `mcp latest`
-  is the only registry-facing surface (reports latest vs the pin; never
-  floats it).
+- Browser resolution is a three-rung ladder (D112; plan of record:
+  `docs/mcp-browser-plan.md`): rung 1 runs Playwright's OWN installer for the
+  pin's `chromium`, plus `PLAYWRIGHT_HOST_PLATFORM_OVERRIDE` (default
+  `ubuntu22.04-x64`, override with `MODUKIT_MCP_PLATFORM_OVERRIDE`) so a host
+  the pin dropped still gets the same build (measured on Ubuntu 20.04);
+  rung 2 falls back to a live system browser (absolute path + `--version`
+  proof, with a drift note); rung 3 is nothing usable -> WARN (strict:
+  `MODUKIT_MCP_STRICT=1` reds it). The outcome is recorded atomically in
+  `out/mcp-browser.json` and handed to the server via the official envs
+  `PLAYWRIGHT_MCP_BROWSER` / `PLAYWRIGHT_MCP_EXECUTABLE_PATH` (mutually
+  unset); on a display-less host the launcher passes `--headless`
+  (`MODUKIT_MCP_FORCE_HEADLESS=0` forces headed for Xvfb/VNC). The launcher
+  also prepends its own node directory to PATH: npm bin shims use
+  `#!/usr/bin/env node`, and a system node older than the pin's would
+  otherwise resolve instead.
+- `gate-mcp` observes the browser resolution read-only (missing or unresolved
+  record => SKIP-yellow with the setup hint; same convention as a missing npm
+  package; it never downloads or launches a browser). `mcp latest` is the only
+  registry-facing surface (reports latest vs the pin; never floats it).
+  `pixi run mcp-probe` (`scripts/mcp-browser-probe.sh`) is the end-to-end leg:
+  it drives the real launcher through a JSON-RPC handshake and one
+  `browser_navigate`, asserting a page snapshot.
 - Serena currently enables only the `rust` language server. Python/JS/C++ language
   servers are a recorded gap in `docs/ve-parity-plan.md` (B1).
 - O5: a GUI host inherits the login PATH, where `~/.pixi/bin` may be absent.

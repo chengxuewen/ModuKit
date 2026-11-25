@@ -40,6 +40,7 @@ CFG = os.path.join(ac.ROOT, ".agents", "mcp.json")
 REGISTRY = os.path.join(ac.ROOT, "scripts", "agents", "mcp-servers.json")
 RULE_PATH = os.path.join(ac.ROOT, ".agents", "rules", "common", "tool-routing.md")
 TARGETS_PATH = os.path.join(ac.ROOT, "scripts", "agents", "agent-targets.json")
+RECORD_PATH = os.path.join(ac.ROOT, "out", "mcp-browser.json")
 OPENCODE_PATH = os.path.join(ac.ROOT, ".opencode", "opencode.json")
 RULE_SERVER = "local-codegraph"
 RULE_NAME = "common-tool-routing"
@@ -101,6 +102,53 @@ def _routing_lock(servers):
     return problems
 
 
+def _browser_resolution(record_path, server):
+    """Read-only view of the browser resolution for `server`.
+
+    Returns (state, detail) where state is one of:
+      "ok"       - a resolved mode is recorded (or the managed build is present)
+      "missing"  - record absent / unreadable / mode-less / no entry for this server
+    Never downloads, never launches a browser: this leg is pure filesystem read.
+    """
+    try:
+        with open(record_path) as handle:
+            record = json.load(handle)
+    except (OSError, ValueError):
+        return "missing", "no resolution record (%s)" % os.path.relpath(record_path, ac.ROOT)
+    if not isinstance(record, dict):
+        return "missing", "resolution record malformed"
+    entry = (record.get("resolutions") or {}).get(server)
+    if not isinstance(entry, dict) or not entry.get("mode"):
+        return "missing", "no resolved mode for %s" % server
+    detail = entry["mode"]
+    if entry.get("executable"):
+        detail += " " + entry["executable"]
+    if entry.get("version"):
+        detail += " v" + str(entry["version"])
+    return "ok", detail
+
+
+def _browser_dir():
+    override = os.environ.get("PLAYWRIGHT_BROWSERS_PATH")
+    if override and override != "0":
+        return override
+    home = os.path.expanduser("~")
+    if os.name == "nt":
+        base = os.environ.get("LOCALAPPDATA") or os.path.join(home, "AppData", "Local")
+        return os.path.join(base, "ms-playwright")
+    if sys.platform == "darwin":
+        return os.path.join(home, "Library", "Caches", "ms-playwright")
+    return os.path.join(home, ".cache", "ms-playwright")
+
+
+def _managed_browser_present(name):
+    prefix = "chromium_headless_shell-" if name == "chromium-headless-shell" else name + "-"
+    try:
+        return any(entry.startswith(prefix) for entry in os.listdir(_browser_dir()))
+    except OSError:
+        return False
+
+
 def _run(cmd, env):
     try:
         proc = subprocess.run(
@@ -129,6 +177,7 @@ def main():
     red = 0
     yellow = 0
     skip_env = 0
+    browser_yellow = 0
 
     for problem in _routing_lock(servers):
         print(" [ RED  ] tool-routing lock: %s" % problem)
@@ -201,12 +250,34 @@ def main():
             print("        %s" % tail[-1])
         red += 1
 
+    # Browser-resolution leg (plan of record: docs/mcp-browser-plan.md, W1).
+    # Read-only: a missing/unresolved record is a SKIP-yellow with the setup hint,
+    # exactly like a missing npm package above. Never downloads or launches a browser.
+    for name, spec in registry.items():
+        if name not in servers or not spec.get("browser"):
+            continue
+        state, detail = _browser_resolution(RECORD_PATH, name)
+        if state == "ok":
+            print(" [ OK   ] %-14s browser %s" % (name + " br", detail))
+            continue
+        if _managed_browser_present(spec["browser"]):
+            print(
+                " [ OK   ] %-14s browser managed %s present (no record -- run: pixi run mcp setup)"
+                % (name + " br", spec["browser"])
+            )
+            continue
+        print(
+            " [ SKIP ] %-14s browser %s unresolved (%s; run: pixi run mcp setup)"
+            % (name + " br", spec["browser"], detail)
+        )
+        browser_yellow += 1
+
     if red:
         print("%s ✗ %d red" % (PREFIX, red))
         return 1
     print(
-        "%s ✓ (%d green, %d skipped, %d skipped-env)"
-        % (PREFIX, len(servers) - yellow - skip_env, yellow, skip_env)
+        "%s ✓ (%d green, %d skipped, %d skipped-env, %d browser unresolved)"
+        % (PREFIX, len(servers) - yellow - skip_env, yellow, skip_env, browser_yellow)
     )
     return 0
 

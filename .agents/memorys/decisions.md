@@ -1089,3 +1089,45 @@
   surfaces stay append-only (this entry; plan bodies get rev-notes only);
   the morning `plugins/` output-dir half-work was reverted (superseded by
   the one-word ruling - the build dir becomes `bundles/<name>/` per A4).
+
+
+## D112: MCP browser resolution ladder - out-of-the-box local-playwright (2026-11-25)
+
+- **Decision**: `mcp setup` resolves a WORKING browser for `local-playwright`
+  on every host the repo touches, through a ladder whose first rung is
+  Playwright's OWN installer: the pin's managed build, **including its
+  dropped-host fallback** (`PLAYWRIGHT_HOST_PLATFORM_OVERRIDE`, measured to
+  work on Ubuntu 20.04 / glibc 2.31: the same 154.0.8037.0 build the pin
+  wants, downloaded to the standard cache, then proven by a real
+  `browser_navigate`). Rung 2 is a live system browser (absolute path +
+  `--version` proof); rung 3 is nothing usable -> WARN, strict reds it.
+  The outcome is written ATOMICALLY to `out/mcp-browser.json` and handed to
+  the server through the official envs, never through spec args (CLI flags
+  outrank envs and would pin one mode, blocking the ladder).
+- **Adjudicated**: NINE points walked one by one (2026-11-25): (1) version-
+  exact fallback before system browsers, (2) env-driven handoff, (3) record
+  in `out/`, (4) auto-headless + `MODUKIT_MCP_FORCE_HEADLESS` escape,
+  (5) `mcp latest` as the only registry-facing surface, (6) full platform
+  segment coverage, (7) a read-only browser leg in `gate-mcp`, (8) integrity
+  check on downloaded artifacts, (9) zip/dir cache pairing under one GC rule.
+  Points 6/8/9 were overtaken by measurement (see Consequences) - the
+  rulings' INTENT (version-exact, integrity, bounded cache) survives, the
+  mechanism they assumed does not.
+- **Measured corrections to the plan (rev 3 -> as-built)**: Chrome-for-
+  Testing publishes NO sha256 (known-good JSON carries `url` only; the
+  `.sha256` sidecar 404s), so point 8's official-hash source does not exist
+  and the whole self-built download path became unnecessary: Playwright's
+  own installer already carries the fallback build, which collapses points
+  6 and 9 (no per-platform URL table to maintain, no zip pairing to GC).
+  Recorded as the reason the ladder is three files, not three hundred lines.
+- **Consequences**: `mcp-servers.json` loses `args` and keeps the
+  declarative `browser` field; `gate-mcp` grows a read-only browser leg
+  (SKIP-yellow on an unresolved record, same convention as a missing npm
+  package, never downloading or launching anything); `mcp latest` reports
+  only - the pin NEVER floats, so launcher drift stays fail-fast
+  (review #4/#16); the launcher prepends its own node dir to PATH (an
+  `env node` shim otherwise resolves a v10 system node and dies);
+  `bash scripts/mcp-browser-probe.sh` (task `mcp-probe`) is the C0 leg that
+  proves a page actually opens. Residual risks recorded in
+  `docs/mcp-browser-plan.md` §5 (trust boundary of the record, single-dev
+  tree). Plan of record: `docs/mcp-browser-plan.md`.
