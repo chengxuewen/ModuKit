@@ -63,6 +63,18 @@ source = "docs/agent-governance-borrow-plan.md"
 type = "explanation"
 visibility = "internal"
 
+[[chapter]]
+title = "Onboarding Plan"
+source = "docs/onboarding-plan.md"
+type = "explanation"
+visibility = "internal"
+
+[[chapter]]
+title = "Bundle Unification Plan"
+source = "docs/bundle-unification-plan.md"
+type = "explanation"
+visibility = "internal"
+
 [[group]]
 title = "Modules"
 type = "explanation"
