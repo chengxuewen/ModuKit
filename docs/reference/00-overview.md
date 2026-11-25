@@ -18,7 +18,7 @@
 | iceoryx2 | DEPENDENCY-CANDIDATE (primary, local data plane) + BORROW-PATTERNS | MIT OR Apache-2.0 dual, Eclipse governance (green) | Stage 2 | Zero-copy pub/sub is its whole product; already ships zenoh-as-carrier — the fork in our §5 is narrower than either/or |
 | dora | BORROW-PATTERNS — strongest live Stage-2 mirror | Apache-2.0 (green) | Stage 2 | It chose zenoh over iceoryx EARLY and removed iceoryx deliberately — then ate >4KiB zero-copy loss under backpressure (#3428) and a 28-day silent-hang class (timeout/backpressure gaps); real-world cost data for our transport decision |
 | VisiaEngine | BORROW-PATTERNS — method source | MIT/Apache-2.0 (green) | All stages (process) | The gate/trace/evidence discipline + 30-candidate adoption adjudication (tribunal) distilled in visiaengine.md §8 |
-| MediaServo | BORROW-PATTERNS + DOC-DISCIPLINE SOURCE | Apache-2.0 (green) | Stages 4, 5 | Capability-declared-not-negotiated plugin contract (OBS-modeled, rejected GStreamer-style negotiation); one-C-ABI-four-surfaces binding pipeline actually executed; counter-signal: whitepaper names webrtc-rs, production went libwebrtc (webrtc-sys) and demoted webrtc-rs to skeleton |
+| MediaServo | BORROW-PATTERNS + DOC-DISCIPLINE SOURCE | Apache-2.0 (green) | Stages 4, 5 | Capability-declared-not-negotiated bundle contract (OBS-modeled, rejected GStreamer-style negotiation); one-C-ABI-four-surfaces binding pipeline actually executed; counter-signal: whitepaper names webrtc-rs, production went libwebrtc (webrtc-sys) and demoted webrtc-rs to skeleton |
 | AccessBase | BORROW-PATTERNS (gate/test culture; host-app shape) | (see profile) | post-Stage-1 | e2e gate culture with PIT-numbered commits as living ledger |
 | CTK | REFERENCE-ONLY (sliver: persistence + deprecation APIs) | Apache-2.0 BUT Qt LGPL runtime trap | Stage 1 (negative) | Two port-worthy mechanics: SQL-persisted install set across restarts; `CTK_DEPRECATED_SINCE` + compile-time cutoff switches for the future ABI deprecation policy |
 | Apache Celix | BORROW-PATTERNS + CAUTIONARY-TALES | Apache-2.0 (green) | Stages 1/2 | option-struct C API + callback-use discipline + framework event loop validate D2/D6/D20; DS engine (1.2k) + dfi interpreter (3.4k) = measured price of rejected D4/D13 layers; unpack-cache + flat manifest answered by D28/D31; error-injector pattern borrowable for the D7 liar family |
@@ -44,7 +44,7 @@
 
 ## 2. Stage-2 fork decision sheet — "iceoryx2 / Zenoh" (whitepaper §5)
 
-Form is adjudicated (D11: narrow transport seam + per-plane slots + bridge plugins — see
+Form is adjudicated (D11: narrow transport seam + per-plane slots + bridge bundles — see
 `docs/modules/07-transport-architecture.md`); backend selection now adjudicated (D25): iceoryx2 first, exact-pinned tag; self-built ring = trigger-gated fallback; house rule: slots house porters only — worldview vendors (FastDDS/Cyclone/Connext) are bridge-only, never backends.
 Evidence from three profiles converges on a
 composition, not a choice:
@@ -62,7 +62,7 @@ composition, not a choice:
    daemon-routed unidirectional backpressure design, and it removed iceoryx
    support entirely (PRs #201/#205) — a choice ModuKit is watching, not copying.
 
-4. **A third option emerged** (ipc-channel.md): plugin SUPERVISION is
+4. **A third option emerged** (ipc-channel.md): bundle SUPERVISION is
    typed-RPC-shaped (spawn/control/stop), not topic-fabric-shaped. The
    composite: typed control plane (ipc-channel SHAPE, borrowed not vendored)
    + iceoryx2 zero-copy data plane + zenoh cross-host carrier. The §5 fork
@@ -76,7 +76,7 @@ composition, not a choice:
 **Proposed adjudication (D-entry when Stage 2 gates, per G5 mechanics — NOT
 decided today)**: local zero-copy plane = iceoryx2 as dependency candidate;
 cross-machine = zenoh (iceoryx2's own carrier choice, keeping one mental model
-of publish/subscribe + plugin ABI); the `modukit-transport` abstraction (already
+of publish/subscribe + bundle ABI); the `modukit-transport` abstraction (already
 in the crate map) is the seam that makes this swappable, which is why the fork
 does not need to be resolved before Stage 1 lands.
 
@@ -105,7 +105,7 @@ does not need to be resolved before Stage 1 lands.
   vocabulary is now assembled.
 
 - **ABI stability has a production body count**: Zellij broke its external
-  plugins repeatedly on toolchain/version bumps (citable in zellij.md) — the
+  bundle hosts repeatedly on toolchain/version bumps (citable in zellij.md) — the
   empirical why behind C-ABI-only + capability-version gates + append-only
   structs; CLAP's counter-lesson: a version gate WITHOUT a size field still
   works if append-only is frozen by convention — we keep BOTH guards.
