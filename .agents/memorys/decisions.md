@@ -1066,3 +1066,26 @@
 - **Re-review triggers**: fold wall counters into `Snapshot.counters()`; add
   periodic/timer-driven outbox drain; open post-start child-to-child overlap.
 
+
+## D111: One-word terminology - the managed unit is a bundle (2026-11-25)
+
+- **Decision**: the managed unit carries ONE user-facing word: **bundle**
+  (manifest + artifact + lifecycle + services). `plugin` retires from the
+  user-facing vocabulary (it and `bundle` were near-synonyms for one referent
+  - the measured confusion source); `service` stays (distinct job); `module`
+  stays quarantined to documentation deep-dives and language import units.
+  Ruled with sunk costs explicitly EXCLUDED (two frozen-lens panels: the
+  terminology census and the two-tier first-principles review). The design
+  law: the taught word equals the written symbol - the ABI face renames with
+  the vocabulary. Execution waves W0-W6 live in docs/bundle-unification-plan.md
+  (A1-A6 mechanics ARMED there); nothing executes before those close.
+- **Accepted evidence**: panel census (plugin 39 files vs bundle 15 - noted
+  and deliberately NOT decisive); first-principles verdict (bundle denotes
+  the self-contained managed module = our core; plugin denotes the host-
+  socket role = our deliberately minimal face); native OSGi precedent 2:1
+  (CppMS + celix chose bundle at their own greenfield; CTK chose plugin);
+  scale survey ~2860 hits / 260 files.
+- **Consequences**: D87 amendment rides the plan's A1 (break style); history
+  surfaces stay append-only (this entry; plan bodies get rev-notes only);
+  the morning `plugins/` output-dir half-work was reverted (superseded by
+  the one-word ruling - the build dir becomes `bundles/<name>/` per A4).
