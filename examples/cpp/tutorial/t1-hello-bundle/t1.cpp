@@ -1,7 +1,7 @@
-/* tutorial t1 - the minimal plugin: a descriptor and nothing else
+/* tutorial t1 - the minimal bundle: a descriptor and nothing else
  * (the CppMS "install and start a bundle" step, ModuKit shape). The
  * handshake guards (04 §3) need exactly: the entry symbol, abi_version,
- * size, non-NULL start/stop. No service, no bus - just prove the plugin
+ * size, non-NULL start/stop. No service, no bus - just prove the bundle
  * installs, resolves, starts and stops. */
 #include "modukit_bundle.h"
 
@@ -17,7 +17,7 @@ extern "C" int32_t t1_stop(void) { return 0; }
 const modukit_bundle_abi_v1 T1_DESCRIPTOR = {
     MODUKIT_ABI_VERSION,           /* abi_version - handshake guard 2 */
     sizeof(modukit_bundle_abi_v1), /* size - handshake guard 3 */
-    "t1-hello-plugin",             /* name */
+    "t1-hello-bundle",             /* name */
     "com.example.t1.hello",        /* id (D9 canonical reverse-DNS) */
     "0.1.0",                       /* version */
     t1_start,                      /* start - guard 4 */

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# test-plugins/py/py_liar.py - the wave-2 bundle-door liar fixture (D106
+# test-bundles/py/py_liar.py - the wave-2 bundle-door liar fixture (D106
 # batch 2, plan T2.2): declares ONE service and answers every CALL with
 # RESULT status=-1 (a D27 author code) and empty output. THE LEG CONSUMES
 # IT: the kernel-side proxy must surface the lie as the typed

@@ -2,7 +2,7 @@
    example-bundle (D23 template standing). The kernel-facing surface is
    exactly the v1 handshake (contracts/modukit_bundle.h) plus ONE service
    registration; message types ride stock protoc C++ gencode and the
-   emitter's plugin-face skeleton (ruling C++-3 face A) - nothing here
+   emitter's bundle-face skeleton (ruling C++-3 face A) - nothing here
    re-implements the dispatch or the messages. */
 #include <cstring>
 
@@ -70,7 +70,7 @@ const modukit_bundle_abi_v1 DESCRIPTOR = {
     sizeof(modukit_bundle_abi_v1), /* size - guard 3 */
     "cpp-example-bundle",  /* name */
     DemoServiceImpl::kServiceId, /* id == registered service id, mirroring the rs twin (D9) */
-    "0.1.0",               /* version - plugin's own semver */
+    "0.1.0",               /* version - bundle's own semver */
     demo_start,            /* start - guard 4 */
     demo_stop,             /* stop - guard 4 */
 };

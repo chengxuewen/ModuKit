@@ -1,6 +1,6 @@
 # ModuKit
 
-> Modular plugin host framework & polyglot extension toolkit: Rust kernel,
+> Modular bundle host framework & polyglot extension toolkit: Rust kernel,
 > C ABI as the only cross-language exit, generated bindings for C++/Python/JS.
 
 ## Docs
@@ -8,8 +8,8 @@
 - [architecture](docs/architecture.md) — adjudicated baseline (section 11 = decision index)
 - [whitepaper](docs/whitepaper.md) — positioning and v1.0 canon
 - [modules](docs/modules/00-overview.md) — reading order for the 00-11 deep dives
-- [capability ledger](docs/capability-ledger.md) — embed/plugin verb map
-- [tutorials](docs/tutorials/README.md) — hands-on paths: first run, first plugin per band, embedding
+- [capability ledger](docs/capability-ledger.md) — embed/bundle verb map
+- [tutorials](docs/tutorials/README.md) — hands-on paths: first run, first bundle per band, embedding
 - [feature gallery](docs/features.md) — every capability: where it runs and how to use it per band
 - [VE-parity plan](docs/ve-parity-plan.md) — non-functional port, B0-B8
 - [agent host plan](docs/agent-host-parity-plan.md) — host links, skill surface
@@ -29,7 +29,7 @@
 
 ## Contracts
 - [embed ABI](contracts/modukit_embed.h) — the C embedding surface
-- [plugin ABI](contracts/modukit_bundle.h) — modukit_bundle_init and HostAbi tables
+- [bundle ABI](contracts/modukit_bundle.h) — modukit_bundle_init and HostAbi tables
 - [process wire](contracts/modukit_wire.h) — TL frame prefix + payload grammar
 - [kernel proto](contracts/modukit.proto) — proto2 ledger
 - [wire goldens](contracts/golden/wire-v1) — regression frames

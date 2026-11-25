@@ -162,7 +162,7 @@ artifact = "p.so"
 // The kernel consumes manifest-driven lifecycle below; keep the state names
 // referenced here so the test module documents its own dialect only.
 #[test]
-fn plugin_state_display_uses_doc_names() {
+fn bundle_state_display_uses_doc_names() {
     assert_eq!(BundleState::Resolving.to_string(), "RESOLVING");
     assert_eq!(BundleState::Uninstalled.to_string(), "UNINSTALLED");
 }

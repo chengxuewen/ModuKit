@@ -1,4 +1,4 @@
-# bindings/py/plugin_runtime.py - the hand-written bundle-wire v1 skin for
+# bindings/py/bundle_runtime.py - the hand-written bundle-wire v1 skin for
 # python script children of the modukit kernel (D106 batch 2, plan T2.1:
 # docs/wave-2-bundle-door-plan.md section 4). The kernel spawns a script
 # bundle as `<runner> <artifact> --fd=N` with the control socketpair injected
@@ -6,7 +6,7 @@
 # there is NO console: diagnostics ride the RESULT channel or die with the
 # exit code (plan section 0; no log() on purpose).
 # The four contracts a script bundle must honor are canonical in
-# docs/tutorials/06-script-plugins.md: absolute runner path, no-print, the
+# docs/tutorials/06-script-bundles.md: absolute runner path, no-print, the
 # MODUKIT_PY_SKIN resolution, and generated skins are DO-NOT-EDIT.
 #
 # PYTHON 3.8 FLOOR (pinned by the plan: no walrus, no match, no 3.9+ APIs).
@@ -87,7 +87,7 @@ PSTR_MAX = 255
 DRAIN_WINDOW = 1.0
 # THE single named sabotage point of leg twelve (plan T2.4 stage [4]):
 # DEMO_BUNDLE_PY_SABOTAGE=1 skips the REGISTER push - the kernel then has
-# no proxy for the plugin's services and the driver's first service_call
+# no proxy for the bundle's services and the driver's first service_call
 # answers NOT_FOUND, failing the leg's lifecycle stage red with no PASS
 # line. Read at exactly one place below (the REGISTER loop).
 SABOTAGE_ENV = "DEMO_BUNDLE_PY_SABOTAGE"
@@ -460,7 +460,7 @@ def _die(code, why):
     "the code is the only channel a host reads (the runner's own die(),"
     "main.rs:75-78); the note still helps a human running standalone."""
     try:
-        sys.stderr.write("plugin_runtime: %s\n" % why)
+        sys.stderr.write("bundle_runtime: %s\n" % why)
     except OSError:
         pass
     sys.exit(code)
@@ -523,7 +523,7 @@ def serve(id, version, name, services=None, on_call=None, on_bus=None, topics=No
     """Walk the wire as a kernel-spawned script child. The API is fixed by
     plan T2.1: services={service_id: [methods]} -> one REGISTER per service;
     topics=[str | (str, seed)] -> one FORWARD(SUB) per topic (and the seed's
-    PUB in-window); a bus-only plugin pushes SUBs and NO REGISTER (F8);
+    PUB in-window); a bus-only bundle pushes SUBs and NO REGISTER (F8);
     on_call(method, bytes) -> (status, bytes) with status!=0 passthrough;
     on_bus(topic, bytes); DIAL always answers the clean refusal
     DUE(DIAL_STATUS_REFUSED_REAL) - no timer claims this volume.
@@ -592,7 +592,7 @@ def _pump(conn, services, topics, on_call, on_bus):
             conn.send(MSG_ACK, ack_payload(0))
         elif kind == MSG_CALL:
             seq, method, input_bytes = parse_call(payload)
-            # The plugin's own code is the unknown-method authority (the
+            # The bundle's own code is the unknown-method authority (the
             # ledger keeps REGISTER lists as advertisement only).
             if on_call is None:
                 status, output = -1, b""

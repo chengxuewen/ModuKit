@@ -1,7 +1,7 @@
 /* cpp-busv2-bundle - the D96 v2-door C++ fixture (onboarding deepening D2;
  * the C++ twin of the rs busv2-bundle, D23 template standing). Declares
  * ABI_VERSION_V2: the kernel hands the HostAbiV2 table (the v1 prefix plus
- * the four mailbox slots) at start, and the plugin publishes ONE seed
+ * the four mailbox slots) at start, and the bundle publishes ONE seed
  * value on its own topic - the LatestValue snapshot a late-join host then
  * reads. The whole publish runs INSIDE start (01 §3 rule 2: the table is
  * borrowed for the call); the registered echo service proves the v1
@@ -17,7 +17,7 @@ const char *const kTopic = "com.example.cpp.busv2";
 const char *const kServiceId = "com.example.cpp.busv2.echo";
 const char *const kSeed = "cpp-busv2-seed";
 const int32_t kQosLatestValue = 0; /* the embed modukit_qos vocabulary */
-const int32_t kBadRequest = -101;  /* plugin-author code space (D27) */
+const int32_t kBadRequest = -101;  /* bundle-author code space (D27) */
 
 /* The v1-prefix echo: message-shaped in/out, nothing else. */
 extern "C" int32_t busv2_call(const char *method, const uint8_t *input,

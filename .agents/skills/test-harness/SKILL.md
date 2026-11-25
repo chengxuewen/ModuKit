@@ -216,7 +216,7 @@ Check existing test coverage, cross-referenced against the SDD clauses:
 Clause     | Test function                       | Status
 -----------|------------------------------------|------
 KERNEL-01  | exe_spawn_green_walks_full_...      | ✅
-EMBED-01   | plugin_table_field_lists...         | ✅
+EMBED-01   | bundle_table_field_lists...         | ✅
 WIRE-01    | frame_codec_stamps_the_wire_...     | ✅
 BUS-01     | wall_out_runs_the_same_walk...      | ✅
 TRANSPORT-01 | the_fdpass_shim_round_trips...    | ✅

@@ -1,7 +1,7 @@
 # examples/c/ - the C embed demo band (onboarding-plan E2, ruling A1
 # B-expanded: "embed from your language" ships a C cell too - a host
 # written in plain C, linking the kernel's HostEmbedV1 staticlib and
-# driving the C fixture band). Auto-skips unless the test-plugins/c band
+# driving the C fixture band). Auto-skips unless the test-bundles/c band
 # is on AND the core staticlib target exists (the cpp band's guard
 # grammar, keyed on the C band's own targets).
 if(NOT TARGET c-example-bundle OR NOT TARGET modukit-core-static)

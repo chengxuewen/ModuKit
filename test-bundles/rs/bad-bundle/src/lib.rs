@@ -1,5 +1,5 @@
 //! bad-bundle — negative fixture: a deliberately mismatched handshake
-//! (architecture.md §10: "bad plugin (negative fixture, ABI mismatch)").
+//! (architecture.md §10: "bad bundle (negative fixture, ABI mismatch)").
 //!
 //! The descriptor reports ABI v999 with an otherwise well-formed struct, so
 //! the DlopenExecutor version guard must reject it with a typed D27-shaped

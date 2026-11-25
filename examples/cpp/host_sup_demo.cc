@@ -46,11 +46,11 @@
 namespace {
 
 struct Paths {
-  std::string so;     // plugin artifact (exe manifest `artifact`)
+  std::string so;     // bundle artifact (exe manifest `artifact`)
   std::string run;    // shadow-runner binary (manifest `runner`)
 };
 
-// The fixture's canonical service id (D9 mirror inside the cpp plugin;
+// The fixture's canonical service id (D9 mirror inside the cpp bundle;
 // the same id the dl face of host_demo.cc calls).
 const char *const kServiceId = "com.modukit.demo.DemoService";
 
@@ -196,7 +196,7 @@ int main(int argc, char **argv) {
     p.run = "out/cargo-target/debug/modukit-run";
   }
   if (p.so.empty()) {
-    std::fprintf(stderr, "usage: host_sup_demo [--proof] <plugin.so> [runner]\n");
+    std::fprintf(stderr, "usage: host_sup_demo [--proof] <bundle.so> [runner]\n");
     return 2;
   }
   if (!std::filesystem::exists(p.so) || !std::filesystem::exists(p.run)) {

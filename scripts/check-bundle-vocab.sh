@@ -47,6 +47,17 @@ FILE_ALLOW_EXACT = {
     ".agents/memorys/backlog.md",           # opencode ecosystem refs
     ".agents/memorys/status.md",            # mirrors D111 wording only
     "docs/plugin-management-plan.md",       # plan-of-record body (A3)
+    "docs/wave-2-plugin-door-plan.md",     # plan-of-record body (A3)
+    "docs/wave-2-plugin-door-hearing.md",  # plan-of-record body (A3)
+    "docs/stage-2-plan.md",                # plan-of-record body (A3)
+    "docs/wave-3-parent-push-hearing.md",  # plan-of-record body (A3)
+    "docs/wave-2-clock-hearing.md",        # plan-of-record body (A3)
+    "docs/wave-2-t1-clock-door-plan.md",   # plan-of-record body (A3)
+    "docs/wave-2-t2-clock-crossing-plan.md", # plan-of-record body (A3)
+    "docs/wave-2-python-hearing.md",       # plan-of-record body (A3)
+    "docs/stage-4-plan.md",                # plan-of-record body (A3)
+    "docs/stage-5-plan.md",                # plan-of-record body (A3)
+    "docs/ve-parity-plan.md",              # plan-of-record body (A3)
     "docs/onboarding-plan.md",              # plan-of-record body (A3)
     "docs/wave-2-bundle-door-plan.md",      # plan-of-record body (A3)
     "docs/wave-2-bundle-door-hearing.md",   # plan-of-record body (A3)
@@ -54,8 +65,15 @@ FILE_ALLOW_EXACT = {
     "docs/bundle-unification-plan.md",      # this plan quotes the retired word
     "docs/reference/k7-v1-stable-note-draft.md",  # external-facing draft, M2
     "AGENTS.md",                            # the D111 line + sync mirrors
+    "SKILL.md",                             # superpowers plugin (external ecosystem)
+    "scripts/check-bundle-vocab.sh",        # the scanner names the retired word
+    "scripts/gate-docs.sh",                 # opencode plugin URL shape check (external)
+    "docs/codegraph-bootstrap.md",          # opencode plugin (external)
+    "docs/agent-governance-borrow-plan.md", # donor model names (A3 body)
+    "crates/modukit-core/src/version.rs",   # CTK Require-Plugin external term
 }
 FILE_ALLOW_PREFIX = (
+    "docs/wave-", "docs/stage-", "docs/ve-parity-plan.md",  # plan-of-record bodies (A3)
     "docs/reference/",      # M2: external profiles; own sentences swept in S4
     ".refinfo/", ".polyorch/", ".opencode/",  # external trees
     "book/web/vendor/",

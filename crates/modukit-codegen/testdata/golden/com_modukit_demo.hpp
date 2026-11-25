@@ -2,7 +2,7 @@
    DO NOT EDIT - the authored original is the .proto; the fdset
    beside it is the machine ledger (D13). Regen: `pixi run regen-golden`.
 
-   C++ PLUGIN FACE (Stage-4 M1, ruling C++-3 face A): the dispatch
+   C++ BUNDLE FACE (Stage-4 M1, ruling C++-3 face A): the dispatch
    skeleton the author fills. Message types ride the stock protoc
    C++ output (com.modukit.demo.pb.h included below) - consumed AS-IS per C++-1;
    nothing here redefines a message or an enum. */

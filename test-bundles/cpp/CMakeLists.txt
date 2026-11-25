@@ -1,6 +1,6 @@
-# test-plugins/cpp/ - the C++ fixture band (Stage-4 M1: the dl fixtures the
+# test-bundles/cpp/ - the C++ fixture band (Stage-4 M1: the dl fixtures the
 # bindings/cpp probe dlopens). NOT cargo members - this band rides ONLY the
-# cmake graph, mirroring test-plugins/{example,bad}-plugin one-for-one:
+# cmake graph, mirroring test-bundles/{example,bad}-bundle one-for-one:
 # cpp-example-bundle the positive dlopen template (D23), cpp-bad-bundle the
 # ABI-lie negative fixture the version guard must reject.
 #
@@ -8,7 +8,7 @@
 # shelf targets (stock protoc gencode + emitter skeleton, generated at
 # build time - nothing hand-copied, contracts/ stays read-only).
 if(NOT TARGET modukit_cpp)
-  message(STATUS "test-plugins/cpp: bindings/cpp shelf skipped -- fixture band skipped")
+  message(STATUS "test-bundles/cpp: bindings/cpp shelf skipped -- fixture band skipped")
   return()
 endif()
 

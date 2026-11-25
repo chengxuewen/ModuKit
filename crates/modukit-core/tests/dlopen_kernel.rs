@@ -64,7 +64,7 @@ fn manifest_toml(artifact: &Path) -> String {
     )
 }
 
-/// Plugin-visible services only: the M6 floors boot the kernel with
+/// Bundle-visible services only: the M6 floors boot the kernel with
 /// platform services (`org.modukit.*`) on the same table (D40), so the
 /// fixture assertions filter the bundle's own entries out.
 fn bundle_services(kernel: &Kernel) -> Vec<modukit_core::registry::RegisteredService> {

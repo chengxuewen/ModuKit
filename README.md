@@ -1,14 +1,14 @@
 # ModuKit
 
-> **ModuKit Runtime** — a modular plugin framework and polyglot extension toolkit.  
-> Rust core · C ABI · in-process & multi-process plugins · service registry · script hosts · optional UI composition / zero-copy SHM / remote WebRTC
+> **ModuKit Runtime** — an OSGi-style **bundle** and **service** framework with a polyglot extension toolkit.  
+> Rust core · C ABI · in-process & multi-process bundles · service registry · script hosts · optional UI composition / zero-copy SHM / remote WebRTC
 
-ModuKit is a **modular plugin host framework** for large-scale projects — large HMI, smart cockpit, multi-process UI hosts, remote streaming composition.
+ModuKit is a **modular bundle host framework** for large-scale projects — large HMI, smart cockpit, multi-process UI hosts, remote streaming composition.
 
-- **Core**: plugin lifecycle management (in-process and multi-process), service registry, polyglot bindings, script extension.
+- **Core**: bundle lifecycle management (in-process and multi-process), service registry, polyglot bindings, script extension.
 - **Optional extensions**: multi-process UI composition, zero-copy shared-memory transport, multi-machine remote WebRTC streaming.
 
-It does not try to be a single "do-it-all engine". A layered architecture decouples the core plugin framework from the optional UI/streaming extensions: embed it as a lightweight plugin system, or build a complete distributed HMI host.
+It does not try to be a single "do-it-all engine". A layered architecture decouples the core bundle framework from the optional UI/streaming extensions: embed it as a lightweight bundle system, or build a complete distributed HMI host.
 
 Full rationale, architecture, risks and references: **[whitepaper](docs/whitepaper.md)** (v1.0).
 Adjudicated architecture baseline (2026-10-15, records specific post-v1.0 deltas — delta table: its §9): **[architecture](docs/architecture.md)** · [module docs](docs/modules/00-overview.md) · decision ledger (full index: architecture.md §11).
@@ -17,12 +17,12 @@ Adjudicated architecture baseline (2026-10-15, records specific post-v1.0 deltas
 
 ```bash
 ./bootstrap.sh          # one-time: pixi + pinned toolchain (Linux; WSL on Windows)
-pixi run demo stage1    # 60-second full plugin lifecycle - no cmake needed
+pixi run demo stage1    # 60-second full bundle lifecycle - no cmake needed
 ```
 
 - **Learn by doing**: the [tutorials](docs/tutorials/README.md) - first run,
-  your first plugin (C/C++/Python/JS bands), the bus, the process wall,
-  embedding from your language, script plugins.
+  your first bundle (C/C++/Python/JS bands), the bus, the process wall,
+  embedding from your language, script bundles.
 - **See everything it can do**: the [capability ledger](docs/capability-ledger.md)
   (verb/capability map; counts live there, never in prose).
 - **Deep dives**: the [module docs](docs/modules/00-overview.md) and the book
@@ -34,12 +34,12 @@ pixi run demo stage1    # 60-second full plugin lifecycle - no cmake needed
 
 | Capability | Notes |
 |---|---|
-| Plugin lifecycle | install / start / stop / update / uninstall; unified model for in-process (`cdylib` + C ABI) and multi-process plugins (supervisor-managed, crash isolation, auto-restart) |
+| Bundle lifecycle | install / start / stop / update / uninstall; unified model for in-process (`cdylib` + C ABI) and multi-process bundles (supervisor-managed, crash isolation, auto-restart) |
 | Service registry | type-safe service discovery and dependency injection |
 | IPC abstraction | one interface over local sockets, shared memory, remote transport |
 | Capability discovery | platform differences (SHM, windowing, input injection, GPU sharing) declared and checked explicitly |
 | Polyglot bindings | C/C++ native · Python (generated ctypes, D100) · JS/Node (generated napi bridge, D102) - all generated from the C ABI; C# remains an unchosen option |
-| Script & sandbox | Lua (mlua) · embedded JS (QuickJS/Boa) · WASM sandbox (wasmtime) for untrusted plugins |
+| Script & sandbox | Lua (mlua) · embedded JS (QuickJS/Boa) · WASM sandbox (wasmtime) for untrusted bundles |
 | UI composition | main HMI as compositor; child processes submit frames via Wayland/X11 or SHM (I420), input events routed back |
 | Remote streaming | WebRTC (webrtc-rs); the whitepaper-era name `getstream-rtc` is an audited mis-citation — the crate is `getstream`, a vendor cloud-SFU SDK candidate, not an open-source transport lib (`docs/reference/webrtc-rust-state.md`); receiver decodes to I420 and hands frames to the host over SHM |
 
@@ -51,9 +51,9 @@ flowchart TD
     L1 -. optional .-> L4[Extension capabilities] --> L2
 ```
 
-- **Core**: plugin lifecycle, service registry, IPC abstraction, config & capability discovery
+- **Core**: bundle lifecycle, service registry, IPC abstraction, config & capability discovery
 - **Host**: stable C ABI, binding generation, script engine hosts, transport abstraction
-- **Ecosystem**: native / managed / sandboxed / script plugins
+- **Ecosystem**: native / managed / sandboxed / script bundles
 - **Extensions**: multi-process UI compositor, zero-copy SHM transport, remote WebRTC streaming
 
 ## Crate map
@@ -90,8 +90,8 @@ modukit-cli           # command-line tooling
 
 Five stages per the whitepaper implementation path:
 
-- [x] **Stage 1** — in-process plugin kernel: OSGi-style lifecycle & service registry — closed 2026-10-16 ([plan of record](docs/stage-1-plan.md))
-- [x] **Stage 2** — multi-process plugins & zero-copy IPC: iceoryx2 local zero-copy + SCM_RIGHTS fd-passing — closed 2026-10-18 (Zenoh remote carrier and the I420 media plane stay trigger-gated per D89-K3) ([plan of record](docs/stage-2-plan.md))
+- [x] **Stage 1** — in-process bundle kernel: OSGi-style lifecycle & service registry — closed 2026-10-16 ([plan of record](docs/stage-1-plan.md))
+- [x] **Stage 2** — multi-process bundles & zero-copy IPC: iceoryx2 local zero-copy + SCM_RIGHTS fd-passing — closed 2026-10-18 (Zenoh remote carrier and the I420 media plane stay trigger-gated per D89-K3) ([plan of record](docs/stage-2-plan.md))
 - [x] **Stage 3** — re-scoped to stability & docs hardening (UI composition demoted to research tier per D89-K2) — accepted and closed 2026-10-19 ([plan of record](docs/stage-3-plan.md))
 - [x] **Stage 4** — INFRA volume: bindings / communication / debugging — C/C++ line shipped M1+M2+M3 (embed face, sup rung, service-call door); accepted and closed 2026-10-21 ([plan of record](docs/stage-4-plan.md))
 - [ ] **Stage 5** — remote WebRTC: encode, stream, route input back (renumbered by the §12 amendment; the polyglot & script ecosystem line dissolved into stage-4 wave-2 candidates)
@@ -128,10 +128,10 @@ One command runs any of them: `pixi run demo <leg>` (bare = `stage1`, the
 | [py-host-sup-demo](examples/py/host_sup_demo.py) | Wave-2 D100 M2 exe rung from Python: the same generated floor's `sup_*` arm (the face is now the full 25 verbs) walks sup_install -> dial -> READY -> sup_service_call with the FIDELITY stanza byte-pinned to the cpp constant, then host SIGKILL -> /proc census runner self-reap = ORPHAN-PROOF under a Python-authored host | `bash scripts/demo-wave2-py-sup.sh` (same auto-skip rules; two sabotage levers `DEMO_PY_M2_SABOTAGE=1` / `DEMO_PY_M3_SABOTAGE=1` documented) |
 | [js-host-demo](examples/js/host_demo.js) | Wave-2 D102 M1 embed face from JS: a generated napi bridge (`crates/modukit-js`, re-emitted from `contracts/modukit_embed.h` at gate time - nothing hand-written) dlopens the same `libmodukit_core.so` C door through the generated facade (`target/js/modukit_embed.js`) and drives the same 16-verb rung-0 walk over the same `cpp-example-bundle` .so: install/resolve/start/service_call/bus/clock/introspect (both opaque codecs parsed)/stop/uninstall, scenes [1]-[11] mirrored one-for-one | `bash scripts/demo-wave2-js.sh` (auto-SKIPs without node / toolchain / pinned protoc / the cpp fixture; sabotage hook `DEMO_JS_SABOTAGE=1` documented; the fixture chain rides the pinned-env libstdc++ via the leg's `LD_PRELOAD`, documented in the leg header) |
 | [js-host-sup-demo](examples/js/host_sup_demo.js) | Wave-2 D102 M2 exe rung from JS: the same generated bridge/facade's `sup_*` arm (the face is now the full 25 verbs) walks sup_install -> dial -> READY -> sup_service_call with the FIDELITY stanza byte-pinned to the same cpp constant, then host SIGKILL -> /proc census runner self-reap = ORPHAN-PROOF under a JS-authored host | `bash scripts/demo-wave2-js-sup.sh` (same auto-skip rules; two sabotage levers `DEMO_JS_M2_SABOTAGE=1` / `DEMO_JS_M3_SABOTAGE=1` documented; rides the same pinned-env libstdc++ `LD_PRELOAD` as the JS embed leg) |
-| [js-plugin-door](test-bundles/js/js_echo.mjs) | Wave-2 D106 batch-3 script plugins from node (the python door's node twin): the hand-written ESM `bindings/js/bundle_runtime.mjs` skin walks all 11 wire kinds as a kernel-spawned node child - the same conformance-before-launch (14 goldens + 2 hostile plants through the ESM codecs), FIDELITY / BUS ROUNDTRIP / DIAL refusal (-27) / cooperative STOP / liar typed-error / /proc orphan-census grammar as leg twelve, byte-faithful Buffer framing (BigInt u64), full-duplex `net.Socket({fd:0})` control channel | `bash scripts/demo-wave2-bundle-js.sh` (auto-SKIPs without node / toolchain / pinned protoc; the `DEMO_PLUGIN_JS_SABOTAGE=1` lever is proven red inline on every green run; plugin child is pure stdlib ESM, no `.so`, no `LD_PRELOAD`, no npm) |
-| [py-plugin-door](test-bundles/py/py_echo.py) | Wave-2 D106 batch-2 script plugins across the exe wall: the hand-written `bindings/py/bundle_runtime.py` skin walks all 11 wire kinds as a kernel-spawned python3 child - conformance (14 golden frames re-encoded byte-exact + two hostile plants) BEFORE any launch, then sup_install -> FIDELITY (the cross-volume constant byte-verbatim) -> caps -> BUS ROUNDTRIP (seed crosses out via FORWARD, self-echo crosses back via DELIVER, the derivative returns through `seen`) -> DIAL clean refusal (-27, child alive) -> cooperative STOP -> liar answers typed ServiceCallFailed twice while staying ACTIVE -> driver SIGKILL -> /proc census = ORPHAN-PROOF over the kernel child's own EOF path | `bash scripts/demo-wave2-bundle-py.sh` (auto-SKIPs without python3 / toolchain / pinned protoc; the `DEMO_PLUGIN_PY_SABOTAGE=1` lever is proven red inline on every green run; plugin child is pure stdlib, no `.so`, no `LD_PRELOAD`) |
+| [js-plugin-door](test-bundles/js/js_echo.mjs) | Wave-2 D106 batch-3 script bundles from node (the python door's node twin): the hand-written ESM `bindings/js/bundle_runtime.mjs` skin walks all 11 wire kinds as a kernel-spawned node child - the same conformance-before-launch (14 goldens + 2 hostile plants through the ESM codecs), FIDELITY / BUS ROUNDTRIP / DIAL refusal (-27) / cooperative STOP / liar typed-error / /proc orphan-census grammar as leg twelve, byte-faithful Buffer framing (BigInt u64), full-duplex `net.Socket({fd:0})` control channel | `bash scripts/demo-wave2-bundle-js.sh` (auto-SKIPs without node / toolchain / pinned protoc; the `DEMO_PLUGIN_JS_SABOTAGE=1` lever is proven red inline on every green run; plugin child is pure stdlib ESM, no `.so`, no `LD_PRELOAD`, no npm) |
+| [py-plugin-door](test-bundles/py/py_echo.py) | Wave-2 D106 batch-2 script bundles across the exe wall: the hand-written `bindings/py/bundle_runtime.py` skin walks all 11 wire kinds as a kernel-spawned python3 child - conformance (14 golden frames re-encoded byte-exact + two hostile plants) BEFORE any launch, then sup_install -> FIDELITY (the cross-volume constant byte-verbatim) -> caps -> BUS ROUNDTRIP (seed crosses out via FORWARD, self-echo crosses back via DELIVER, the derivative returns through `seen`) -> DIAL clean refusal (-27, child alive) -> cooperative STOP -> liar answers typed ServiceCallFailed twice while staying ACTIVE -> driver SIGKILL -> /proc census = ORPHAN-PROOF over the kernel child's own EOF path | `bash scripts/demo-wave2-bundle-py.sh` (auto-SKIPs without python3 / toolchain / pinned protoc; the `DEMO_PLUGIN_PY_SABOTAGE=1` lever is proven red inline on every green run; plugin child is pure stdlib, no `.so`, no `LD_PRELOAD`) |
 
-All thirteen demo legs - the gallery rows above plus the Stage-5 N2 cross-wall demo (`scripts/demo-stage5-n2.sh`), the wave-2 debug-reader face (`scripts/demo-wave2-reader.sh`), the wave-2 clock crossing (`scripts/demo-wave2-clock.sh`), the wave-2 Python embed face (`scripts/demo-wave2-py.sh`), its sup rung (`scripts/demo-wave2-py-sup.sh`), the wave-2 JS embed face (`scripts/demo-wave2-js.sh`), its sup rung (`scripts/demo-wave2-js-sup.sh`), the wave-2 plugin-door python leg (`scripts/demo-wave2-bundle-py.sh`) and its node twin (`scripts/demo-wave2-bundle-js.sh`) - are wired as standing legs of the local gate (`bash scripts/check.sh` runs them), and each is falsifiable by design (stage2, stage4-m1/m2, stage5-n2, wave2-reader, wave2-clock, wave2-py, wave2-py-sup, wave2-js, wave2-js-sup, wave2-plugin-py and wave2-plugin-js carry documented sabotage hooks). The plugins/ shelf stays grammar-reserved: the first production plugin opens it with its landing.
+All thirteen demo legs - the gallery rows above plus the Stage-5 N2 cross-wall demo (`scripts/demo-stage5-n2.sh`), the wave-2 debug-reader face (`scripts/demo-wave2-reader.sh`), the wave-2 clock crossing (`scripts/demo-wave2-clock.sh`), the wave-2 Python embed face (`scripts/demo-wave2-py.sh`), its sup rung (`scripts/demo-wave2-py-sup.sh`), the wave-2 JS embed face (`scripts/demo-wave2-js.sh`), its sup rung (`scripts/demo-wave2-js-sup.sh`), the wave-2 bundle-door python leg (`scripts/demo-wave2-bundle-py.sh`) and its node twin (`scripts/demo-wave2-bundle-js.sh`) - are wired as standing legs of the local gate (`bash scripts/check.sh` runs them), and each is falsifiable by design (stage2, stage4-m1/m2, stage5-n2, wave2-reader, wave2-clock, wave2-py, wave2-py-sup, wave2-js, wave2-js-sup, wave2-bundle-py and wave2-bundle-js carry documented sabotage hooks). The bundles/ shelf stays grammar-reserved: the first production bundle opens it with its landing.
 
 
 ## Project language policy

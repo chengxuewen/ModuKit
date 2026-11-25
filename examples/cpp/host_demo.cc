@@ -4,7 +4,7 @@
    generated wrapper (bindings/cpp shelf, face B: modukit_embed.hpp) and
    the stock protoc messages (C++-1); the kernel behind the symbols is the
    ambient Rust process-global in libmodukit_core.a (crates/modukit-core/
-   src/embed.rs). Fixture leg: the real built C++ plugin .so (argv[1],
+   src/embed.rs). Fixture leg: the real built C++ bundle .so (argv[1],
    baked by ctest via $<TARGET_FILE:cpp-example-bundle>).
 
    Word list, one line per verb, in one honest chain:
@@ -15,7 +15,7 @@
         silent no-op - the header's rule, asserted as an expected code)
      -> introspect_snapshot -> introspect_events (the opaque-bytes codec
         documented in embed.rs/ embed_codec.rs is parsed field by field)
-     -> [11] the D96 v2-door twin (argv[2], optional): a second plugin
+     -> [11] the D96 v2-door twin (argv[2], optional): a second bundle
         declaring ABI v2 is installed/started and its start-time mailbox
         seed is read back via late-join
      -> [12] stop -> uninstall.
@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
         "[2] install -> canonical id (kernel-owned bytes)");
   if (failures != 0) {
     std::printf("CPP-DEMO FAIL (%d, install door)\n", failures);
-    return 1;  /* nothing downstream is reachable without a plugin */
+    return 1;  /* nothing downstream is reachable without a bundle */
   }
 
   /* [3] resolve + [4] start + [5] state: the dl handshake and the walk. */
@@ -175,7 +175,7 @@ int main(int argc, char **argv) {
         "[8] clock_advance on Real -> CLOCK_DIAL_REFUSED (never a no-op)");
 
   /* [9] introspect_snapshot: size query then exact copy; the documented
-     line codec parses and carries this plugin's ACTIVE row. */
+     line codec parses and carries this bundle's ACTIVE row. */
   size_t snap_len = 0;
   const modukit::Status probe = kernel.introspect_snapshot(nullptr, 0, &snap_len);
   check(probe.ok() && probe.raw() == static_cast<int32_t>(snap_len) && snap_len > 0,
@@ -193,7 +193,7 @@ int main(int argc, char **argv) {
   check(snap_ok, "[9] introspect_snapshot: documented line codec parses");
 
   /* [10] introspect_events: resumable LE record walk; the lifecycle
-          transitions of THIS plugin must be on the ring. */
+          transitions of THIS bundle must be on the ring. */
   size_t ev_len = 0;
   uint64_t cursor = 0;
   const modukit::Status ev_probe =
@@ -223,7 +223,7 @@ int main(int argc, char **argv) {
   check(saw_lifecycle && tiled,
         "[10] introspect_events: LE records tile the buffer; lifecycle rows found");
 
-  /* [11] the D96 v2-door twin (onboarding D2): install + start a plugin
+  /* [11] the D96 v2-door twin (onboarding D2): install + start a bundle
      declaring ABI v2 - its start publishes a seed through the mailbox
      slots, and this host's late-join subscribe reads it (LatestValue).
      Optional: argv[2] carries the twin's .so path; without it the scene
@@ -254,7 +254,7 @@ int main(int argc, char **argv) {
     std::printf("note: [11] skipped (no busv2 twin passed as argv[2])\n");
   }
 
-  /* [12] stop + uninstall close the walk (and the plugin's services). */
+  /* [12] stop + uninstall close the walk (and the bundle's services). */
   check(kernel.stop(bundle_id).ok(), "[12] stop -> RESOLVED");
   check(kernel.state(bundle_id, &state).ok() &&
             state == static_cast<int32_t>(modukit::BundleState::STATE_RESOLVED),

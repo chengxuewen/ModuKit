@@ -82,7 +82,7 @@ if [ -f pixi.toml ]; then
     echo "GATE-DOCS ✗ pixi.toml book comment still says www/"
     fail=1
   fi
-  # 3d) plugin specs must not contain the malformed https:/ URL shape.
+  # 3d) bundle specs must not contain the malformed https:/ URL shape.
   if grep -qE 'https:/[^/]' .opencode/opencode.json 2>/dev/null; then
     echo "GATE-DOCS ✗ .opencode/opencode.json has a malformed https:/ plugin URL"
     fail=1

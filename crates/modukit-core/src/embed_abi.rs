@@ -121,7 +121,7 @@ mod tests {
 
     // spec: EMBED-01
     #[test]
-    fn plugin_table_field_lists_are_populated_and_unique() {
+    fn bundle_table_field_lists_are_populated_and_unique() {
         // Ordering truth against abi.rs and the header lives in the parity
         // script's ordered diffs; this test guards the mirror list shape.
         for fields in [

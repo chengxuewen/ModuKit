@@ -1,6 +1,6 @@
 # t4 - the driver (see t4_driver.cc for the lesson). Links the generated
 # wrapper + the core staticlib exactly like the host demos; ctest runs it
-# against BOTH tutorial plugins (t2 exercises the echo scene, t1 the
+# against BOTH tutorial bundles (t2 exercises the echo scene, t1 the
 # bare-lifecycle walk).
 add_executable(t4-driver t4_driver.cc)
 set_target_properties(t4-driver PROPERTIES

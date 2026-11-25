@@ -125,7 +125,7 @@ addon_js="target/debug/libmodukit_js.so"
 [ -f "$addon_js" ] || { echo "demo-wave2-js-sup: RED (no libmodukit_js.so after a green build)"; exit 1; }
 cp "$addon_js" target/js/modukit_js.node
 
-# The fixture: the same real C++ plugin .so the cpp M2 demo drives (the sup
+# The fixture: the same real C++ bundle .so the cpp M2 demo drives (the sup
 # demo dlopens it through the SAME kernel); when neither tree carries it the
 # demo has nothing to install - the host_sup_demo.cc skip rule (exit 77).
 so=""

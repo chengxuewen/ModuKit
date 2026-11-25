@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Wave-2 T2 clock-crossing gate (D99 R5-A): run the crossing demo - the real
 # shadow-runner hosts the timerv3 fixture across the exe wall, the supervisor
-# dials it over the wire, and the child's plugin bell must ride the existing
+# dials it over the wire, and the child's bundle bell must ride the existing
 # FWD_PUB frame into the PARENT's own bus (gen ++ token ++ label decoded
 # there, token equal to the DUE answer). The gate is the final
 # 'WAVE2-CLOCK-DEMO PASS' line (n2 grammar); cargo legs route through pixi

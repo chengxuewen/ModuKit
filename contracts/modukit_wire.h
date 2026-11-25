@@ -1,7 +1,7 @@
-/* modukit_wire.h - the plugin wire v1 LEDGER (D106 batch 1, plan T1.1).
+/* modukit_wire.h - the bundle wire v1 LEDGER (D106 batch 1, plan T1.1).
  *
  * The `exe`-placement control-channel contract between the kernel (parent)
- * and a process plugin (child runner), as implemented by
+ * and a process bundle (child runner), as implemented by
  * crates/modukit-core/src/proc_wire.rs. THIS FILE DECLARES NOTHING THAT
  * COMPILES - no types, no functions, no include guard. It is the readable
  * cross-language spec the batch-2/3 skins (Python, Node) code against,
@@ -59,7 +59,7 @@
  * MSG_HELLO = 1
  *   u8 kind, child -> host: handshake self-report (D7 tier).
  * MSG_START = 2
- *   u8 kind, host -> child: run the plugin start (03 section 2 STARTING).
+ *   u8 kind, host -> child: run the bundle start (03 section 2 STARTING).
  * MSG_STOP = 3
  *   u8 kind, host -> child: cooperative stop; timeout escalates to kill.
  * MSG_ACK = 4

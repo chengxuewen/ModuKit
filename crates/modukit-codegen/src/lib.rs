@@ -36,7 +36,7 @@ pub mod model;
 pub mod py;
 pub mod wire;
 
-pub use bundleface::emit_plugin_hpp;
+pub use bundleface::emit_bundle_hpp;
 pub use descriptor::decode_file_descriptor_set;
 pub use embed::emit_embed_hpp;
 pub use error::CodegenError;

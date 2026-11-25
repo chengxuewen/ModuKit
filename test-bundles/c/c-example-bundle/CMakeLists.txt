@@ -6,6 +6,6 @@
 add_library(c-example-bundle SHARED src/hello.c)
 set_target_properties(c-example-bundle PROPERTIES
     C_STANDARD 11 C_STANDARD_REQUIRED ON
-    FOLDER "test-plugins/c/c-example-bundle")
+    FOLDER "test-bundles/c/c-example-bundle")
 target_include_directories(c-example-bundle PRIVATE
     "${CMAKE_SOURCE_DIR}/contracts")

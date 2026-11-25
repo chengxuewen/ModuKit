@@ -1,6 +1,6 @@
 # examples/cpp/ - the C++ embed demo band (Stage-4 M1, ruling C++-4 two-proof
-# wording: one host embedding the kernel, one C++ plugin). Mirrors the
-# bindings/cpp + test-plugins/cpp shelf grammar: hard dependencies on the
+# wording: one host embedding the kernel, one C++ bundle). Mirrors the
+# bindings/cpp + test-bundles/cpp shelf grammar: hard dependencies on the
 # already-mounted targets, auto-skip when the graph carries none of them.
 #
 # The demo links the GENERATED embed wrapper (modukit_cpp) and the kernel's
@@ -28,7 +28,7 @@ add_dependencies(modukit-cpp-host-demo cpp-example-bundle cpp-busv2-bundle moduk
 
 # The progressive tutorial series (onboarding deepening follow-up): rides
 # the same cmake graph and environment guards; its own ctest entries run
-# the t4 driver against the t2 (echo) and t1 (bare lifecycle) plugins.
+# the t4 driver against the t2 (echo) and t1 (bare lifecycle) bundles.
 add_subdirectory(tutorial)
 
 # ctest bridge follows the crates-face grammar: real target = name = test

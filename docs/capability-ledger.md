@@ -94,7 +94,7 @@ by `scripts/check-capability-ledger.sh` (check.sh leg "capability-ledger").
 | `modukit_sup_service_call` | header | generated | native | generated | generated |
 | `modukit_embed_find_services` | hand-written (c band) | generated | native | generated | generated |
 
-## B. Plugin-side surface (contracts/modukit_bundle.h <-> abi::BundleAbiV1/HostAbiV1)
+## B. Bundle-side surface (contracts/modukit_bundle.h <-> abi::BundleAbiV1/HostAbiV1)
 
 The generated C++ bundle face today is the service dispatch skeleton only
 (golden cited above); entry-symbol and descriptor shims are hand-written by
@@ -116,7 +116,7 @@ The Rust column here is the frozen v1 truth: `abi.rs` layout, consumed by
 | `modukit_service_call_fn_t` (service-call slot) | header | generated | native | planned | planned |
 
 
-## C. Plugin-side v2 door - HostAbiV2 slots (Stage-5 N1, D96 ruling 2/5)
+## C. Bundle-side v2 door - HostAbiV2 slots (Stage-5 N1, D96 ruling 2/5)
 
 The SECOND host table, negotiated by declared ABI major; the v1 tables in
 section B stay frozen above (D87). Row keys mirror the `abi::HostAbiV2`
@@ -139,7 +139,7 @@ are the guard's data, not verbs, so they read `header`). Proof chain:
 | `bus_subscribe` (HostAbiV2 verb) | header | generated | native | planned | planned |
 | `bus_recv` (HostAbiV2 verb) | header | generated | native | planned | planned |
 | `bus_unsubscribe` (HostAbiV2 verb) | header | generated | native | planned | planned |
-## D. Plugin-side v3 clock door - HostAbiV3 slots (Wave-2 T1, D99 R2/R3/R4)
+## D. Bundle-side v3 clock door - HostAbiV3 slots (Wave-2 T1, D99 R2/R3/R4)
 
 The THIRD host table, negotiated by declared ABI major: the byte-identical
 v2 prefix (section C) plus the two timer slots at the tail; the v1/v2 tables
@@ -173,7 +173,7 @@ chain: `test-bundles/rs/timerv3-bundle` +
 | `timer_schedule` (HostAbiV3 verb) | header | generated | native | planned | planned |
 | `clock_now` (HostAbiV3 verb) | header | generated | native | planned | planned |
 
-## E. Plugin wire v1 (D106)
+## E. Bundle wire v1 (D106)
 
 The `exe` control-channel frame ledger (wave-2 bundle door, batch 1, plan
 T1.4). Row names + decimal values mirror the "NAME = value" constant

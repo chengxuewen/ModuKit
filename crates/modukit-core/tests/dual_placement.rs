@@ -157,7 +157,7 @@ fn lifecycle_walk(kernel: &Kernel) -> Vec<String> {
         .collect()
 }
 
-/// Plugin-visible services only (D40 platform services filtered, the
+/// Bundle-visible services only (D40 platform services filtered, the
 /// dlopen_kernel.rs helper shape).
 fn bundle_services(kernel: &Kernel) -> Vec<modukit_core::registry::RegisteredService> {
     kernel

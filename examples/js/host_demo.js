@@ -7,7 +7,7 @@
  * contracts/modukit_embed.h by scripts/demo-wave2-js.sh) over the generated
  * napi bridge (.node), which dlopens the ambient Rust process-global kernel
  * in libmodukit_core.so (the D100 M0 cdylib). Fixture leg: the same real
- * C++ plugin .so the cpp and Python M1 demos drive (argv[3]).
+ * C++ bundle .so the cpp and Python M1 demos drive (argv[3]).
  *
  * Word list, one line per verb, in one honest chain (a 16-verb rung-0 walk
  * over 11 scenes - the rung-0 face is 17 post-S1, exactly like the cpp demo):
@@ -160,7 +160,7 @@ function main() {
   );
   if (failures !== 0) {
     console.log(`JS-DEMO FAIL (${failures}, install door)`);
-    return 1; // nothing downstream is reachable without a plugin
+    return 1; // nothing downstream is reachable without a bundle
   }
   const pid = inst.out_plugin_id;
 
@@ -225,7 +225,7 @@ function main() {
   );
 
   /* [9] introspect_snapshot: size query then exact copy; the documented
-   * line codec parses and carries this plugin's ACTIVE row. */
+   * line codec parses and carries this bundle's ACTIVE row. */
   const sProbe = skin.modukit_introspect_snapshot(0); // cap 0 = the NULL size query
   check(
     sProbe.raw === sProbe.out_len && sProbe.out_len > 0,
@@ -243,7 +243,7 @@ function main() {
   check(snapOk, '[9] introspect_snapshot: documented line codec parses');
 
   /* [10] introspect_events: resumable LE record walk; the lifecycle
-   * transitions of THIS plugin must be on the ring. */
+   * transitions of THIS bundle must be on the ring. */
   const eProbe = skin.modukit_introspect_events(0, 0); // cap 0 = the NULL size query
   check(eProbe.raw >= 0 && eProbe.out_len > 28, '[10] introspect_events size query');
   const eTake = skin.modukit_introspect_events(0, eProbe.out_len);
@@ -292,7 +292,7 @@ function main() {
     '[10b] an unmatched filter is an empty set (0 bytes), never an error',
   );
 
-  /* [11] stop + uninstall close the walk (and the plugin's services). */
+  /* [11] stop + uninstall close the walk (and the bundle's services). */
   check(skin.modukit_stop(pid) === 0, '[11] stop -> RESOLVED');
   const stR = skin.modukit_state(pid);
   check(

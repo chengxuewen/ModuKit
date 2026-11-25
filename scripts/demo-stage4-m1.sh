@@ -114,14 +114,14 @@ if ! grep -qx 'C-DEMO PASS' "$log"; then
   exit 1
 fi
 
-# Tutorial series ride: the t4 driver against BOTH tutorial plugins
+# Tutorial series ride: the t4 driver against BOTH tutorial bundles
 # (t2 exercises the echo scene; t1 the bare lifecycle walk).
 t4="$bd/examples/cpp/tutorial/t4-driver/t4-driver"
 t2so="$bd/examples/cpp/tutorial/t2-echo-bundle/libt2-echo-bundle.so"
 t1so="$bd/examples/cpp/tutorial/t1-hello-bundle/libt1-hello-bundle.so"
 [ -x "$t4" ] || { echo "demo-stage4-m1: RED (t4 driver missing: $t4)"; exit 1; }
-[ -f "$t2so" ] || { echo "demo-stage4-m1: RED (t2 plugin missing: $t2so)"; exit 1; }
-[ -f "$t1so" ] || { echo "demo-stage4-m1: RED (t1 plugin missing: $t1so)"; exit 1; }
+[ -f "$t2so" ] || { echo "demo-stage4-m1: RED (t2 bundle missing: $t2so)"; exit 1; }
+[ -f "$t1so" ] || { echo "demo-stage4-m1: RED (t1 bundle missing: $t1so)"; exit 1; }
 "$t4" "$t2so" 2>&1 | tee "$log"
 if [ "${PIPESTATUS[0]}" -ne 0 ] || ! grep -qx 'T4-DRIVER PASS' "$log"; then
   echo "demo-stage4-m1: RED (t4/t2 walk failed)"

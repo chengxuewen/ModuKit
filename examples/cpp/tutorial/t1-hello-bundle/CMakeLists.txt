@@ -1,4 +1,4 @@
-# t1 - the minimal plugin (see t1.cpp for the lesson).
+# t1 - the minimal bundle (see t1.cpp for the lesson).
 add_library(t1-hello-bundle SHARED t1.cpp)
 set_target_properties(t1-hello-bundle PROPERTIES
     CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON

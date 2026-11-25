@@ -127,7 +127,7 @@ impl Kernel {
         &self.obs
     }
 
-    /// The kernel logger handle (D19). Plugins may equally
+    /// The kernel logger handle (D19). Bundles may equally
     /// `acquire::<Logger>()` from the registry — same instance either way.
     #[must_use]
     pub fn logger(&self) -> &Logger {

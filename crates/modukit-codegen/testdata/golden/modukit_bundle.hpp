@@ -6,7 +6,7 @@
   @contracts/org.modukit.runtime.proto.fdset @contracts/com.modukit.demo.proto.fdset
   --bundle_header contracts/modukit_bundle.h --output_dir <dir>
 
-  C++ PLUGIN FACE host view (Stage-5 N1, D96 ruling 2/5; the wave-2
+  C++ BUNDLE FACE host view (Stage-5 N1, D96 ruling 2/5; the wave-2
   T1 v3 clock-door views per D99 R2): one forwarding method per
   parsed HostAbiV2 slot (4 today), the timer tail forwarded
   behind the HostAbiV3 size guard, and per parsed HostAbiV3 tail slot. `has_bus()` is the size

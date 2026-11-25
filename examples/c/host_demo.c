@@ -4,7 +4,7 @@
  * the modukit_embed.h verbs directly, exactly the identity story "the C
  * ABI is the only cross-language exit". The kernel behind the symbols is
  * the ambient Rust process-global in libmodukit_core.a
- * (crates/modukit-core/src/embed.rs). Fixture leg: the real built C plugin
+ * (crates/modukit-core/src/embed.rs). Fixture leg: the real built C bundle
  * .so (argv[1], baked by ctest via $<TARGET_FILE:c-example-bundle>).
  *
  * Walk (12 scenes, the whole rung-0 face the C band can reach):
@@ -21,9 +21,9 @@
  *   [9] clock: now() >= 0; advance() on the Real domain answers the
  *       pinned CLOCK_DIAL_REFUSED (never a silent no-op)
  *   [10] introspect_snapshot: size probe, exact copy, documented line
- *        codec parsed (this plugin's ACTIVE row present)
+ *        codec parsed (this bundle's ACTIVE row present)
  *   [11] introspect_events: size probe, LE records tile the buffer, this
- *        plugin's lifecycle rows found
+ *        bundle's lifecycle rows found
  *   [12] stop -> uninstall -> resolve from UNINSTALLED answers the table
  *        guard (CONTRACT_VIOLATION)
  * Prints `C-DEMO PASS` only when every step asserted clean; exit 77 =
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
         "[2] install -> canonical id (kernel-owned bytes)");
   if (failures != 0) {
     printf("C-DEMO FAIL (%d, install door)\n", failures);
-    return 1; /* nothing downstream is reachable without a plugin */
+    return 1; /* nothing downstream is reachable without a bundle */
   }
 
   /* [3] resolve + [4] start + [5] state. */
@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
       found[find_len] = 0;
       /* the row is `service\t<numeric rid>\t<service_id>\t<ranking>` -
        * the second field is the kernel-owned registration number, not a
-       * plugin id (embed_codec.rs render_find). */
+       * bundle id (embed_codec.rs render_find). */
       find_ok = strstr((const char *)found, "service\t") != NULL &&
                 strstr((const char *)found, SERVICE_ID) != NULL;
     }
@@ -200,7 +200,7 @@ int main(int argc, char **argv) {
         "[9] clock_advance on Real -> CLOCK_DIAL_REFUSED (never a no-op)");
 
   /* [10] introspect_snapshot: size query then exact copy; the documented
-   * line codec parses and carries this plugin's ACTIVE row. */
+   * line codec parses and carries this bundle's ACTIVE row. */
   size_t snap_len = 0;
   check(modukit_introspect_snapshot(NULL, 0, &snap_len) > 0 && snap_len > 0,
         "[10] introspect_snapshot size query (NULL buffer)");
@@ -222,7 +222,7 @@ int main(int argc, char **argv) {
   check(snap_ok, "[10] introspect_snapshot: documented line codec parses");
 
   /* [11] introspect_events: size probe, LE records tile the buffer, this
-   * plugin's lifecycle rows must be on the ring. */
+   * bundle's lifecycle rows must be on the ring. */
   size_t ev_len = 0;
   uint64_t cursor = 0;
   check(modukit_introspect_events(0, NULL, 0, &ev_len, &cursor) >= 0 &&
@@ -258,7 +258,7 @@ int main(int argc, char **argv) {
   }
   check(ev_ok, "[11] introspect_events: LE records tile; lifecycle rows found");
 
-  /* [12] stop + uninstall close the walk (and the plugin's services);
+  /* [12] stop + uninstall close the walk (and the bundle's services);
    * the table guard answers resolve-from-UNINSTALLED. */
   check(modukit_stop(bundle_id) == 0, "[12] stop -> RESOLVED");
   check(modukit_state(bundle_id, &state) == 0 &&

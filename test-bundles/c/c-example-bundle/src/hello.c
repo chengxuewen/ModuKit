@@ -3,7 +3,7 @@
  * cpp-example-bundle D23 template). The kernel-facing surface is exactly
  * the v1 handshake (contracts/modukit_bundle.h) plus ONE service
  * registration - hand-written, no generated shelf: the whole point of the
- * C twin is that a plugin author needs nothing but this header and one
+ * C twin is that a bundle author needs nothing but this header and one
  * source file.
  *
  * Service: "com.modukit.demo.hello", one method "hello" that answers with
@@ -60,7 +60,7 @@ static const modukit_bundle_abi_v1 HELLO_DESCRIPTOR = {
     "c-example-bundle",             /* name */
     HELLO_SERVICE_ID,               /* id == registered service id (D9),
                                        mirroring the cpp/rs twins */
-    "0.1.0",                        /* version - the plugin's own semver */
+    "0.1.0",                        /* version - the bundle's own semver */
     hello_start,                    /* start - handshake guard 4 */
     hello_stop,                     /* stop - handshake guard 4 */
 };

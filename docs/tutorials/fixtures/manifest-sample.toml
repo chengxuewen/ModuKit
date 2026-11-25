@@ -7,12 +7,12 @@
 #
 # Docs tutorials home: docs/tutorials/README.md (chapter 02 walks it).
 
-id = "com.example.my-plugin"        # canonical reverse-DNS id (D9)
+id = "com.example.my-bundle"        # canonical reverse-DNS id (D9)
 version = "0.1.0"
 
 [entry]
 kind = "dl"                          # dl (in-process) | exe (process wall)
-artifact = "libmy-plugin.so"         # path as the installer sees it
+artifact = "libmy-bundle.so"         # path as the installer sees it
 # runner = "/abs/path/modukit-run"   # exe placements ONLY; must be an
 #                                    # ABSOLUTE existing path (hidden contract 1)
 
@@ -25,11 +25,11 @@ required = true
 on_down = "block"                    # block | restart-self | fail-self
 version = ">=1.0,<2"
 
-# Optional: what this plugin offers (ranking breaks ties, best-first).
+# Optional: what this bundle offers (ranking breaks ties, best-first).
 [[provides]]
-service = "com.example.my-plugin.echo"
+service = "com.example.my-bundle.echo"
 ranking = 100
 
 # Optional: D29 hot-lane opt-in (S3-2) - these keys accept live change
-# events on config/<plugin-id>; undeclared keys are refused outright.
+# events on config/<bundle-id>; undeclared keys are refused outright.
 config_live = ["interval", "threshold"]

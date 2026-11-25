@@ -18,7 +18,7 @@
 
 use std::path::{Path, PathBuf};
 
-use modukit_codegen::{emit_embed_hpp, emit_plugin_hpp, generate};
+use modukit_codegen::{emit_bundle_hpp, emit_embed_hpp, generate};
 
 fn repo_root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -90,13 +90,13 @@ fn embed_wrapper_matches_golden() {
 }
 
 #[test]
-fn plugin_wrapper_matches_golden() {
+fn bundle_wrapper_matches_golden() {
     // Stage-5 N1: the host-table wrapper rides the same byte-compare
     // discipline; regen is the --bundle_header banner recipe (main door).
     let root = repo_root();
     let text =
         std::fs::read_to_string(root.join("contracts/modukit_bundle.h")).expect("bundle header");
-    let produced = emit_plugin_hpp(&text).expect("bundle wrapper emits");
+    let produced = emit_bundle_hpp(&text).expect("bundle wrapper emits");
     let golden = root
         .join("crates/modukit-codegen/testdata/golden")
         .join("modukit_bundle.hpp");
@@ -113,7 +113,7 @@ fn plugin_wrapper_matches_golden() {
 }
 
 #[test]
-fn plugin_wrapper_tracks_the_v2_slots() {
+fn bundle_wrapper_tracks_the_v2_slots() {
     // Structural pin (tripwire): HostAbiV2 is the 3-field v1 prefix plus
     // exactly the four mailbox slots (D96 ruling 2/5); the wrapper carries
     // one forwarder per slot. Counts move only through a D83-class hearing.
@@ -155,7 +155,7 @@ fn plugin_wrapper_tracks_the_v2_slots() {
         ],
         "HostAbiV2 field set/order moved"
     );
-    let produced = emit_plugin_hpp(&header).unwrap();
+    let produced = emit_bundle_hpp(&header).unwrap();
     for verb in [
         "bus_publish",
         "bus_subscribe",
@@ -244,10 +244,10 @@ fn emitted_cpp_passes_fsyntax_only() {
         out_dir.join("modukit_bundle.h"),
     )
     .expect("copy bundle header into smoke dir");
-    let plugin_text =
+    let bundle_text =
         std::fs::read_to_string(contracts.join("modukit_bundle.h")).expect("bundle header");
-    let plugin_hpp = out_dir.join("modukit_bundle.hpp");
-    std::fs::write(&plugin_hpp, emit_plugin_hpp(&plugin_text).unwrap()).unwrap();
+    let bundle_hpp = out_dir.join("modukit_bundle.hpp");
+    std::fs::write(&bundle_hpp, emit_bundle_hpp(&bundle_text).unwrap()).unwrap();
 
     let cxx = find_cxx();
     let Some(cxx) = cxx else {
@@ -256,7 +256,7 @@ fn emitted_cpp_passes_fsyntax_only() {
         return;
     };
     let proto_include = root.join(".pixi/envs/default/include");
-    for src in [face.as_path(), embed_hpp.as_path(), plugin_hpp.as_path()] {
+    for src in [face.as_path(), embed_hpp.as_path(), bundle_hpp.as_path()] {
         let status = std::process::Command::new(&cxx)
             .arg("-std=c++17")
             .arg("-fsyntax-only")

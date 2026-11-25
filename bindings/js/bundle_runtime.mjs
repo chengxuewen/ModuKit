@@ -1,4 +1,4 @@
-// bindings/js/plugin_runtime.mjs - the hand-written bundle-wire v1 skin for
+// bindings/js/bundle_runtime.mjs - the hand-written bundle-wire v1 skin for
 // node script children of the modukit kernel (D106 batch 3, plan T3.1:
 // docs/wave-2-bundle-door-plan.md section 5). The kernel spawns a script
 // bundle as `<runner> <artifact> --fd=N` with the control socketpair injected
@@ -6,7 +6,7 @@
 // there is NO console: diagnostics ride the RESULT channel or die with the
 // exit code (plan section 0; no console.log on purpose).
 // The contracts a script bundle must honor are canonical in
-// docs/tutorials/06-script-plugins.md: absolute runner path, no-print, the
+// docs/tutorials/06-script-bundles.md: absolute runner path, no-print, the
 // repo-relative skin resolution, and generated skins are DO-NOT-EDIT.
 //
 // Node 22 floor, ESM only (no CommonJS dual path until asked). Stdlib only:
@@ -93,7 +93,7 @@ export const PSTR_MAX = 255;
 export const DRAIN_WINDOW_MS = 1000;
 // THE single named sabotage point of leg thirteen (plan T3.3): env
 // DEMO_BUNDLE_JS_SABOTAGE=1 skips the REGISTER push - the kernel then has
-// no proxy for the plugin's services and the driver's first service_call
+// no proxy for the bundle's services and the driver's first service_call
 // answers NOT_FOUND, failing the leg's lifecycle stage red with no PASS
 // line. Read at exactly one place below (the REGISTER loop).
 export const SABOTAGE_ENV = 'DEMO_BUNDLE_JS_SABOTAGE';
@@ -581,7 +581,7 @@ function die(code, why) {
   // "the code is the only channel a host reads" (the runner's own die(),
   // main.rs:75-78); the note still helps a human running standalone.
   try {
-    process.stderr.write(`plugin_runtime: ${why}\n`);
+    process.stderr.write(`bundle_runtime: ${why}\n`);
   } catch {
     // console-less posture: the note is best effort
   }
@@ -644,7 +644,7 @@ async function drainWindow(conn, onBus) {
 // Walk the wire as a kernel-spawned script child. The API is fixed by
 // plan T3.1 (mirror of the py serve()): services={serviceId: [methods]} ->
 // one REGISTER per service; topics=[string | [string, seed]] -> one
-// FORWARD(SUB) per topic (and the seed's PUB in-window); a bus-only plugin
+// FORWARD(SUB) per topic (and the seed's PUB in-window); a bus-only bundle
 // pushes SUBs and NO REGISTER (F8); onCall(method, bytes) -> [status,
 // bytes] with status!=0 passthrough (sync or async); onBus(topic, bytes);
 // DIAL always answers the clean refusal DUE(DIAL_STATUS_REFUSED_REAL) -
@@ -724,7 +724,7 @@ async function pump(conn, services, topics, onCall, onBus) {
       conn.send(MSG_ACK, ackPayload(0));
     } else if (kind === MSG_CALL) {
       const { seq, method, input } = parseCall(payload);
-      // The plugin's own code is the unknown-method authority (the
+      // The bundle's own code is the unknown-method authority (the
       // ledger keeps REGISTER lists as advertisement only).
       let status;
       let output;

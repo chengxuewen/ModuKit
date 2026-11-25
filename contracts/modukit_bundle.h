@@ -1,9 +1,9 @@
 /* modukit_bundle.h - the bundle-side self-report contract ORIGINAL
  * (gap ruling A, maintainer-adjudicated 2026-10-20: one contract original
- * per face; this header IS the contract). The plugin side of the C ABI -
- * the only cross-language exit: a `dl`-placed plugin exports the single
+ * per face; this header IS the contract). The bundle side of the C ABI -
+ * the only cross-language exit: a `dl`-placed bundle exports the single
  * entry symbol `modukit_bundle_init`, which publishes a
- * `modukit_bundle_abi_v1` descriptor; the plugin's start() is then called
+ * `modukit_bundle_abi_v1` descriptor; the bundle's start() is then called
  * once with a borrowed `modukit_host_abi_v1` host table.
  *
  * Layout mirror of crates/modukit-core/src/abi.rs (BundleAbiV1 /
@@ -19,7 +19,7 @@
  * type. v1 tables are frozen (D87): a break is a hearing, never a silent
  * edit. (File order note: HostAbiV1 is declared first because the
  * BundleAbiV1 start slot names it; the Rust declaration order in abi.rs
- * is plugin-then-host and the per-field orders still mirror 1:1.)
+ * is bundle-then-host and the per-field orders still mirror 1:1.)
  *
  * Coexists with contracts/modukit_embed.h (the application<->kernel
  * embed face): a TU including both compiles clean; no symbol declared by
@@ -82,13 +82,13 @@ typedef int64_t (*modukit_register_service_fn_t)(void *user,
                                                  const char *service_id,
                                                  modukit_service_call_fn_t call);
 
-/* Activation (mirrors `abi::PluginStartFn`): called once with the host
+/* Activation (mirrors `abi::BundleStartFn`): called once with the host
  * context; non-zero = start failure (03 §2 STARTING -> FAILED). The
- * host table is borrowed for the duration of the call - plugins keep no
+ * host table is borrowed for the duration of the call - bundles keep no
  * ambient authority past it (01 §3 rule 2). */
 typedef int32_t (*modukit_bundle_start_fn_t)(const struct modukit_host_abi_v1 *host);
 
-/* Cooperative stop (mirrors `abi::PluginStopFn`): must be
+/* Cooperative stop (mirrors `abi::BundleStopFn`): must be
  * idempotent-friendly (01 §3 rule 6). Returns non-zero on failure. */
 typedef int32_t (*modukit_bundle_stop_fn_t)(void);
 
@@ -102,7 +102,7 @@ typedef const struct modukit_bundle_abi_v1 *(*modukit_bundle_init_fn_t)(void);
  * The host fills `size` with the host-compiled size of this table. */
 typedef struct modukit_host_abi_v1 {
     /* abi::HostAbiV1.size - table size, same tail-add guard style as the
-     * descriptor's size (a plugin checks it is >= what it uses). */
+     * descriptor's size (a bundle checks it is >= what it uses). */
     uint32_t size;
     /* abi::HostAbiV1.user - opaque kernel-side context, returned to the
      * callbacks verbatim. Never inspect it. */
@@ -125,39 +125,39 @@ typedef struct modukit_host_abi_v1 {
  *       D83 tail-add extension);
  *   4. start and stop are non-NULL (else HANDSHAKE_INCOMPLETE).
  * The struct is read-only publication data: the C-string members target
- * static bytes inside the plugin's own image, valid while the library
+ * static bytes inside the bundle's own image, valid while the library
  * stays mapped; the host copies what it reads during the guards. */
 typedef struct modukit_bundle_abi_v1 {
     /* abi::BundleAbiV1.abi_version - set to MODUKIT_ABI_VERSION (guard 2). */
     uint32_t abi_version;
-    /* abi::BundleAbiV1.size - the plugin's compiled
+    /* abi::BundleAbiV1.size - the bundle's compiled
      * sizeof(modukit_bundle_abi_v1); set exactly that (guard 3). */
     uint32_t size;
     /* abi::BundleAbiV1.name - human name (04 §3 shape). Read after the
      * guards pass; NULL degrades to a "<null>" placeholder, so provide
-     * it. NUL-terminated static bytes in the plugin image. */
+     * it. NUL-terminated static bytes in the bundle image. */
     const char *name;
     /* abi::BundleAbiV1.id - canonical reverse-DNS id for the future
      * cross-check (D7); not policed until M7, NULL allowed. */
     const char *id;
-    /* abi::BundleAbiV1.version - the plugin's own semver string (05 §1),
+    /* abi::BundleAbiV1.version - the bundle's own semver string (05 §1),
      * independent of the ABI major; NULL allowed. */
     const char *version;
-    /* abi::BundleAbiV1.start - Option<PluginStartFn>: must be non-NULL
+    /* abi::BundleAbiV1.start - Option<BundleStartFn>: must be non-NULL
      * (guard 4). */
     modukit_bundle_start_fn_t start;
-    /* abi::BundleAbiV1.stop - Option<PluginStopFn>: must be non-NULL
+    /* abi::BundleAbiV1.stop - Option<BundleStopFn>: must be non-NULL
      * (guard 4). */
     modukit_bundle_stop_fn_t stop;
 } modukit_bundle_abi_v1;
 
-/* The plugin's export, declared here so a conforming implementation is
+/* The bundle's export, declared here so a conforming implementation is
  * signature-checked at its definition. The host resolves it by name
  * (MODUKIT_ENTRY_SYMBOL) and calls it at most during the handshake. */
 const modukit_bundle_abi_v1 *modukit_bundle_init(void);
 
 /* ------------------------------------------------------------------ */
-/* Stage-5 N1 v2 door (D96 ruling 2) - append-only below. A plugin that
+/* Stage-5 N1 v2 door (D96 ruling 2) - append-only below. A bundle that
  * declares abi_version = MODUKIT_ABI_VERSION_V2 in its BundleAbiV1
  * descriptor is handed a `modukit_host_abi_v2` table at start (the v1
  * prefix plus the four mailbox slots, mirroring the embed face grammar
@@ -189,7 +189,7 @@ typedef int32_t (*modukit_bus_unsubscribe_fn_t)(void *user, int32_t queue_id);
 
 /* HostAbiV2 - the v2 host table (mirrors `abi::HostAbiV2`). The three v1
  * fields keep their exact order and types, so the table doubles as a valid
- * `modukit_host_abi_v1` prefix; a plugin reads the bus slots only after
+ * `modukit_host_abi_v1` prefix; a bundle reads the bus slots only after
  * checking `size >= sizeof(modukit_host_abi_v2)`. */
 typedef struct modukit_host_abi_v2 {
     /* abi::HostAbiV2.size - table size (>= the v1 size for a real v2). */
@@ -209,7 +209,7 @@ typedef struct modukit_host_abi_v2 {
 } modukit_host_abi_v2;
 
 /* ------------------------------------------------------------------ */
-/* Wave-2 T1 v3 clock door (D99 R2) - append-only below. A plugin that
+/* Wave-2 T1 v3 clock door (D99 R2) - append-only below. A bundle that
  * declares abi_version = MODUKIT_ABI_VERSION_V3 in its BundleAbiV1
  * descriptor is handed a `modukit_host_abi_v3` table at start: the
  * byte-identical v2 prefix (which is itself the v1 prefix) plus the two
@@ -230,9 +230,9 @@ typedef struct modukit_host_abi_v2 {
  * mirror) through `out_token`; `clock_now` writes the kernel clock stamp
  * (i64, saturating) through `out_now_ns`. A NULL out-param or NULL label
  * answers negated SCHEMA_INVALID and schedules nothing; there is NO
- * cancel verb (D99 §3) - the kernel releases a plugin's tokens at
+ * cancel verb (D99 §3) - the kernel releases a bundle's tokens at
  * stop/uninstall by its own authority law, and a fired job rings on the
- * per-plugin bus topic `org.modukit.timer.<plugin-id>` (payload token
+ * per-bundle bus topic `org.modukit.timer.<bundle-id>` (payload token
  * u64 LE ++ label UTF-8, Lossy(16) - read it with the mailbox verbs). */
 typedef int32_t (*modukit_timer_schedule_fn_t)(void *user, uint64_t deadline_ns,
                                                const char *job_label,
@@ -242,7 +242,7 @@ typedef int32_t (*modukit_clock_now_fn_t)(void *user, int64_t *out_now_ns);
 /* HostAbiV3 - the v3 host table (mirrors `abi::HostAbiV3`). The seven v2
  * fields keep their exact order and types, so the table doubles as a valid
  * `modukit_host_abi_v2` (and through it `modukit_host_abi_v1`) prefix;
- * a plugin reads the timer slots only after checking
+ * a bundle reads the timer slots only after checking
  * `size >= sizeof(modukit_host_abi_v3)`. */
 typedef struct modukit_host_abi_v3 {
     /* abi::HostAbiV3.size - table size (>= the v2 size for a real v3). */
@@ -261,7 +261,7 @@ typedef struct modukit_host_abi_v3 {
     modukit_bus_unsubscribe_fn_t bus_unsubscribe;
     /* abi::HostAbiV3.timer_schedule - schedule one absolute-deadline job. */
     modukit_timer_schedule_fn_t timer_schedule;
-    /* abi::HostAbiV3.clock_now - the plugin's read of the kernel clock. */
+    /* abi::HostAbiV3.clock_now - the bundle's read of the kernel clock. */
     modukit_clock_now_fn_t clock_now;
 } modukit_host_abi_v3;
 

@@ -78,7 +78,7 @@ extern "C" int32_t t3_stop(void) { return 0; }
 const modukit_bundle_abi_v1 T3_DESCRIPTOR = {
     MODUKIT_ABI_VERSION_V2, /* the D96 v2 door - declared major 2 */
     sizeof(modukit_bundle_abi_v1),
-    "t3-bus-plugin",
+    "t3-bus-bundle",
     kBundleId,
     "0.1.0",
     t3_start,

@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
   }
   const std::string so_path = argv[1];
   if (!std::filesystem::exists(so_path)) {
-    std::printf("SKIP: plugin .so missing at %s\n", so_path.c_str());
+    std::printf("SKIP: bundle .so missing at %s\n", so_path.c_str());
     return 77;
   }
 

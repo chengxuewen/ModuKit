@@ -372,7 +372,7 @@ print("HOST PUSH PASS (host-origin publish crossed the wall via the general pump
 
 # DIAL clean refusal: the skin answers DUE(DIAL_STATUS_REFUSED_REAL) and the
 # parent maps it typed - the child must SURVIVE the refusal (a live,
-# cooperative, undialable plugin - executor_proc.rs:850-855).
+# cooperative, undialable bundle - executor_proc.rs:850-855).
 ds = ctypes.c_int32(0)
 df = ctypes.c_uint64(0)
 rc = lib.modukit_sup_dial(pid, K_DIAL_DELTA_NS, ctypes.byref(ds), ctypes.byref(df))
@@ -401,7 +401,7 @@ rc, _ = call(ID_LIAR.encode(), b"lie", b"x")
 want_active(pid, "py_liar after the lie")
 if rc != NEG_SERVICE_CALL_FAILED:
     fail("second liar call -> %d" % rc)
-print("LIAR PASS (typed -25 twice, plugin stayed ACTIVE)")
+print("LIAR PASS (typed -25 twice, bundle stayed ACTIVE)")
 
 # The census needs a live child at the kill; the "next echo works" proof is
 # py_echo re-installed (single-proxy door again after the liar unregisters).
@@ -417,7 +417,7 @@ print("READY %d" % os.getpid())
 print("LIFECYCLE PASS")
 sys.stdout.flush()
 while True:
-    time.sleep(1)  # the leg SIGKILLs the driver; the plugin rides the EOF
+    time.sleep(1)  # the leg SIGKILLs the driver; the bundle rides the EOF
 PYEOF
 "$PYBIN" "$stage/driver.py" "$PWD/$core_so" "$PWD/bindings/py" "$stage" "$PYABS" \
   "sup-fidelity-payload" >"$dlog" 2>&1 &
@@ -467,9 +467,9 @@ while time.monotonic() < deadline:
         break
     time.sleep(0.05)
 if survivors:
-    sys.stderr.write("CENSUS FAIL: staged plugin pids survived: %s\n" % ",".join(survivors))
+    sys.stderr.write("CENSUS FAIL: staged bundle pids survived: %s\n" % ",".join(survivors))
     sys.exit(1)
-print("CENSUS PASS (zero staged-plugin survivors after the driver SIGKILL)")
+print("CENSUS PASS (zero staged-bundle survivors after the driver SIGKILL)")
 PYEOF
 census_rc=$?
 cat "$dlog"

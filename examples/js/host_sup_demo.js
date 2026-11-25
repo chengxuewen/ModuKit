@@ -335,7 +335,7 @@ function main() {
   const positional = argv.filter((a) => a !== '--proof');
   const proof = positional.length !== argv.length;
   if (positional.length < 4) {
-    console.error('usage: host_sup_demo.js [--proof] <libmodukit_core.so> <modukit_js.node> <plugin.so> <runner>');
+    console.error('usage: host_sup_demo.js [--proof] <libmodukit_core.so> <modukit_js.node> <bundle.so> <runner>');
     return 2;
   }
   const [coreSo, bridgeNode, fixtureSo, runPath] = positional;

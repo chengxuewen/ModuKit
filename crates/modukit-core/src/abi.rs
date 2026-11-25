@@ -73,7 +73,7 @@ pub struct BundleAbiV1 {
     /// Canonical reverse-DNS id for the future cross-check (D7); not
     /// policed until M7.
     pub id: *const c_char,
-    /// Plugin semver string (05 §1: independent of the ABI version).
+    /// Bundle semver string (05 §1: independent of the ABI version).
     pub version: *const c_char,
     pub start: Option<BundleStartFn>,
     pub stop: Option<BundleStopFn>,

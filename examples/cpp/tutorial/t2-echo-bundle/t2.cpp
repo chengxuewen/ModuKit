@@ -2,7 +2,7 @@
  * borrowed host table (the CppMS "register a service" step, raw-ABI shape
  * - no generated shelf, so every line of the handshake is visible). The
  * echo answers the request payload verbatim; the unknown-method refusal
- * is the plugin's own authority (D27 author code space). */
+ * is the bundle's own authority (D27 author code space). */
 #include <cstring>
 
 #include "modukit_bundle.h"
@@ -42,7 +42,7 @@ extern "C" int32_t t2_stop(void) { return 0; }
 const modukit_bundle_abi_v1 T2_DESCRIPTOR = {
     MODUKIT_ABI_VERSION,
     sizeof(modukit_bundle_abi_v1),
-    "t2-echo-plugin",
+    "t2-echo-bundle",
     kServiceId, /* id == registered service id (D9), mirroring the twins */
     "0.1.0",
     t2_start,

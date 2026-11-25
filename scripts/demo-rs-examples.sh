@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# demo-rs-examples.sh - the MERGED rs topic-example leg (plugin-management-plan
+# demo-rs-examples.sh - the MERGED rs topic-example leg (bundle-management-plan
 # example-volume sweep, ruling B1/B2): one script builds and runs the four
 # Rust-face capability examples in order and greps each PASS line. A run that
 # cannot build or cannot print a PASS line exits 1 - no skip-when-absent (the

@@ -306,7 +306,7 @@ def main():
     proof = len(args) != len(sys.argv) - 1
     if len(args) < 2:
         sys.stderr.write(
-            "usage: host_sup_demo.py [--proof] <libmodukit_core.so> <plugin.so> [runner]\n"
+            "usage: host_sup_demo.py [--proof] <libmodukit_core.so> <bundle.so> [runner]\n"
         )
         return 2
     core_so, fixture_so = args[0], args[1]

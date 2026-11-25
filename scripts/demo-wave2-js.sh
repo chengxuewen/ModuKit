@@ -114,7 +114,7 @@ addon_js="target/debug/libmodukit_js.so"
 [ -f "$addon_js" ] || { echo "demo-wave2-js: RED (no libmodukit_js.so after a green build)"; exit 1; }
 cp "$addon_js" target/js/modukit_js.node
 
-# The fixture: the same real C++ plugin .so the cpp M1 demo drives. It is
+# The fixture: the same real C++ bundle .so the cpp M1 demo drives. It is
 # built by the stage4 cmake lanes; when neither tree carries it the demo has
 # nothing to install - the host_demo.cc skip rule (exit 77), kept honest.
 so=""

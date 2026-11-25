@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# test-plugins/py/py_echo.py - the wave-2 bundle-door echo fixture
+# test-bundles/py/py_echo.py - the wave-2 bundle-door echo fixture
 # (D106 batch 2, plan T2.2: docs/wave-2-bundle-door-plan.md section 4).
 # The kernel spawns it as `python3 <this-file> --fd=0` (manifest kind=exe,
 # runner=<absolute interpreter path>); the control socket IS fd 0 and
@@ -24,7 +24,7 @@
 # Runtime resolution (the robust minimal pick, stated): the MODUKIT_PY_SKIN
 # env var wins (the leg stages this file OUTSIDE the repo tree, where the
 # __file__-relative default cannot reach bindings/py); the fallback is the
-# in-place repo layout (<repo>/test-plugins/py/x -> <repo>/bindings/py), so
+# in-place repo layout (<repo>/test-bundles/py/x -> <repo>/bindings/py), so
 # the fixture also runs straight from a checkout without any env.
 
 import os

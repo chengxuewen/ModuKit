@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # leg: contract parity for the C contract originals (Stage-4 M1 lane #2,
-# ruling C++-3; extended by gap ruling A 2026-10-20 for the plugin side).
+# ruling C++-3; extended by gap ruling A 2026-10-20 for the bundle side).
 #
 # (a) Embed face: contracts/modukit_embed.h IS the HostEmbedV1 contract
 #     original; pins the Rust-side mirror (embed_abi.rs EMBED_VERBS) verb-

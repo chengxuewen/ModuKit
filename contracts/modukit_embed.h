@@ -69,7 +69,7 @@ typedef enum modukit_kernel_code {
     MODUKIT_CLOCK_DIAL_REFUSED = 27
 } modukit_kernel_code;
 
-/* Plugin lifecycle states - numeric mirror of `lifecycle::BundleState`
+/* Bundle lifecycle states - numeric mirror of `lifecycle::BundleState`
  * (the kernel returns these through `modukit_state` verbatim). */
 typedef enum modukit_bundle_state {
     MODUKIT_STATE_UNINSTALLED = 0,
@@ -135,21 +135,21 @@ int32_t modukit_embed_abi_version(void);
  * The kernel copies the document during the call; ownership stays with
  * the caller. out_plugin_id receives a NUL-terminated canonical bundle id
  * (D9) backed by kernel-owned static registry storage, valid until
- * uninstall of that plugin; the caller copies it out and never frees it. */
+ * uninstall of that bundle; the caller copies it out and never frees it. */
 int32_t modukit_install(const char *manifest_toml, const char **out_plugin_id);
 
 /* Kernel verb: uninstall (any state -> UNINSTALLED; drops all of the
- * plugin's registrations). `id` is a canonical bundle id previously
+ * bundle's registrations). `id` is a canonical bundle id previously
  * returned by install; borrowed for the call only. */
 int32_t modukit_uninstall(const char *id);
 
 /* Kernel verb: resolve (INSTALLED -> RESOLVING -> STARTING|FAILED).
  * Checks contract/link/placement prerequisites; required dependencies
- * validated deterministically before any plugin code executes. */
+ * validated deterministically before any bundle code executes. */
 int32_t modukit_resolve(const char *id);
 
 /* Kernel verb: start (RESOLVED -> STARTING -> ACTIVE|FAILED).
- * The kernel calls the plugin's start() and parks FAILED on refusal. */
+ * The kernel calls the bundle's start() and parks FAILED on refusal. */
 int32_t modukit_start(const char *id);
 
 /* Kernel verb: stop (ACTIVE -> STOPPING -> RESOLVED|FAILED). Cooperative
@@ -287,7 +287,7 @@ typedef struct modukit_host_embed_v1 {
  * TWO RUNGS, TWO AMBIENT KERNELS: the 16 verbs above drive the
  * in-process (dl) kernel; the modukit_sup_* verbs below drive a
  * SEPARATE process-global Supervisor kernel (proc_supervisor.rs) that
- * owns child-process plugins. Services registered on one rung are NOT
+ * owns child-process bundles. Services registered on one rung are NOT
  * visible to the other - registry-level unification is a future
  * ruling, deliberately not faked here. A dl manifest on sup_install
  * (or an exe manifest on modukit_install) is refused at the INSTALL
@@ -308,11 +308,11 @@ typedef struct modukit_host_embed_v1 {
 int32_t modukit_sup_install(const char *manifest_toml,
                             const char **out_plugin_id);
 
-/* Cooperative stop of a supervised plugin (grace window, then kill -
+/* Cooperative stop of a supervised bundle (grace window, then kill -
  * all Rust-side). Same 0 / negative-D51 channel as modukit_stop. */
 int32_t modukit_sup_stop(const char *id);
 
-/* State of a supervised plugin id; same int32_t modukit_bundle_state
+/* State of a supervised bundle id; same int32_t modukit_bundle_state
  * codes as modukit_state. */
 int32_t modukit_sup_state(const char *id, int32_t *out_state);
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// test-plugins/js/js_echo.mjs - the wave-2 bundle-door echo fixture (D106
+// test-bundles/js/js_echo.mjs - the wave-2 bundle-door echo fixture (D106
 // batch 3, plan T3.2: docs/wave-2-bundle-door-plan.md section 5). The kernel
 // spawns it as `node <this-file> --fd=0` (manifest kind=exe,
 // runner=<absolute node path>); the control socket IS fd 0 and
@@ -24,7 +24,7 @@
 // Runtime resolution (the robust minimal pick, stated): the MODUKIT_JS_SKIN
 // env var wins (the leg stages this file OUTSIDE the repo tree, where a
 // __dirname-relative default cannot reach bindings/js); the fallback is the
-// in-place repo layout (<repo>/test-plugins/js/x -> <repo>/bindings/js), so
+// in-place repo layout (<repo>/test-bundles/js/x -> <repo>/bindings/js), so
 // the fixture also runs straight from a checkout without any env. Byte law
 // (plan T3.2): echo never stringifies - the fidelity constant survives as
 // bytes, no toString() anywhere near the payload.

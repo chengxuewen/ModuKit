@@ -24,11 +24,11 @@ directly - there is no generated layer to trust. The walk is quoted from
 
   /* [2] install: manifest-v0 TOML in, kernel-owned canonical id out. */
   manifest_for(so_path, toml, sizeof(toml));
-  const char *plugin_id = NULL;
+  const char *bundle_id = NULL;
   const int32_t installed =
-      modukit_install(toml, &plugin_id);
-  check(installed == 0 && plugin_id != NULL &&
-            strcmp(plugin_id, PLUGIN_ID) == 0,
+      modukit_install(toml, &bundle_id);
+  check(installed == 0 && bundle_id != NULL &&
+            strcmp(bundle_id, BUNDLE_ID) == 0,
         "[2] install -> canonical id (kernel-owned bytes)");
 ```
 

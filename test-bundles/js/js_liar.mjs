@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// test-plugins/js/js_liar.mjs - the wave-2 bundle-door liar fixture (D106
+// test-bundles/js/js_liar.mjs - the wave-2 bundle-door liar fixture (D106
 // batch 3, plan T3.2): declares ONE service and answers every CALL with
 // RESULT status=-1 (a D27 author code) and empty output. THE LEG CONSUMES
 // IT: the kernel-side proxy must surface the lie as the typed

@@ -16,8 +16,8 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use modukit_codegen::{
-    CodegenError, emit_embed_hpp, emit_embed_js_bridge, emit_embed_js_facade, emit_embed_py,
-    emit_plugin_hpp, generate,
+    CodegenError, emit_bundle_hpp, emit_embed_hpp, emit_embed_js_bridge, emit_embed_js_facade,
+    emit_embed_py, generate,
 };
 
 fn main() -> ExitCode {
@@ -113,7 +113,7 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
             .and_then(|s| s.to_str())
             .ok_or_else(|| usage("--bundle_header needs a file path"))?;
         let path = output_dir.join(format!("{stem}.hpp"));
-        std::fs::write(&path, emit_plugin_hpp(&text)?)?;
+        std::fs::write(&path, emit_bundle_hpp(&text)?)?;
         files.push(path);
     }
     if let Some(py_dir) = py_out {

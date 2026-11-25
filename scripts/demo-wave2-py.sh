@@ -87,7 +87,7 @@ scratch=$(mktemp -d)
 rm -rf "$scratch"
 [ -f bindings/py/modukit_embed.py ] || { echo "demo-wave2-py: RED (bindings/py/modukit_embed.py not regenerated)"; exit 1; }
 
-# The fixture: the same real C++ plugin .so the cpp M1 demo drives. It is
+# The fixture: the same real C++ bundle .so the cpp M1 demo drives. It is
 # built by the stage4 cmake lanes; when neither tree carries it the demo has
 # nothing to install - the host_demo.cc skip rule (exit 77), kept honest.
 so=""

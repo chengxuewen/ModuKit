@@ -36,7 +36,7 @@ struct Slot {
 /// `modukit_host_abi_v2` struct or no fn-pointer slots to forward - a
 /// header the parser cannot see through is contract drift, never a silent
 /// half-wrapper.
-pub fn emit_plugin_hpp(header_text: &str) -> Result<String, CodegenError> {
+pub fn emit_bundle_hpp(header_text: &str) -> Result<String, CodegenError> {
     let slots = parse_slot_typedefs(header_text);
     let fields = parse_struct_fields(header_text, "modukit_host_abi_v2");
     let v3_fields = parse_struct_fields(header_text, "modukit_host_abi_v3");
@@ -104,7 +104,7 @@ pub fn emit_plugin_hpp(header_text: &str) -> Result<String, CodegenError> {
     out.push_str("  --bundle_header contracts/modukit_bundle.h --output_dir <dir>\n\n");
     let _ = write!(
         out,
-        "  C++ PLUGIN FACE host view (Stage-5 N1, D96 ruling 2/5; the wave-2\n  T1 v3 clock-door views per D99 R2): one forwarding method per\n  parsed HostAbiV2 slot ({count} today), the timer tail forwarded\n  behind the HostAbiV3 size guard{tail}. `has_bus()` is the size\n  guard a bundle owes before reading the v2 tail{guard}; a slot\n  called without its table answers {no_v3} and never dereferences.\n",
+        "  C++ BUNDLE FACE host view (Stage-5 N1, D96 ruling 2/5; the wave-2\n  T1 v3 clock-door views per D99 R2): one forwarding method per\n  parsed HostAbiV2 slot ({count} today), the timer tail forwarded\n  behind the HostAbiV3 size guard{tail}. `has_bus()` is the size\n  guard a bundle owes before reading the v2 tail{guard}; a slot\n  called without its table answers {no_v3} and never dereferences.\n",
     );
     out.push_str("  Status is the raw negated-D51 i32 channel. No exceptions across\n");
     out.push_str("  the boundary (D6 sync-boundary discipline, as the embed wrapper). */\n");

@@ -7,7 +7,7 @@ to the maintainers through the repository owner contact on the hosting platform
 (Gitee `chengxuewen/ModuKit`), including:
 
 - the affected surface: the C ABI (`contracts/modukit_embed.h`), the process wire
-  (`modukit_wire.h` / `proc_wire`), plugin loading, manifest/bundle parsing, or an
+  (`modukit_wire.h` / `proc_wire`), bundle loading, manifest/bundle parsing, or an
   environment/script layer;
 - a minimal reproduction; and
 - the impact you believe it has.
@@ -17,7 +17,7 @@ You will get an acknowledgement, then a fix or a written decision on scope.
 ## Scope and expectations
 
 - The framework parses untrusted input through the wire decoder and bundle
-  manifests, and loads plugins through `dlopen`/child processes; `unsafe` blocks
+  manifests, and loads bundles through `dlopen`/child processes; `unsafe` blocks
   and the FFI boundary are the highest-value targets.
 - Panics must never unwind across the C ABI: the boundary catches or aborts
   (`catch_unwind` / `panic = "abort"` at the seam); the napi-side lesson is PIT-30

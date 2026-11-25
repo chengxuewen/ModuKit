@@ -1,10 +1,10 @@
-/* tutorial t4 - the host side: drive a plugin through the full lifecycle
+/* tutorial t4 - the host side: drive a bundle through the full lifecycle
  * over the GENERATED wrapper (the CppMS "run the framework" step). This
- * is the tutorial's driver: it installs one of the t1/t2 plugins passed
+ * is the tutorial's driver: it installs one of the t1/t2 bundles passed
  * as argv[1], walks install -> resolve -> start -> state -> service_call
  * (t2) -> stop -> uninstall, and prints T4-DRIVER PASS. The reduced walk
  * is deliberate: chapters teach the verbs one at a time; this driver
- * proves the tutorial plugins the same way the gate legs prove the
+ * proves the tutorial bundles the same way the gate legs prove the
  * fixtures. */
 #include <cstdio>
 #include <cstring>
@@ -35,12 +35,12 @@ std::string manifest_for(const std::string &so_path) {
 
 int main(int argc, char **argv) {
   if (argc < 2) {
-    std::printf("SKIP: usage: t4-driver <path-to-a-tutorial-plugin.so>\n");
+    std::printf("SKIP: usage: t4-driver <path-to-a-tutorial-bundle.so>\n");
     return 77;
   }
   const std::string so_path = argv[1];
   if (!std::filesystem::exists(so_path)) {
-    std::printf("SKIP: plugin .so missing at %s\n", so_path.c_str());
+    std::printf("SKIP: bundle .so missing at %s\n", so_path.c_str());
     return 77;
   }
 
@@ -62,7 +62,7 @@ int main(int argc, char **argv) {
             state == static_cast<int32_t>(modukit::BundleState::STATE_ACTIVE),
         "state == ACTIVE");
 
-  /* the echo scene only makes sense against the t2 plugin (it registers
+  /* the echo scene only makes sense against the t2 bundle (it registers
    * the echo service); the t1 walk ends here by design. */
   if (std::strcmp(bundle_id, "com.example.t2.echo") == 0) {
     const uint8_t req[] = {'t', '4', '-', 'd', 'r', 'i', 'v', 'e', 'r',

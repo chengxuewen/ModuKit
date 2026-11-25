@@ -1,6 +1,6 @@
 /* tutorial t7 - bus-mediated composition (the spellcheck shape: one
- * service consuming ANOTHER service's work, the ModuKit way). A plugin
- * cannot call another plugin directly (the host table has no call slot -
+ * service consuming ANOTHER service's work, the ModuKit way). A bundle
+ * cannot call another bundle directly (the host table has no call slot -
  * the wire grammar is publish/subscribe), so t3's topic discipline
  * becomes the composition seam: t7 subscribes to a request topic,
  * computes an aggregate, and publishes the reply topic. The HOST drives
@@ -37,7 +37,7 @@ extern "C" int32_t t7_call(const char *method, const uint8_t *input,
   if (std::strcmp(method, "echo") != 0 || input_len > output_cap) {
     return kBadRequest;
   }
-  /* the aggregate answer: the request plus the seed - the plugin's own
+  /* the aggregate answer: the request plus the seed - the bundle's own
    * "composed work", standing in for the spellcheck math. */
   const size_t seed_len = std::strlen(kSeed);
   if (input_len + seed_len > output_cap) {
@@ -81,7 +81,7 @@ extern "C" int32_t t7_stop(void) { return 0; }
 const modukit_bundle_abi_v1 T7_DESCRIPTOR = {
     MODUKIT_ABI_VERSION_V2,
     sizeof(modukit_bundle_abi_v1),
-    "t7-compose-plugin",
+    "t7-compose-bundle",
     kBundleId,
     "0.1.0",
     t7_start,

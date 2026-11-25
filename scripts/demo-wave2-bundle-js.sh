@@ -417,7 +417,7 @@ console.log('HOST PUSH PASS (host-origin publish crossed the wall via the genera
 
 // DIAL clean refusal: the skin answers DUE(DIAL_STATUS_REFUSED_REAL) and the
 // parent maps it typed - the child must SURVIVE the refusal (a live,
-// cooperative, undialable plugin - executor_proc.rs:850-855).
+// cooperative, undialable bundle - executor_proc.rs:850-855).
 const dial = skin.modukit_sup_dial(pid, K_DIAL_DELTA_NS);
 if (dial.raw !== NEG_CLOCK_DIAL_REFUSED) {
   fail(`sup_dial must surface the clean refusal -27, got ${dial.raw}`);
@@ -448,7 +448,7 @@ wantActive(pid, 'js_liar after the lie');
 if (rc !== NEG_SERVICE_CALL_FAILED) {
   fail(`second liar call -> ${rc}`);
 }
-console.log('LIAR PASS (typed -25 twice, plugin stayed ACTIVE)');
+console.log('LIAR PASS (typed -25 twice, bundle stayed ACTIVE)');
 
 // The census needs a live child at the kill; the "next echo works" proof is
 // js_echo re-installed (single-proxy door again after the liar unregisters).
@@ -464,7 +464,7 @@ console.log('NEXT ECHO PASS (liar episode cost the family nothing)');
 console.log(`READY ${process.pid}`);
 console.log('LIFECYCLE PASS');
 process.exitCode = 0;
-// The leg SIGKILLs the driver; the plugin rides the EOF. The parked read in
+// The leg SIGKILLs the driver; the bundle rides the EOF. The parked read in
 // the addon's dlopened kernel does not keep the node loop alive on its own
 // (napi threads are not loop refs), so park on a plain interval.
 setInterval(() => {}, 1000);
@@ -494,7 +494,7 @@ kill -9 "$dpid" 2>/dev/null || true
 wait "$dpid" 2>/dev/null || true
 "$NBIN" - "$stage" <<'JSEOF'
 // Scratch census for scripts/demo-wave2-bundle-js.sh stage [3]: the staged
-// plugin children must self-exit on the control EOF within the deadline.
+// bundle children must self-exit on the control EOF within the deadline.
 import fs from 'node:fs';
 import process from 'node:process';
 
@@ -518,10 +518,10 @@ for (;;) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 50);
 }
 if (survivors.length) {
-  console.error(`CENSUS FAIL: staged plugin pids survived: ${survivors.join(',')}`);
+  console.error(`CENSUS FAIL: staged bundle pids survived: ${survivors.join(',')}`);
   process.exit(1);
 }
-console.log('CENSUS PASS (zero staged-plugin survivors after the driver SIGKILL)');
+console.log('CENSUS PASS (zero staged-bundle survivors after the driver SIGKILL)');
 JSEOF
 census_rc=$?
 cat "$dlog"

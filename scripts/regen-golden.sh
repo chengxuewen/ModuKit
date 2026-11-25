@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Rewrite the golden corpus under crates/modukit-codegen/testdata/golden/ from
-# the checked-in contract fdsets AND both C contract headers (embed+plugin faces). Review the diff: a golden change means
+# the checked-in contract fdsets AND both C contract headers (embed+bundle faces). Review the diff: a golden change means
 # either the .proto changed (intended) or the generator drifted (a bug).
 # The gate itself is `cargo test -p modukit-codegen --test golden`.
 set -euo pipefail
