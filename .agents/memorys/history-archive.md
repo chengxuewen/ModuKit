@@ -1,5 +1,51 @@
 # ModuKit — History Archive
 
+## 2026-11-25 - status offload III (onboarding volume + example sweep + unification rulings)
+
+- Moved verbatim from status.md (budget pressure: 7732 bytes): the Repo Audit
+  settled-rows paragraph covering 2026-11-23..11-25. Active remainders, Open
+  Items, and the unification pointer stay condensed in status.md.
+- 2026-11-23 settled (verbatim): MediaServo scan f589e8f4 + four adopt cards
+  landed (leak gate leg 41, TMPDIR pins, shadcn trio, ignore locality);
+  preset official hidden-base shape + territory move to build/presets;
+  plugin-management-plan rev7 COMPLETE (A1-A6 all A; S1-S4 ALL LANDED -
+  filter/find_services 25 verbs, Modified+filtered subscribe, ServiceTracker,
+  version ranges, DM-lite on_down active, ConfigAdmin hot lane+persistence,
+  modukit-host --ops read-only face; trigger-gated remainders in plan §8).
+  module-status headers on all 11 non-index module pages (6683734).
+- 2026-11-24 onboarding volume: plan rev5 (docs/onboarding-plan.md,
+  43c008a..6916505; A1-A6 ALL RESOLVED, A1 B-expanded = full 3x2 host+plugin
+  matrix C/C++/Py in v1; two panels folded in; E2 Route A rides the m1 leg;
+  fenced-command automation trigger-gated). E1 LANDED (8d44c8b/8554794/
+  fe43b64/cf362cc: counts, SKIP copy, platform note, demo router). E2 LANDED
+  (6735296+8f9f976: C fixture band + C host demo riding m1; 3x2 matrix
+  complete; stamp self-heal). E3 LANDED (0803b07: tutorials 01-04 + index,
+  doc-refs tutorials round 5-red self-test, book Tutorials group). E4 LANDED
+  (1906543: chapters 05-06 language bands, manifest sample, binding pointers).
+  E5 LANDED (c286a52: README Quickstart, llms.txt lines, 00-overview routes,
+  examples/README router). E6 LANDED (77306ab: features gallery wired into
+  doc-refs/book/llms; ConfigAdmin no-leg marker). E7 LANDED (6ac53d2:
+  rehearsal green - 13 legs + both levers, bootstrap idempotent, zero bites;
+  plan rev6 EXECUTED).
+- 2026-11-24/25 deepening + example sweep: deepening batch landed (6512776
+  full C walk + cpp v2-door twin; 2a048f1+0fca942 rs scratch territory;
+  c55f61f tutorial code narratives 03-06). Example-volume sweep adjudicated
+  (c9f21d6, B1-B6 all A) and B1 LANDED (081c2e3 rs topic examples
+  tracker/dm/config/ops on the merged demo-rs-examples leg; 6d66cb3 cpp t7
+  composition + t8 walk + t3 subscribe-contract fix; ef9052f py/js [10b]
+  consumer scenes); matrix archived docs/reference/framework-gap-matrix.md;
+  B2-B6 doc closures landed (bd3e722: 02b eight-step + symbol anchors +
+  not-yet block; 01 ops section).
+- 2026-11-25 bundle-unification: D111 one-word ruling (the managed unit is
+  bundle; plugin retires from user-facing vocabulary; two panels, sunk costs
+  excluded). Plan rev1-rev4 (docs/bundle-unification-plan.md): A1-A6 all A
+  (clean-break ABI, full structural renames, append-only history + bridge
+  notes, bundles/<name>/ outputs, OSGi-style tagline, gate-i18n guard
+  activated S5); rev4 panel-reviewed (S1 = the enumerated consumer closure
+  with pre-flight dry-run; M1-M4 all A; new S2.5 owns .agents; survey
+  corrected ~2900 hits/290 files). Warm self-heal landed (e8f3bb8:
+  warm-lanes.sh). Session lessons PIT-44 filed (sunk-cost scoping).
+
 ## 2026-11-23 - status offload II (preset / territory / plan rows)
 
 - Moved verbatim from status.md (budget pressure: 7913 bytes): the MediaServo
