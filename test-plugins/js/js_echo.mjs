@@ -48,13 +48,13 @@ function findSkin() {
   const here = path.dirname(fileURLToPath(import.meta.url));
   cands.push(path.normalize(path.join(here, '..', '..', 'bindings', 'js')));
   for (const c of cands) {
-    if (fs.existsSync(path.join(c, 'plugin_runtime.mjs'))) return c;
+    if (fs.existsSync(path.join(c, 'bundle_runtime.mjs'))) return c;
   }
   process.exit(5); // no console to complain to: the code IS the diagnosis
 }
 
 const require = createRequire(import.meta.url);
-const rt = await import(`file://${path.join(findSkin(), 'plugin_runtime.mjs')}`);
+const rt = await import(`file://${path.join(findSkin(), 'bundle_runtime.mjs')}`);
 void require; // createRequire kept only for the require-shaped import idiom parity
 
 const state = { seen: Buffer.alloc(0), republished: false };

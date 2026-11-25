@@ -31,6 +31,6 @@ cargo run -q -p modukit-codegen --bin protoc-gen-modukit -- \
   --embed_header contracts/modukit_embed.h \
   --py_out "$GOLDEN" \
   --js_out "$GOLDEN" \
-  --plugin_header contracts/modukit_plugin.h \
+  --bundle_header contracts/modukit_bundle.h \
   --output_dir "$GOLDEN"
 echo "ok regen-golden -> $GOLDEN"

@@ -52,7 +52,7 @@ doc() {
   line ""
   line "## Contracts"
   doc contracts/modukit_embed.h "embed ABI" "the C embedding surface"
-  doc contracts/modukit_plugin.h "plugin ABI" "modukit_plugin_init and HostAbi tables"
+  doc contracts/modukit_bundle.h "plugin ABI" "modukit_bundle_init and HostAbi tables"
   doc contracts/modukit_wire.h "process wire" "TL frame prefix + payload grammar"
   doc contracts/modukit.proto "kernel proto" "proto2 ledger"
   doc contracts/golden/wire-v1 "wire goldens" "regression frames"

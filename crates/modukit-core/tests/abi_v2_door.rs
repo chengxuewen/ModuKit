@@ -12,7 +12,7 @@ use modukit_core::abi::{HostAbiV1, HostAbiV2, NativeService};
 use modukit_core::error::KernelError;
 use modukit_core::identity::TopicId;
 use modukit_core::kernel::Kernel;
-use modukit_core::lifecycle::PluginState;
+use modukit_core::lifecycle::BundleState;
 use modukit_core::manifest::Manifest;
 
 const BUSV2_ID: &str = "com.example.modukit.busv2";
@@ -98,7 +98,7 @@ fn v2_table_is_the_v1_prefix_plus_four_mailbox_slots() {
 /// The full v2 walk through the real door. The fixture's `start` IS the
 /// assertion suite (self-echo, need-reporting recv, late-join snapshot,
 /// unsubscribe, refusal numbers) - any failed step parks the start at its
-/// distinct negative code, surfacing here as PluginStartFailed.
+/// distinct negative code, surfacing here as BundleStartFailed.
 #[test]
 fn declared_major_2_walks_the_real_door_and_the_kernel_sees_the_same_bus() {
     let Some(so) = build_fixture("busv2-plugin", "busv2_plugin") else {
@@ -115,11 +115,11 @@ fn declared_major_2_walks_the_real_door_and_the_kernel_sees_the_same_bus() {
     kernel
         .resolve(&id)
         .expect("declared major 2 is accepted at the door");
-    assert_eq!(kernel.state(&id).expect("resolved"), PluginState::Starting);
+    assert_eq!(kernel.state(&id).expect("resolved"), BundleState::Starting);
     kernel
         .start(&id)
         .expect("the fixture's mailbox walk must pass every ruling (start returns its code)");
-    assert_eq!(kernel.state(&id).expect("started"), PluginState::Active);
+    assert_eq!(kernel.state(&id).expect("started"), BundleState::Active);
 
     // The v1 prefix slot on the v2 table registered a real echo service.
     let svc = kernel
@@ -155,7 +155,7 @@ fn declared_major_2_walks_the_real_door_and_the_kernel_sees_the_same_bus() {
     kernel.uninstall(&id).expect("uninstall");
     assert_eq!(
         kernel.state(&id).expect("uninstalled"),
-        PluginState::Uninstalled
+        BundleState::Uninstalled
     );
 }
 
@@ -184,7 +184,7 @@ fn declared_major_99_still_parks_failed_at_the_v2_door() {
     );
     assert_eq!(
         kernel.state(&id).expect("still tracked"),
-        PluginState::Failed,
+        BundleState::Failed,
         "unknown ABI version -> FAILED at RESOLVING (04 §3), never a partial start"
     );
     let plugin_services: Vec<_> = kernel

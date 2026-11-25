@@ -32,8 +32,8 @@ use std::time::{Duration, Instant};
 use modukit_core::clock::{Clock, ClockDomain};
 use modukit_core::error::KernelError;
 use modukit_core::executor::{DIAL_TIMEOUT, Revive, STOP_KILL_GRACE, Supervisor};
-use modukit_core::identity::PluginId;
-use modukit_core::lifecycle::PluginState;
+use modukit_core::identity::BundleId;
+use modukit_core::lifecycle::BundleState;
 use modukit_core::manifest::Manifest;
 
 const ID: &str = "com.example.proc.stand-in";
@@ -269,7 +269,7 @@ fn step_supervisor() -> Supervisor {
     Supervisor::with_clock(Clock::new(ClockDomain::Step))
 }
 
-fn install_resolve_start(sup: &Supervisor, exe: &Path, restart_toml: &str) -> PluginId {
+fn install_resolve_start(sup: &Supervisor, exe: &Path, restart_toml: &str) -> BundleId {
     let manifest = parse_manifest(exe, restart_toml);
     let id = manifest.id.clone();
     sup.kernel().install(manifest).expect("install");

@@ -19,7 +19,7 @@ fn crash_injection_keeps_host_alive_lands_failed_edge_and_restarts_bounded() {
     // and the restart budget gates on the D3 policy BEFORE the dial allows.
     assert_eq!(
         sup.kernel().state(&id).expect("host alive"),
-        PluginState::Failed
+        BundleState::Failed
     );
     assert_eq!(sup.kernel().counters().process_crashes(), 1);
     assert_eq!(
@@ -39,7 +39,7 @@ fn crash_injection_keeps_host_alive_lands_failed_edge_and_restarts_bounded() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("still FAILED"),
-        PluginState::Failed
+        BundleState::Failed
     );
     sup.kernel().advance_clock(Duration::from_secs(1));
     assert!(
@@ -48,7 +48,7 @@ fn crash_injection_keeps_host_alive_lands_failed_edge_and_restarts_bounded() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("restarted"),
-        PluginState::Active
+        BundleState::Active
     );
     assert_eq!(sup.kernel().counters().process_restarts(), 1);
 
@@ -63,7 +63,7 @@ fn crash_injection_keeps_host_alive_lands_failed_edge_and_restarts_bounded() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("parked"),
-        PluginState::Failed
+        BundleState::Failed
     );
     assert_eq!(sup.kernel().counters().process_crashes(), 2);
     assert_eq!(sup.kernel().counters().process_restarts(), 1);
@@ -105,7 +105,7 @@ fn flapping_peer_hits_max_restarts_and_parks_in_failed() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("parked"),
-        PluginState::Failed
+        BundleState::Failed
     );
     let walk = lifecycle_walk(&sup);
     assert_eq!(

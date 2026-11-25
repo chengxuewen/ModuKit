@@ -23,7 +23,7 @@ use crate::edge_ledger::EdgeLedger;
 use crate::events::Observatory;
 use crate::executor::{DlopenExecutor, Executor};
 use crate::introspect::{EventStream, LedgerDump, Snapshot};
-use crate::kernel::{Kernel, PluginRecord};
+use crate::kernel::{BundleRecord, Kernel};
 use crate::logger::Logger;
 use crate::registry::{Properties, PropertyValue, Registry};
 
@@ -196,7 +196,7 @@ impl Kernel {
     /// still behind the register check: the runner-side bridge FORWARD and
     /// the parent-side fan-out pump - bells only, at the one due-funnel.
     fn post_timer_bell(&self, job: &crate::clock::DueJob) {
-        let Some(plugin_id) = self
+        let Some(bundle_id) = self
             .plugin_timers
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -212,7 +212,7 @@ impl Kernel {
             return;
         }
         let topic =
-            crate::identity::TopicId::new(format!("org.modukit.timer.{}", plugin_id.as_str()));
+            crate::identity::TopicId::new(format!("org.modukit.timer.{}", bundle_id.as_str()));
         let mut payload = self.clock.boot_gen().to_le_bytes().to_vec();
         payload.extend_from_slice(&job.token.value().to_le_bytes());
         payload.extend_from_slice(job.job.as_bytes());
@@ -262,9 +262,9 @@ impl Kernel {
 }
 
 /// The plugin table handle shared with the introspect trio (kernel-owned,
-/// read-only from there — D17). Kept here so `PluginRecord` visibility
+/// read-only from there — D17). Kept here so `BundleRecord` visibility
 /// never widens beyond this crate.
-pub(crate) type PluginTable = Arc<Mutex<HashMap<crate::identity::PluginId, PluginRecord>>>;
+pub(crate) type PluginTable = Arc<Mutex<HashMap<crate::identity::BundleId, BundleRecord>>>;
 
 #[cfg(test)]
 /// T2 leg DOWN at the REAL bell site, frame-level (the crossing plan's
@@ -283,7 +283,7 @@ mod bell_crossing_tests {
     // is the T1 door suite's own cell; these legs need the bell live).
     use crate::bus_wire::ParentFanout;
     use crate::clock::{Clock, ClockDomain, Timestamp};
-    use crate::identity::{PluginId, TopicId};
+    use crate::identity::{BundleId, TopicId};
     use crate::proc_wire::{self, FWD_SUB, Forward, MSG_DELIVER};
 
     fn bell_topic(plugin: &str) -> TopicId {
@@ -319,7 +319,7 @@ mod bell_crossing_tests {
             .plugin_timers
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
-            .insert(token, PluginId::new(plugin.to_string()));
+            .insert(token, BundleId::new(plugin.to_string()));
     }
 
     /// The parent-side bell crosses its own wall: dial, and the DELIVER

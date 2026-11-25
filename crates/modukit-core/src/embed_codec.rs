@@ -17,7 +17,7 @@ use crate::edge_ledger::EdgeKind;
 use crate::error::KernelError;
 use crate::events::{ObsEvent, ObsRecord};
 use crate::introspect::HostView;
-use crate::lifecycle::PluginState;
+use crate::lifecycle::BundleState;
 use crate::registry::ServiceEvent;
 use crate::topic::QoS;
 
@@ -85,18 +85,18 @@ pub(crate) fn neg_kernel(err: &KernelError) -> i32 {
     -d51_number(err.code())
 }
 
-/// `PluginState` -> the header's pinned `modukit_plugin_state` number.
+/// `BundleState` -> the header's pinned `modukit_bundle_state` number.
 #[must_use]
-pub(crate) const fn state_number(state: PluginState) -> i32 {
+pub(crate) const fn state_number(state: BundleState) -> i32 {
     match state {
-        PluginState::Uninstalled => 0,
-        PluginState::Installed => 1,
-        PluginState::Resolving => 2,
-        PluginState::Starting => 3,
-        PluginState::Active => 4,
-        PluginState::Stopping => 5,
-        PluginState::Resolved => 6,
-        PluginState::Failed => 7,
+        BundleState::Uninstalled => 0,
+        BundleState::Installed => 1,
+        BundleState::Resolving => 2,
+        BundleState::Starting => 3,
+        BundleState::Active => 4,
+        BundleState::Stopping => 5,
+        BundleState::Resolved => 6,
+        BundleState::Failed => 7,
     }
 }
 
@@ -447,7 +447,7 @@ mod tests {
             KernelError::DependencyMissing {
                 service: "x".into(),
             },
-            KernelError::PluginStartFailed { status: -1 },
+            KernelError::BundleStartFailed { status: -1 },
             KernelError::ServiceCallFailed { code: -2 },
             KernelError::UnsupportedPlacement {
                 kind: "wasm".into(),
@@ -489,9 +489,9 @@ mod tests {
 
     #[test]
     fn state_and_qos_and_kind_maps_are_pinned() {
-        assert_eq!(state_number(PluginState::Uninstalled), 0);
-        assert_eq!(state_number(PluginState::Active), 4);
-        assert_eq!(state_number(PluginState::Failed), 7);
+        assert_eq!(state_number(BundleState::Uninstalled), 0);
+        assert_eq!(state_number(BundleState::Active), 4);
+        assert_eq!(state_number(BundleState::Failed), 7);
         assert_eq!(qos_from_i32(2), Some(QoS::Lossy(LOSSY_RING)));
         assert_eq!(qos_from_i32(99), None);
         assert_eq!(event_kind(&ObsEvent::Marker("m".into())), 5);
@@ -501,13 +501,13 @@ mod tests {
     fn snapshot_codec_is_sorted_tab_separated_lines() {
         let view = HostView {
             plugins: vec![
-                crate::introspect::PluginView {
+                crate::introspect::BundleView {
                     id: "b.two".into(),
                     state: "ACTIVE".into(),
                     placement: "dl".into(),
                     version: "0.1.0".into(),
                 },
-                crate::introspect::PluginView {
+                crate::introspect::BundleView {
                     id: "a.one".into(),
                     state: "INSTALLED".into(),
                     placement: "dl".into(),

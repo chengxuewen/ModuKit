@@ -6,7 +6,7 @@
  *
  * Hand-authored; D83 tail-add amendment policy: new verbs append to the
  * vtable tail and bump the minor bookkeeping, existing entries never move
- * or change type. The two frozen v1 plugin tables (PluginAbiV1/HostAbiV1,
+ * or change type. The two frozen v1 plugin tables (BundleAbiV1/HostAbiV1,
  * D87 STABLE) are NOT this surface and are untouched by it.
  *
  * C shade conventions follow the codegen cabi precedent: opaque handle
@@ -69,9 +69,9 @@ typedef enum modukit_kernel_code {
     MODUKIT_CLOCK_DIAL_REFUSED = 27
 } modukit_kernel_code;
 
-/* Plugin lifecycle states - numeric mirror of `lifecycle::PluginState`
+/* Plugin lifecycle states - numeric mirror of `lifecycle::BundleState`
  * (the kernel returns these through `modukit_state` verbatim). */
-typedef enum modukit_plugin_state {
+typedef enum modukit_bundle_state {
     MODUKIT_STATE_UNINSTALLED = 0,
     MODUKIT_STATE_INSTALLED = 1,
     MODUKIT_STATE_RESOLVING = 2,
@@ -80,7 +80,7 @@ typedef enum modukit_plugin_state {
     MODUKIT_STATE_STOPPING = 5,
     MODUKIT_STATE_RESOLVED = 6,
     MODUKIT_STATE_FAILED = 7
-} modukit_plugin_state;
+} modukit_bundle_state;
 
 /* Clock domains - numeric mirror of `clock::ClockDomain`. */
 typedef enum modukit_clock_domain {
@@ -156,7 +156,7 @@ int32_t modukit_start(const char *id);
  * drain: new calls are refused while old ones finish. */
 int32_t modukit_stop(const char *id);
 
-/* Kernel verb: state. out_state receives one modukit_plugin_state value. */
+/* Kernel verb: state. out_state receives one modukit_bundle_state value. */
 int32_t modukit_state(const char *id, int32_t *out_state);
 
 /* ------------------------------------------------------------------ */
@@ -312,7 +312,7 @@ int32_t modukit_sup_install(const char *manifest_toml,
  * all Rust-side). Same 0 / negative-D51 channel as modukit_stop. */
 int32_t modukit_sup_stop(const char *id);
 
-/* State of a supervised plugin id; same int32_t modukit_plugin_state
+/* State of a supervised plugin id; same int32_t modukit_bundle_state
  * codes as modukit_state. */
 int32_t modukit_sup_state(const char *id, int32_t *out_state);
 

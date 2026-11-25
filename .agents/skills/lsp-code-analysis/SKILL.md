@@ -74,7 +74,7 @@ macro-produced items, and a text search can return a superset.
 | Surface you are changing | Also check | Gate that proves it |
 |---|---|---|
 | Embed verb (`contracts/modukit_embed.h`) | `embed_abi.rs` `EMBED_VERBS`, `docs/capability-ledger.md`, cpp/py/js skins | `embed-parity`, `capability-ledger` |
-| Host ABI table (`abi.rs`) | `host_v2.rs`, `host_v3.rs`, `contracts/modukit_plugin.h`, ABI version gates | `gate-abi`, `cargo test` |
+| Host ABI table (`abi.rs`) | `host_v2.rs`, `host_v3.rs`, `contracts/modukit_bundle.h`, ABI version gates | `gate-abi`, `cargo test` |
 | Wire constant (`proc_wire.rs`) | `contracts/modukit_wire.h`, `contracts/golden/wire-v1/` | `wire-parity`, `scripts/regen-golden.sh` diff |
 | Manifest key | `bundle.rs`, `docs/modules/05-manifest-and-deployment.md`, deploy trees | `spec-trace`, core tests |
 | Bus/clock behaviour | proxy face, demo legs | the matching `demo-*` leg |

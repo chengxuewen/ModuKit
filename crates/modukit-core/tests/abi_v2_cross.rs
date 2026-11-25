@@ -23,7 +23,7 @@ use std::sync::{Mutex, MutexGuard, PoisonError};
 
 use modukit_core::executor::Supervisor;
 use modukit_core::identity::TopicId;
-use modukit_core::lifecycle::PluginState;
+use modukit_core::lifecycle::BundleState;
 use modukit_core::manifest::Manifest;
 use modukit_core::proc_wire::{
     self, Delivery, Forward, HELLO_CAP_BUS_V2, Hello, MSG_DELIVER, MSG_FORWARD,
@@ -147,7 +147,7 @@ fn wall_out_runs_the_same_walk_and_the_parent_bus_sees_the_same_topic() {
         .expect("the fixture's mailbox walk must hold across the wall (code names the step)");
     assert_eq!(
         sup.kernel().state(&id).expect("tracked"),
-        PluginState::Active
+        BundleState::Active
     );
 
     // Ruling 6 host-side: the parent's OWN bus carries the child's publishes
@@ -177,7 +177,7 @@ fn wall_out_runs_the_same_walk_and_the_parent_bus_sees_the_same_topic() {
     sup.kernel().stop(&id).expect("cooperative stop");
     assert_eq!(
         sup.kernel().state(&id).expect("tracked"),
-        PluginState::Resolved
+        BundleState::Resolved
     );
     sup.kernel().uninstall(&id).expect("uninstall");
 }
@@ -208,7 +208,7 @@ fn flag_off_runner_is_never_spoken_to_and_leaves_the_parent_bus_at_zero() {
     started.expect("the fixture still walks its own local bus (N1 grammar)");
     assert_eq!(
         sup.kernel().state(&id).expect("tracked"),
-        PluginState::Active
+        BundleState::Active
     );
 
     // No FORWARD ever crossed: the parent's bus never saw a publish, and the

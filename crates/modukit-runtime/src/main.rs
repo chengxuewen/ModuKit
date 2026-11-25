@@ -38,7 +38,7 @@ use modukit_core::abi::{ABI_VERSION, NativeService};
 use modukit_core::clock::{Clock, ClockDomain};
 use modukit_core::error::KernelError;
 use modukit_core::executor::DlopenExecutor;
-use modukit_core::identity::PluginId;
+use modukit_core::identity::BundleId;
 use modukit_core::kernel::Kernel;
 use modukit_core::lifecycle::RestartPolicy;
 use modukit_core::manifest::{Entry, Manifest, PlacementKind};
@@ -132,7 +132,7 @@ fn parse_args() -> (String, i32, ClockDomain, bool) {
 /// the parent's strict cross-check, executor_proc.rs).
 fn internal_manifest(artifact: &str, id: String, version: String) -> Manifest {
     Manifest {
-        id: PluginId::new(id),
+        id: BundleId::new(id),
         version,
         team: "modukit-runtime".to_string(),
         start_level: 0,
@@ -189,7 +189,7 @@ fn self_report(artifact: &str) -> (String, String, String) {
 /// the parent installs a kernel-side proxy from it (S2-M3a). Returns the
 /// ACK status. A plugin that registers no native service is not failed
 /// by the runner — there is nothing here to verify or announce.
-fn handle_start(kernel: &Kernel, id: &PluginId, control: &mut UnixStream) -> i32 {
+fn handle_start(kernel: &Kernel, id: &BundleId, control: &mut UnixStream) -> i32 {
     if let Err(err) = kernel.start(id) {
         return verb_status(err);
     }
@@ -240,7 +240,7 @@ fn handle_start(kernel: &Kernel, id: &PluginId, control: &mut UnixStream) -> i32
 /// (D27 author code space); everything else is a runner-side -1 with a note.
 fn verb_status(err: KernelError) -> i32 {
     match err {
-        KernelError::PluginStartFailed { status } => status,
+        KernelError::BundleStartFailed { status } => status,
         other => {
             eprintln!("modukit-run: {other}");
             -1

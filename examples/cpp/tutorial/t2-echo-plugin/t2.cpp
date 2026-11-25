@@ -5,7 +5,7 @@
  * is the plugin's own authority (D27 author code space). */
 #include <cstring>
 
-#include "modukit_plugin.h"
+#include "modukit_bundle.h"
 
 namespace {
 
@@ -39,9 +39,9 @@ extern "C" int32_t t2_start(const modukit_host_abi_v1 *host) {
 
 extern "C" int32_t t2_stop(void) { return 0; }
 
-const modukit_plugin_abi_v1 T2_DESCRIPTOR = {
+const modukit_bundle_abi_v1 T2_DESCRIPTOR = {
     MODUKIT_ABI_VERSION,
-    sizeof(modukit_plugin_abi_v1),
+    sizeof(modukit_bundle_abi_v1),
     "t2-echo-plugin",
     kServiceId, /* id == registered service id (D9), mirroring the twins */
     "0.1.0",
@@ -51,6 +51,6 @@ const modukit_plugin_abi_v1 T2_DESCRIPTOR = {
 
 }  // namespace
 
-extern "C" const modukit_plugin_abi_v1 *modukit_plugin_init(void) {
+extern "C" const modukit_bundle_abi_v1 *modukit_bundle_init(void) {
   return &T2_DESCRIPTOR;
 }

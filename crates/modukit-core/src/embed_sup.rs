@@ -25,7 +25,7 @@ use std::time::Duration;
 
 use crate::embed::registered_id;
 use crate::embed_codec::{self as codec, bytes_arg, copy_out, cstr_arg};
-use crate::identity::PluginId;
+use crate::identity::BundleId;
 use crate::manifest::Manifest;
 use crate::proc_proxy::ProxyService;
 use crate::proc_supervisor::{Revive, Supervisor};
@@ -110,7 +110,7 @@ pub extern "C" fn modukit_sup_stop(id: *const c_char) -> i32 {
             return codec::NEG_SCHEMA_INVALID;
         };
         let sup = supervisor();
-        match sup.0.kernel().stop(&PluginId::new(s.to_string())) {
+        match sup.0.kernel().stop(&BundleId::new(s.to_string())) {
             Ok(()) => 0,
             Err(err) => codec::neg_kernel(&err),
         }
@@ -118,7 +118,7 @@ pub extern "C" fn modukit_sup_stop(id: *const c_char) -> i32 {
 }
 
 #[unsafe(no_mangle)]
-/// State of a supervised id; same `modukit_plugin_state` codes.
+/// State of a supervised id; same `modukit_bundle_state` codes.
 #[allow(clippy::not_unsafe_ptr_arg_deref)] // FFI: contract-pinned signature; derefs null-checked
 pub extern "C" fn modukit_sup_state(id: *const c_char, out_state: *mut i32) -> i32 {
     codec::guard(|| {
@@ -129,7 +129,7 @@ pub extern "C" fn modukit_sup_state(id: *const c_char, out_state: *mut i32) -> i
             return codec::NEG_SCHEMA_INVALID;
         };
         let sup = supervisor();
-        match sup.0.kernel().state(&PluginId::new(s.to_string())) {
+        match sup.0.kernel().state(&BundleId::new(s.to_string())) {
             Ok(state) => {
                 // SAFETY: `out_state` checked non-null above.
                 unsafe { *out_state = codec::state_number(state) };
@@ -179,7 +179,7 @@ pub extern "C" fn modukit_sup_dial(
         };
         let sup = supervisor();
         match sup.0.dial(
-            &PluginId::new(s.to_string()),
+            &BundleId::new(s.to_string()),
             Duration::from_nanos(delta_ns as u64),
         ) {
             Ok(turn) => {
@@ -208,7 +208,7 @@ pub extern "C" fn modukit_sup_restart(id: *const c_char, out_revive: *mut i32) -
             return codec::NEG_SCHEMA_INVALID;
         };
         let sup = supervisor();
-        match sup.0.revive(&PluginId::new(s.to_string())) {
+        match sup.0.revive(&BundleId::new(s.to_string())) {
             Ok(outcome) => {
                 // SAFETY: `out_revive` checked non-null above.
                 unsafe {
@@ -234,7 +234,7 @@ pub extern "C" fn modukit_sup_uninstall(id: *const c_char) -> i32 {
             return codec::NEG_SCHEMA_INVALID;
         };
         let sup = supervisor();
-        match sup.0.kernel().uninstall(&PluginId::new(s.to_string())) {
+        match sup.0.kernel().uninstall(&BundleId::new(s.to_string())) {
             Ok(()) => 0,
             Err(err) => codec::neg_kernel(&err),
         }

@@ -1,12 +1,12 @@
 /* cpp-example-plugin - positive dlopen fixture, C++ twin of the cargo
    example-plugin (D23 template standing). The kernel-facing surface is
-   exactly the v1 handshake (contracts/modukit_plugin.h) plus ONE service
+   exactly the v1 handshake (contracts/modukit_bundle.h) plus ONE service
    registration; message types ride stock protoc C++ gencode and the
    emitter's plugin-face skeleton (ruling C++-3 face A) - nothing here
    re-implements the dispatch or the messages. */
 #include <cstring>
 
-#include "modukit_plugin.h"
+#include "modukit_bundle.h"
 #include "com_modukit_demo.hpp"
 
 namespace {
@@ -65,9 +65,9 @@ extern "C" int32_t demo_stop(void) {
   return 0;  /* cooperative no-op; idempotent by construction (01 §3 rule 6) */
 }
 
-const modukit_plugin_abi_v1 DESCRIPTOR = {
+const modukit_bundle_abi_v1 DESCRIPTOR = {
     MODUKIT_ABI_VERSION,   /* abi_version - guard 2 */
-    sizeof(modukit_plugin_abi_v1), /* size - guard 3 */
+    sizeof(modukit_bundle_abi_v1), /* size - guard 3 */
     "cpp-example-plugin",  /* name */
     DemoServiceImpl::kServiceId, /* id == registered service id, mirroring the rs twin (D9) */
     "0.1.0",               /* version - plugin's own semver */
@@ -78,6 +78,6 @@ const modukit_plugin_abi_v1 DESCRIPTOR = {
 }  // namespace
 
 /* The single exported entry symbol (04 §3 symbol discipline). */
-extern "C" const modukit_plugin_abi_v1 *modukit_plugin_init(void) {
+extern "C" const modukit_bundle_abi_v1 *modukit_bundle_init(void) {
   return &DESCRIPTOR;
 }

@@ -55,7 +55,7 @@ Deliberately excluded:
 - JSON CLI schema.
 - `modukit-cli` crate.
 - Plugin loading or production host configuration parsing.
-- Changes to `HostAbiV1`, `HostAbiV2`, `HostEmbedV1`, `PluginAbiV1`, or wire version.
+- Changes to `HostAbiV1`, `HostAbiV2`, `HostEmbedV1`, `BundleAbiV1`, or wire version.
 - C ABI or C++ emitter work.
 - Capability-ledger rows, because no new header verb is introduced.
 

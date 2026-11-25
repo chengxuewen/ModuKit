@@ -12,7 +12,7 @@
 
 use super::*;
 use crate::events::ObsEvent;
-use crate::lifecycle::PluginState;
+use crate::lifecycle::BundleState;
 use std::sync::atomic::AtomicU32;
 
 /// The ambient kernel is process-global by contract - tests that touch it
@@ -112,18 +112,18 @@ fn install_out_id_is_kernel_owned_and_states_walk() {
     let pid = c(id.as_str());
     let mut state = 0;
     assert_eq!(modukit_state(pid.as_ptr(), &raw mut state), 0);
-    assert_eq!(state, codec::state_number(PluginState::Installed));
+    assert_eq!(state, codec::state_number(BundleState::Installed));
     // A TOML file is not an ELF image: the dl door refuses NOT_FOUND
     // (LoadFailed) and the guard parks the plugin on FAILED.
     assert_eq!(modukit_resolve(pid.as_ptr()), codec::NEG_NOT_FOUND);
     assert_eq!(modukit_state(pid.as_ptr(), &raw mut state), 0);
-    assert_eq!(state, codec::state_number(PluginState::Failed));
+    assert_eq!(state, codec::state_number(BundleState::Failed));
     // start/stop outside their table edges are contract refusals.
     assert_eq!(modukit_start(pid.as_ptr()), -10, "CONTRACT_VIOLATION");
     assert_eq!(modukit_stop(pid.as_ptr()), -10);
     assert_eq!(modukit_uninstall(pid.as_ptr()), 0);
     assert_eq!(modukit_state(pid.as_ptr(), &raw mut state), 0);
-    assert_eq!(state, codec::state_number(PluginState::Uninstalled));
+    assert_eq!(state, codec::state_number(BundleState::Uninstalled));
     // Re-install replaces the terminal record; the id pointer is the
     // one stable table entry (kernel owns the bytes for the process).
     let mut out2: *const c_char = std::ptr::null();

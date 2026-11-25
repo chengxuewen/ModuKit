@@ -92,11 +92,11 @@ export const PSTR_MAX = 255;
 // margin in this bound (same discipline as bus_wire.rs PUMP_WINDOW, 1s).
 export const DRAIN_WINDOW_MS = 1000;
 // THE single named sabotage point of leg thirteen (plan T3.3): env
-// DEMO_PLUGIN_JS_SABOTAGE=1 skips the REGISTER push - the kernel then has
+// DEMO_BUNDLE_JS_SABOTAGE=1 skips the REGISTER push - the kernel then has
 // no proxy for the plugin's services and the driver's first service_call
 // answers NOT_FOUND, failing the leg's lifecycle stage red with no PASS
 // line. Read at exactly one place below (the REGISTER loop).
-export const SABOTAGE_ENV = 'DEMO_PLUGIN_JS_SABOTAGE';
+export const SABOTAGE_ENV = 'DEMO_BUNDLE_JS_SABOTAGE';
 // Driver-side publish channel for the roundtrip seed: the embed face has no
 // bus verb on the sup rung (the two rungs own separate kernels -
 // embed_sup.rs header), so the leg's driver hands the seed bytes to the

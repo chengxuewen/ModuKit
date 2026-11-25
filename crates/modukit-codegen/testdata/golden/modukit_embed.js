@@ -135,8 +135,8 @@ exports.KernelCode = Object.freeze({
   CLOCK_DIAL_REFUSED: 27,
 });
 
-/** mirror of `modukit_plugin_state` - values verbatim, MODUKIT_ prefix dropped */
-exports.PluginState = Object.freeze({
+/** mirror of `modukit_bundle_state` - values verbatim, MODUKIT_ prefix dropped */
+exports.BundleState = Object.freeze({
   STATE_UNINSTALLED: 0,
   STATE_INSTALLED: 1,
   STATE_RESOLVING: 2,

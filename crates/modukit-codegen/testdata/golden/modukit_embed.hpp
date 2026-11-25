@@ -59,9 +59,9 @@ enum class KernelCode : int32_t {
   CLOCK_DIAL_REFUSED = 27,
 };
 
-/* typed mirror of `modukit_plugin_state` - values verbatim, the MODUKIT_ name
+/* typed mirror of `modukit_bundle_state` - values verbatim, the MODUKIT_ name
    prefix drops inside the enum class scope */
-enum class PluginState : int32_t {
+enum class BundleState : int32_t {
   STATE_UNINSTALLED = 0,
   STATE_INSTALLED = 1,
   STATE_RESOLVING = 2,

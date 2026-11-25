@@ -19,7 +19,7 @@
 
 #include <dlfcn.h>
 
-#include "modukit_plugin.h"
+#include "modukit_bundle.h"
 #include "modukit_embed.hpp"        /* face B: compiled, never called here */
 #include "com_modukit_demo.hpp"     /* face A: the id + dispatch codes */
 #include "com.modukit.demo.pb.h"    /* stock protoc messages (C++-1) */
@@ -50,11 +50,11 @@ int64_t capture_register(void *user, const char *service_id,
   return cap->next_id++;
 }
 
-using init_fn = const modukit_plugin_abi_v1 *(*)();
+using init_fn = const modukit_bundle_abi_v1 *(*)();
 
 /* The v1 guard sequence, verbatim order (04 §3): returns nullptr on
    refusal; *refusal names the guard that fired when non-null is returned. */
-const modukit_plugin_abi_v1 *open_and_guard(const char *path,
+const modukit_bundle_abi_v1 *open_and_guard(const char *path,
                                             const char **refusal) {
   *refusal = nullptr;
   void *handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
@@ -67,7 +67,7 @@ const modukit_plugin_abi_v1 *open_and_guard(const char *path,
     *refusal = "entry symbol missing";
     return nullptr;
   }
-  const modukit_plugin_abi_v1 *d = init();
+  const modukit_bundle_abi_v1 *d = init();
   if (d == nullptr) {
     *refusal = "init returned NULL";
     return nullptr;
@@ -76,7 +76,7 @@ const modukit_plugin_abi_v1 *open_and_guard(const char *path,
     *refusal = "ABI_MISMATCH";
     return d;  /* caller inspects the lie */
   }
-  if (d->size < sizeof(modukit_plugin_abi_v1)) {
+  if (d->size < sizeof(modukit_bundle_abi_v1)) {
     *refusal = "DESCRIPTOR_TOO_SMALL";
     return d;
   }
@@ -89,7 +89,7 @@ const modukit_plugin_abi_v1 *open_and_guard(const char *path,
 
 void good_arm(const char *path) {
   const char *refusal = nullptr;
-  const modukit_plugin_abi_v1 *d = open_and_guard(path, &refusal);
+  const modukit_bundle_abi_v1 *d = open_and_guard(path, &refusal);
   check(refusal == nullptr && d != nullptr, "good fixture passes the v1 guards");
   if (refusal != nullptr) {
     std::printf("[good] refused at: %s\n", refusal);
@@ -136,7 +136,7 @@ void good_arm(const char *path) {
 
 void bad_arm(const char *path) {
   const char *refusal = nullptr;
-  const modukit_plugin_abi_v1 *d = open_and_guard(path, &refusal);
+  const modukit_bundle_abi_v1 *d = open_and_guard(path, &refusal);
   /* The guard sequence must fire the VERSION refusal (start/stop present,
      size right) - anything else hides what this fixture proves. */
   check(refusal != nullptr && std::strcmp(refusal, "ABI_MISMATCH") == 0,

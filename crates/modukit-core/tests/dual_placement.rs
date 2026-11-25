@@ -47,7 +47,7 @@ use modukit_core::error::KernelError;
 use modukit_core::executor::ProxyService;
 use modukit_core::executor::Supervisor;
 use modukit_core::kernel::Kernel;
-use modukit_core::lifecycle::PluginState;
+use modukit_core::lifecycle::BundleState;
 use modukit_core::manifest::Manifest;
 
 const ID: &str = "com.example.modukit.demo";
@@ -346,7 +346,7 @@ fn wrong_version_manifest_is_refused_under_both_placements() {
     let id = m.id.clone();
     kernel.install(m).expect("install");
     kernel.resolve(&id).expect("dl handshake checks ABI only");
-    assert_eq!(kernel.state(&id).expect("state"), PluginState::Starting);
+    assert_eq!(kernel.state(&id).expect("state"), BundleState::Starting);
 
     // exe: the HELLO self-report says 0.1.0, the manifest says 9.9.9 — the
     // strict cross-check must refuse with the typed disagreement.
@@ -366,7 +366,7 @@ fn wrong_version_manifest_is_refused_under_both_placements() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("tracked"),
-        PluginState::Failed
+        BundleState::Failed
     );
     assert_eq!(
         sup.poll(),
@@ -395,7 +395,7 @@ fn cooperative_stop_unregisters_services_under_both_placements() {
     assert!(plugin_services(&kernel).is_empty(), "services gone");
     assert_eq!(
         kernel.state(&id).expect("state"),
-        PluginState::Resolved,
+        BundleState::Resolved,
         "cooperative stop lands RESOLVED (03 §2)"
     );
 
@@ -416,7 +416,7 @@ fn cooperative_stop_unregisters_services_under_both_placements() {
         .expect("stop acked, proxy unregistered");
     assert_eq!(
         sup.kernel().state(&id).expect("state"),
-        PluginState::Resolved,
+        BundleState::Resolved,
         "exe cooperative stop lands RESOLVED too"
     );
     assert!(plugin_services(sup.kernel()).is_empty(), "proxy gone");
@@ -452,7 +452,7 @@ fn bad_abi_fixture_is_refused_under_both_placements() {
         matches!(err, KernelError::AbiMismatch { found, .. } if found == 999),
         "dl: {err}"
     );
-    assert_eq!(kernel.state(&id).expect("state"), PluginState::Failed);
+    assert_eq!(kernel.state(&id).expect("state"), BundleState::Failed);
 
     // exe arm: the runner's OWN guards refuse the artifact before it can
     // speak a HELLO truth — the child dies at setup, the parent observes the
@@ -482,7 +482,7 @@ fn bad_abi_fixture_is_refused_under_both_placements() {
         matches!(err, KernelError::ProcessCrashed { .. }),
         "exe: {err}"
     );
-    assert_eq!(sup.kernel().state(&id).expect("state"), PluginState::Failed);
+    assert_eq!(sup.kernel().state(&id).expect("state"), BundleState::Failed);
     assert_eq!(
         sup.poll(),
         Vec::<String>::new(),
@@ -536,7 +536,7 @@ fn silent_death_before_hello_is_eof_processcrashed_not_handshake_timeout() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("tracked"),
-        PluginState::Failed,
+        BundleState::Failed,
         "FAILED edge via the resolve error arm"
     );
     assert_eq!(sup.kernel().counters().load_fail(), 1);

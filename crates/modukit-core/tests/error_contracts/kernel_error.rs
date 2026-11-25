@@ -76,7 +76,7 @@ fn kernel_error_code_map_is_the_frozen_d85_mapping() {
             "DEPENDENCY_MISSING",
         ),
         (
-            KernelError::PluginStartFailed { status: 7 },
+            KernelError::BundleStartFailed { status: 7 },
             "CONTRACT_VIOLATION",
         ),
         (
@@ -179,7 +179,7 @@ fn kernel_error_hint_every_other_variant_is_do_not_retry() {
             found: 16,
         },
         KernelError::HandshakeIncomplete { what: "on_stop" },
-        KernelError::PluginStartFailed { status: 1 },
+        KernelError::BundleStartFailed { status: 1 },
         KernelError::ServiceCallFailed { code: -1 },
         KernelError::UnsupportedPlacement {
             kind: "wasm".into(),
@@ -258,11 +258,11 @@ fn kernel_error_display_renders_documented_prose_per_variant() {
             KernelError::SymbolMissing {
                 path: "/opt/p/lib.so".into(),
             },
-            "entry symbol modukit_plugin_init missing in /opt/p/lib.so".into(),
+            "entry symbol modukit_bundle_init missing in /opt/p/lib.so".into(),
         ),
         (
             KernelError::HandshakeNull,
-            "modukit_plugin_init returned a null descriptor".into(),
+            "modukit_bundle_init returned a null descriptor".into(),
         ),
         (
             KernelError::AbiMismatch {
@@ -276,7 +276,7 @@ fn kernel_error_display_renders_documented_prose_per_variant() {
                 expected: 64,
                 found: 16,
             },
-            "PluginAbiV1 descriptor too small: expected 64 bytes, got 16".into(),
+            "BundleAbiV1 descriptor too small: expected 64 bytes, got 16".into(),
         ),
         (
             KernelError::HandshakeIncomplete { what: "on_stop" },
@@ -289,7 +289,7 @@ fn kernel_error_display_renders_documented_prose_per_variant() {
             "required service missing at resolve: svc.clock".into(),
         ),
         (
-            KernelError::PluginStartFailed { status: 7 },
+            KernelError::BundleStartFailed { status: 7 },
             "plugin start() returned error status 7".into(),
         ),
         (

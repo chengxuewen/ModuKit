@@ -43,7 +43,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "bindings" / "py"))
 import modukit_embed as skin  # noqa: E402  (generated floor; import after path)
 
-K_PLUGIN_ID = "com.example.cpp.demo"
+K_BUNDLE_ID = "com.example.cpp.demo"
 K_SERVICE_ID = b"com.modukit.demo.DemoService"
 K_TOPIC = "com.example.cpp.demo.status"
 K_PAYLOAD = b"embed-demo-payload"  # pinned to host_demo.cc:39 kPayload
@@ -124,11 +124,11 @@ def manifest_for(so_path):
         print("[sabotage] DEMO_PY_SABOTAGE=1 -> corrupting manifest")
         return (
             'id = "%s"\nversion = "0.1.0"\n[entry]\nkind = "dlx"\nartifact = "%s"\n'
-            % (K_PLUGIN_ID, so_path)
+            % (K_BUNDLE_ID, so_path)
         )
     return (
         'id = "%s"\nversion = "0.1.0"\n[entry]\nkind = "dl"\nartifact = "%s"\n'
-        % (K_PLUGIN_ID, so_path)
+        % (K_BUNDLE_ID, so_path)
     )
 
 
@@ -157,18 +157,18 @@ def main():
 
     # [2] install: manifest-v0 TOML in, kernel-owned canonical id out.
     toml = manifest_for(fixture_so)
-    plugin_id = ctypes.c_char_p()
-    rc = lib.modukit_install(toml.encode(), ctypes.byref(plugin_id))
+    bundle_id = ctypes.c_char_p()
+    rc = lib.modukit_install(toml.encode(), ctypes.byref(bundle_id))
     check(
         rc == 0
-        and plugin_id.value is not None
-        and plugin_id.value == K_PLUGIN_ID.encode(),
+        and bundle_id.value is not None
+        and bundle_id.value == K_BUNDLE_ID.encode(),
         "[2] install -> canonical id (kernel-owned bytes)",
     )
     if failures != 0:
         print("PY-DEMO FAIL (%d, install door)" % failures)
         return 1  # nothing downstream is reachable without a plugin
-    pid = plugin_id.value
+    pid = bundle_id.value
 
     # [3] resolve + [4] start + [5] state: the dl handshake and the walk.
     check(lib.modukit_resolve(pid) == 0, "[3] resolve -> ABI v1 handshake green")
@@ -176,7 +176,7 @@ def main():
     state = ctypes.c_int32(-1)
     check(
         lib.modukit_state(pid, ctypes.byref(state)) == 0
-        and state.value == skin.PluginState.STATE_ACTIVE,
+        and state.value == skin.BundleState.STATE_ACTIVE,
         "[5] state == ACTIVE (4)",
     )
 
@@ -256,7 +256,7 @@ def main():
     if rc >= 0 and copied.value == snap_len.value:
         text = snap.raw[:copied.value].decode("utf-8", "replace")
         snap_ok = (
-            "plugin\t%s\tACTIVE" % K_PLUGIN_ID in text
+            "plugin\t%s\tACTIVE" % K_BUNDLE_ID in text
             and "service\torg.modukit.snapshot\t" in text
             and "counters\t" in text
         )
@@ -282,7 +282,7 @@ def main():
             kind, seq, _ts_ns, plen = struct.unpack_from("<iQQQ", events.raw, off)
             if (
                 kind == skin.EventKind.EVENT_LIFECYCLE
-                and events.raw[off + 28 : off + 28 + len(K_PLUGIN_ID)] == K_PLUGIN_ID.encode()
+                and events.raw[off + 28 : off + 28 + len(K_BUNDLE_ID)] == K_BUNDLE_ID.encode()
             ):
                 saw_lifecycle = True
             last_seq = seq
@@ -324,13 +324,13 @@ def main():
     check(lib.modukit_stop(pid) == 0, "[11] stop -> RESOLVED")
     check(
         lib.modukit_state(pid, ctypes.byref(state)) == 0
-        and state.value == skin.PluginState.STATE_RESOLVED,
+        and state.value == skin.BundleState.STATE_RESOLVED,
         "[11] state == RESOLVED (6)",
     )
     check(lib.modukit_uninstall(pid) == 0, "[11] uninstall -> UNINSTALLED")
     check(
         lib.modukit_state(pid, ctypes.byref(state)) == 0
-        and state.value == skin.PluginState.STATE_UNINSTALLED,
+        and state.value == skin.BundleState.STATE_UNINSTALLED,
         "[11] state == UNINSTALLED (0)",
     )
     check(

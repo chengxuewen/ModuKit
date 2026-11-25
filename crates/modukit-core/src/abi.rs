@@ -1,8 +1,8 @@
 //! The `dl` ABI v1 handshake surface (modules/04 §3), shared by the kernel
 //! and plugin fixtures as one source of layout truth.
 //!
-//! Contract honored here: one exported entry symbol (`modukit_plugin_init`)
-//! returning `*const PluginAbiV1`; version integer + struct size are checked
+//! Contract honored here: one exported entry symbol (`modukit_bundle_init`)
+//! returning `*const BundleAbiV1`; version integer + struct size are checked
 //! before any call; unknown ABI -> `FAILED` at `RESOLVING`, never a partial
 //! start. The service call shape is message-shaped (method name + owned
 //! bytes, 04 §2 / 01 §3 rule 3) — full contract codegen replaces these raw
@@ -31,11 +31,11 @@ pub const ABI_VERSION_V2: u32 = 2;
 pub const ABI_VERSION_V3: u32 = 3;
 
 /// The single exported entry symbol (04 §3 symbol discipline).
-pub const ENTRY_SYMBOL: &[u8] = b"modukit_plugin_init\0";
+pub const ENTRY_SYMBOL: &[u8] = b"modukit_bundle_init\0";
 
-/// `extern "C" fn() -> *const PluginAbiV1` — reads the descriptor, runs no
+/// `extern "C" fn() -> *const BundleAbiV1` — reads the descriptor, runs no
 /// service logic.
-pub type PluginInitFn = extern "C" fn() -> *const PluginAbiV1;
+pub type BundleInitFn = extern "C" fn() -> *const BundleAbiV1;
 
 /// Activation: called once with the host context; non-zero = start failure
 /// (03 §2 STARTING -> FAILED).
@@ -65,7 +65,7 @@ pub type RegisterServiceFn =
 /// `abi_version` and `size` before calling anything.
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
-pub struct PluginAbiV1 {
+pub struct BundleAbiV1 {
     pub abi_version: u32,
     pub size: u32,
     /// Human name (04 §3 shape).
@@ -82,13 +82,13 @@ pub struct PluginAbiV1 {
 // SAFETY: the descriptor is read-only publication data; its C-string
 // pointers target static bytes inside the owner's image, and the struct is
 // only stored in `static` descriptors (fixture template standing, D23).
-unsafe impl Sync for PluginAbiV1 {}
+unsafe impl Sync for BundleAbiV1 {}
 
-impl PluginAbiV1 {
+impl BundleAbiV1 {
     /// The exact compiled size a conforming plugin must report.
     #[must_use]
     pub const fn expected_size() -> u32 {
-        size_of::<PluginAbiV1>() as u32
+        size_of::<BundleAbiV1>() as u32
     }
 }
 

@@ -34,7 +34,7 @@ mirror; the Rust `extern "C"` EXPORT landed with the M1 demo lane —
 | `n-a` | the row does not apply to that surface |
 
 Citations (legend to keep rows short):
-- `header` (A) = `contracts/modukit_embed.h`; `header` (B) = `contracts/modukit_plugin.h`.
+- `header` (A) = `contracts/modukit_embed.h`; `header` (B) = `contracts/modukit_bundle.h`.
 - `generated` embed wrapper = `crates/modukit-codegen/testdata/golden/modukit_embed.hpp`
   (one `Kernel` forwarding method per verb, lane #3 face B).
 - `generated` plugin dispatch = `crates/modukit-codegen/testdata/golden/com_modukit_demo.hpp`
@@ -94,7 +94,7 @@ by `scripts/check-capability-ledger.sh` (check.sh leg "capability-ledger").
 | `modukit_sup_service_call` | header | generated | native | generated | generated |
 | `modukit_embed_find_services` | hand-written (c band) | generated | native | generated | generated |
 
-## B. Plugin-side surface (contracts/modukit_plugin.h <-> abi::PluginAbiV1/HostAbiV1)
+## B. Plugin-side surface (contracts/modukit_bundle.h <-> abi::BundleAbiV1/HostAbiV1)
 
 The generated C++ plugin face today is the service dispatch skeleton only
 (golden cited above); entry-symbol and descriptor shims are hand-written by
@@ -104,14 +104,14 @@ The Rust column here is the frozen v1 truth: `abi.rs` layout, consumed by
 
 | Capability | C | C++ | Rust | Python | JS |
 |---|---|---|---|---|---|
-| `modukit_plugin_init` (entry symbol) | hand-written (c band) | planned | native | planned | planned |
-| `abi_version` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
-| `size` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
-| `name` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
-| `id` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
-| `version` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
-| `start` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
-| `stop` (PluginAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `modukit_bundle_init` (entry symbol) | hand-written (c band) | planned | native | planned | planned |
+| `abi_version` (BundleAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `size` (BundleAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `name` (BundleAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `id` (BundleAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `version` (BundleAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `start` (BundleAbiV1) | hand-written (c band) | planned | native | planned | planned |
+| `stop` (BundleAbiV1) | hand-written (c band) | planned | native | planned | planned |
 | `register_service` (HostAbiV1 slot) | hand-written (c band) | planned | native | planned | planned |
 | `modukit_service_call_fn_t` (service-call slot) | header | generated | native | planned | planned |
 
@@ -125,7 +125,7 @@ field names (`HOST2_ABI_FIELDS` in `embed_abi.rs`);
 (same existence-only rule as section A - the ordered layout truth lives in
 the parity gate). Rust column: `abi.rs` table + `host_v2.rs` wiring over
 the SAME in-process `Bus` (`bus.rs`). C++ `generated` =
-`crates/modukit-codegen/testdata/golden/modukit_plugin.hpp` (one
+`crates/modukit-codegen/testdata/golden/modukit_bundle.hpp` (one
 forwarding method per mailbox slot, behind the declared major; `size`/`user`
 are the guard's data, not verbs, so they read `header`). Proof chain:
 `test-plugins/rs/busv2-plugin` + `crates/modukit-core/tests/abi_v2_door.rs` (rs band 2026-10-23); the C++ twin `test-plugins/cpp/cpp-busv2-plugin` rides the m1 leg (2026-11-24, onboarding deepening D2).
@@ -155,7 +155,7 @@ late-join replay pinned) and the authority-law token release at
 stop/uninstall (`kernel.rs`). The seven prefix rows repeat here because
 they are HostAbiV3's fields too - the C++ `generated` column rides the
 same v2 trampolines. C++ `generated` =
-`crates/modukit-codegen/testdata/golden/modukit_plugin.hpp` (one forwarding
+`crates/modukit-codegen/testdata/golden/modukit_bundle.hpp` (one forwarding
 method per parsed slot, the timer pair behind the v3 size guard; `size`/
 `user` are the guard's data, not verbs, so they read `header`). Proof
 chain: `test-plugins/rs/timerv3-plugin` +

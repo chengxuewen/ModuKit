@@ -37,7 +37,7 @@ fn cohost_request_on_a_declared_parallel_ok_service_is_deferred_typed() {
     // The deferral is a refusal at the door, not a teardown: the run lives.
     assert_eq!(
         sup.kernel().state(&id).expect("still ACTIVE"),
-        PluginState::Active
+        BundleState::Active
     );
 
     // Stop-based swap stays the legal lane: stop, then the install replaces

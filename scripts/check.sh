@@ -265,7 +265,7 @@ else note "skip demo-wave2-js-sup (no script)"; fi
 # Wave-2 plugin-door python leg (D106 batch 2, the twelfth demo leg): the
 # hand-written skin walks all 11 wire kinds across the exe wall (conformance
 # + lifecycle + FIDELITY + BUS ROUNDTRIP + liar typed error + orphan census,
-# sabotage lever DEMO_PLUGIN_PY_SABOTAGE=1). Same PASS/SKIP grammar as the
+# sabotage lever DEMO_BUNDLE_PY_SABOTAGE=1). Same PASS/SKIP grammar as the
 # other eleven demo legs; the PASS-without-RUNNER FAIL arm below is copied
 # from the D104-census template (scripts/check.sh:130-135 pattern - the
 # runner-origin line is the census proof, its absence reds the leg).
@@ -280,7 +280,7 @@ else note "skip demo-wave2-plugin-py (no script)"; fi
 # Wave-2 plugin-door node leg (D106 batch 3, the thirteenth demo leg): the
 # hand-written ESM skin walks all 11 wire kinds across the exe wall (same
 # conformance + lifecycle + FIDELITY + BUS ROUNDTRIP + liar + census grammar
-# as leg twelve, sabotage lever DEMO_PLUGIN_JS_SABOTAGE=1). PASS-without-RUNNER
+# as leg twelve, sabotage lever DEMO_BUNDLE_JS_SABOTAGE=1). PASS-without-RUNNER
 # arm copied from the D104-census template, like its python twin above.
 if [ -f scripts/demo-wave2-plugin-js.sh ]; then
   w2pj=$(bash scripts/demo-wave2-plugin-js.sh 2>/dev/null)

@@ -16,7 +16,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::mpsc::Receiver;
 
-use crate::identity::{PluginId, ServiceId};
+use crate::identity::{BundleId, ServiceId};
 use crate::manifest::OnDown;
 use crate::registry::{Registry, ServiceEvent};
 
@@ -31,15 +31,15 @@ pub struct RequiredDep {
 /// and WHY, never how to stop/restart a plugin (that stays in the kernel).
 pub trait DmHandler {
     /// A required service went away; apply the dependent's `on_down` policy.
-    fn dep_lost(&mut self, plugin: &PluginId, dep: &RequiredDep);
+    fn dep_lost(&mut self, plugin: &BundleId, dep: &RequiredDep);
     /// A required service (re)appeared; re-evaluate start eligibility.
-    fn dep_restored(&mut self, plugin: &PluginId, dep: &RequiredDep);
+    fn dep_restored(&mut self, plugin: &BundleId, dep: &RequiredDep);
 }
 
 /// Watches presence and dispatches dependency transitions to a handler.
 pub struct DependencyMonitor {
     rx: Receiver<ServiceEvent>,
-    dependents: BTreeMap<PluginId, Vec<RequiredDep>>,
+    dependents: BTreeMap<BundleId, Vec<RequiredDep>>,
     available: BTreeSet<ServiceId>,
 }
 
@@ -62,12 +62,12 @@ impl DependencyMonitor {
     }
 
     /// Declare a plugin's required dependencies (idempotent replace).
-    pub fn register_dependent(&mut self, plugin: PluginId, deps: Vec<RequiredDep>) {
+    pub fn register_dependent(&mut self, plugin: BundleId, deps: Vec<RequiredDep>) {
         self.dependents.insert(plugin, deps);
     }
 
     /// Remove a plugin's declarations (it uninstalled).
-    pub fn forget(&mut self, plugin: &PluginId) {
+    pub fn forget(&mut self, plugin: &BundleId) {
         self.dependents.remove(plugin);
     }
 
@@ -120,13 +120,13 @@ mod tests {
     }
 
     impl DmHandler for Recorder {
-        fn dep_lost(&mut self, plugin: &PluginId, dep: &RequiredDep) {
+        fn dep_lost(&mut self, plugin: &BundleId, dep: &RequiredDep) {
             self.lost.push((
                 plugin.as_str().to_string(),
                 dep.service.as_str().to_string(),
             ));
         }
-        fn dep_restored(&mut self, plugin: &PluginId, dep: &RequiredDep) {
+        fn dep_restored(&mut self, plugin: &BundleId, dep: &RequiredDep) {
             self.restored.push((
                 plugin.as_str().to_string(),
                 dep.service.as_str().to_string(),
@@ -153,7 +153,7 @@ mod tests {
         let id = r.register(Arc::new(Svc), props("com.acme.Nav")).unwrap();
         let mut mon = DependencyMonitor::new(&r);
         mon.register_dependent(
-            PluginId::new("com.acme.consumer".into()),
+            BundleId::new("com.acme.consumer".into()),
             vec![dep("com.acme.Nav")],
         );
         let mut rec = Recorder::default();
@@ -176,7 +176,7 @@ mod tests {
         let r = Registry::new();
         let mut mon = DependencyMonitor::new(&r);
         mon.register_dependent(
-            PluginId::new("com.acme.consumer".into()),
+            BundleId::new("com.acme.consumer".into()),
             vec![dep("com.acme.Nav")],
         );
         let mut rec = Recorder::default();
@@ -198,7 +198,7 @@ mod tests {
         let r = Registry::new();
         let id = r.register(Arc::new(Svc), props("com.acme.Nav")).unwrap();
         let mut mon = DependencyMonitor::new(&r);
-        let plugin = PluginId::new("com.acme.consumer".into());
+        let plugin = BundleId::new("com.acme.consumer".into());
         mon.register_dependent(plugin.clone(), vec![dep("com.acme.Nav")]);
         mon.forget(&plugin);
         let mut rec = Recorder::default();

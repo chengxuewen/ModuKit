@@ -9,11 +9,11 @@
  * argv[1]; t7 is built and its walk is asserted by ctest t7-composition. */
 #include <cstring>
 
-#include "modukit_plugin.h"
+#include "modukit_bundle.h"
 
 namespace {
 
-const char *const kPluginId = "com.example.t7.compose";
+const char *const kBundleId = "com.example.t7.compose";
 const char *const kServiceId = "com.example.t7.aggregate";
 const char *const kRequestTopic = "com.example.t7.request";
 const char *const kReplyTopic = "com.example.t7.reply";
@@ -78,11 +78,11 @@ extern "C" int32_t t7_start(const modukit_host_abi_v1 *host) {
 
 extern "C" int32_t t7_stop(void) { return 0; }
 
-const modukit_plugin_abi_v1 T7_DESCRIPTOR = {
+const modukit_bundle_abi_v1 T7_DESCRIPTOR = {
     MODUKIT_ABI_VERSION_V2,
-    sizeof(modukit_plugin_abi_v1),
+    sizeof(modukit_bundle_abi_v1),
     "t7-compose-plugin",
-    kPluginId,
+    kBundleId,
     "0.1.0",
     t7_start,
     t7_stop,
@@ -90,6 +90,6 @@ const modukit_plugin_abi_v1 T7_DESCRIPTOR = {
 
 }  // namespace
 
-extern "C" const modukit_plugin_abi_v1 *modukit_plugin_init(void) {
+extern "C" const modukit_bundle_abi_v1 *modukit_bundle_init(void) {
   return &T7_DESCRIPTOR;
 }

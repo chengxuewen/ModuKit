@@ -35,7 +35,7 @@
 
 #include "modukit_embed.h"
 
-#define PLUGIN_ID "com.example.c.demo"
+#define BUNDLE_ID "com.example.c.demo"
 #define SERVICE_ID "com.modukit.demo.hello"
 #define PAYLOAD "c-demo-payload"
 #define TOPIC "com.example.c.demo.status"
@@ -74,7 +74,7 @@ static void manifest_for(const char *so_path, char *out, size_t cap) {
     kind = "dlx";
   }
   snprintf(out, cap,
-           "id = \"" PLUGIN_ID "\"\nversion = \"0.1.0\"\n"
+           "id = \"" BUNDLE_ID "\"\nversion = \"0.1.0\"\n"
            "[entry]\nkind = \"%s\"\nartifact = \"%s\"\n",
            kind, so_path);
 }
@@ -101,10 +101,10 @@ int main(int argc, char **argv) {
   /* [2] install: manifest-v0 TOML in, kernel-owned canonical id out. */
   char toml[1024];
   manifest_for(so_path, toml, sizeof(toml));
-  const char *plugin_id = NULL;
-  const int32_t installed = modukit_install(toml, &plugin_id);
-  check(installed == 0 && plugin_id != NULL &&
-            strcmp(plugin_id, PLUGIN_ID) == 0,
+  const char *bundle_id = NULL;
+  const int32_t installed = modukit_install(toml, &bundle_id);
+  check(installed == 0 && bundle_id != NULL &&
+            strcmp(bundle_id, BUNDLE_ID) == 0,
         "[2] install -> canonical id (kernel-owned bytes)");
   if (failures != 0) {
     printf("C-DEMO FAIL (%d, install door)\n", failures);
@@ -112,11 +112,11 @@ int main(int argc, char **argv) {
   }
 
   /* [3] resolve + [4] start + [5] state. */
-  check(modukit_resolve(plugin_id) == 0,
+  check(modukit_resolve(bundle_id) == 0,
         "[3] resolve -> ABI v1 handshake green");
-  check(modukit_start(plugin_id) == 0, "[4] start -> ACTIVE");
+  check(modukit_start(bundle_id) == 0, "[4] start -> ACTIVE");
   int32_t state = -1;
-  check(modukit_state(plugin_id, &state) == 0 && state == MODUKIT_STATE_ACTIVE,
+  check(modukit_state(bundle_id, &state) == 0 && state == MODUKIT_STATE_ACTIVE,
         "[5] state == ACTIVE (4)");
 
   /* [6] service_call: the "hello" echo round-trips the payload; an
@@ -212,7 +212,7 @@ int main(int argc, char **argv) {
     if (modukit_introspect_snapshot(snap, snap_len, &copied) > 0 &&
         copied == snap_len) {
       snap[snap_len] = 0;
-      snap_ok = strstr((const char *)snap, "plugin\t" PLUGIN_ID "\tACTIVE") !=
+      snap_ok = strstr((const char *)snap, "plugin\t" BUNDLE_ID "\tACTIVE") !=
                     NULL &&
                 strstr((const char *)snap, "service\t") != NULL &&
                 strstr((const char *)snap, "counters\t") != NULL;
@@ -244,8 +244,8 @@ int main(int argc, char **argv) {
         const uint64_t seq = rd64le(events + off + 4);
         const uint64_t plen = rd64le(events + off + 20);
         if (kind == MODUKIT_EVENT_LIFECYCLE &&
-            ev_copied >= off + 28 + strlen(PLUGIN_ID) &&
-            memcmp(events + off + 28, PLUGIN_ID, strlen(PLUGIN_ID)) == 0) {
+            ev_copied >= off + 28 + strlen(BUNDLE_ID) &&
+            memcmp(events + off + 28, BUNDLE_ID, strlen(BUNDLE_ID)) == 0) {
           saw_lifecycle = 1;
         }
         last_seq = seq;
@@ -260,15 +260,15 @@ int main(int argc, char **argv) {
 
   /* [12] stop + uninstall close the walk (and the plugin's services);
    * the table guard answers resolve-from-UNINSTALLED. */
-  check(modukit_stop(plugin_id) == 0, "[12] stop -> RESOLVED");
-  check(modukit_state(plugin_id, &state) == 0 &&
+  check(modukit_stop(bundle_id) == 0, "[12] stop -> RESOLVED");
+  check(modukit_state(bundle_id, &state) == 0 &&
             state == MODUKIT_STATE_RESOLVED,
         "[12] state == RESOLVED (6)");
-  check(modukit_uninstall(plugin_id) == 0, "[12] uninstall -> UNINSTALLED");
-  check(modukit_state(plugin_id, &state) == 0 &&
+  check(modukit_uninstall(bundle_id) == 0, "[12] uninstall -> UNINSTALLED");
+  check(modukit_state(bundle_id, &state) == 0 &&
             state == MODUKIT_STATE_UNINSTALLED,
         "[12] state == UNINSTALLED (0)");
-  check(modukit_resolve(plugin_id) == -MODUKIT_CONTRACT_VIOLATION,
+  check(modukit_resolve(bundle_id) == -MODUKIT_CONTRACT_VIOLATION,
         "[12] resolve from UNINSTALLED -> CONTRACT_VIOLATION(-10)");
 
   if (failures != 0) {

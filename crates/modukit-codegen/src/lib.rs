@@ -24,6 +24,7 @@
 
 use std::path::{Path, PathBuf};
 
+pub mod bundleface;
 pub mod cabi;
 pub mod cpp;
 pub mod descriptor;
@@ -32,16 +33,15 @@ pub mod emit;
 pub mod error;
 pub mod js;
 pub mod model;
-pub mod pluginface;
 pub mod py;
 pub mod wire;
 
+pub use bundleface::emit_plugin_hpp;
 pub use descriptor::decode_file_descriptor_set;
 pub use embed::emit_embed_hpp;
 pub use error::CodegenError;
 pub use js::{emit_embed_js_bridge, emit_embed_js_facade};
 use model::{File, RUNTIME_PACKAGE};
-pub use pluginface::emit_plugin_hpp;
 pub use py::emit_embed_py;
 
 /// Decode every fdset in `fdsets` and write the generated corpus into

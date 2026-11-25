@@ -4,7 +4,7 @@
 use std::time::Duration;
 
 use modukit_core::error::ManifestError;
-use modukit_core::lifecycle::{PluginState, RestartPolicy};
+use modukit_core::lifecycle::{BundleState, RestartPolicy};
 use modukit_core::manifest::{DepPolicy, Manifest, OnDown, PlacementKind};
 
 const FULL: &str = r#"
@@ -163,6 +163,6 @@ artifact = "p.so"
 // referenced here so the test module documents its own dialect only.
 #[test]
 fn plugin_state_display_uses_doc_names() {
-    assert_eq!(PluginState::Resolving.to_string(), "RESOLVING");
-    assert_eq!(PluginState::Uninstalled.to_string(), "UNINSTALLED");
+    assert_eq!(BundleState::Resolving.to_string(), "RESOLVING");
+    assert_eq!(BundleState::Uninstalled.to_string(), "UNINSTALLED");
 }

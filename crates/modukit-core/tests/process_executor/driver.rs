@@ -39,7 +39,7 @@ fn one_driver_step_pass_collapses_poll_and_restart_policy_application() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("tracked"),
-        PluginState::Failed
+        BundleState::Failed
     );
 
     // Turn the boot clock past the window; the next single pass restarts.
@@ -52,7 +52,7 @@ fn one_driver_step_pass_collapses_poll_and_restart_policy_application() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("restarted"),
-        PluginState::Active
+        BundleState::Active
     );
 
     let _ = sup.poll();

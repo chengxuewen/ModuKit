@@ -104,7 +104,7 @@ fn every_kernel_error_variant() -> Vec<KernelError> {
         KernelError::DependencyMissing {
             service: "s".into(),
         },
-        KernelError::PluginStartFailed { status: 3 },
+        KernelError::BundleStartFailed { status: 3 },
         KernelError::ServiceCallFailed { code: -1 },
         // S2-M5b supervision-domain variants (rulings 4+7): one sample each
         // so the produced-set assertion covers the appended codes.

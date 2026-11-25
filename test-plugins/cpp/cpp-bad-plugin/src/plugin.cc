@@ -6,7 +6,7 @@
    guard instead of the version guard) and carry poison-returning statuses
    so any partial-start attempt is visible. No protobuf here on purpose:
    the ABI-lie story needs no message layer. */
-#include "modukit_plugin.h"
+#include "modukit_bundle.h"
 
 namespace {
 
@@ -19,9 +19,9 @@ extern "C" int32_t lie_start(const modukit_host_abi_v1 *) {
 
 extern "C" int32_t lie_stop(void) { return -113; }
 
-const modukit_plugin_abi_v1 DESCRIPTOR = {
+const modukit_bundle_abi_v1 DESCRIPTOR = {
     BAD_ABI_VERSION,
-    sizeof(modukit_plugin_abi_v1),
+    sizeof(modukit_bundle_abi_v1),
     "cpp-bad-plugin",
     "com.example.modukit.cppbad",
     "0.1.0",
@@ -31,6 +31,6 @@ const modukit_plugin_abi_v1 DESCRIPTOR = {
 
 }  // namespace
 
-extern "C" const modukit_plugin_abi_v1 *modukit_plugin_init(void) {
+extern "C" const modukit_bundle_abi_v1 *modukit_bundle_init(void) {
   return &DESCRIPTOR;
 }

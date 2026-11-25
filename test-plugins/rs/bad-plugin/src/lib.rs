@@ -8,7 +8,7 @@
 //! instead of the version guard, hiding what this fixture proves); they
 //! carry poison-returning statuses so any partial-start attempt is visible.
 
-use modukit_core::abi::{HostAbiV1, PluginAbiV1};
+use modukit_core::abi::{BundleAbiV1, HostAbiV1};
 
 /// Unknown major version (04 §3: "unknown major version -> FAILED").
 const BAD_ABI_VERSION: u32 = 999;
@@ -23,9 +23,9 @@ extern "C" fn lie_stop() -> i32 {
     -113
 }
 
-static DESCRIPTOR: PluginAbiV1 = PluginAbiV1 {
+static DESCRIPTOR: BundleAbiV1 = BundleAbiV1 {
     abi_version: BAD_ABI_VERSION,
-    size: PluginAbiV1::expected_size(),
+    size: BundleAbiV1::expected_size(),
     name: c"bad-plugin".as_ptr(),
     id: c"com.example.modukit.bad".as_ptr(),
     version: c"0.1.0".as_ptr(),
@@ -34,6 +34,6 @@ static DESCRIPTOR: PluginAbiV1 = PluginAbiV1 {
 };
 
 #[unsafe(no_mangle)]
-pub extern "C" fn modukit_plugin_init() -> *const PluginAbiV1 {
+pub extern "C" fn modukit_bundle_init() -> *const BundleAbiV1 {
     &raw const DESCRIPTOR
 }

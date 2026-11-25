@@ -85,7 +85,7 @@ never the message shape** — shape divergence is what would make 01's switchabi
 At resolve the host reads, without executing plugin code:
 
 ```text
-modukit_plugin_init -> *const PluginAbiV1 { abi_version, size, name, start, stop, ... }
+modukit_bundle_init -> *const BundleAbiV1 { abi_version, size, name, start, stop, ... }
 ```
 
 - **Version integer + struct size** are both checked before any call. (CLAP carries version in
@@ -97,7 +97,7 @@ modukit_plugin_init -> *const PluginAbiV1 { abi_version, size, name, start, stop
 - **Descriptor cross-check (D7)**: self-reported fields (`id`, `version`, provides/requires
   summary) are compared against the deploy manifest at resolve — mismatch fails resolution
   before any call (05 §6). This is what licenses the boot graph to trust the file tier.
-- Symbol discipline: single exported entry symbol (`modukit_plugin_init`); plugin internals stay
+- Symbol discipline: single exported entry symbol (`modukit_bundle_init`); plugin internals stay
   private; edition-2024 `#[unsafe(no_mangle)]` + `extern "C"` on the entry only.
 - Pre-load validation exists for hostile shapes: ELF/Dylib sanity checks before executing
   initializers (rutis metadata-first argument — `docs/reference/rutis.md:183-184`; the queued

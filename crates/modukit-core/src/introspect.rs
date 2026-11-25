@@ -18,8 +18,8 @@ use crate::bus::TopicStats;
 use crate::counters::CountersView;
 use crate::edge_ledger::{EdgeKind, EdgeLedger};
 use crate::events::{Observatory, Tail};
-use crate::identity::PluginId;
-use crate::kernel::PluginRecord;
+use crate::identity::BundleId;
+use crate::kernel::BundleRecord;
 use crate::registry::{RegisteredService, Registry};
 use crate::wiring::PluginTable;
 
@@ -57,9 +57,9 @@ impl LoadStamp {
 /// The per-plugin line of the object-table cut (10 §1 Snapshot row:
 /// state/placement/version; restart counts ride M7's restart machinery).
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PluginView {
+pub struct BundleView {
     pub id: String,
-    /// `PluginState` display form (`"ACTIVE"`, `"FAILED"`, ...).
+    /// `BundleState` display form (`"ACTIVE"`, `"FAILED"`, ...).
     pub state: String,
     pub placement: String,
     pub version: String,
@@ -78,7 +78,7 @@ pub struct EdgeView {
 /// The exact `Snapshot.all()` answer: one cut of the object table.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HostView {
-    pub plugins: Vec<PluginView>,
+    pub plugins: Vec<BundleView>,
     pub services: Vec<RegisteredService>,
     /// Topics with pub/sub/drop counters (10 §1 Snapshot row).
     pub topics: Vec<TopicStats>,
@@ -92,7 +92,7 @@ impl HostView {
     /// in-process analogue of a table handle; id-string keys are what the
     /// reserved namespace actually has until bridge handles exist).
     #[must_use]
-    pub fn one(&self, id: &str) -> Option<&PluginView> {
+    pub fn one(&self, id: &str) -> Option<&BundleView> {
         self.plugins.iter().find(|p| p.id == id)
     }
 }
@@ -135,7 +135,7 @@ impl Snapshot {
     /// snapshotted under its own lock; year-1 single-writer discipline).
     #[must_use]
     pub fn all(&self) -> HostView {
-        let plugins: Vec<PluginView> = {
+        let plugins: Vec<BundleView> = {
             let table = self
                 .table
                 .lock()
@@ -187,7 +187,7 @@ impl Snapshot {
 
     /// `Snapshot.one`: a plugin line by id string.
     #[must_use]
-    pub fn one(&self, id: &str) -> Option<PluginView> {
+    pub fn one(&self, id: &str) -> Option<BundleView> {
         let table = self
             .table
             .lock()
@@ -325,8 +325,8 @@ impl LedgerDump {
     }
 }
 
-pub(crate) fn view_plugin(id: &PluginId, record: &PluginRecord) -> PluginView {
-    PluginView {
+pub(crate) fn view_plugin(id: &BundleId, record: &BundleRecord) -> BundleView {
+    BundleView {
         id: id.to_string(),
         state: record.machine.state().to_string(),
         placement: record.manifest.entry.kind.to_string(),

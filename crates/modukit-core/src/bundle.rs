@@ -28,7 +28,7 @@ use serde::Deserialize;
 
 use crate::bundle_files::{self, HashEntry};
 use crate::executor::{DlopenExecutor, Executor};
-use crate::identity::{PluginId, validate_reverse_dns};
+use crate::identity::{BundleId, validate_reverse_dns};
 use crate::manifest::{Manifest, PlacementKind};
 
 // The standalone failure type lives in `bundle_error` (file-size discipline).
@@ -115,7 +115,7 @@ impl InstallConfig {
 /// to re-verify the object-backed files before any dlopen (D31 load gate).
 #[derive(Debug, Clone)]
 pub struct InstalledBundle {
-    pub id: PluginId,
+    pub id: BundleId,
     pub version: String,
     pub dir: PathBuf,
     /// The manifest with `entry.artifact` rewritten to the INSTALLED
@@ -294,7 +294,7 @@ impl BundleInstaller {
     /// # Errors
     ///
     /// `NotInstalled` / `Io`.
-    pub fn uninstall(&self, id: &PluginId) -> Result<(), BundleError> {
+    pub fn uninstall(&self, id: &BundleId) -> Result<(), BundleError> {
         let id_dir = bundle_files::data_slot(&self.config.bundles, id.as_str())?;
         if !id_dir.is_dir() {
             return Err(BundleError::NotInstalled { id: id.to_string() });

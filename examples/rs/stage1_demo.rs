@@ -21,9 +21,9 @@ use modukit_core::bundle::{BundleError, BundleInstaller};
 use modukit_core::clock::ClockDomain;
 use modukit_core::error::KernelError;
 use modukit_core::events::{ObsEvent, Tail};
-use modukit_core::identity::{PluginId, TopicId};
+use modukit_core::identity::{BundleId, TopicId};
 use modukit_core::introspect::{EventStream, LedgerDump, Snapshot};
-use modukit_core::lifecycle::PluginState;
+use modukit_core::lifecycle::BundleState;
 use modukit_core::manifest::Manifest;
 use modukit_core::registry::{Registry, ServiceEvent};
 use modukit_core::sha256;
@@ -129,7 +129,7 @@ fn main() {
     let root = repo_root().join("build").join("scratch").join("m8-demo");
     let _ = fs::remove_dir_all(&root);
     let installer = BundleInstaller::open(&root, None).expect("demo gate: installer open");
-    let id = PluginId::new(GOOD_ID.to_string());
+    let id = BundleId::new(GOOD_ID.to_string());
     stage_bundle(installer.staging_dir(), GOOD_ID, &good_so, false);
     let installed = installer.install(GOOD_ID).expect("demo gate: clean install");
     assert_eq!(installed.id, id);
@@ -162,12 +162,12 @@ fn main() {
     // [5] Walk the forward states with the INSTALLED artifact (the bundle
     // manifest already carries the installed absolute artifact path).
     let mid = kernel.install(installed.manifest.clone()).expect("demo gate: kernel install");
-    let st = |p: &PluginId| kernel.state(p).expect("state");
-    assert_eq!(st(&mid), PluginState::Installed);
+    let st = |p: &BundleId| kernel.state(p).expect("state");
+    assert_eq!(st(&mid), BundleState::Installed);
     kernel.resolve(&mid).expect("demo gate: resolve, ABI v1 handshake");
-    assert_eq!(st(&mid), PluginState::Starting);
+    assert_eq!(st(&mid), BundleState::Starting);
     kernel.start(&mid).expect("demo gate: start");
-    assert_eq!(st(&mid), PluginState::Active);
+    assert_eq!(st(&mid), BundleState::Active);
     let tail = stream.tail(0);
     assert_eq!(walk(&tail, GOOD_ID), "INSTALLED->RESOLVING->STARTING->ACTIVE");
     assert_eq!(module_loads(&tail, GOOD_ID), 1, "live module posts ModuleLoaded (10 §2)");
@@ -198,9 +198,9 @@ fn main() {
     // [8] Back half of the walk + UNINSTALL: kernel teardown (the dl handle
     // releases), then the installer removes the install dir + data root.
     kernel.stop(&mid).expect("demo gate: stop");
-    assert_eq!(st(&mid), PluginState::Resolved);
+    assert_eq!(st(&mid), BundleState::Resolved);
     kernel.uninstall(&mid).expect("demo gate: kernel uninstall");
-    assert_eq!(st(&mid), PluginState::Uninstalled);
+    assert_eq!(st(&mid), BundleState::Uninstalled);
     let data_slot = installer.data_dir().join(GOOD_ID);
     fs::create_dir_all(&data_slot).expect("demo gate: fake plugin data root");
     fs::write(data_slot.join("state.db"), b"cache").expect("demo gate: write data");
@@ -255,7 +255,7 @@ fn main() {
     let err = kernel.resolve(&bad_id).expect_err("demo gate: ABI v999 refused");
     assert!(matches!(err, KernelError::AbiMismatch { found, .. } if found == 999), "{err}");
     assert_eq!(err.code(), "ABI_MISMATCH");
-    assert_eq!(st(&bad_id), PluginState::Failed, "setup error parks FAILED (04 §3)");
+    assert_eq!(st(&bad_id), BundleState::Failed, "setup error parks FAILED (04 §3)");
     let tail = stream.tail(0);
     assert_eq!(walk(&tail, BAD_ID), "INSTALLED->RESOLVING->FAILED");
     assert_eq!(module_loads(&tail, BAD_ID), 0, "a rejected module never posts ModuleLoaded");

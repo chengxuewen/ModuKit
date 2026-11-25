@@ -537,7 +537,7 @@ impl LoadedPlugin for ProcPlugin {
             // The child refused the start but is alive and cooperative —
             // same typed channel as the `dl` non-zero start (03 §2). Any
             // announcements die with the refused start: nothing installs.
-            return Err(KernelError::PluginStartFailed { status });
+            return Err(KernelError::BundleStartFailed { status });
         }
         if !registrations.is_empty() {
             self.install_proxies(&mut shared, registrations)?;
@@ -596,7 +596,7 @@ impl LoadedPlugin for ProcPlugin {
                 reap_with_grace(p, STOP_KILL_GRACE);
                 if status != 0 {
                     // Cooperative-but-failed stop: same typed channel as dl.
-                    Err(KernelError::PluginStartFailed { status })
+                    Err(KernelError::BundleStartFailed { status })
                 } else {
                     Ok(())
                 }

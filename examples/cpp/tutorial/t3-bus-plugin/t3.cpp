@@ -5,13 +5,13 @@
  * rule 2), so the walk must complete here. */
 #include <cstring>
 
-#include "modukit_plugin.h"
+#include "modukit_bundle.h"
 
 namespace {
 
 const char *const kTopic = "com.example.t3.bus";
 const char *const kServiceId = "com.example.t3.echo";
-const char *const kPluginId = "com.example.t3.bus";
+const char *const kBundleId = "com.example.t3.bus";
 const char *const kPayload = "t3-self-echo";
 const int32_t kQosLatestValue = 0; /* the embed modukit_qos vocabulary */
 const int32_t kBadRequest = -101;
@@ -75,11 +75,11 @@ extern "C" int32_t t3_start(const modukit_host_abi_v1 *host) {
 
 extern "C" int32_t t3_stop(void) { return 0; }
 
-const modukit_plugin_abi_v1 T3_DESCRIPTOR = {
+const modukit_bundle_abi_v1 T3_DESCRIPTOR = {
     MODUKIT_ABI_VERSION_V2, /* the D96 v2 door - declared major 2 */
-    sizeof(modukit_plugin_abi_v1),
+    sizeof(modukit_bundle_abi_v1),
     "t3-bus-plugin",
-    kPluginId,
+    kBundleId,
     "0.1.0",
     t3_start,
     t3_stop,
@@ -87,6 +87,6 @@ const modukit_plugin_abi_v1 T3_DESCRIPTOR = {
 
 }  // namespace
 
-extern "C" const modukit_plugin_abi_v1 *modukit_plugin_init(void) {
+extern "C" const modukit_bundle_abi_v1 *modukit_bundle_init(void) {
   return &T3_DESCRIPTOR;
 }

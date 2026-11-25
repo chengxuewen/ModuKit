@@ -13,7 +13,7 @@ use std::time::Duration;
 use serde::Deserialize;
 
 use crate::error::ManifestError;
-use crate::identity::{PluginId, ServiceId};
+use crate::identity::{BundleId, ServiceId};
 use crate::lifecycle::{Backoff, RestartPolicy};
 
 /// Placement floor declared by `entry.kind` (05 §1). Stage-1 executes `dl`
@@ -92,7 +92,7 @@ pub struct Provides {
 /// The parsed deploy-tier manifest (modules/05 §1-3 fields settled for v0).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Manifest {
-    pub id: PluginId,
+    pub id: BundleId,
     pub version: String,
     /// D40 audit/accounting label; no permission semantics.
     pub team: String,
@@ -147,7 +147,7 @@ impl Manifest {
     /// kernel-authored probes and the shadow-runner — never for deploy files
     /// authored from text (the TOML path stays the grammar authority).
     #[must_use]
-    pub fn dl_internal(id: PluginId, artifact: impl Into<String>) -> Self {
+    pub fn dl_internal(id: BundleId, artifact: impl Into<String>) -> Self {
         Self {
             id,
             version: String::new(),
@@ -384,7 +384,7 @@ impl RawManifest {
         };
 
         Ok(Manifest {
-            id: PluginId::new(self.id),
+            id: BundleId::new(self.id),
             version: self.version,
             team: self.team.unwrap_or_else(|| "default".to_string()),
             start_level: self.start_level.unwrap_or(0),

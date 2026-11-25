@@ -142,8 +142,8 @@ __pycache__/
 # --- Generated language skins ----------------------------------------------
 # The wave-2 python demo re-emits this file through the codegen door; the
 # byte-pinned face lives in crates/modukit-codegen/testdata/golden.
-# plugin_runtime.py is hand-written and TRACKED (D106 batch-2 T2.4): the
+# bundle_runtime.py is hand-written and TRACKED (D106 batch-2 T2.4): the
 # directory-exclusion form cannot be re-included by a negation (git never
 # descends), hence bindings/py/* + an explicit !-line.
 bindings/py/*
-!bindings/py/plugin_runtime.py
+!bindings/py/bundle_runtime.py

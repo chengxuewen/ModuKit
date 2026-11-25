@@ -21,7 +21,7 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, PoisonError};
 
 use crate::bus::Bus;
-use crate::identity::{PluginId, TopicId};
+use crate::identity::{BundleId, TopicId};
 use crate::topic::QoS;
 
 /// The typed refusals of the hot lane.
@@ -51,8 +51,8 @@ impl std::error::Error for ConfigError {}
 
 /// The config value store, hot lane and persistence, in one door.
 pub struct ConfigAdmin {
-    store: Mutex<BTreeMap<(PluginId, String), String>>,
-    live: Mutex<BTreeMap<PluginId, BTreeSet<String>>>,
+    store: Mutex<BTreeMap<(BundleId, String), String>>,
+    live: Mutex<BTreeMap<BundleId, BTreeSet<String>>>,
     bus: Option<Arc<Bus>>,
     dir: Option<PathBuf>,
 }
@@ -98,7 +98,7 @@ impl ConfigAdmin {
             let Some(stem) = path.file_stem().and_then(|s| s.to_str()) else {
                 continue;
             };
-            let plugin = PluginId::new(stem.to_string());
+            let plugin = BundleId::new(stem.to_string());
             let Ok(text) = std::fs::read_to_string(&path) else {
                 continue;
             };
@@ -114,7 +114,7 @@ impl ConfigAdmin {
 
     /// Declare a plugin's hot keys (the kernel install tail feeds this from
     /// the manifest's `config_live`). Idempotent replace.
-    pub fn declare(&self, plugin: PluginId, keys: Vec<String>) {
+    pub fn declare(&self, plugin: BundleId, keys: Vec<String>) {
         self.live
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -123,7 +123,7 @@ impl ConfigAdmin {
 
     /// Drop a plugin's declarations (it uninstalled). Persisted values stay
     /// on disk - the deploy source of truth outlives one install cycle.
-    pub fn forget(&self, plugin: &PluginId) {
+    pub fn forget(&self, plugin: &BundleId) {
         self.live
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -138,7 +138,7 @@ impl ConfigAdmin {
     /// `ConfigError::NotLive` for an undeclared key (nothing is stored,
     /// written or published); `ConfigError::Persist` when the disk write
     /// fails (the in-memory store and the bus event still carry the value).
-    pub fn set(&self, plugin: &PluginId, key: &str, value: &str) -> Result<(), ConfigError> {
+    pub fn set(&self, plugin: &BundleId, key: &str, value: &str) -> Result<(), ConfigError> {
         {
             let live = self.live.lock().unwrap_or_else(PoisonError::into_inner);
             let declared = live.get(plugin).is_some_and(|keys| keys.contains(key));
@@ -167,7 +167,7 @@ impl ConfigAdmin {
 
     /// Read one value (the year-1 "value read" path, 05 §6).
     #[must_use]
-    pub fn get(&self, plugin: &PluginId, key: &str) -> Option<String> {
+    pub fn get(&self, plugin: &BundleId, key: &str) -> Option<String> {
         self.store
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -175,7 +175,7 @@ impl ConfigAdmin {
             .cloned()
     }
 
-    fn persist(&self, plugin: &PluginId) -> Result<(), ConfigError> {
+    fn persist(&self, plugin: &BundleId) -> Result<(), ConfigError> {
         let Some(dir) = &self.dir else {
             return Ok(()); // no persistence attached: the store is the door
         };
@@ -204,8 +204,8 @@ mod tests {
     use crate::identity::ServiceId;
     use crate::registry::{Properties, PropertyValue, Registry};
 
-    fn plugin(name: &str) -> PluginId {
-        PluginId::new(name.to_string())
+    fn plugin(name: &str) -> BundleId {
+        BundleId::new(name.to_string())
     }
 
     #[test]

@@ -16,7 +16,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use modukit_core::bundle::{BundleError, BundleInstaller, InstalledBundle};
-use modukit_core::identity::PluginId;
+use modukit_core::identity::BundleId;
 use modukit_core::kernel::Kernel;
 use modukit_core::sha256::{hash_file, hash_file_hex, to_hex};
 use std::os::unix::fs::{MetadataExt, PermissionsExt};
@@ -413,7 +413,7 @@ fn uninstall_removes_install_dir_and_the_plugins_data_root() {
     );
 
     let err = inst
-        .uninstall(&PluginId::new("com.example.never.installed".to_string()))
+        .uninstall(&BundleId::new("com.example.never.installed".to_string()))
         .expect_err("unknown id is not silently ok");
     assert_eq!(err.code(), "NOT_FOUND");
     let _ = std::fs::remove_dir_all(&root);

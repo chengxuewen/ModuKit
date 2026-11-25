@@ -3,12 +3,12 @@
 //! The kernel-facing surface is exactly the ABI v1 handshake plus ONE
 //! service registration (modules/04 §3 symbol discipline; the template
 //! standing keeps the fixture to nothing more). It exports the single entry
-//! symbol `modukit_plugin_init`; `start` registers one message-shaped echo
+//! symbol `modukit_bundle_init`; `start` registers one message-shaped echo
 //! service through the host table; `stop` is a cooperative no-op.
 
 use std::ffi::{CStr, c_char};
 
-use modukit_core::abi::{ABI_VERSION, HostAbiV1, PluginAbiV1};
+use modukit_core::abi::{ABI_VERSION, BundleAbiV1, HostAbiV1};
 
 /// Canonical service id (D9: v0 hand-writes the const; codegen owns it at
 /// M4). `c""` literal: NUL-terminated by construction for the C ABI.
@@ -78,9 +78,9 @@ extern "C" fn demo_stop() -> i32 {
     0
 }
 
-static DESCRIPTOR: PluginAbiV1 = PluginAbiV1 {
+static DESCRIPTOR: BundleAbiV1 = BundleAbiV1 {
     abi_version: ABI_VERSION,
-    size: PluginAbiV1::expected_size(),
+    size: BundleAbiV1::expected_size(),
     name: c"example-plugin".as_ptr(),
     id: SERVICE_ID.as_ptr(),
     version: c"0.1.0".as_ptr(),
@@ -90,6 +90,6 @@ static DESCRIPTOR: PluginAbiV1 = PluginAbiV1 {
 
 /// The single exported entry symbol (04 §3).
 #[unsafe(no_mangle)]
-pub extern "C" fn modukit_plugin_init() -> *const PluginAbiV1 {
+pub extern "C" fn modukit_bundle_init() -> *const BundleAbiV1 {
     &raw const DESCRIPTOR
 }

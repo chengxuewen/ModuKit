@@ -161,7 +161,7 @@ def walk_mode(core_so, fixture_so, run_path):
     pid = id_out.value
     state = ctypes.c_int32(-1)
     if lib.modukit_sup_state(pid, ctypes.byref(state)) != 0 or (
-        state.value != skin.PluginState.STATE_ACTIVE
+        state.value != skin.BundleState.STATE_ACTIVE
     ):
         sys.stderr.write("sup state=%d want ACTIVE(4)\n" % state.value)
         return 1

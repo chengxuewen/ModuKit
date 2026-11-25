@@ -120,9 +120,9 @@ pub enum KernelError {
     ArtifactMissing { path: String },
     /// `dlopen` failed (message carried verbatim from the OS loader).
     LoadFailed { path: String, reason: String },
-    /// The entry symbol `modukit_plugin_init` is absent (04 §3).
+    /// The entry symbol `modukit_bundle_init` is absent (04 §3).
     SymbolMissing { path: String },
-    /// `modukit_plugin_init` returned a null descriptor (04 §3).
+    /// `modukit_bundle_init` returned a null descriptor (04 §3).
     HandshakeNull,
     /// Descriptor `abi_version` is an unknown major (04 §3 -> FAILED).
     AbiMismatch { expected: u32, found: u32 },
@@ -133,7 +133,7 @@ pub enum KernelError {
     /// A `required = true` dependency was absent at resolve (03 §1, D51).
     DependencyMissing { service: String },
     /// The plugin's `start()` returned a non-zero status (03 §2).
-    PluginStartFailed { status: i32 },
+    BundleStartFailed { status: i32 },
     /// A message-shaped call through an ABI service returned an error code
     /// (02 §4 sync boundary; the plugin's own code space is the int).
     ServiceCallFailed { code: i32 },
@@ -207,7 +207,7 @@ impl KernelError {
             KernelError::ServiceCallFailed { .. } => "SERVICE_CALL_FAILED",
             KernelError::RoutingDeferred { .. } => "DEFERRAL_DECLINED",
             KernelError::ClockDialRefused { .. } => "CLOCK_DIAL_REFUSED",
-            KernelError::PluginStartFailed { .. } | KernelError::UnsupportedPlacement { .. } => {
+            KernelError::BundleStartFailed { .. } | KernelError::UnsupportedPlacement { .. } => {
                 "CONTRACT_VIOLATION"
             }
         }
@@ -243,10 +243,10 @@ impl fmt::Display for KernelError {
                 write!(f, "dlopen of {path} failed: {reason}")
             }
             KernelError::SymbolMissing { path } => {
-                write!(f, "entry symbol modukit_plugin_init missing in {path}")
+                write!(f, "entry symbol modukit_bundle_init missing in {path}")
             }
             KernelError::HandshakeNull => {
-                write!(f, "modukit_plugin_init returned a null descriptor")
+                write!(f, "modukit_bundle_init returned a null descriptor")
             }
             KernelError::AbiMismatch { expected, found } => write!(
                 f,
@@ -254,7 +254,7 @@ impl fmt::Display for KernelError {
             ),
             KernelError::DescriptorTooSmall { expected, found } => write!(
                 f,
-                "PluginAbiV1 descriptor too small: expected {expected} bytes, got {found}"
+                "BundleAbiV1 descriptor too small: expected {expected} bytes, got {found}"
             ),
             KernelError::HandshakeIncomplete { what } => {
                 write!(f, "descriptor field {what} is null")
@@ -262,7 +262,7 @@ impl fmt::Display for KernelError {
             KernelError::DependencyMissing { service } => {
                 write!(f, "required service missing at resolve: {service}")
             }
-            KernelError::PluginStartFailed { status } => {
+            KernelError::BundleStartFailed { status } => {
                 write!(f, "plugin start() returned error status {status}")
             }
             KernelError::ServiceCallFailed { code } => {

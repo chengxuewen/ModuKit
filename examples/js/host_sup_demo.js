@@ -153,7 +153,7 @@ function walkMode(coreSo, bridgeNode, fixtureSo, runPath) {
   }
   const id = inst.out_plugin_id;
   const st = skin.modukit_sup_state(id);
-  if (st.raw !== 0 || st.out_state !== skin.PluginState.STATE_ACTIVE) {
+  if (st.raw !== 0 || st.out_state !== skin.BundleState.STATE_ACTIVE) {
     console.error(`sup state=${st.out_state} want ACTIVE(4)`);
     return 1;
   }

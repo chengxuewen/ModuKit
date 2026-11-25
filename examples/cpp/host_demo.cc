@@ -36,7 +36,7 @@
 
 namespace {
 
-const std::string kPluginId = "com.example.cpp.demo";
+const std::string kBundleId = "com.example.cpp.demo";
 const char *const kServiceId = "com.modukit.demo.DemoService";
 const char *const kTopic = "com.example.cpp.demo.status";
 const char *const kPayload = "embed-demo-payload";
@@ -70,10 +70,10 @@ std::string manifest_for(const std::string &so_path) {
     /* THE single sabotage point (documented in scripts/demo-stage4-m1.sh):
        an unknown placement must be refused at the install door. */
     std::printf("[sabotage] DEMO_STAGE4_SABOTAGE=1 -> corrupting manifest\n");
-    return "id = \"" + kPluginId + "\"\nversion = \"0.1.0\"\n"
+    return "id = \"" + kBundleId + "\"\nversion = \"0.1.0\"\n"
            "[entry]\nkind = \"dlx\"\nartifact = \"" + so_path + "\"\n";
   }
-  return "id = \"" + kPluginId + "\"\nversion = \"0.1.0\"\n"
+  return "id = \"" + kBundleId + "\"\nversion = \"0.1.0\"\n"
          "[entry]\nkind = \"dl\"\nartifact = \"" + so_path + "\"\n";
 }
 
@@ -99,9 +99,9 @@ int main(int argc, char **argv) {
 
   /* [2] install: manifest-v0 TOML in, kernel-owned canonical id out. */
   const std::string toml = manifest_for(so_path);
-  const char *plugin_id = nullptr;
-  check(kernel.install(toml.c_str(), &plugin_id).ok() && plugin_id != nullptr &&
-            std::strcmp(plugin_id, kPluginId.c_str()) == 0,
+  const char *bundle_id = nullptr;
+  check(kernel.install(toml.c_str(), &bundle_id).ok() && bundle_id != nullptr &&
+            std::strcmp(bundle_id, kBundleId.c_str()) == 0,
         "[2] install -> canonical id (kernel-owned bytes)");
   if (failures != 0) {
     std::printf("CPP-DEMO FAIL (%d, install door)\n", failures);
@@ -109,11 +109,11 @@ int main(int argc, char **argv) {
   }
 
   /* [3] resolve + [4] start + [5] state: the dl handshake and the walk. */
-  check(kernel.resolve(plugin_id).ok(), "[3] resolve -> ABI v1 handshake green");
-  check(kernel.start(plugin_id).ok(), "[4] start -> ACTIVE");
+  check(kernel.resolve(bundle_id).ok(), "[3] resolve -> ABI v1 handshake green");
+  check(kernel.start(bundle_id).ok(), "[4] start -> ACTIVE");
   int32_t state = -1;
-  check(kernel.state(plugin_id, &state).ok() &&
-            state == static_cast<int32_t>(modukit::PluginState::STATE_ACTIVE),
+  check(kernel.state(bundle_id, &state).ok() &&
+            state == static_cast<int32_t>(modukit::BundleState::STATE_ACTIVE),
         "[5] state == ACTIVE (4)");
 
   /* [6] service_call: typed round trip over the frozen message shape. */
@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
   bool snap_ok = false;
   if (take.ok() && copied == snap_len) {
     const std::string text(reinterpret_cast<const char *>(snap.data()), snap_len);
-    snap_ok = text.find("plugin\t" + kPluginId + "\tACTIVE") != std::string::npos &&
+    snap_ok = text.find("plugin\t" + kBundleId + "\tACTIVE") != std::string::npos &&
               text.find("service\torg.modukit.snapshot\t") != std::string::npos &&
               text.find("counters\t") != std::string::npos;
   }
@@ -212,7 +212,7 @@ int main(int argc, char **argv) {
       const uint64_t seq = rd64le(events.data() + off + 4);
       const uint64_t plen = rd64le(events.data() + off + 20);
       if (kind == static_cast<uint32_t>(modukit::EventKind::EVENT_LIFECYCLE) &&
-          std::memcmp(events.data() + off + 28, kPluginId.c_str(), kPluginId.size()) == 0) {
+          std::memcmp(events.data() + off + 28, kBundleId.c_str(), kBundleId.size()) == 0) {
         saw_lifecycle = true;
       }
       last_seq = seq;
@@ -255,15 +255,15 @@ int main(int argc, char **argv) {
   }
 
   /* [12] stop + uninstall close the walk (and the plugin's services). */
-  check(kernel.stop(plugin_id).ok(), "[12] stop -> RESOLVED");
-  check(kernel.state(plugin_id, &state).ok() &&
-            state == static_cast<int32_t>(modukit::PluginState::STATE_RESOLVED),
+  check(kernel.stop(bundle_id).ok(), "[12] stop -> RESOLVED");
+  check(kernel.state(bundle_id, &state).ok() &&
+            state == static_cast<int32_t>(modukit::BundleState::STATE_RESOLVED),
         "[12] state == RESOLVED (6)");
-  check(kernel.uninstall(plugin_id).ok(), "[12] uninstall -> UNINSTALLED");
-  check(kernel.state(plugin_id, &state).ok() &&
-            state == static_cast<int32_t>(modukit::PluginState::STATE_UNINSTALLED),
+  check(kernel.uninstall(bundle_id).ok(), "[12] uninstall -> UNINSTALLED");
+  check(kernel.state(bundle_id, &state).ok() &&
+            state == static_cast<int32_t>(modukit::BundleState::STATE_UNINSTALLED),
         "[12] state == UNINSTALLED (0)");
-  check(kernel.resolve(plugin_id).code() == modukit::KernelCode::CONTRACT_VIOLATION,
+  check(kernel.resolve(bundle_id).code() == modukit::KernelCode::CONTRACT_VIOLATION,
         "[12] resolve from UNINSTALLED -> CONTRACT_VIOLATION (table guard)");
 
   if (failures != 0) {

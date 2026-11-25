@@ -4,8 +4,8 @@ Python and JS programs can BE ModuKit plugins: the kernel spawns your
 script as a child process across the exe wall (chapter 04), hands it a
 control socket, and speaks a frozen wire protocol to it. You write a plain
 script - stdlib only, no `.so`, no `LD_PRELOAD`, no npm - and a
-hand-written skin (`bindings/py/plugin_runtime.py`,
-`bindings/js/plugin_runtime.mjs`) walks the wire for you.
+hand-written skin (`bindings/py/bundle_runtime.py`,
+`bindings/js/bundle_runtime.mjs`) walks the wire for you.
 
 ## The four hidden contracts
 

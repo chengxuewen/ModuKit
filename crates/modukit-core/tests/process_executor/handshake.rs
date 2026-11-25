@@ -27,7 +27,7 @@ fn handshake_abort_on_abi_lie_lands_failed_edge_no_panic() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("still tracked"),
-        PluginState::Failed
+        BundleState::Failed
     );
     assert_eq!(sup.kernel().counters().load_fail(), 1);
     assert_eq!(
@@ -63,7 +63,7 @@ fn handshake_abort_on_id_lie_is_rejected_by_strict_self_report() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("still tracked"),
-        PluginState::Failed
+        BundleState::Failed
     );
 }
 
@@ -133,7 +133,7 @@ fn handshake_abort_on_foreign_wire_version_is_typed_version_mismatch() {
     );
     assert_eq!(
         sup.kernel().state(&id).expect("still tracked"),
-        PluginState::Failed
+        BundleState::Failed
     );
     assert_eq!(sup.kernel().counters().load_fail(), 1);
     assert_eq!(

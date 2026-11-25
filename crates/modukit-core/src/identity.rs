@@ -101,7 +101,7 @@ impl std::error::Error for IdGrammar {}
 
 /// Stable plugin identity from the manifest `id` field (05 §1).
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct PluginId(String);
+pub struct BundleId(String);
 
 /// Canonical service identity — the reverse-DNS string carried in
 /// registration properties under `service.id` (D9, modules/02 §1).
@@ -115,7 +115,7 @@ pub struct ServiceId(String);
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct TopicId(String);
 
-impl PluginId {
+impl BundleId {
     #[must_use]
     pub fn new(value: String) -> Self {
         Self(value)
@@ -144,7 +144,7 @@ impl ServiceId {
         Self(value)
     }
 
-    /// Grammar-checked constructor (M7); see `PluginId::try_new`.
+    /// Grammar-checked constructor (M7); see `BundleId::try_new`.
     ///
     /// # Errors
     ///
@@ -166,7 +166,7 @@ impl TopicId {
         Self(value)
     }
 
-    /// Grammar-checked constructor (M7); see `PluginId::try_new`. The bus
+    /// Grammar-checked constructor (M7); see `BundleId::try_new`. The bus
     /// publish path is deliberately NOT retrofitted with validation
     /// (hot-path cost) — declaration sites use this door.
     ///
@@ -190,7 +190,7 @@ impl std::fmt::Display for TopicId {
     }
 }
 
-impl std::fmt::Display for PluginId {
+impl std::fmt::Display for BundleId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(&self.0)
     }

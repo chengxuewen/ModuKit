@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Wave-2 plugin-door NODE leg (leg thirteen; D106 batch 3, plan T3.3):
-# the hand-written skin bindings/js/plugin_runtime.mjs walks the exe wall as
+# the hand-written skin bindings/js/bundle_runtime.mjs walks the exe wall as
 # a kernel-spawned script child (runner = the absolute node path, artifact =
 # a staged js_echo.mjs copy). Stages mirror demo-wave2-plugin-py.sh exactly:
 # [0] RUNNER line; [1] conformance BEFORE launching anything (all 14 golden
@@ -14,7 +14,7 @@
 # byte-exact again; [3] SIGKILL the driver, /proc census (the house law:
 # never pgrep -f) asserts zero strays - the EOF path of the kernel's OWN
 # child, not a driver-managed subprocess; [4] the C0 lever
-# DEMO_PLUGIN_JS_SABOTAGE=1 skips the skin's REGISTER push at its one named
+# DEMO_BUNDLE_JS_SABOTAGE=1 skips the skin's REGISTER push at its one named
 # point: the lifecycle must go red, no PASS line, exit 1 (the green run
 # proves it inline; an externally-set lever reds the whole leg before
 # stage [3]).
@@ -65,7 +65,7 @@ fi
 # The skin + fixtures are tracked repo content (no ignore rule exists under
 # bindings/js - nothing generated lands there, unlike bindings/py): absence
 # = broken tree, RED by the same law as a failed build.
-for f in bindings/js/plugin_runtime.mjs test-plugins/js/js_echo.mjs test-plugins/js/js_liar.mjs; do
+for f in bindings/js/bundle_runtime.mjs test-plugins/js/js_echo.mjs test-plugins/js/js_liar.mjs; do
   [ -f "$f" ] || { echo "demo-wave2-plugin-js: RED (tracked content missing: $f)"; exit 1; }
 done
 
@@ -149,7 +149,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
-const rt = await import(`file://${path.join(process.argv[2], 'plugin_runtime.mjs')}`);
+const rt = await import(`file://${path.join(process.argv[2], 'bundle_runtime.mjs')}`);
 const GOLD = process.argv[3];
 
 // Per-kind canonicalization: decode the payload, re-encode through the
@@ -318,7 +318,7 @@ const ID_LIAR = 'org.modukit.demo.jsliar';
 const TOPIC = 'org.modukit.demo.wire-echo';
 const HOST_PUSH = Buffer.from('host-push');
 const VERSION = '0.1.0';
-const ACTIVE = skin.PluginState.STATE_ACTIVE;
+const ACTIVE = skin.BundleState.STATE_ACTIVE;
 // D51 codes as the ledger numbers them (modukit_embed.h, embed_codec.rs):
 const NEG_NOT_FOUND = -14;
 const NEG_SERVICE_CALL_FAILED = -25;
@@ -532,10 +532,10 @@ fi
 
 # --- [4] sabotage proof, inline every run (C0: a check is only trusted
 # after it is OBSERVED red). The lever lands at the ONE named point in the
-# skin (bindings/js/plugin_runtime.mjs, the REGISTER loop): skipping the
+# skin (bindings/js/bundle_runtime.mjs, the REGISTER loop): skipping the
 # announcement makes the driver's first service_call NOT_FOUND (-14), the
 # lifecycle must die before the marker. Exit non-zero AND no marker = green.
-DEMO_PLUGIN_JS_SABOTAGE=1 "$NBIN" "$stage/driver.mjs" "$PWD/$core_so" "target/js/modukit_js.node" \
+DEMO_BUNDLE_JS_SABOTAGE=1 "$NBIN" "$stage/driver.mjs" "$PWD/$core_so" "target/js/modukit_js.node" \
   "$stage" "$NABS" "sup-fidelity-payload" >"$sablog" 2>&1
 sab_rc=$?
 if [ "$sab_rc" -eq 0 ] || grep -q '^LIFECYCLE PASS' "$sablog"; then

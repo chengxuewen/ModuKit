@@ -30,7 +30,7 @@ use std::time::Duration;
 
 use modukit_core::clock::{Clock, ClockDomain};
 use modukit_core::executor::Supervisor;
-use modukit_core::identity::PluginId;
+use modukit_core::identity::BundleId;
 use modukit_core::manifest::Manifest;
 
 /// Real-clock idle park between supervisor passes (the host-loop contract's
@@ -117,7 +117,7 @@ fn run(path: &str, domain: ClockDomain, ops: Option<String>) -> i32 {
         }
     };
     let id = manifest.id.as_str().to_string();
-    let pid = PluginId::new(id.clone());
+    let pid = BundleId::new(id.clone());
 
     // The production pair in one constructor (proc_supervisor.rs with_clock).
     let sup = Supervisor::with_clock(Clock::new(domain));

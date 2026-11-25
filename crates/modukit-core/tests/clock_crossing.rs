@@ -52,7 +52,7 @@ use std::time::Duration;
 
 use modukit_core::executor::Supervisor;
 use modukit_core::identity::TopicId;
-use modukit_core::lifecycle::PluginState;
+use modukit_core::lifecycle::BundleState;
 use modukit_core::manifest::Manifest;
 use modukit_core::proc_wire::{self, HELLO_CAP_BUS_V2, HELLO_CAP_TIMER_V2, Hello, WIRE_VERSION};
 
@@ -218,7 +218,7 @@ fn leg_out_child_bell_crosses_the_wall_at_the_dial_site() {
     unsafe { std::env::remove_var("MODUKIT_BUS") };
     assert_eq!(
         sup.kernel().state(&id).expect("tracked"),
-        PluginState::Active
+        BundleState::Active
     );
 
     // A live parent subscriber BEFORE the dial hears the bell mid-turn.

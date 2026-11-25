@@ -19,7 +19,8 @@
 //   --name    server key inside that json
 //   --        separator; everything after is passed verbatim to the server bin
 import { spawn, spawnSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { homedir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -36,7 +37,7 @@ function need(name, val) {
   return val
 }
 
-let pkg, version, bin, from, name
+let pkg, version, bin, from, name, spec = null
 for (let i = 0; i < pre.length; i++) {
   if (pre[i] === '--pkg') pkg = need('pkg', pre[++i])
   else if (pre[i] === '--version') version = need('version', pre[++i])
@@ -48,7 +49,7 @@ for (let i = 0; i < pre.length; i++) {
 
 // single-source mode: load launcher spec from scripts/agents/mcp-servers.json
 if (from) {
-  const spec = JSON.parse(readFileSync(join(root, from), 'utf8'))[need('name', name)]
+  spec = JSON.parse(readFileSync(join(root, from), 'utf8'))[need('name', name)]
   if (!spec) { console.error(`[mcp-serve] no server "${name}" in ${from}`); process.exit(2) }
   pkg = spec.pkg
   version = spec.version
@@ -56,6 +57,24 @@ if (from) {
   if (Array.isArray(spec.args)) serverArgs.push(...spec.args)
 }
 need('pkg', pkg); need('version', version); need('bin', bin)
+
+// Browser bootstrap: a spec may declare `browser` (chromium/firefox/webkit) so the
+// server runs Playwright's own downloaded build instead of a system Chrome. The
+// cache path mirrors playwright-core; mcp-cli.py implements the same rules so a
+// fresh clone works from either entry point (setup or first host spawn).
+function playwrightBrowsersDir() {
+  const override = process.env.PLAYWRIGHT_BROWSERS_PATH
+  if (override && override !== '0') return override
+  const home = homedir()
+  if (process.platform === 'win32') return join(process.env.LOCALAPPDATA || join(home, 'AppData', 'Local'), 'ms-playwright')
+  if (process.platform === 'darwin') return join(home, 'Library', 'Caches', 'ms-playwright')
+  return join(home, '.cache', 'ms-playwright')
+}
+
+function browserInstalled(family) {
+  const prefix = family === 'chromium-headless-shell' ? 'chromium_headless_shell-' : `${family}-`
+  try { return readdirSync(playwrightBrowsersDir()).some((entry) => entry.startsWith(prefix)) } catch { return false }
+}
 
 const binName = process.platform === 'win32' ? `${bin}.cmd` : bin
 const binPath = join(root, 'node_modules', '.bin', binName)
@@ -99,6 +118,34 @@ if (!existsSync(binPath) || have !== version) {
     process.exit(1)
   }
   if (res.status !== 0) process.exit(res.status ?? 1)
+}
+
+// Browser gate runs AFTER the package step: a clean clone has no cli.js yet, and the
+// first-run path above must install it before `install-browser` can be called.
+if (spec?.browser && !browserInstalled(spec.browser)) {
+  const cli = join(root, 'node_modules', ...pkg.split('/'), 'cli.js')
+  if (!existsSync(cli)) {
+    console.error(`[mcp-serve] ${spec.browser} browser missing and ${cli} absent -- run: pixi run mcp setup`)
+    process.exit(1)
+  }
+  console.error(`[mcp-serve] installing playwright browser ${spec.browser} (no system Chrome needed) ...`)
+  // stdout IS the MCP JSON-RPC channel here -- keep the installer's chatter on stderr.
+  const res = spawnSync(process.execPath, [cli, 'install-browser', spec.browser, '--no-progress'], {
+    cwd: root,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  if (res.stdout && res.stdout.length) process.stderr.write(res.stdout)
+  if (res.stderr && res.stderr.length) process.stderr.write(res.stderr)
+  if (res.status !== 0 || !browserInstalled(spec.browser)) {
+    const detail = String(res.stderr || '') + String(res.stdout || '')
+    if (detail.includes('does not support')) {
+      console.error(`[mcp-serve] the pinned Playwright ships no ${spec.browser} build for this host;`)
+      console.error('[mcp-serve] run on a supported OS or set PLAYWRIGHT_MCP_EXECUTABLE_PATH to a browser')
+    } else {
+      console.error('[mcp-serve] browser install failed -- run: pixi run mcp setup')
+    }
+    process.exit(1)
+  }
 }
 
 const child = spawn(binPath, serverArgs, { stdio: 'inherit' })

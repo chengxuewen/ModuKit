@@ -13,7 +13,7 @@ use std::path::Path;
 
 use libloading::Library;
 
-use crate::abi::{ABI_VERSION, ENTRY_SYMBOL, HostAbiV1, PluginAbiV1, PluginInitFn};
+use crate::abi::{ABI_VERSION, BundleAbiV1, BundleInitFn, ENTRY_SYMBOL, HostAbiV1};
 use crate::error::KernelError;
 use crate::manifest::{Manifest, PlacementKind};
 
@@ -48,14 +48,14 @@ pub trait LoadedPlugin {
     ///
     /// # Errors
     ///
-    /// `KernelError::PluginStartFailed` on a non-zero status (03 §2).
+    /// `KernelError::BundleStartFailed` on a non-zero status (03 §2).
     fn start(&mut self, host: *const HostAbiV1) -> Result<(), KernelError>;
 
     /// Cooperative stop (01 §3 rule 6: idempotence is the plugin's duty).
     ///
     /// # Errors
     ///
-    /// `KernelError::PluginStartFailed`-shaped propagation of a non-zero
+    /// `KernelError::BundleStartFailed`-shaped propagation of a non-zero
     /// status (stop path reuses the same typed channel).
     fn stop(&mut self) -> Result<(), KernelError>;
 
@@ -159,11 +159,11 @@ impl DlopenExecutor {
         })?;
         // SAFETY: the symbol's declared type is the ABI v1 entry signature;
         // the name is a NUL-terminated literal and `lib` outlives `_lib`.
-        let init: libloading::Symbol<'_, PluginInitFn> =
+        let init: libloading::Symbol<'_, BundleInitFn> =
             unsafe { lib.get(ENTRY_SYMBOL) }.map_err(|_| KernelError::SymbolMissing {
                 path: path.to_string(),
             })?;
-        let desc: *const PluginAbiV1 = init();
+        let desc: *const BundleAbiV1 = init();
         if desc.is_null() {
             return Err(KernelError::HandshakeNull);
         }
@@ -210,7 +210,7 @@ impl DlopenExecutor {
 /// pointer and has no destructor; methods stop before drop).
 struct DlopenPlugin {
     _lib: Library,
-    desc: *const PluginAbiV1,
+    desc: *const BundleAbiV1,
     name: String,
     /// The ABI major the descriptor declared at the handshake (1 or 2).
     abi_major: u32,
@@ -224,7 +224,7 @@ unsafe impl Send for DlopenPlugin {}
 
 impl DlopenPlugin {
     /// 04 §3 guards, run before any call: version integer + struct size.
-    fn validate(desc: &PluginAbiV1) -> Result<(), KernelError> {
+    fn validate(desc: &BundleAbiV1) -> Result<(), KernelError> {
         // N1 v2 door (D96 ruling 2): a declared major 2 asks for the
         // HostAbiV2 table. Purely additive - the v1 guard below is
         // byte-identical, so any other liar major still lands AbiMismatch.
@@ -243,9 +243,9 @@ impl DlopenPlugin {
                 found: desc.abi_version,
             });
         }
-        if desc.size < PluginAbiV1::expected_size() {
+        if desc.size < BundleAbiV1::expected_size() {
             return Err(KernelError::DescriptorTooSmall {
-                expected: PluginAbiV1::expected_size(),
+                expected: BundleAbiV1::expected_size(),
                 found: desc.size,
             });
         }
@@ -261,10 +261,10 @@ impl DlopenPlugin {
     /// v2 door guards: the descriptor shape is unchanged (the SECOND table
     /// is host-side only, D96 ruling 2), so the size/pointer guards are the
     /// v1 ones; only the version-equality guard becomes declared-major 2.
-    fn validate_v2(desc: &PluginAbiV1) -> Result<(), KernelError> {
-        if desc.size < PluginAbiV1::expected_size() {
+    fn validate_v2(desc: &BundleAbiV1) -> Result<(), KernelError> {
+        if desc.size < BundleAbiV1::expected_size() {
             return Err(KernelError::DescriptorTooSmall {
-                expected: PluginAbiV1::expected_size(),
+                expected: BundleAbiV1::expected_size(),
                 found: desc.size,
             });
         }
@@ -281,10 +281,10 @@ impl DlopenPlugin {
     /// THIRD table is host-side only, recursing the D96 ruling-2 shape),
     /// so the size/pointer guards are the v1/v2 ones; only the version-
     /// equality guard becomes declared-major 3.
-    fn validate_v3(desc: &PluginAbiV1) -> Result<(), KernelError> {
-        if desc.size < PluginAbiV1::expected_size() {
+    fn validate_v3(desc: &BundleAbiV1) -> Result<(), KernelError> {
+        if desc.size < BundleAbiV1::expected_size() {
             return Err(KernelError::DescriptorTooSmall {
-                expected: PluginAbiV1::expected_size(),
+                expected: BundleAbiV1::expected_size(),
                 found: desc.size,
             });
         }
@@ -352,7 +352,7 @@ impl LoadedPlugin for DlopenPlugin {
         // v0 hint: the descriptor lives in the mapped image; its address
         // is stable for the library's lifetime (debug adapters only need a
         // per-module distinct anchor until a real base-address query lands).
-        let ptr: *const PluginAbiV1 = self.desc;
+        let ptr: *const BundleAbiV1 = self.desc;
         ptr as usize as u64
     }
 
@@ -374,7 +374,7 @@ impl LoadedPlugin for DlopenPlugin {
             start(host)
         };
         if status != 0 {
-            return Err(KernelError::PluginStartFailed { status });
+            return Err(KernelError::BundleStartFailed { status });
         }
         Ok(())
     }
@@ -388,7 +388,7 @@ impl LoadedPlugin for DlopenPlugin {
             stop()
         };
         if status != 0 {
-            return Err(KernelError::PluginStartFailed { status });
+            return Err(KernelError::BundleStartFailed { status });
         }
         Ok(())
     }
@@ -413,8 +413,8 @@ mod v3_door_guard_tests {
         0
     }
 
-    fn desc(abi_version: u32, size: u32, start: bool, stop: bool) -> PluginAbiV1 {
-        PluginAbiV1 {
+    fn desc(abi_version: u32, size: u32, start: bool, stop: bool) -> BundleAbiV1 {
+        BundleAbiV1 {
             abi_version,
             size,
             name: std::ptr::null(),
@@ -430,7 +430,7 @@ mod v3_door_guard_tests {
         assert!(
             DlopenPlugin::validate(&desc(
                 crate::abi::ABI_VERSION_V3,
-                PluginAbiV1::expected_size(),
+                BundleAbiV1::expected_size(),
                 true,
                 true,
             ))
@@ -442,7 +442,7 @@ mod v3_door_guard_tests {
     fn false_major_3_keeps_the_descriptor_too_small_shape() {
         let err = DlopenPlugin::validate(&desc(
             crate::abi::ABI_VERSION_V3,
-            PluginAbiV1::expected_size() - 1,
+            BundleAbiV1::expected_size() - 1,
             true,
             true,
         ))
@@ -458,7 +458,7 @@ mod v3_door_guard_tests {
         for (start, stop, what) in [(false, true, "start"), (true, false, "stop")] {
             let err = DlopenPlugin::validate(&desc(
                 crate::abi::ABI_VERSION_V3,
-                PluginAbiV1::expected_size(),
+                BundleAbiV1::expected_size(),
                 start,
                 stop,
             ))
@@ -475,7 +475,7 @@ mod v3_door_guard_tests {
         // The v3 arm does not swallow the liar guard: an unknown major 4
         // falls through to the equality check exactly as majors 3-pre-T1
         // and 99 did before it (plan §1: the guard already returns it).
-        let err = DlopenPlugin::validate(&desc(4, PluginAbiV1::expected_size(), true, true))
+        let err = DlopenPlugin::validate(&desc(4, BundleAbiV1::expected_size(), true, true))
             .expect_err("major 4 is not a door this host publishes");
         assert!(
             matches!(
@@ -506,7 +506,7 @@ mod v3_door_guard_tests {
         assert!(
             DlopenPlugin::validate(&desc(
                 crate::abi::ABI_VERSION_V3,
-                PluginAbiV1::expected_size(),
+                BundleAbiV1::expected_size(),
                 true,
                 true,
             ))

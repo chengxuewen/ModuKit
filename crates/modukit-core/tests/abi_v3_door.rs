@@ -28,9 +28,9 @@ use std::process::Command;
 use std::time::Duration;
 
 use modukit_core::abi::{HostAbiV1, HostAbiV2, HostAbiV3, NativeService};
-use modukit_core::identity::{PluginId, TopicId};
+use modukit_core::identity::{BundleId, TopicId};
 use modukit_core::kernel::Kernel;
-use modukit_core::lifecycle::PluginState;
+use modukit_core::lifecycle::BundleState;
 use modukit_core::manifest::Manifest;
 use modukit_core::testhost::TestHost;
 
@@ -87,8 +87,8 @@ fn manifest_toml(id: &str, artifact: &Path) -> String {
 
 /// Install/resolve/start a declared-major-3 fixture through the real door
 /// and hand back the tracking id. Every fixture-internal assertion lands
-/// as a distinct negative start code, surfacing here as PluginStartFailed.
-fn start_v3_fixture(kernel: &Kernel, so: &Path) -> PluginId {
+/// as a distinct negative start code, surfacing here as BundleStartFailed.
+fn start_v3_fixture(kernel: &Kernel, so: &Path) -> BundleId {
     let manifest =
         Manifest::from_toml_str(&manifest_toml(TIMERV3_ID, so)).expect("fixture manifest parses");
     let id = manifest.id.clone();
@@ -98,11 +98,11 @@ fn start_v3_fixture(kernel: &Kernel, so: &Path) -> PluginId {
     kernel
         .resolve(&id)
         .expect("declared major 3 is accepted at the door");
-    assert_eq!(kernel.state(&id).expect("resolved"), PluginState::Starting);
+    assert_eq!(kernel.state(&id).expect("resolved"), BundleState::Starting);
     kernel
         .start(&id)
         .expect("the fixture's clock-door walk must pass every cell (start returns its code)");
-    assert_eq!(kernel.state(&id).expect("started"), PluginState::Active);
+    assert_eq!(kernel.state(&id).expect("started"), BundleState::Active);
     id
 }
 
@@ -302,7 +302,7 @@ fn declared_major_3_walks_the_clock_door_and_the_bell_rings_live() {
     kernel.uninstall(&id).expect("uninstall");
     assert_eq!(
         kernel.state(&id).expect("uninstalled"),
-        PluginState::Uninstalled
+        BundleState::Uninstalled
     );
 }
 

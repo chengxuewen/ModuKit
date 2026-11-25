@@ -8,11 +8,11 @@
  * prefix still answers calls after the mailbox work. */
 #include <cstring>
 
-#include "modukit_plugin.h"
+#include "modukit_bundle.h"
 
 namespace {
 
-const char *const kPluginId = "com.example.cpp.busv2";
+const char *const kBundleId = "com.example.cpp.busv2";
 const char *const kTopic = "com.example.cpp.busv2";
 const char *const kServiceId = "com.example.cpp.busv2.echo";
 const char *const kSeed = "cpp-busv2-seed";
@@ -59,11 +59,11 @@ extern "C" int32_t busv2_stop(void) {
   return 0; /* cooperative no-op; idempotent by construction (01 §3 rule 6) */
 }
 
-const modukit_plugin_abi_v1 BUSV2_DESCRIPTOR = {
+const modukit_bundle_abi_v1 BUSV2_DESCRIPTOR = {
     MODUKIT_ABI_VERSION_V2,        /* abi_version - the v2 door (D96) */
-    sizeof(modukit_plugin_abi_v1), /* size - handshake guard 3 */
+    sizeof(modukit_bundle_abi_v1), /* size - handshake guard 3 */
     "cpp-busv2-plugin",            /* name */
-    kPluginId,                     /* id == published topic owner (D9) */
+    kBundleId,                     /* id == published topic owner (D9) */
     "0.1.0",                       /* version */
     busv2_start,                   /* start - guard 4 */
     busv2_stop,                    /* stop - guard 4 */
@@ -71,6 +71,6 @@ const modukit_plugin_abi_v1 BUSV2_DESCRIPTOR = {
 
 }  // namespace
 
-extern "C" const modukit_plugin_abi_v1 *modukit_plugin_init(void) {
+extern "C" const modukit_bundle_abi_v1 *modukit_bundle_init(void) {
   return &BUSV2_DESCRIPTOR;
 }

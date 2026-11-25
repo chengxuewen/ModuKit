@@ -37,6 +37,7 @@ PREFIX = "MCP"
 SPECS = os.path.join("scripts", "agents", "mcp-servers.json")
 NODE_HINT = "node not found on PATH -- run via: pixi run mcp <subcommand>"
 NPM_HINT = "npm not found on PATH -- run via: pixi run mcp setup"
+BROWSERS_ENV = "PLAYWRIGHT_BROWSERS_PATH"
 
 
 def _specs():
@@ -60,6 +61,84 @@ def _installed_version(pkg):
 def _bin_path(bin_name):
     name = bin_name + ".cmd" if os.name == "nt" else bin_name
     return os.path.join(ac.ROOT, "node_modules", ".bin", name)
+
+
+def _pkg_dir(pkg):
+    parts = pkg.split("/") if pkg.startswith("@") else [pkg]
+    return os.path.join(ac.ROOT, "node_modules", *parts)
+
+
+def _browsers_dir():
+    """Where playwright-core puts downloaded browsers (mirrors its platform rules).
+
+    A repo-local override (PLAYWRIGHT_BROWSERS_PATH) is honoured so a CI/cache dir
+    can be pinned; the default is the per-user cache, shared across projects.
+    """
+    override = os.environ.get(BROWSERS_ENV)
+    if override and override != "0":
+        return override
+    home = os.path.expanduser("~")
+    if os.name == "nt":
+        base = os.environ.get("LOCALAPPDATA") or os.path.join(home, "AppData", "Local")
+        return os.path.join(base, "ms-playwright")
+    if sys.platform == "darwin":
+        return os.path.join(home, "Library", "Caches", "ms-playwright")
+    return os.path.join(home, ".cache", "ms-playwright")
+
+
+def _browser_installed(name):
+    prefix = "chromium_headless_shell-" if name == "chromium-headless-shell" else name + "-"
+    try:
+        return any(entry.startswith(prefix) for entry in os.listdir(_browsers_dir()))
+    except OSError:
+        return False
+
+
+def _install_browser(server, spec, node):
+    """Ensure the Playwright-managed browser for `server` is present.
+
+    `browser` in the spec is the browser *family* (chromium/firefox/webkit), the
+    same vocabulary as `playwright install`. The MCP flag (`--browser chromium`)
+    maps to Playwright's bundled Chrome-for-Testing build, so no system browser
+    is needed once this ran.
+
+    Returns "ok" | "warn" | "fail": a missing build for an unsupported host OS or
+    an offline box is a WARN (environmental, `MODUKIT_MCP_STRICT=1` makes it red);
+    a missing package is a FAIL (repo state).
+    """
+    name = spec.get("browser")
+    if not name:
+        return "ok"
+    if _browser_installed(name):
+        print("%s %-16s browser ok (%s)" % (PREFIX, server, name))
+        return "ok"
+    cli = os.path.join(_pkg_dir(spec["pkg"]), "cli.js")
+    if not os.path.exists(cli):
+        print("%s %-16s browser %s not installed and %s absent -- install the package first" % (
+            PREFIX, server, name, os.path.relpath(cli, ac.ROOT)))
+        return "fail"
+    print("%s %-16s installing browser %s (playwright-managed, no system Chrome) ..." % (PREFIX, server, name))
+    proc = subprocess.run(
+        [node, cli, "install-browser", name, "--no-progress"],
+        cwd=ac.ROOT,
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if proc.stdout:
+        sys.stderr.write(proc.stdout)
+    if proc.stderr:
+        sys.stderr.write(proc.stderr)
+    if proc.returncode != 0:
+        if "does not support" in (proc.stderr or "") + (proc.stdout or ""):
+            print("%s %-16s ⚠ no bundled %s build for this host -- the pinned Playwright dropped it"
+                  % (PREFIX, server, name))
+            print("        options: run on a supported OS, or point PLAYWRIGHT_MCP_EXECUTABLE_PATH at a browser")
+        else:
+            print("%s %-16s ⚠ browser %s install failed (offline? cache not provisioned)" % (PREFIX, server, name))
+        return "warn"
+    return "ok" if _browser_installed(name) else "warn"
 
 
 def _run_codegraph_status(node):
@@ -177,7 +256,12 @@ def cmd_setup(args):
     if needs_npm and npm is None:
         print("%s %s" % (PREFIX, NPM_HINT))
         return 127
+    node = shutil.which("node")
+    if any(spec.get("browser") for spec in specs.values()) and node is None:
+        print("%s %s" % (PREFIX, NODE_HINT))
+        return 127
     failures = 0
+    warnings = 0
     for name, spec in specs.items():
         version = spec["version"]
         if _is_pixi(spec):
@@ -198,6 +282,11 @@ def cmd_setup(args):
         have = _installed_version(pkg)
         if have == version and os.path.exists(_bin_path(spec["bin"])):
             print("%s %-16s ok (%s@%s)" % (PREFIX, name, pkg, version))
+            browser_state = _install_browser(name, spec, node)
+            if browser_state == "fail":
+                failures += 1
+            elif browser_state == "warn":
+                warnings += 1
             continue
         if have is not None:
             print("%s %-16s drift: installed %s, pin %s -- reinstalling" % (PREFIX, name, have, version))
@@ -214,9 +303,21 @@ def cmd_setup(args):
             failures += 1
         else:
             print("%s %-16s ✓ ready (%s@%s)" % (PREFIX, name, pkg, version))
+            browser_state = _install_browser(name, spec, node)
+            if browser_state == "fail":
+                failures += 1
+            elif browser_state == "warn":
+                warnings += 1
     if failures:
         print("%s ✗ %d server(s) not ready" % (PREFIX, failures))
         return ac.EXIT_FINDINGS
+    if warnings:
+        message = "%d browser gap(s) -- servers installed, browser not provisioned" % warnings
+        if os.environ.get("MODUKIT_MCP_STRICT") == "1":
+            print("%s ✗ %s (strict)" % (PREFIX, message))
+            return ac.EXIT_FINDINGS
+        print("%s ⚠ %s (strict: MODUKIT_MCP_STRICT=1)" % (PREFIX, message))
+        return ac.EXIT_OK
     print("%s ✓ all servers ready" % PREFIX)
     return ac.EXIT_OK
 
@@ -365,6 +466,9 @@ def cmd_status(args):
             "  %-16s %-38s pin=%-8s installed=%-8s %s"
             % (name, spec["pkg"], version, have or "-", state)
         )
+        if spec.get("browser"):
+            browser_state = "ok" if _browser_installed(spec["browser"]) else "MISSING (run: pixi run mcp setup)"
+            print("  %-16s browser=%s %s" % ("", spec["browser"], browser_state))
     print()
     if node is None:
         print("%s %s" % (PREFIX, NODE_HINT))

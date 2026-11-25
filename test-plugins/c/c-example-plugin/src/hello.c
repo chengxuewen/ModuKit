@@ -1,7 +1,7 @@
 /* c-example-plugin - the positive dlopen fixture of the C band
  * (onboarding-plan E2, ruling A1 B-expanded; the C twin of the
  * cpp-example-plugin D23 template). The kernel-facing surface is exactly
- * the v1 handshake (contracts/modukit_plugin.h) plus ONE service
+ * the v1 handshake (contracts/modukit_bundle.h) plus ONE service
  * registration - hand-written, no generated shelf: the whole point of the
  * C twin is that a plugin author needs nothing but this header and one
  * source file.
@@ -11,7 +11,7 @@
  * minus the codegen: the byte door IS the whole protocol here). */
 #include <string.h>
 
-#include "modukit_plugin.h"
+#include "modukit_bundle.h"
 
 #define HELLO_SERVICE_ID "com.modukit.demo.hello"
 /* Plugin-author negative code space (D27): below -100 stays out of the
@@ -30,7 +30,7 @@ static int32_t hello_call(const char *method, const uint8_t *input,
   }
   if (input_len > output_cap) {
     return HELLO_BAD_REQUEST; /* needing more is a negative, never a
-                                 truncation (modukit_plugin.h call shape) */
+                                 truncation (modukit_bundle.h call shape) */
   }
   memcpy(output, input, input_len);
   return (int32_t)input_len;
@@ -54,9 +54,9 @@ static int32_t hello_stop(void) {
   return 0; /* cooperative no-op; idempotent by construction (01 §3 rule 6) */
 }
 
-static const modukit_plugin_abi_v1 HELLO_DESCRIPTOR = {
+static const modukit_bundle_abi_v1 HELLO_DESCRIPTOR = {
     MODUKIT_ABI_VERSION,            /* abi_version - handshake guard 2 */
-    sizeof(modukit_plugin_abi_v1),  /* size - handshake guard 3 */
+    sizeof(modukit_bundle_abi_v1),  /* size - handshake guard 3 */
     "c-example-plugin",             /* name */
     HELLO_SERVICE_ID,               /* id == registered service id (D9),
                                        mirroring the cpp/rs twins */
@@ -66,6 +66,6 @@ static const modukit_plugin_abi_v1 HELLO_DESCRIPTOR = {
 };
 
 /* The single exported entry symbol (04 §3 symbol discipline). */
-const modukit_plugin_abi_v1 *modukit_plugin_init(void) {
+const modukit_bundle_abi_v1 *modukit_bundle_init(void) {
   return &HELLO_DESCRIPTOR;
 }

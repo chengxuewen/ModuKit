@@ -45,9 +45,9 @@ int main(int argc, char **argv) {
 
   const modukit::Kernel kernel;
   const std::string toml = manifest_for(so_path);
-  const char *plugin_id = nullptr;
-  check(kernel.install(toml.c_str(), &plugin_id).ok(), "install the provider");
-  check(kernel.resolve(plugin_id).ok(), "resolve (handshake, NOT started)");
+  const char *bundle_id = nullptr;
+  check(kernel.install(toml.c_str(), &bundle_id).ok(), "install the provider");
+  check(kernel.resolve(bundle_id).ok(), "resolve (handshake, NOT started)");
 
   /* the naive consumer's first lesson: the typed absence. */
   const uint8_t req[] = {'t', '5', '-', 'c', 'a', 'l', 'l', 0};
@@ -59,14 +59,14 @@ int main(int argc, char **argv) {
         "service_call while the provider is stopped -> NOT_FOUND(-14)");
 
   /* the provider appears; the SAME call now round-trips. */
-  check(kernel.start(plugin_id).ok(), "start the provider");
+  check(kernel.start(bundle_id).ok(), "start the provider");
   const modukit::Status call =
       kernel.service_call(kEchoService, "echo", req, req_len, resp, sizeof(resp));
   check(call.ok() && call.raw() == static_cast<int32_t>(req_len) &&
             std::memcmp(resp, req, req_len) == 0,
         "the SAME service_call now echoes (the consumer never changed)");
 
-  check(kernel.stop(plugin_id).ok() && kernel.uninstall(plugin_id).ok(),
+  check(kernel.stop(bundle_id).ok() && kernel.uninstall(bundle_id).ok(),
         "the provider leaves; the consumer's lesson is complete");
 
   if (failures != 0) {

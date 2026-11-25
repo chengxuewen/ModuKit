@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use modukit_core::bundle::BundleInstaller;
-use modukit_core::identity::{IdGrammar, PluginId, ServiceId, TopicId, validate_reverse_dns};
+use modukit_core::identity::{BundleId, IdGrammar, ServiceId, TopicId, validate_reverse_dns};
 
 const EXAMPLE_ID: &str = "com.example.modukit.demo";
 const BAD_ID: &str = "com.example.modukit.bad";
@@ -170,7 +170,7 @@ fn reverse_dns_grammar_matrix() {
         "com.example.foo-bar_baz",
     ] {
         validate_reverse_dns(ok).unwrap_or_else(|e| panic!("{ok} must pass grammar: {e}"));
-        PluginId::try_new(ok.to_string()).expect("PluginId::try_new");
+        BundleId::try_new(ok.to_string()).expect("BundleId::try_new");
         ServiceId::try_new(ok.to_string()).expect("ServiceId::try_new");
         TopicId::try_new(ok.to_string()).expect("TopicId::try_new");
     }

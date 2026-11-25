@@ -35,7 +35,7 @@ use std::time::Duration;
 
 use modukit_core::clock::{Clock, ClockDomain};
 use modukit_core::executor::Supervisor;
-use modukit_core::identity::{PluginId, TopicId};
+use modukit_core::identity::{BundleId, TopicId};
 use modukit_core::manifest::Manifest;
 
 const ID: &str = "com.example.modukit.timerv3";
@@ -133,7 +133,7 @@ fn main() {
         runner.display()
     ))
     .expect("demo gate: manifest parses");
-    let id: PluginId = manifest.id.clone();
+    let id: BundleId = manifest.id.clone();
     sup.kernel()
         .install(manifest)
         .expect("demo gate: exe install door");

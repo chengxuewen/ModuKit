@@ -20,9 +20,9 @@ use crate::edge_ledger::EdgeLedger;
 use crate::error::KernelError;
 use crate::events::{ObsEvent, Observatory};
 use crate::executor::{Executor, LoadedPlugin};
-use crate::identity::{PluginId, ServiceId};
+use crate::identity::{BundleId, ServiceId};
 use crate::introspect::LoadStamp;
-use crate::lifecycle::{PluginState, StateMachine};
+use crate::lifecycle::{BundleState, StateMachine};
 use crate::logger::Logger;
 use crate::manifest::{Manifest, OnDown};
 use crate::registry::{Properties, PropertyValue, RegistrationId, Registry, RegistryError};
@@ -30,7 +30,7 @@ use std::sync::atomic::Ordering;
 
 /// One tracked plugin: its manifest, state machine, loaded handle (while
 /// resolved/started) and the service registrations it produced.
-pub(crate) struct PluginRecord {
+pub(crate) struct BundleRecord {
     pub(crate) manifest: Manifest,
     pub(crate) machine: StateMachine,
     pub(crate) handle: Option<Box<dyn LoadedPlugin + Send>>,
@@ -59,7 +59,7 @@ pub struct Kernel {
     pub(crate) logger: Arc<Logger>,
     pub(crate) edges: Arc<EdgeLedger>,
     pub(crate) executor: Box<dyn Executor>,
-    pub(crate) plugins: Arc<Mutex<HashMap<PluginId, PluginRecord>>>,
+    pub(crate) plugins: Arc<Mutex<HashMap<BundleId, BundleRecord>>>,
     /// Contract-ledger (fdset, D12) bytes this host booted with — the M7
     /// seam closing the M6 deferral; read back by `LedgerDump` byte-equal.
     pub(crate) contract_ledger: Arc<Mutex<Vec<u8>>>,
@@ -68,7 +68,7 @@ pub struct Kernel {
     /// read by `post_jobs` to scope the bus bell to registered plugin
     /// tokens; drained at stop/uninstall by `release_plugin_timers` (the
     /// "token never re-fires" census). Host-owned timers are NOT in it.
-    pub(crate) plugin_timers: Mutex<HashMap<u64, PluginId>>,
+    pub(crate) plugin_timers: Mutex<HashMap<u64, BundleId>>,
     /// S3-1b DM-lite wiring (plugin-management-plan): the dependency
     /// monitor plus the blocked / deferred-restart / dm-failed markers.
     /// Drained at lifecycle-verb tails outside the plugins lock; the depth
@@ -87,12 +87,12 @@ pub struct Kernel {
 #[derive(Debug, Default)]
 pub(crate) struct DmState {
     /// `on_down = block`: start is refused until the dep is restored.
-    pub(crate) blocked: std::collections::BTreeSet<PluginId>,
+    pub(crate) blocked: std::collections::BTreeSet<BundleId>,
     /// `on_down = restart-self`: auto-started on dep restore.
-    pub(crate) restart_pending: std::collections::BTreeSet<PluginId>,
+    pub(crate) restart_pending: std::collections::BTreeSet<BundleId>,
     /// `on_down = fail-self`: parked on the Resolved tier with a failed
     /// marker (the Failed state is a start-time edge, 03 §2).
-    pub(crate) failed: std::collections::BTreeSet<PluginId>,
+    pub(crate) failed: std::collections::BTreeSet<BundleId>,
 }
 
 /// One `dm_report` row (S4 ops face): a required dependency, its loss
@@ -106,12 +106,12 @@ pub struct DmRow {
 }
 
 fn lock(
-    plugins: &Mutex<HashMap<PluginId, PluginRecord>>,
-) -> MutexGuard<'_, HashMap<PluginId, PluginRecord>> {
+    plugins: &Mutex<HashMap<BundleId, BundleRecord>>,
+) -> MutexGuard<'_, HashMap<BundleId, BundleRecord>> {
     plugins.lock().unwrap_or_else(PoisonError::into_inner)
 }
 
-fn unknown(id: &PluginId) -> KernelError {
+fn unknown(id: &BundleId) -> KernelError {
     KernelError::UnknownPlugin {
         id: id.as_str().to_string(),
     }
@@ -219,9 +219,9 @@ impl Kernel {
     /// lifecycle edge onto the shared ring (same doorway, richer, D21).
     fn mv(
         &self,
-        record: &mut PluginRecord,
-        id: &PluginId,
-        to: PluginState,
+        record: &mut BundleRecord,
+        id: &BundleId,
+        to: BundleState,
     ) -> Result<(), KernelError> {
         let from = record.machine.state();
         record.machine.transition(to)?;
@@ -254,12 +254,12 @@ impl Kernel {
     /// Register a plugin's required dependencies for DM-lite watching
     /// (install tail). Only `required` deps carrying an `on_down` policy
     /// are watched - optional deps have no lifecycle consequence.
-    pub(crate) fn dm_register_dependents(&self, id: &PluginId, deps: Vec<RequiredDep>) {
+    pub(crate) fn dm_register_dependents(&self, id: &BundleId, deps: Vec<RequiredDep>) {
         let mut dm = self.dm.lock().unwrap_or_else(PoisonError::into_inner);
         dm.register_dependent(id.clone(), deps);
     }
 
-    pub(crate) fn dm_forget(&self, id: &PluginId) {
+    pub(crate) fn dm_forget(&self, id: &BundleId) {
         let mut dm = self.dm.lock().unwrap_or_else(PoisonError::into_inner);
         dm.forget(id);
     }
@@ -273,7 +273,7 @@ impl Kernel {
     /// file; `InvalidTransition` when the id is already tracked in a live
     /// state (duplicate-identity policing lands with the M7 install
     /// protocol, D34).
-    pub fn install(&self, manifest: Manifest) -> Result<PluginId, KernelError> {
+    pub fn install(&self, manifest: Manifest) -> Result<BundleId, KernelError> {
         if !Path::new(&manifest.entry.artifact).is_file() {
             return Err(KernelError::ArtifactMissing {
                 path: manifest.entry.artifact.clone(),
@@ -299,7 +299,7 @@ impl Kernel {
         if let Some(record) = table.get_mut(&id) {
             if !matches!(
                 record.machine.state(),
-                PluginState::Uninstalled | PluginState::Resolved | PluginState::Failed
+                BundleState::Uninstalled | BundleState::Resolved | BundleState::Failed
             ) {
                 // D80 (S2-M3b): a co-host request at the swap door gets a
                 // typed deferral, not a silent ignore and not the bare M7
@@ -327,7 +327,7 @@ impl Kernel {
             table.insert(id.clone(), new_record(manifest));
         }
         let record = table.get_mut(&id).ok_or_else(|| unknown(&id))?;
-        self.mv(record, &id, PluginState::Installed)?;
+        self.mv(record, &id, BundleState::Installed)?;
         self.dm_register_dependents(&id, dm_deps);
         self.config.declare(id.clone(), config_live);
         Ok(id)
@@ -343,10 +343,10 @@ impl Kernel {
     ///
     /// Any resolve-path `KernelError`; the plugin is parked in FAILED on
     /// every guard failure.
-    pub fn resolve(&self, id: &PluginId) -> Result<(), KernelError> {
+    pub fn resolve(&self, id: &BundleId) -> Result<(), KernelError> {
         let mut table = lock(&self.plugins);
         let record = table.get_mut(id).ok_or_else(|| unknown(id))?;
-        self.mv(record, id, PluginState::Resolving)?;
+        self.mv(record, id, BundleState::Resolving)?;
         let outcome = resolve_inner(record, self.executor.as_ref(), &self.registry);
         // D21: the load handshake doorway counts its own outcome — the
         // bad-plugin class stays visible without adding any new gate.
@@ -360,16 +360,16 @@ impl Kernel {
                         plugin: id.to_string(),
                         artifact: record.manifest.entry.artifact.clone(),
                         load_base: h.load_base(),
-                        symbol_hint: "modukit_plugin_init".to_string(),
+                        symbol_hint: "modukit_bundle_init".to_string(),
                     });
                 }
-                self.mv(record, id, PluginState::Starting)
+                self.mv(record, id, BundleState::Starting)
             }
             Err(err) => {
                 // FAILED edge (always legal from RESOLVING; the transition
                 // helper's error cannot mask the original failure here.
                 record.last_load = Some(LoadStamp::fail(&err));
-                self.mv(record, id, PluginState::Failed)?;
+                self.mv(record, id, BundleState::Failed)?;
                 Err(err)
             }
         }
@@ -382,9 +382,9 @@ impl Kernel {
     ///
     /// # Errors
     ///
-    /// `KernelError::PluginStartFailed` on a non-zero status (FAILED edge
+    /// `KernelError::BundleStartFailed` on a non-zero status (FAILED edge
     /// taken); `InvalidTransition` from any other state.
-    pub fn start(&self, id: &PluginId) -> Result<(), KernelError> {
+    pub fn start(&self, id: &BundleId) -> Result<(), KernelError> {
         // S3-1b: a DM-blocked plugin refuses start until its dependency is
         // restored and the block is cleared (the requires check below would
         // refuse anyway, but the typed error names the DM state).
@@ -414,10 +414,10 @@ impl Kernel {
                 crate::host_v2::start_v2(&mut **handle, &self.registry, &self.bus);
             record.registrations.extend(registered);
             if let Err(err) = started {
-                self.mv(record, id, PluginState::Failed)?;
+                self.mv(record, id, BundleState::Failed)?;
                 return Err(err);
             }
-            return self.mv(record, id, PluginState::Active);
+            return self.mv(record, id, BundleState::Active);
         }
 
         // Wave-2 T1 v3 clock door (D99 R2): a plugin that declared major 3
@@ -435,10 +435,10 @@ impl Kernel {
             );
             record.registrations.extend(registered);
             if let Err(err) = started {
-                self.mv(record, id, PluginState::Failed)?;
+                self.mv(record, id, BundleState::Failed)?;
                 return Err(err);
             }
-            return self.mv(record, id, PluginState::Active);
+            return self.mv(record, id, BundleState::Active);
         }
 
         let mut sink = ActivationSink {
@@ -455,10 +455,10 @@ impl Kernel {
         // orphan services the plugin managed to publish.
         record.registrations.append(&mut sink.registered);
         if let Err(err) = started {
-            self.mv(record, id, PluginState::Failed)?;
+            self.mv(record, id, BundleState::Failed)?;
             return Err(err);
         }
-        self.mv(record, id, PluginState::Active)
+        self.mv(record, id, BundleState::Active)
     }
 
     /// ACTIVE -> STOPPING -> RESOLVED: cooperative stop, then the kernel
@@ -472,10 +472,10 @@ impl Kernel {
     ///
     /// `KernelError` from a non-zero plugin stop status (FAILED edge) or
     /// registry bookkeeping failures other than already-removed records.
-    pub fn stop(&self, id: &PluginId) -> Result<(), KernelError> {
+    pub fn stop(&self, id: &BundleId) -> Result<(), KernelError> {
         let mut table = lock(&self.plugins);
         let record = table.get_mut(id).ok_or_else(|| unknown(id))?;
-        self.mv(record, id, PluginState::Stopping)?;
+        self.mv(record, id, BundleState::Stopping)?;
 
         let stopped = match record.handle.as_mut() {
             Some(handle) => handle.stop(),
@@ -497,9 +497,9 @@ impl Kernel {
         // stopped plugin's timer can never re-fire (the door-suite census).
         self.release_plugin_timers(id);
         match (stopped, last_err) {
-            (Ok(()), None) => self.mv(record, id, PluginState::Resolved),
+            (Ok(()), None) => self.mv(record, id, BundleState::Resolved),
             (Err(err), _) => {
-                self.mv(record, id, PluginState::Failed)?;
+                self.mv(record, id, BundleState::Failed)?;
                 Err(err)
             }
             (Ok(()), Some(err)) => Err(err.into()),
@@ -513,7 +513,7 @@ impl Kernel {
     /// # Errors
     ///
     /// `KernelError::UnknownPlugin` for an untracked id.
-    pub fn uninstall(&self, id: &PluginId) -> Result<(), KernelError> {
+    pub fn uninstall(&self, id: &BundleId) -> Result<(), KernelError> {
         let mut table = lock(&self.plugins);
         let record = table.get_mut(id).ok_or_else(|| unknown(id))?;
         for rid in record.registrations.drain(..) {
@@ -529,7 +529,7 @@ impl Kernel {
         // Drop the handle before the state move so the artifact is released
         // exactly once.
         record.handle = None;
-        let res = self.mv(record, id, PluginState::Uninstalled);
+        let res = self.mv(record, id, BundleState::Uninstalled);
         self.dm_forget(id);
         self.config.forget(id);
         res
@@ -545,7 +545,7 @@ impl Kernel {
     /// refusal); `ConfigError::Persist` when the disk write fails.
     pub fn set_config(
         &self,
-        plugin: &PluginId,
+        plugin: &BundleId,
         key: &str,
         value: &str,
     ) -> Result<(), crate::config::ConfigError> {
@@ -554,7 +554,7 @@ impl Kernel {
 
     /// Read one config value (the year-1 value read path, 05 §6).
     #[must_use]
-    pub fn get_config(&self, plugin: &PluginId, key: &str) -> Option<String> {
+    pub fn get_config(&self, plugin: &BundleId, key: &str) -> Option<String> {
         self.config.get(plugin, key)
     }
 
@@ -596,7 +596,7 @@ impl Kernel {
     /// # Errors
     ///
     /// `KernelError::UnknownPlugin` for an untracked id.
-    pub fn state(&self, id: &PluginId) -> Result<PluginState, KernelError> {
+    pub fn state(&self, id: &BundleId) -> Result<BundleState, KernelError> {
         let table = lock(&self.plugins);
         let record = table.get(id).ok_or_else(|| unknown(id))?;
         Ok(record.machine.state())
@@ -608,7 +608,7 @@ impl Kernel {
     /// grammar, not an ABI verb: there is no cancel slot (D99 §3 non-
     /// decision). Returns nothing by design - the census is observable on
     /// `clock.pending_timers()` and the bus, not through this door.
-    fn release_plugin_timers(&self, id: &PluginId) {
+    fn release_plugin_timers(&self, id: &BundleId) {
         let mut owned: Vec<u64> = Vec::new();
         {
             let mut register = self
@@ -628,8 +628,8 @@ impl Kernel {
     }
 }
 
-fn new_record(manifest: Manifest) -> PluginRecord {
-    PluginRecord {
+fn new_record(manifest: Manifest) -> BundleRecord {
+    BundleRecord {
         manifest,
         machine: StateMachine::new(),
         handle: None,
@@ -643,7 +643,7 @@ fn new_record(manifest: Manifest) -> PluginRecord {
 /// placement-floor check and the handshake (04 §3 "without executing plugin
 /// code" in the sense of no lifecycle/service calls).
 fn resolve_inner(
-    record: &mut PluginRecord,
+    record: &mut BundleRecord,
     executor: &dyn Executor,
     registry: &Registry,
 ) -> Result<(), KernelError> {
@@ -687,7 +687,7 @@ struct KernelDm<'a> {
 }
 
 impl DmHandler for KernelDm<'_> {
-    fn dep_lost(&mut self, plugin: &PluginId, dep: &RequiredDep) {
+    fn dep_lost(&mut self, plugin: &BundleId, dep: &RequiredDep) {
         // Stop first: the plugin's own services leave the table, which is
         // exactly what feeds the other dependents' edges. stop lands in
         // Resolved; the Failed state is a start-time edge (03 §2), so
@@ -715,7 +715,7 @@ impl DmHandler for KernelDm<'_> {
         self.kernel.dm_drain();
     }
 
-    fn dep_restored(&mut self, plugin: &PluginId, _dep: &RequiredDep) {
+    fn dep_restored(&mut self, plugin: &BundleId, _dep: &RequiredDep) {
         let auto_restart;
         {
             let mut state = self

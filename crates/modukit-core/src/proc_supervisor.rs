@@ -16,9 +16,9 @@ use std::time::Duration;
 use crate::clock::{Clock, Timestamp};
 use crate::error::KernelError;
 use crate::executor_proc::{Control, ProcessExecutor};
-use crate::identity::PluginId;
+use crate::identity::BundleId;
 use crate::kernel::Kernel;
-use crate::lifecycle::{PluginState, RestartPolicy};
+use crate::lifecycle::{BundleState, RestartPolicy};
 use crate::manifest::PlacementKind;
 
 /// The supervisor's boot answer: one production `Kernel` wired with the
@@ -188,7 +188,7 @@ impl Supervisor {
             // that cannot take `stop` (STARTING, already FAILED) return
             // InvalidTransition here and surface the crash at their own
             // existing doorway instead — zero phantom events by omission.
-            let _ = self.kernel.stop(&PluginId::new(id.clone()));
+            let _ = self.kernel.stop(&BundleId::new(id.clone()));
         }
         dead
     }
@@ -208,7 +208,7 @@ impl Supervisor {
         // FAILED supervised runs are the policy's queue; the drive applies it.
         // Only `exe` records join: `dl` placement has no supervision budget
         // (01 §1 — the executor seam polices its kind, the driver mirrors it).
-        let failed: Vec<PluginId> = {
+        let failed: Vec<BundleId> = {
             let table = self
                 .kernel
                 .plugins
@@ -217,7 +217,7 @@ impl Supervisor {
             table
                 .iter()
                 .filter(|(_, record)| {
-                    record.machine.state() == PluginState::Failed
+                    record.machine.state() == BundleState::Failed
                         && record.manifest.entry.kind == PlacementKind::Exe
                 })
                 .map(|(id, _)| id.clone())
@@ -273,7 +273,7 @@ impl Supervisor {
     /// `KernelError::ClockDialRefused` for a live but undialable one.
     pub fn dial(
         &self,
-        id: &PluginId,
+        id: &BundleId,
         delta: std::time::Duration,
     ) -> Result<crate::proc_wire::DueTurn, KernelError> {
         crate::executor_proc::dial_child_crossing(&self.live, id.as_str(), delta)
@@ -290,7 +290,7 @@ impl Supervisor {
     /// `KernelError::UnknownPlugin` / `InvalidTransition` (not FAILED);
     /// resolve/start failures of the fresh attempt propagate as their own
     /// typed errors (a liar on respawn lands on FAILED again by itself).
-    pub fn revive(&self, id: &PluginId) -> Result<Revive, KernelError> {
+    pub fn revive(&self, id: &BundleId) -> Result<Revive, KernelError> {
         let (policy, state) = {
             let table = self
                 .kernel
@@ -302,7 +302,7 @@ impl Supervisor {
             })?;
             (record.manifest.restart.clone(), record.machine.state())
         };
-        if state != PluginState::Failed {
+        if state != BundleState::Failed {
             return Err(KernelError::InvalidTransition {
                 from: state.to_string(),
                 to: "RESTART (the supervisor revives only FAILED)".to_string(),

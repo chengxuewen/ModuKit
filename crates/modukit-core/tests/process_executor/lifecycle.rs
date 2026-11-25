@@ -18,7 +18,7 @@ fn exe_spawn_green_walks_full_lifecycle_over_the_control_socket() {
     // Assert: every state edge ran through the existing machine.
     assert_eq!(
         sup.kernel().state(&id).expect("started"),
-        PluginState::Active
+        BundleState::Active
     );
     let walk = lifecycle_walk(&sup);
     assert_eq!(
@@ -38,7 +38,7 @@ fn exe_spawn_green_walks_full_lifecycle_over_the_control_socket() {
     sup.kernel().stop(&id).expect("graceful STOP");
     assert_eq!(
         sup.kernel().state(&id).expect("stopped"),
-        PluginState::Resolved
+        BundleState::Resolved
     );
     sup.kernel().uninstall(&id).expect("uninstall");
     assert_no_zombie_children();

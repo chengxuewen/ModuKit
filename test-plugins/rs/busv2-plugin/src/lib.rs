@@ -1,5 +1,5 @@
 //! busv2-plugin — Stage-5 N1 v2 fixture (template standing per D23, grown to
-//! the D96 ruling-2 door). The descriptor is the frozen `PluginAbiV1` shape
+//! the D96 ruling-2 door). The descriptor is the frozen `BundleAbiV1` shape
 //! declaring `ABI_VERSION_V2`; the kernel then hands a `HostAbiV2` table at
 //! `start` (the v1 prefix plus the four mailbox slots).
 //!
@@ -13,7 +13,7 @@
 
 use std::ffi::{CStr, c_char};
 
-use modukit_core::abi::{ABI_VERSION_V2, HostAbiV1, HostAbiV2, PluginAbiV1};
+use modukit_core::abi::{ABI_VERSION_V2, BundleAbiV1, HostAbiV1, HostAbiV2};
 
 const TOPIC: &CStr = c"com.example.modukit.busv2";
 const DEFERRED_TOPIC: &CStr = c"com.example.modukit.busv2.deferred";
@@ -177,9 +177,9 @@ extern "C" fn demo_stop() -> i32 {
     0
 }
 
-static DESCRIPTOR: PluginAbiV1 = PluginAbiV1 {
+static DESCRIPTOR: BundleAbiV1 = BundleAbiV1 {
     abi_version: ABI_VERSION_V2,
-    size: PluginAbiV1::expected_size(),
+    size: BundleAbiV1::expected_size(),
     name: c"busv2-plugin".as_ptr(),
     id: SERVICE_ID.as_ptr(),
     version: c"0.1.0".as_ptr(),
@@ -189,6 +189,6 @@ static DESCRIPTOR: PluginAbiV1 = PluginAbiV1 {
 
 /// The single exported entry symbol (04 §3).
 #[unsafe(no_mangle)]
-pub extern "C" fn modukit_plugin_init() -> *const PluginAbiV1 {
+pub extern "C" fn modukit_bundle_init() -> *const BundleAbiV1 {
     &raw const DESCRIPTOR
 }

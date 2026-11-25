@@ -38,7 +38,7 @@ const { Buffer } = require('node:buffer');
 
 const REPO = path.resolve(__dirname, '..', '..');
 
-const K_PLUGIN_ID = 'com.example.cpp.demo';
+const K_BUNDLE_ID = 'com.example.cpp.demo';
 const K_SERVICE_ID = 'com.modukit.demo.DemoService';
 const K_TOPIC = 'com.example.cpp.demo.status';
 const K_PAYLOAD = Buffer.from('embed-demo-payload'); // pinned to host_demo.cc:39
@@ -118,9 +118,9 @@ function manifestFor(soPath) {
     /* THE single sabotage point (documented in scripts/demo-wave2-js.sh):
      * an unknown placement must be refused at the install door. */
     console.log('[sabotage] DEMO_JS_SABOTAGE=1 -> corrupting manifest');
-    return `id = "${K_PLUGIN_ID}"\nversion = "0.1.0"\n[entry]\nkind = "dlx"\nartifact = "${soPath}"\n`;
+    return `id = "${K_BUNDLE_ID}"\nversion = "0.1.0"\n[entry]\nkind = "dlx"\nartifact = "${soPath}"\n`;
   }
-  return `id = "${K_PLUGIN_ID}"\nversion = "0.1.0"\n[entry]\nkind = "dl"\nartifact = "${soPath}"\n`;
+  return `id = "${K_BUNDLE_ID}"\nversion = "0.1.0"\n[entry]\nkind = "dl"\nartifact = "${soPath}"\n`;
 }
 
 function main() {
@@ -155,7 +155,7 @@ function main() {
   /* [2] install: manifest-v0 TOML in, kernel-owned canonical id out. */
   const inst = skin.modukit_install(manifestFor(fixtureSo));
   check(
-    inst.raw === 0 && inst.out_plugin_id === K_PLUGIN_ID,
+    inst.raw === 0 && inst.out_plugin_id === K_BUNDLE_ID,
     '[2] install -> canonical id (kernel-owned bytes)',
   );
   if (failures !== 0) {
@@ -169,7 +169,7 @@ function main() {
   check(skin.modukit_start(pid) === 0, '[4] start -> ACTIVE');
   const st = skin.modukit_state(pid);
   check(
-    st.raw === 0 && st.out_state === skin.PluginState.STATE_ACTIVE,
+    st.raw === 0 && st.out_state === skin.BundleState.STATE_ACTIVE,
     '[5] state == ACTIVE (4)',
   );
 
@@ -236,7 +236,7 @@ function main() {
   if (sTake.raw >= 0 && Number(sTake.out_len) === sProbe.out_len) {
     const text = sTake.out_buf.toString('utf8');
     snapOk =
-      text.includes(`plugin\t${K_PLUGIN_ID}\tACTIVE`) &&
+      text.includes(`plugin\t${K_BUNDLE_ID}\tACTIVE`) &&
       text.includes('service\torg.modukit.snapshot\t') &&
       text.includes('counters\t');
   }
@@ -260,7 +260,7 @@ function main() {
       const plen = Number(buf.readBigUInt64LE(off + 20));
       if (
         kind === skin.EventKind.EVENT_LIFECYCLE &&
-        buf.subarray(off + 28, off + 28 + K_PLUGIN_ID.length).toString('utf8') === K_PLUGIN_ID
+        buf.subarray(off + 28, off + 28 + K_BUNDLE_ID.length).toString('utf8') === K_BUNDLE_ID
       ) {
         sawLifecycle = true;
       }
@@ -296,13 +296,13 @@ function main() {
   check(skin.modukit_stop(pid) === 0, '[11] stop -> RESOLVED');
   const stR = skin.modukit_state(pid);
   check(
-    stR.raw === 0 && stR.out_state === skin.PluginState.STATE_RESOLVED,
+    stR.raw === 0 && stR.out_state === skin.BundleState.STATE_RESOLVED,
     '[11] state == RESOLVED (6)',
   );
   check(skin.modukit_uninstall(pid) === 0, '[11] uninstall -> UNINSTALLED');
   const stU = skin.modukit_state(pid);
   check(
-    stU.raw === 0 && stU.out_state === skin.PluginState.STATE_UNINSTALLED,
+    stU.raw === 0 && stU.out_state === skin.BundleState.STATE_UNINSTALLED,
     '[11] state == UNINSTALLED (0)',
   );
   check(

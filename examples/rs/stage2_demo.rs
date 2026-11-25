@@ -33,7 +33,7 @@ use std::time::{Duration, Instant};
 use modukit_core::bundle::{BundleError, BundleInstaller};
 use modukit_core::clock::{Clock, ClockDomain};
 use modukit_core::executor::{ProxyService, Supervisor};
-use modukit_core::lifecycle::PluginState;
+use modukit_core::lifecycle::BundleState;
 use modukit_core::manifest::Manifest;
 use modukit_core::sha256;
 
@@ -147,7 +147,7 @@ fn main() {
     sup.kernel().install(manifest).expect("demo gate: exe install");
     sup.kernel().resolve(&id).expect("demo gate: spawn + HELLO");
     sup.kernel().start(&id).expect("demo gate: START ack");
-    assert_eq!(sup.kernel().state(&id).expect("state"), PluginState::Active);
+    assert_eq!(sup.kernel().state(&id).expect("state"), BundleState::Active);
     println!("[4] supervisor (exe arm, step clock): INSTALLED->RESOLVING->STARTING->ACTIVE");
 
     // [5] HELLO self-report: the validated cross-checked strings the child
@@ -197,7 +197,7 @@ fn main() {
     unsafe { libc_kill(child_pid, 9); }
     let crashed = wait_crash(&sup, &[&id.to_string()]);
     if crashed != vec![GOOD_ID.to_string()] { fail(&format!("crash observed for {crashed:?}")); }
-    if sup.kernel().state(&id).expect("state") != PluginState::Failed {
+    if sup.kernel().state(&id).expect("state") != BundleState::Failed {
         fail("child death must land FAILED");
     }
     println!("[8] crash-injected (SIGKILL pid {child_pid}): watcher saw it, ACTIVE->STOPPING->FAILED, host alive");
@@ -212,7 +212,7 @@ fn main() {
         }
         sup.kernel().advance_clock(Duration::from_secs(1));
     }
-    if !revived || sup.kernel().state(&id).expect("state") != PluginState::Active {
+    if !revived || sup.kernel().state(&id).expect("state") != BundleState::Active {
         fail("bounded revive never reached ACTIVE within the backoff budget");
     }
     if sup.kernel().counters().process_restarts() < 1 {
@@ -243,7 +243,7 @@ fn main() {
     // FAILED by the spent budget cannot take the stop edge — that is the
     // parked contract, not a defect); proxies leave; uninstall + data-root
     // removal (D26).
-    let parked = sup.kernel().state(&id).expect("state") != PluginState::Active;
+    let parked = sup.kernel().state(&id).expect("state") != BundleState::Active;
     if parked {
         println!("[9] plugin parked in FAILED: the stop edge does not exist there (by contract), uninstall reaps");
     } else {
@@ -283,7 +283,7 @@ fn main() {
     let lie_id = sup.kernel().install(lie_manifest).expect("§2 guard sees the file");
     let err = sup.kernel().resolve(&lie_id).expect_err("version-lie child must RED at handshake");
     if err.code() != "IDENTITY_MISMATCH" { fail(&format!("version lie REDed as {err} ({}), expected IDENTITY_MISMATCH", err.code())); }
-    if sup.kernel().state(&lie_id).expect("state") != PluginState::Failed {
+    if sup.kernel().state(&lie_id).expect("state") != BundleState::Failed {
         fail("version lie must park FAILED");
     }
     println!("[11] negative B RED: {err} (code {} hint={:?}) — FAILED, no segfault, zero plugin code", err.code(), err.hint());

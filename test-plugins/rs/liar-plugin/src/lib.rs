@@ -4,7 +4,7 @@
 //! guard must park it FAILED with ABI_MISMATCH, never a partial start
 //! (04 §3, D96: "the v2 negotiation must keep that negative RED-worthy").
 
-use modukit_core::abi::{HostAbiV1, PluginAbiV1};
+use modukit_core::abi::{BundleAbiV1, HostAbiV1};
 
 /// Unknown major between the accepted v1 and v2 doors.
 const LIE_ABI_VERSION: u32 = 99;
@@ -18,9 +18,9 @@ extern "C" fn lie_stop() -> i32 {
     -113
 }
 
-static DESCRIPTOR: PluginAbiV1 = PluginAbiV1 {
+static DESCRIPTOR: BundleAbiV1 = BundleAbiV1 {
     abi_version: LIE_ABI_VERSION,
-    size: PluginAbiV1::expected_size(),
+    size: BundleAbiV1::expected_size(),
     name: c"liar-plugin".as_ptr(),
     id: c"com.example.modukit.liar".as_ptr(),
     version: c"0.1.0".as_ptr(),
@@ -30,6 +30,6 @@ static DESCRIPTOR: PluginAbiV1 = PluginAbiV1 {
 
 /// The single exported entry symbol (04 §3).
 #[unsafe(no_mangle)]
-pub extern "C" fn modukit_plugin_init() -> *const PluginAbiV1 {
+pub extern "C" fn modukit_bundle_init() -> *const BundleAbiV1 {
     &raw const DESCRIPTOR
 }

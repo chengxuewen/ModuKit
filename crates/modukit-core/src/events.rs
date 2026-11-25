@@ -26,7 +26,7 @@ pub const RING_CAP: usize = 8192;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ObsEvent {
     /// A plugin lifecycle transition, emitted at the kernel's own doorway
-    /// (03 §2 table). Names are the `PluginState` display forms.
+    /// (03 §2 table). Names are the `BundleState` display forms.
     Lifecycle {
         plugin: String,
         from: String,

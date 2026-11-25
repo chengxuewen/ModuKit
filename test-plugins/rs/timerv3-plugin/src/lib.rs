@@ -1,5 +1,5 @@
 //! timerv3-plugin — Wave-2 T1 v3 fixture (busv2-plugin pattern, D99). The
-//! descriptor is the frozen `PluginAbiV1` shape declaring `ABI_VERSION_V3`;
+//! descriptor is the frozen `BundleAbiV1` shape declaring `ABI_VERSION_V3`;
 //! the kernel then hands a `HostAbiV3` table at `start` (the v2 prefix
 //! byte-identical in front plus the two timer slots at the tail).
 //!
@@ -19,7 +19,7 @@
 
 use std::ffi::{CStr, c_char};
 
-use modukit_core::abi::{ABI_VERSION_V3, HostAbiV1, HostAbiV2, HostAbiV3, PluginAbiV1};
+use modukit_core::abi::{ABI_VERSION_V3, BundleAbiV1, HostAbiV1, HostAbiV2, HostAbiV3};
 
 /// The fixture's own v2-prefix mailbox topic (proof the prefix reads).
 const TOPIC: &CStr = c"com.example.modukit.timerv3";
@@ -166,9 +166,9 @@ extern "C" fn demo_stop() -> i32 {
     0
 }
 
-static DESCRIPTOR: PluginAbiV1 = PluginAbiV1 {
+static DESCRIPTOR: BundleAbiV1 = BundleAbiV1 {
     abi_version: ABI_VERSION_V3,
-    size: PluginAbiV1::expected_size(),
+    size: BundleAbiV1::expected_size(),
     name: c"timerv3-plugin".as_ptr(),
     id: TOPIC.as_ptr(),
     version: c"0.1.0".as_ptr(),
@@ -178,6 +178,6 @@ static DESCRIPTOR: PluginAbiV1 = PluginAbiV1 {
 
 /// The single exported entry symbol (04 §3).
 #[unsafe(no_mangle)]
-pub extern "C" fn modukit_plugin_init() -> *const PluginAbiV1 {
+pub extern "C" fn modukit_bundle_init() -> *const BundleAbiV1 {
     &raw const DESCRIPTOR
 }

@@ -263,7 +263,7 @@ fn bundle_error_display_renders_documented_prose_per_variant() {
         ),
         (
             BundleError::Kernel(KernelError::HandshakeNull),
-            "artifact door: modukit_plugin_init returned a null descriptor".into(),
+            "artifact door: modukit_bundle_init returned a null descriptor".into(),
         ),
         (
             BundleError::NotInstalled {

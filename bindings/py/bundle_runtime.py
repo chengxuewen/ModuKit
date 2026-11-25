@@ -86,11 +86,11 @@ PSTR_MAX = 255
 # margin in this bound (same discipline as bus_wire.rs PUMP_WINDOW, 1s).
 DRAIN_WINDOW = 1.0
 # THE single named sabotage point of leg twelve (plan T2.4 stage [4]):
-# DEMO_PLUGIN_PY_SABOTAGE=1 skips the REGISTER push - the kernel then has
+# DEMO_BUNDLE_PY_SABOTAGE=1 skips the REGISTER push - the kernel then has
 # no proxy for the plugin's services and the driver's first service_call
 # answers NOT_FOUND, failing the leg's lifecycle stage red with no PASS
 # line. Read at exactly one place below (the REGISTER loop).
-SABOTAGE_ENV = "DEMO_PLUGIN_PY_SABOTAGE"
+SABOTAGE_ENV = "DEMO_BUNDLE_PY_SABOTAGE"
 # Driver-side publish channel for the roundtrip seed: the embed face has no
 # bus verb on the sup rung (the two rungs own separate kernels -
 # embed_sup.rs header), so the leg's driver hands the seed bytes to the

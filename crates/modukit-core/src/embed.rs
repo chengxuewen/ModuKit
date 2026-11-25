@@ -73,7 +73,7 @@ use crate::clock::ClockDomain;
 use crate::embed_abi::EMBED_ABI_VERSION;
 use crate::embed_codec::{self as codec, bytes_arg, copy_out, cstr_arg, queue_out_len};
 use crate::error::KernelError;
-use crate::identity::{PluginId, TopicId};
+use crate::identity::{BundleId, TopicId};
 use crate::introspect::Snapshot;
 use crate::kernel::Kernel;
 use crate::manifest::Manifest;
@@ -99,11 +99,11 @@ fn ambient() -> MutexGuard<'static, Ambient> {
 }
 
 /// Kernel-owned static string storage behind `out_plugin_id` (decision 3).
-static PLUGIN_IDS: LazyLock<Mutex<HashMap<String, &'static CStr>>> =
+static BUNDLE_IDS: LazyLock<Mutex<HashMap<String, &'static CStr>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
 pub(crate) fn registered_id(id: &str) -> Option<&'static CStr> {
-    let mut table = PLUGIN_IDS.lock().unwrap_or_else(PoisonError::into_inner);
+    let mut table = BUNDLE_IDS.lock().unwrap_or_else(PoisonError::into_inner);
     if let Some(seen) = table.get(id) {
         return Some(seen);
     }
@@ -128,13 +128,13 @@ static NEXT_QUEUE: AtomicI32 = AtomicI32::new(1);
 /// kernel door + negated-D51 channel.
 pub(crate) fn lifecycle_move(
     id: *const c_char,
-    door: impl FnOnce(&Kernel, &PluginId) -> Result<(), KernelError>,
+    door: impl FnOnce(&Kernel, &BundleId) -> Result<(), KernelError>,
 ) -> i32 {
     let Some(s) = cstr_arg(id) else {
         return codec::NEG_SCHEMA_INVALID;
     };
     let k = ambient();
-    let result = door(&k.0, &PluginId::new(s.to_string()));
+    let result = door(&k.0, &BundleId::new(s.to_string()));
     // S3-1b: lifecycle mutations feed the dependency monitor - drain at the
     // verb tail (outside the kernel locks; the depth guard bounds the
     // nested drains a dep_lost -> stop -> drain chain produces).
@@ -212,7 +212,7 @@ pub extern "C" fn modukit_stop(id: *const c_char) -> i32 {
 }
 
 #[unsafe(no_mangle)]
-/// state: answers one `modukit_plugin_state` number through `out_state`.
+/// state: answers one `modukit_bundle_state` number through `out_state`.
 #[allow(clippy::not_unsafe_ptr_arg_deref)] // FFI: the contract pins these signatures (C declarations, no Rust unsafe); every deref is null-checked.
 pub extern "C" fn modukit_state(id: *const c_char, out_state: *mut i32) -> i32 {
     codec::guard(|| {
@@ -223,7 +223,7 @@ pub extern "C" fn modukit_state(id: *const c_char, out_state: *mut i32) -> i32 {
             return codec::NEG_SCHEMA_INVALID;
         };
         let k = ambient();
-        match k.0.state(&PluginId::new(s.to_string())) {
+        match k.0.state(&BundleId::new(s.to_string())) {
             Ok(state) => {
                 // SAFETY: `out_state` checked non-null above.
                 unsafe { *out_state = codec::state_number(state) };

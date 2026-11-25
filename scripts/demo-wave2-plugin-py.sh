@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Wave-2 plugin-door PYTHON leg (leg twelve; D106 batch 2, plan T2.3/2.4):
-# the hand-written skin bindings/py/plugin_runtime.py walks the exe wall as a
+# the hand-written skin bindings/py/bundle_runtime.py walks the exe wall as a
 # kernel-spawned script child (runner = the absolute python3 path, artifact =
 # a staged py_echo.py copy). Stages: [0] RUNNER line; [1] conformance BEFORE
 # launching anything (all 14 golden frames re-encoded byte-exact through the
@@ -13,7 +13,7 @@
 # echo answers byte-exact again; [3] SIGKILL the driver, /proc census (the
 # house law: never pgrep -f) asserts zero strays - the EOF path of the
 # kernel's OWN child, not a driver-managed subprocess; [4] the C0 lever
-# DEMO_PLUGIN_PY_SABOTAGE=1 skips the skin's REGISTER push at its one named
+# DEMO_BUNDLE_PY_SABOTAGE=1 skips the skin's REGISTER push at its one named
 # point: the lifecycle must go red, no PASS line, exit 1 (the green run
 # proves it inline; an externally-set lever reds the whole leg before
 # stage [3]).
@@ -62,7 +62,7 @@ if [ "$protoc_found" -eq 0 ]; then
 fi
 # The skin + fixtures are tracked repo content now (gitignore carve-out
 # batch-2 T2.4): absence = broken tree, RED by the same law as a failed build.
-for f in bindings/py/plugin_runtime.py test-plugins/py/py_echo.py test-plugins/py/py_liar.py; do
+for f in bindings/py/bundle_runtime.py test-plugins/py/py_echo.py test-plugins/py/py_liar.py; do
   [ -f "$f" ] || { echo "demo-wave2-plugin-py: RED (tracked content missing: $f)"; exit 1; }
 done
 
@@ -128,7 +128,7 @@ import struct
 import sys
 
 sys.path.insert(0, sys.argv[1])
-import plugin_runtime as rt  # noqa: E402
+import bundle_runtime as rt  # noqa: E402
 
 GOLD = sys.argv[2]
 
@@ -268,7 +268,7 @@ ID_LIAR = "org.modukit.demo.pyliar"
 TOPIC = "org.modukit.demo.wire-echo"
 HOST_PUSH = b"host-push"
 VERSION = "0.1.0"
-ACTIVE = skin.PluginState.STATE_ACTIVE
+ACTIVE = skin.BundleState.STATE_ACTIVE
 # D51 codes as the ledger numbers them (modukit_embed.h, embed_codec.rs):
 NEG_NOT_FOUND = -14
 NEG_SERVICE_CALL_FAILED = -25
@@ -480,10 +480,10 @@ fi
 
 # --- [4] sabotage proof, inline every run (C0: a check is only trusted
 # after it is OBSERVED red). The lever lands at the ONE named point in the
-# skin (bindings/py/plugin_runtime.py, the REGISTER loop): skipping the
+# skin (bindings/py/bundle_runtime.py, the REGISTER loop): skipping the
 # announcement makes the driver's first service_call NOT_FOUND (-14), the
 # lifecycle must die before the marker. Exit non-zero AND no marker = green.
-DEMO_PLUGIN_PY_SABOTAGE=1 "$PYBIN" "$stage/driver.py" "$PWD/$core_so" "$PWD/bindings/py" \
+DEMO_BUNDLE_PY_SABOTAGE=1 "$PYBIN" "$stage/driver.py" "$PWD/$core_so" "$PWD/bindings/py" \
   "$stage" "$PYABS" "sup-fidelity-payload" >"$sablog" 2>&1
 sab_rc=$?
 if [ "$sab_rc" -eq 0 ] || grep -q '^LIFECYCLE PASS' "$sablog"; then

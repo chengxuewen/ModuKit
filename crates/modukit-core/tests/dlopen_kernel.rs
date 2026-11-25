@@ -14,7 +14,7 @@ use std::process::Command;
 use modukit_core::abi::NativeService;
 use modukit_core::error::KernelError;
 use modukit_core::kernel::Kernel;
-use modukit_core::lifecycle::PluginState;
+use modukit_core::lifecycle::BundleState;
 use modukit_core::manifest::Manifest;
 
 const EXAMPLE_ID: &str = "com.example.modukit.demo";
@@ -91,21 +91,21 @@ fn happy_path_walks_states_and_round_trips_the_service() {
     kernel.install(manifest).expect("install");
     assert_eq!(
         kernel.state(&id).expect("installed"),
-        PluginState::Installed
+        BundleState::Installed
     );
 
     // resolve: deps validated, artifact loaded, ABI v1 handshake passes.
     kernel.resolve(&id).expect("resolve must pass");
     assert_eq!(
         kernel.state(&id).expect("resolved"),
-        PluginState::Starting,
+        BundleState::Starting,
         "resolve lands on the STARTING edge (03 §2: deps + handshake pass)"
     );
     assert!(plugin_services(&kernel).is_empty(), "no code has run yet");
 
     // start: plugin code runs, registers exactly one service.
     kernel.start(&id).expect("start must pass");
-    assert_eq!(kernel.state(&id).expect("started"), PluginState::Active);
+    assert_eq!(kernel.state(&id).expect("started"), BundleState::Active);
 
     let snap = plugin_services(&kernel);
     assert_eq!(
@@ -151,7 +151,7 @@ fn happy_path_walks_states_and_round_trips_the_service() {
     kernel.stop(&id).expect("stop must pass");
     assert_eq!(
         kernel.state(&id).expect("stopped"),
-        PluginState::Resolved,
+        BundleState::Resolved,
         "STOPPING -> RESOLVED on clean stop (03 §2)"
     );
     assert!(plugin_services(&kernel).is_empty(), "services gone");
@@ -170,7 +170,7 @@ fn happy_path_walks_states_and_round_trips_the_service() {
     kernel.uninstall(&id).expect("uninstall");
     assert_eq!(
         kernel.state(&id).expect("uninstalled"),
-        PluginState::Uninstalled
+        BundleState::Uninstalled
     );
 }
 
@@ -196,7 +196,7 @@ fn bad_plugin_abi_mismatch_lands_failed_with_typed_error_never_a_crash() {
     );
     assert_eq!(
         kernel.state(&id).expect("still tracked"),
-        PluginState::Failed,
+        BundleState::Failed,
         "unknown ABI version -> FAILED at RESOLVING (04 §3), never a partial start"
     );
     assert!(
@@ -223,7 +223,7 @@ fn install_guard_rejects_missing_artifact_before_any_state_move() {
 fn state_of_unknown_plugin_is_a_typed_error() {
     let kernel = Kernel::new();
     let err = kernel
-        .state(&modukit_core::identity::PluginId::new(
+        .state(&modukit_core::identity::BundleId::new(
             "com.test.absent".to_string(),
         ))
         .expect_err("unknown id must not silently report a state");

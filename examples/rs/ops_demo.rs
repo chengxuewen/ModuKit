@@ -11,7 +11,7 @@
 //! Gated by `scripts/demo-rs-examples.sh` on the final `OPS-DEMO PASS`.
 
 use modukit_core::abi::NativeService;
-use modukit_core::identity::{PluginId, ServiceId};
+use modukit_core::identity::{BundleId, ServiceId};
 use modukit_core::kernel::Kernel;
 use modukit_core::registry::{Properties, PropertyValue};
 use std::sync::Arc;
@@ -82,6 +82,6 @@ fn main() {
     // 4. the manifest-level grammar: the dependent plugin declares
     //    [[requires]] with version = ">=1.0" - a manifest whose provider
     //    disappears resolves RED before any plugin code (the S2-3 check).
-    let _ = PluginId::new("com.acme.consumer".to_string()); // the D9 face
+    let _ = BundleId::new("com.acme.consumer".to_string()); // the D9 face
     println!("OPS-DEMO PASS");
 }

@@ -46,9 +46,9 @@ int main(int argc, char **argv) {
 
   const modukit::Kernel kernel;
   const std::string toml = manifest_for(so_path);
-  const char *plugin_id = nullptr;
-  check(kernel.install(toml.c_str(), &plugin_id).ok(), "install the provider");
-  check(kernel.resolve(plugin_id).ok() && kernel.start(plugin_id).ok(),
+  const char *bundle_id = nullptr;
+  check(kernel.install(toml.c_str(), &bundle_id).ok(), "install the provider");
+  check(kernel.resolve(bundle_id).ok() && kernel.start(bundle_id).ok(),
         "provider ACTIVE");
 
   /* discovery: the S1 filter query, size probe then exact copy. The
@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
             std::memcmp(resp, req, req_len) == 0,
         "discovered, then called");
 
-  check(kernel.stop(plugin_id).ok() && kernel.uninstall(plugin_id).ok(),
+  check(kernel.stop(bundle_id).ok() && kernel.uninstall(bundle_id).ok(),
         "closed");
 
   if (failures != 0) {

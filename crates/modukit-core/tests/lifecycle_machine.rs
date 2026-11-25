@@ -3,44 +3,44 @@
 
 use modukit_core::error::KernelError;
 use modukit_core::lifecycle::{
-    Backoff, PluginState, RestartPolicy, StateMachine, is_valid_transition,
+    Backoff, BundleState, RestartPolicy, StateMachine, is_valid_transition,
 };
 
 #[test]
 fn state_machine_starts_uninstalled() {
-    assert_eq!(StateMachine::new().state(), PluginState::Uninstalled);
+    assert_eq!(StateMachine::new().state(), BundleState::Uninstalled);
 }
 
 #[test]
 fn happy_walk_follows_the_transition_table() {
     let mut m = StateMachine::new();
     for to in [
-        PluginState::Installed,
-        PluginState::Resolving,
-        PluginState::Starting,
-        PluginState::Active,
-        PluginState::Stopping,
-        PluginState::Resolved,
-        PluginState::Uninstalled,
+        BundleState::Installed,
+        BundleState::Resolving,
+        BundleState::Starting,
+        BundleState::Active,
+        BundleState::Stopping,
+        BundleState::Resolved,
+        BundleState::Uninstalled,
     ] {
         m.transition(to)
             .unwrap_or_else(|e| panic!("walk to {to} rejected: {e}"));
     }
-    assert_eq!(m.state(), PluginState::Uninstalled);
+    assert_eq!(m.state(), BundleState::Uninstalled);
 }
 
 #[test]
 fn failed_edge_reachable_from_resolving_starting_stopping() {
     let mut m = StateMachine::new();
-    m.transition(PluginState::Installed).ok();
-    m.transition(PluginState::Resolving).ok();
+    m.transition(BundleState::Installed).ok();
+    m.transition(BundleState::Resolving).ok();
     m.fail().expect("RESOLVING -> FAILED rejected");
 
     let mut m = StateMachine::new();
     for to in [
-        PluginState::Installed,
-        PluginState::Resolving,
-        PluginState::Starting,
+        BundleState::Installed,
+        BundleState::Resolving,
+        BundleState::Starting,
     ] {
         m.transition(to).ok();
     }
@@ -48,11 +48,11 @@ fn failed_edge_reachable_from_resolving_starting_stopping() {
 
     let mut m = StateMachine::new();
     for to in [
-        PluginState::Installed,
-        PluginState::Resolving,
-        PluginState::Starting,
-        PluginState::Active,
-        PluginState::Stopping,
+        BundleState::Installed,
+        BundleState::Resolving,
+        BundleState::Starting,
+        BundleState::Active,
+        BundleState::Stopping,
     ] {
         m.transition(to).ok();
     }
@@ -65,28 +65,28 @@ fn dl_placement_has_no_active_to_failed_edge() {
     // §2 table has no ACTIVE -> FAILED row (dl host corruption is total).
     let mut m = StateMachine::new();
     for to in [
-        PluginState::Installed,
-        PluginState::Resolving,
-        PluginState::Starting,
-        PluginState::Active,
+        BundleState::Installed,
+        BundleState::Resolving,
+        BundleState::Starting,
+        BundleState::Active,
     ] {
         m.transition(to).ok();
     }
     let err = m
-        .transition(PluginState::Failed)
+        .transition(BundleState::Failed)
         .expect_err("ACTIVE -> FAILED must be rejected");
     assert!(matches!(err, KernelError::InvalidTransition { .. }));
-    assert_eq!(m.state(), PluginState::Active, "rejected move keeps state");
+    assert_eq!(m.state(), BundleState::Active, "rejected move keeps state");
 }
 
 #[test]
 fn invalid_transition_reports_typed_error_and_keeps_state() {
     let mut m = StateMachine::new();
     let err = m
-        .transition(PluginState::Active)
+        .transition(BundleState::Active)
         .expect_err("UNINSTALLED -> ACTIVE is not in the table");
     assert!(matches!(err, KernelError::InvalidTransition { .. }));
-    assert_eq!(m.state(), PluginState::Uninstalled);
+    assert_eq!(m.state(), BundleState::Uninstalled);
 }
 
 #[test]
@@ -110,17 +110,17 @@ fn restart_from_failed_requires_policy_budget() {
 fn uninstall_reachable_from_every_state() {
     // "any | UNINSTALLED" row of the §2 table.
     for from in [
-        PluginState::Uninstalled,
-        PluginState::Installed,
-        PluginState::Resolving,
-        PluginState::Starting,
-        PluginState::Active,
-        PluginState::Stopping,
-        PluginState::Resolved,
-        PluginState::Failed,
+        BundleState::Uninstalled,
+        BundleState::Installed,
+        BundleState::Resolving,
+        BundleState::Starting,
+        BundleState::Active,
+        BundleState::Stopping,
+        BundleState::Resolved,
+        BundleState::Failed,
     ] {
         assert!(
-            is_valid_transition(from, PluginState::Uninstalled),
+            is_valid_transition(from, BundleState::Uninstalled),
             "uninstall must be reachable from {from}"
         );
     }

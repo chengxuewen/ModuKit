@@ -11,7 +11,7 @@
 //! Gated by `scripts/demo-rs-examples.sh` on the final `DM-DEMO PASS`.
 
 use modukit_core::dm::{DependencyMonitor, DmHandler, RequiredDep};
-use modukit_core::identity::{PluginId, ServiceId};
+use modukit_core::identity::{BundleId, ServiceId};
 use modukit_core::manifest::OnDown;
 use modukit_core::registry::{Properties, PropertyValue, Registry};
 use std::sync::Arc;
@@ -22,7 +22,7 @@ struct Rec {
 }
 
 impl DmHandler for Rec {
-    fn dep_lost(&mut self, plugin: &PluginId, dep: &RequiredDep) {
+    fn dep_lost(&mut self, plugin: &BundleId, dep: &RequiredDep) {
         self.lost.push((
             plugin.as_str().to_string(),
             dep.service.as_str().to_string(),
@@ -33,7 +33,7 @@ impl DmHandler for Rec {
             dep.service.as_str()
         );
     }
-    fn dep_restored(&mut self, plugin: &PluginId, dep: &RequiredDep) {
+    fn dep_restored(&mut self, plugin: &BundleId, dep: &RequiredDep) {
         self.restored.push((
             plugin.as_str().to_string(),
             dep.service.as_str().to_string(),
@@ -55,7 +55,7 @@ fn main() {
 
     // The dependent: a plugin whose manifest declared
     //   [[requires]] service = "com.acme.dep", required, on_down = block
-    let dependent = PluginId::new("com.acme.consumer".to_string());
+    let dependent = BundleId::new("com.acme.consumer".to_string());
     monitor.register_dependent(
         dependent.clone(),
         vec![RequiredDep {

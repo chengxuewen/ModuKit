@@ -43,9 +43,9 @@ not - ruling B3). Every quote is verbatim from the compiled fixture.
 `examples/cpp/tutorial/t1-hello-plugin/t1.cpp`:
 
 ```cpp
-const modukit_plugin_abi_v1 T1_DESCRIPTOR = {
+const modukit_bundle_abi_v1 T1_DESCRIPTOR = {
     MODUKIT_ABI_VERSION,           /* abi_version - handshake guard 2 */
-    sizeof(modukit_plugin_abi_v1), /* size - handshake guard 3 */
+    sizeof(modukit_bundle_abi_v1), /* size - handshake guard 3 */
     "t1-hello-plugin",             /* name */
     "com.example.t1.hello",        /* id (D9 canonical reverse-DNS) */
     "0.1.0",                       /* version */
@@ -140,7 +140,7 @@ any of these, the series grows a step and this block shrinks.
   the SAME handshake, minimal by construction, eight steps instead of one
   84-line file.
 - The raw-ABI choice is deliberate: t1-t3 and t7 include
-  `contracts/modukit_plugin.h` only - no generated shelf - so every line
+  `contracts/modukit_bundle.h` only - no generated shelf - so every line
   of the handshake is visible. The shelf (and when to prefer it) is
   chapter 02's C++ band section.
 - Next: chapter 03 (the bus, with the rs mailbox walk), chapter 04 (the

@@ -40,7 +40,7 @@ use crate::host_v2::{
     V2Context, trampoline_bus_publish, trampoline_bus_recv, trampoline_bus_subscribe,
     trampoline_bus_unsubscribe, trampoline_register_service, v3_context,
 };
-use crate::identity::PluginId;
+use crate::identity::BundleId;
 use crate::registry::{RegistrationId, Registry};
 
 /// The v3 `timer_schedule` slot (D99 R3-A): schedule on the kernel's one
@@ -66,8 +66,8 @@ pub(crate) unsafe extern "C" fn trampoline_timer_schedule(
     if out_token.is_null() {
         return codec::NEG_SCHEMA_INVALID;
     }
-    let (Some(clock), Some(plugin_id), Some(register)) =
-        (ctx.clock.clone(), ctx.plugin_id.clone(), ctx.plugin_timers)
+    let (Some(clock), Some(bundle_id), Some(register)) =
+        (ctx.clock.clone(), ctx.bundle_id.clone(), ctx.plugin_timers)
     else {
         // A v3 slot on a non-v3 hand is a kernel bug, not a plugin error -
         // the door can never build this shape; refuse on the input slot.
@@ -80,7 +80,7 @@ pub(crate) unsafe extern "C" fn trampoline_timer_schedule(
     register
         .lock()
         .unwrap_or_else(PoisonError::into_inner)
-        .insert(token.value(), plugin_id);
+        .insert(token.value(), bundle_id);
     // SAFETY: `out_token` checked non-null above.
     unsafe { *out_token = token.value() };
     0
@@ -119,10 +119,10 @@ pub(crate) fn start_v3(
     registry: &Registry,
     bus: &Bus,
     clock: Clock,
-    plugin_id: PluginId,
-    plugin_timers: &Mutex<HashMap<u64, PluginId>>,
+    bundle_id: BundleId,
+    plugin_timers: &Mutex<HashMap<u64, BundleId>>,
 ) -> (Result<(), KernelError>, Vec<RegistrationId>) {
-    let mut ctx = v3_context(registry, bus, clock, plugin_id, plugin_timers);
+    let mut ctx = v3_context(registry, bus, clock, bundle_id, plugin_timers);
     let table = HostAbiV3 {
         size: HostAbiV3::expected_size(),
         user: &raw mut ctx as *mut c_void,

@@ -40,7 +40,7 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
     let mut fdsets: Vec<PathBuf> = Vec::new();
     let mut output_dir: Option<PathBuf> = None;
     let mut embed_header: Option<PathBuf> = None;
-    let mut plugin_header: Option<PathBuf> = None;
+    let mut bundle_header: Option<PathBuf> = None;
     let mut py_out: Option<PathBuf> = None;
     let mut js_out: Option<PathBuf> = None;
     let mut it = args.iter();
@@ -59,13 +59,13 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
             embed_header = Some(PathBuf::from(value));
         } else if let Some(value) = arg.strip_prefix("--embed_header=") {
             embed_header = Some(PathBuf::from(value));
-        } else if arg == "--plugin_header" {
+        } else if arg == "--bundle_header" {
             let value = it
                 .next()
-                .ok_or_else(|| usage("--plugin_header needs a path"))?;
-            plugin_header = Some(PathBuf::from(value));
-        } else if let Some(value) = arg.strip_prefix("--plugin_header=") {
-            plugin_header = Some(PathBuf::from(value));
+                .ok_or_else(|| usage("--bundle_header needs a path"))?;
+            bundle_header = Some(PathBuf::from(value));
+        } else if let Some(value) = arg.strip_prefix("--bundle_header=") {
+            bundle_header = Some(PathBuf::from(value));
         } else if arg == "--py_out" {
             let value = it.next().ok_or_else(|| usage("--py_out needs a path"))?;
             py_out = Some(PathBuf::from(value));
@@ -103,15 +103,15 @@ fn run(args: &[String]) -> Result<Vec<PathBuf>, CodegenError> {
         std::fs::write(&path, emit_embed_hpp(&text)?)?;
         files.push(path);
     }
-    if let Some(header_path) = plugin_header {
+    if let Some(header_path) = bundle_header {
         // Same trust discipline as the embed wrapper: the parity gate pins
-        // modukit_plugin.h to abi::HostAbiV2, so the emitted host view
+        // modukit_bundle.h to abi::HostAbiV2, so the emitted host view
         // forwards exactly the slot typedefs it parsed (Stage-5 N1).
         let text = std::fs::read_to_string(&header_path)?;
         let stem = header_path
             .file_stem()
             .and_then(|s| s.to_str())
-            .ok_or_else(|| usage("--plugin_header needs a file path"))?;
+            .ok_or_else(|| usage("--bundle_header needs a file path"))?;
         let path = output_dir.join(format!("{stem}.hpp"));
         std::fs::write(&path, emit_plugin_hpp(&text)?)?;
         files.push(path);
@@ -162,7 +162,7 @@ fn usage(msg: impl Into<String>) -> CodegenError {
         "{msg}\n\
          usage: protoc-gen-modukit @<descriptor_set.fdset> [more @fdsets...] \
          --output_dir <dir> [--embed_header <modukit_embed.h>] \
-         [--plugin_header <modukit_plugin.h>] [--py_out <dir>] [--js_out <dir>]\
+         [--bundle_header <modukit_bundle.h>] [--py_out <dir>] [--js_out <dir>]\
          (v0 seam: reads FileDescriptorSet binaries directly, not a \
          CodeGeneratorRequest on stdin - see src/main.rs)"
     ))

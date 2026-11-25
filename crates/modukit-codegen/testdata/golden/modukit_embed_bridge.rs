@@ -96,7 +96,7 @@ pub const MODUKIT_DEFERRAL_DECLINED: i32 = 26;
 #[napi]
 pub const MODUKIT_CLOCK_DIAL_REFUSED: i32 = 27;
 
-// mirror of `modukit_plugin_state` (all values below)
+// mirror of `modukit_bundle_state` (all values below)
 #[napi]
 pub const MODUKIT_STATE_UNINSTALLED: i32 = 0;
 #[napi]

@@ -14,7 +14,7 @@
 
 namespace {
 
-const char *const kPluginId = "com.example.t7.compose";
+const char *const kBundleId = "com.example.t7.compose";
 const char *const kServiceId = "com.example.t7.aggregate";
 const char *const kReplyTopic = "com.example.t7.reply";
 const char *const kSeed = "t7-compose-seed";
@@ -29,7 +29,7 @@ void check(bool ok, const char *what) {
 }
 
 std::string manifest_for(const std::string &so_path) {
-  return "id = \"" + std::string(kPluginId) + "\"\nversion = \"0.1.0\"\n"
+  return "id = \"" + std::string(kBundleId) + "\"\nversion = \"0.1.0\"\n"
          "[entry]\nkind = \"dl\"\nartifact = \"" + so_path + "\"\n";
 }
 
@@ -48,10 +48,10 @@ int main(int argc, char **argv) {
 
   const modukit::Kernel kernel;
   const std::string toml = manifest_for(so_path);
-  const char *plugin_id = nullptr;
-  check(kernel.install(toml.c_str(), &plugin_id).ok(), "install the composer");
-  check(kernel.resolve(plugin_id).ok(), "resolve (the v2 handshake)");
-  const modukit::Status started = kernel.start(plugin_id);
+  const char *bundle_id = nullptr;
+  check(kernel.install(toml.c_str(), &bundle_id).ok(), "install the composer");
+  check(kernel.resolve(bundle_id).ok(), "resolve (the v2 handshake)");
+  const modukit::Status started = kernel.start(bundle_id);
   char msg[160];
   std::snprintf(msg, sizeof(msg), "start (the announcement publishes) rc=%d", started.code());
   check(started.ok(), msg);
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
             .ok(),
         "the request topic accepts publishes (the composer listens)");
 
-  check(kernel.stop(plugin_id).ok() && kernel.uninstall(plugin_id).ok(),
+  check(kernel.stop(bundle_id).ok() && kernel.uninstall(bundle_id).ok(),
         "the composer closes");
 
   if (failures != 0) {

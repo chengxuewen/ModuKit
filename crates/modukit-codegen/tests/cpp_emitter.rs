@@ -92,23 +92,23 @@ fn embed_wrapper_matches_golden() {
 #[test]
 fn plugin_wrapper_matches_golden() {
     // Stage-5 N1: the host-table wrapper rides the same byte-compare
-    // discipline; regen is the --plugin_header banner recipe (main door).
+    // discipline; regen is the --bundle_header banner recipe (main door).
     let root = repo_root();
     let text =
-        std::fs::read_to_string(root.join("contracts/modukit_plugin.h")).expect("plugin header");
+        std::fs::read_to_string(root.join("contracts/modukit_bundle.h")).expect("plugin header");
     let produced = emit_plugin_hpp(&text).expect("plugin wrapper emits");
     let golden = root
         .join("crates/modukit-codegen/testdata/golden")
-        .join("modukit_plugin.hpp");
+        .join("modukit_bundle.hpp");
     let golden_text = std::fs::read_to_string(&golden).unwrap_or_else(|e| {
         panic!(
-            "golden {} missing (see the --plugin_header regen banner): {e}",
+            "golden {} missing (see the --bundle_header regen banner): {e}",
             golden.display()
         )
     });
     assert_eq!(
         produced, golden_text,
-        "plugin wrapper golden drifted (rerun the --plugin_header regen and review)"
+        "plugin wrapper golden drifted (rerun the --bundle_header regen and review)"
     );
 }
 
@@ -118,7 +118,7 @@ fn plugin_wrapper_tracks_the_v2_slots() {
     // exactly the four mailbox slots (D96 ruling 2/5); the wrapper carries
     // one forwarder per slot. Counts move only through a D83-class hearing.
     let root = repo_root();
-    let header = std::fs::read_to_string(root.join("contracts/modukit_plugin.h")).unwrap();
+    let header = std::fs::read_to_string(root.join("contracts/modukit_bundle.h")).unwrap();
     let mut in_v2 = false;
     let fields: Vec<&str> = header
         .lines()
@@ -240,13 +240,13 @@ fn emitted_cpp_passes_fsyntax_only() {
     std::fs::write(&embed_hpp, emit_embed_hpp(&embed_text).unwrap()).unwrap();
     // Stage-5 N1: the plugin-face host wrapper rides the same smoke leg.
     std::fs::copy(
-        contracts.join("modukit_plugin.h"),
-        out_dir.join("modukit_plugin.h"),
+        contracts.join("modukit_bundle.h"),
+        out_dir.join("modukit_bundle.h"),
     )
     .expect("copy plugin header into smoke dir");
     let plugin_text =
-        std::fs::read_to_string(contracts.join("modukit_plugin.h")).expect("plugin header");
-    let plugin_hpp = out_dir.join("modukit_plugin.hpp");
+        std::fs::read_to_string(contracts.join("modukit_bundle.h")).expect("plugin header");
+    let plugin_hpp = out_dir.join("modukit_bundle.hpp");
     std::fs::write(&plugin_hpp, emit_plugin_hpp(&plugin_text).unwrap()).unwrap();
 
     let cxx = find_cxx();

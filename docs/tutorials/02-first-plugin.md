@@ -35,9 +35,9 @@ Quoted verbatim from
 self-report descriptor:
 
 ```cpp
-const modukit_plugin_abi_v1 DESCRIPTOR = {
+const modukit_bundle_abi_v1 DESCRIPTOR = {
     MODUKIT_ABI_VERSION,   /* abi_version - guard 2 */
-    sizeof(modukit_plugin_abi_v1), /* size - guard 3 */
+    sizeof(modukit_bundle_abi_v1), /* size - guard 3 */
     "cpp-example-plugin",  /* name */
     DemoServiceImpl::kServiceId, /* id == registered service id, mirroring the rs twin (D9) */
     "0.1.0",               /* version - plugin's own semver */

@@ -15,7 +15,7 @@ use std::process::Command;
 
 use modukit_core::error::KernelError;
 use modukit_core::executor::{DlopenExecutor, Executor};
-use modukit_core::identity::PluginId;
+use modukit_core::identity::BundleId;
 use modukit_core::manifest::Manifest;
 
 const EXAMPLE_ID: &str = "com.example.modukit.demo";
@@ -76,7 +76,7 @@ fn dl_internal_matches_a_minimal_toml_parse_field_for_field() {
     let minimal = "id = \"com.internal.probe\"\nversion = \"\"\n[entry]\nkind = \"dl\"\nartifact = \"/tmp/probe.so\"\n";
     let parsed = Manifest::from_toml_str(minimal).expect("minimal dl TOML must parse");
     let built = Manifest::dl_internal(
-        PluginId::new("com.internal.probe".to_string()),
+        BundleId::new("com.internal.probe".to_string()),
         "/tmp/probe.so",
     );
     assert_eq!(

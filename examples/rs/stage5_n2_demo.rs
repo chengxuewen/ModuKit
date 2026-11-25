@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use modukit_core::executor::Supervisor;
-use modukit_core::identity::{PluginId, TopicId};
+use modukit_core::identity::{BundleId, TopicId};
 use modukit_core::manifest::Manifest;
 
 const ID: &str = "com.example.modukit.busv2.echo";
@@ -98,7 +98,7 @@ fn main() {
         runner.display()
     ))
     .expect("demo gate: manifest parses");
-    let id: PluginId = manifest.id.clone();
+    let id: BundleId = manifest.id.clone();
     sup.kernel()
         .install(manifest)
         .expect("demo gate: exe install door");

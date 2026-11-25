@@ -12,11 +12,11 @@
 
 use modukit_core::bus::Bus;
 use modukit_core::config::ConfigAdmin;
-use modukit_core::identity::{PluginId, TopicId};
+use modukit_core::identity::{BundleId, TopicId};
 use std::sync::Arc;
 
-fn plugin(name: &str) -> PluginId {
-    PluginId::new(format!("com.acme.{name}"))
+fn plugin(name: &str) -> BundleId {
+    BundleId::new(format!("com.acme.{name}"))
 }
 
 fn main() {

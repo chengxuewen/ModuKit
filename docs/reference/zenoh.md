@@ -34,7 +34,7 @@ Layered: `io/zenoh-transport` (sessions, fragmentation, QoS, batch) over `io/zen
 
 ### 2.3 Plugin system — prime Stage-1 material (real paths)
 `plugins/zenoh-plugin-trait/` is a complete, shipped dynamic-plugin ABI for a Rust host:
-- **Lifecycle state machine**: `Declared → Loaded → Started` (`src/plugin.rs` `PluginState`), plus `PluginReport{level,messages}` per state and `PluginDiff{Delete,Start}` enabling **runtime plugin add/remove via config diff**.
+- **Lifecycle state machine**: `Declared → Loaded → Started` (`src/plugin.rs` `BundleState`), plus `PluginReport{level,messages}` per state and `PluginDiff{Delete,Start}` enabling **runtime plugin add/remove via config diff**.
 - **Generic trait**: `Plugin<StartArgs, Instance>` (`src/plugin.rs`); host specializes it — `ZenohPlugin: Plugin<StartArgs = DynamicRuntime, Instance = RunningPlugin>` (`zenoh/src/api/plugins.rs`).
 - **Dynamic loading**: `src/manager/dynamic_plugin.rs` uses `libloading`; sources are `ByName` (search dirs, file naming `libzenoh_plugin_<name>.so` — `PLUGIN_PREFIX` in `zenoh/src/api/plugins.rs`, CLI `-p name:path` and `--plugin-search-dir` in `zenohd/src/main.rs`) or `ByPaths`.
 - **The exported surface is a vtable**: macro `declare_plugin!(Ty)` (`src/manager/dynamic_plugin.rs`) emits exactly three `#[no_mangle]` symbols — `get_plugin_loader_version() -> u64`, `get_compatibility() -> Compatibility`, `load_plugin() -> PluginVTable<…>` (`src/vtable.rs`, 79 lines).

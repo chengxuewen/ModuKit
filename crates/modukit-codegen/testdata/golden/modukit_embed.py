@@ -62,8 +62,8 @@ class KernelCode:
     CLOCK_DIAL_REFUSED = 27
 
 
-class PluginState:
-    """mirror of `modukit_plugin_state` - values verbatim, MODUKIT_ prefix dropped"""
+class BundleState:
+    """mirror of `modukit_bundle_state` - values verbatim, MODUKIT_ prefix dropped"""
 
     STATE_UNINSTALLED = 0
     STATE_INSTALLED = 1

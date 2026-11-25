@@ -6,11 +6,11 @@
 #     original; pins the Rust-side mirror (embed_abi.rs EMBED_VERBS) verb-
 #     for-verb against it. SORTED diff - the embed vtable order is not
 #     itself a contract.
-# (b) Plugin face: contracts/modukit_plugin.h mirrors the frozen #[repr(C)]
-#     tables abi::PluginAbiV1 / abi::HostAbiV1 (crates/modukit-core/src/
+# (b) Plugin face: contracts/modukit_bundle.h mirrors the frozen #[repr(C)]
+#     tables abi::BundleAbiV1 / abi::HostAbiV1 (crates/modukit-core/src/
 #     abi.rs - read-only layout truth, D87 STABLE). Here ORDER IS THE
 #     CONTRACT, so the field-name lists are diffed UNSORTED, three-way:
-#     abi.rs <-> header <-> embed_abi.rs consts (PLUGIN_ABI_FIELDS /
+#     abi.rs <-> header <-> embed_abi.rs consts (BUNDLE_ABI_FIELDS /
 #     HOST_ABI_FIELDS).
 #     Stage-5 N1 (D96 ruling 2) adds the v2 trio: abi::HostAbiV2 <->
 #     modukit_host_abi_v2 <-> HOST2_ABI_FIELDS, same ordered diff.
@@ -35,7 +35,7 @@ if [ "${1:-}" = "--self-test" ]; then
   s=$(mktemp -d)
   trap 'rm -rf "$s"' EXIT
   mkdir -p "$s/contracts" "$s/crates/modukit-core/src"
-  cp contracts/modukit_embed.h contracts/modukit_plugin.h "$s/contracts/"
+  cp contracts/modukit_embed.h contracts/modukit_bundle.h "$s/contracts/"
   cp crates/modukit-core/src/embed_abi.rs crates/modukit-core/src/abi.rs "$s/crates/modukit-core/src/"
   sed -i '0,/^int32_t modukit_/{/^int32_t modukit_/d}' "$s/contracts/modukit_embed.h"
   if MODUKIT_GATE_INPUT_DIR="$s" bash "$SELF" > /dev/null 2>&1; then
@@ -46,11 +46,11 @@ if [ "${1:-}" = "--self-test" ]; then
   exit 0
 fi
 EMBED_HEADER="${IN}contracts/modukit_embed.h"
-PLUGIN_HEADER="${IN}contracts/modukit_plugin.h"
+BUNDLE_HEADER="${IN}contracts/modukit_bundle.h"
 MIRROR="${IN}crates/modukit-core/src/embed_abi.rs"
 ABI="${IN}crates/modukit-core/src/abi.rs"
 
-for f in "$EMBED_HEADER" "$PLUGIN_HEADER" "$MIRROR" "$ABI"; do
+for f in "$EMBED_HEADER" "$BUNDLE_HEADER" "$MIRROR" "$ABI"; do
   if [ ! -f "$f" ]; then
     echo "check-embed-parity: RED (missing $f)"
     exit 1
@@ -86,7 +86,7 @@ rust_fields() { sed -n "/^pub struct $1 {/,/^}/p" "$ABI" \
 # C side: the identifier before each line-ending `;` inside the struct
 # block; comment and closing-`}` lines are excluded, and the header keeps
 # one member per line (documented convention).
-c_fields() { sed -n "/^typedef struct $1 {/,/^} $1;/p" "$PLUGIN_HEADER" \
+c_fields() { sed -n "/^typedef struct $1 {/,/^} $1;/p" "$BUNDLE_HEADER" \
   | sed 's|/\*.*\*/||g' \
   | grep -vE '^[[:space:]]*(/\*|\*|})' \
   | grep -oE '[a-z_][a-z0-9_]*[[:space:]]*;[[:space:]]*$' \
@@ -119,7 +119,7 @@ check_table() { # $1 rust struct, $2 C tag, $3 mirror const
     fail=1
   fi
 }
-check_table PluginAbiV1 modukit_plugin_abi_v1 PLUGIN_ABI_FIELDS
+check_table BundleAbiV1 modukit_bundle_abi_v1 BUNDLE_ABI_FIELDS
 check_table HostAbiV1 modukit_host_abi_v1 HOST_ABI_FIELDS
 # Stage-5 N1 v2 door (D96 ruling 2): the second host table joins the trio.
 check_table HostAbiV2 modukit_host_abi_v2 HOST2_ABI_FIELDS
@@ -128,7 +128,7 @@ check_table HostAbiV3 modukit_host_abi_v3 HOST3_ABI_FIELDS
 
 # Version pin: both sides must read the same major integer.
 rust_ver=$(sed -n 's/^pub const ABI_VERSION: u32 = \([0-9]\{1,\}\);$/\1/p' "$ABI")
-c_ver=$(sed -n 's/^#define MODUKIT_ABI_VERSION \([0-9]\{1,\}\)[a-z]*$/\1/p' "$PLUGIN_HEADER")
+c_ver=$(sed -n 's/^#define MODUKIT_ABI_VERSION \([0-9]\{1,\}\)[a-z]*$/\1/p' "$BUNDLE_HEADER")
 if [ -z "$rust_ver" ] || [ "$rust_ver" != "$c_ver" ]; then
   echo "check-embed-parity: RED (ABI_VERSION=$rust_ver vs MODUKIT_ABI_VERSION=$c_ver)"
   fail=1
@@ -136,7 +136,7 @@ fi
 
 # v2 version pin (N1): the declared-major-2 constant mirrors the same way.
 rust_ver2=$(sed -n 's/^pub const ABI_VERSION_V2: u32 = \([0-9]\{1,\}\);$/\1/p' "$ABI")
-c_ver2=$(sed -n 's/^#define MODUKIT_ABI_VERSION_V2 \([0-9]\{1,\}\)[a-z]*$/\1/p' "$PLUGIN_HEADER")
+c_ver2=$(sed -n 's/^#define MODUKIT_ABI_VERSION_V2 \([0-9]\{1,\}\)[a-z]*$/\1/p' "$BUNDLE_HEADER")
 if [ -z "$rust_ver2" ] || [ "$rust_ver2" != "$c_ver2" ]; then
   echo "check-embed-parity: RED (ABI_VERSION_V2=$rust_ver2 vs MODUKIT_ABI_VERSION_V2=$c_ver2)"
   fail=1
@@ -144,7 +144,7 @@ fi
 
 # v3 version pin (T1): the declared-major-3 constant mirrors the same way.
 rust_ver3=$(sed -n 's/^pub const ABI_VERSION_V3: u32 = \([0-9]\{1,\}\);$/\1/p' "$ABI")
-c_ver3=$(sed -n 's/^#define MODUKIT_ABI_VERSION_V3 \([0-9]\{1,\}\)[a-z]*$/\1/p' "$PLUGIN_HEADER")
+c_ver3=$(sed -n 's/^#define MODUKIT_ABI_VERSION_V3 \([0-9]\{1,\}\)[a-z]*$/\1/p' "$BUNDLE_HEADER")
 if [ -z "$rust_ver3" ] || [ "$rust_ver3" != "$c_ver3" ]; then
   echo "check-embed-parity: RED (ABI_VERSION_V3=$rust_ver3 vs MODUKIT_ABI_VERSION_V3=$c_ver3)"
   fail=1
@@ -152,7 +152,7 @@ fi
 
 # Entry-symbol pin: same exported name on both sides (NUL stripped).
 rust_sym=$(sed -n 's/^pub const ENTRY_SYMBOL: .*b"\(.*\)".*$/\1/p' "$ABI" | sed 's/\\0$//')
-c_sym=$(sed -n 's/^#define MODUKIT_ENTRY_SYMBOL "\(.*\)".*$/\1/p' "$PLUGIN_HEADER")
+c_sym=$(sed -n 's/^#define MODUKIT_ENTRY_SYMBOL "\(.*\)".*$/\1/p' "$BUNDLE_HEADER")
 if [ -z "$rust_sym" ] || [ "$rust_sym" != "$c_sym" ]; then
   echo "check-embed-parity: RED (ENTRY_SYMBOL=$rust_sym vs MODUKIT_ENTRY_SYMBOL=$c_sym)"
   fail=1

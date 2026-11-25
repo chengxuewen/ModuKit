@@ -29,7 +29,7 @@ use crate::clock::Clock;
 use crate::embed_codec as codec;
 use crate::error::KernelError;
 use crate::executor::LoadedPlugin;
-use crate::identity::{PluginId, TopicId};
+use crate::identity::{BundleId, TopicId};
 use crate::registry::{Properties, PropertyValue, RegistrationId, Registry};
 
 /// One mailbox: the bus receiver plus the embed-face `pending` slot (a probe
@@ -56,8 +56,8 @@ pub(crate) struct V2Context<'a> {
     /// hand (`v3_context`); a v2 start keeps them `None` and the v2 path
     /// never reads them.
     pub(crate) clock: Option<Clock>,
-    pub(crate) plugin_id: Option<PluginId>,
-    pub(crate) plugin_timers: Option<&'a Mutex<HashMap<u64, PluginId>>>,
+    pub(crate) bundle_id: Option<BundleId>,
+    pub(crate) plugin_timers: Option<&'a Mutex<HashMap<u64, BundleId>>>,
 }
 
 /// Borrow a caller NUL-string and parse it as a canonical topic id
@@ -289,7 +289,7 @@ pub(crate) fn start_v2(
         queue_topics: HashMap::new(),
         next_queue: 1,
         clock: None,
-        plugin_id: None,
+        bundle_id: None,
         plugin_timers: None,
     };
     let table = HostAbiV2 {
@@ -319,8 +319,8 @@ pub(crate) fn v3_context<'a>(
     registry: &'a Registry,
     bus: &'a Bus,
     clock: Clock,
-    plugin_id: PluginId,
-    plugin_timers: &'a Mutex<HashMap<u64, PluginId>>,
+    bundle_id: BundleId,
+    plugin_timers: &'a Mutex<HashMap<u64, BundleId>>,
 ) -> V2Context<'a> {
     V2Context {
         registry,
@@ -330,7 +330,7 @@ pub(crate) fn v3_context<'a>(
         queue_topics: HashMap::new(),
         next_queue: 1,
         clock: Some(clock),
-        plugin_id: Some(plugin_id),
+        bundle_id: Some(bundle_id),
         plugin_timers: Some(plugin_timers),
     }
 }

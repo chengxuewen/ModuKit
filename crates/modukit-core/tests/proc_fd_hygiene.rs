@@ -219,7 +219,7 @@ fn spawn_and_teardown_cycles_leak_no_descriptors() {
     }
     sup.kernel().advance_clock(Duration::from_secs(1));
     let _ = sup.step(); // the same pass respawns when the window opens
-    if sup.kernel().state(&id).expect("state") == modukit_core::lifecycle::PluginState::Active {
+    if sup.kernel().state(&id).expect("state") == modukit_core::lifecycle::BundleState::Active {
         // crasher mode may self-exit before the STOP ack lands: the kill
         // path is the other legal teardown here.
         let _ = sup.kernel().stop(&id);

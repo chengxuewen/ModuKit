@@ -19,7 +19,7 @@ fn stop_message_drives_graceful_teardown_no_kill_needed() {
     // Assert: cooperative stop lands RESOLVED (03 §2), process reaped.
     assert_eq!(
         sup.kernel().state(&id).expect("stopped"),
-        PluginState::Resolved
+        BundleState::Resolved
     );
     assert_eq!(
         sup.poll(),
@@ -50,7 +50,7 @@ fn hung_peer_is_killed_after_named_timeout_constant() {
     assert!(matches!(err, KernelError::ProcessCrashed { .. }), "{err}");
     assert_eq!(
         sup.kernel().state(&id).expect("host alive"),
-        PluginState::Failed
+        BundleState::Failed
     );
     assert!(
         waited <= STOP_KILL_GRACE * 3,

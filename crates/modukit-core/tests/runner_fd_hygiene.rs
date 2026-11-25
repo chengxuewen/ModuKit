@@ -196,7 +196,7 @@ fn real_runner_cycles_leak_no_descriptors_or_zombies() {
     );
     assert_eq!(
         sup.kernel().state(&bad_id).expect("tracked"),
-        modukit_core::lifecycle::PluginState::Failed
+        modukit_core::lifecycle::BundleState::Failed
     );
 
     let after = open_fd_count();

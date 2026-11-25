@@ -33,8 +33,8 @@ Contracts (frozen, this volume touches nothing here):
   = 2 handshake guards + 15 verb slots; embed_abi_version stays a free-function probe
   (contracts/modukit_embed.h:128); the 8 sup verbs are free functions only (:308-358).
 - Mirror truth: EMBED_VERBS, 24 entries (crates/modukit-core/src/embed_abi.rs:25-52).
-- Plugin-side tables (for reference; not consumed by this volume): PluginAbiV1 7 fields
-  (contracts/modukit_plugin.h:130-152), HostAbiV1 3 (:103-112), HostAbiV2 7 (:194-209),
+- Plugin-side tables (for reference; not consumed by this volume): BundleAbiV1 7 fields
+  (contracts/modukit_bundle.h:130-152), HostAbiV1 3 (:103-112), HostAbiV2 7 (:194-209),
   HostAbiV3 9 (:247-266); Rust mirrors abi.rs:68/:100/:225/:320.
 - All 24 verbs are real exported C symbols today: 16 in crates/modukit-core/src/embed.rs,
   8 in crates/modukit-core/src/embed_sup.rs (extern "C" counts verified by `nm` over a

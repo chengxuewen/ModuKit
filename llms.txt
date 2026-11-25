@@ -29,7 +29,7 @@
 
 ## Contracts
 - [embed ABI](contracts/modukit_embed.h) — the C embedding surface
-- [plugin ABI](contracts/modukit_plugin.h) — modukit_plugin_init and HostAbi tables
+- [plugin ABI](contracts/modukit_bundle.h) — modukit_bundle_init and HostAbi tables
 - [process wire](contracts/modukit_wire.h) — TL frame prefix + payload grammar
 - [kernel proto](contracts/modukit.proto) — proto2 ledger
 - [wire goldens](contracts/golden/wire-v1) — regression frames

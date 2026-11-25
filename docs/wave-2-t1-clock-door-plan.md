@@ -28,7 +28,7 @@ Per D99 R1-R6, in-process only:
     out-param + status; negative D51 codes for bad input) reusing
     `trampoline_register_service` + the four bus trampolines from v2.
 - The per-plugin timer register (NEW kernel state, D99 R4-A):
-  - `kernel.rs` (insertion): `plugin_timers: Mutex<HashMap<u64 token, PluginId>>`.
+  - `kernel.rs` (insertion): `plugin_timers: Mutex<HashMap<u64 token, BundleId>>`.
   - `timer_schedule` trampoline: calls `clock.timer(deadline,label)`, records
     token -> plugin id in the register.
   - `clock.rs` (NOT frozen): new internal removal
@@ -44,7 +44,7 @@ Per D99 R1-R6, in-process only:
     QoS::Lossy(16), token u64 LE ++ label UTF-8)`. Host-owned timers keep the
     TimerDone ring posting EXACTLY as today; the bus post is additive and
     scoped to registered plugin tokens.
-- Mirror faces (N1 recipe, extended): `contracts/modukit_plugin.h` HostAbiV3
+- Mirror faces (N1 recipe, extended): `contracts/modukit_bundle.h` HostAbiV3
   struct + doc comments (slot order = abi.rs field order - "ORDER IS THE
   CONTRACT" per check-embed-parity.sh / D96-r2, NOT D54); codegen
   pluginface emitter gains the v3 Rust/C++ views behind the same size-guard;

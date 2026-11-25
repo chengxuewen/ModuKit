@@ -47,24 +47,24 @@ int main(int argc, char **argv) {
   const modukit::Kernel kernel;
 
   const std::string toml = manifest_for(so_path);
-  const char *plugin_id = nullptr;
-  check(kernel.install(toml.c_str(), &plugin_id).ok() &&
-            plugin_id != nullptr,
+  const char *bundle_id = nullptr;
+  check(kernel.install(toml.c_str(), &bundle_id).ok() &&
+            bundle_id != nullptr,
         "install");
   if (failures != 0) {
     std::printf("T4-DRIVER FAIL (install door)\n");
     return 1;
   }
-  check(kernel.resolve(plugin_id).ok(), "resolve");
-  check(kernel.start(plugin_id).ok(), "start");
+  check(kernel.resolve(bundle_id).ok(), "resolve");
+  check(kernel.start(bundle_id).ok(), "start");
   int32_t state = -1;
-  check(kernel.state(plugin_id, &state).ok() &&
-            state == static_cast<int32_t>(modukit::PluginState::STATE_ACTIVE),
+  check(kernel.state(bundle_id, &state).ok() &&
+            state == static_cast<int32_t>(modukit::BundleState::STATE_ACTIVE),
         "state == ACTIVE");
 
   /* the echo scene only makes sense against the t2 plugin (it registers
    * the echo service); the t1 walk ends here by design. */
-  if (std::strcmp(plugin_id, "com.example.t2.echo") == 0) {
+  if (std::strcmp(bundle_id, "com.example.t2.echo") == 0) {
     const uint8_t req[] = {'t', '4', '-', 'd', 'r', 'i', 'v', 'e', 'r',
                            '-', 'p', 'a', 'y', 'l', 'o', 'a', 'd', 0};
     const size_t req_len = sizeof(req) - 1;
@@ -76,8 +76,8 @@ int main(int argc, char **argv) {
           "service_call echoes the payload");
   }
 
-  check(kernel.stop(plugin_id).ok(), "stop");
-  check(kernel.uninstall(plugin_id).ok(), "uninstall");
+  check(kernel.stop(bundle_id).ok(), "stop");
+  check(kernel.uninstall(bundle_id).ok(), "uninstall");
 
   if (failures != 0) {
     std::printf("T4-DRIVER FAIL (%d)\n", failures);

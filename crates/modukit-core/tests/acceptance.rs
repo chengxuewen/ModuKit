@@ -23,7 +23,7 @@ use modukit_core::events::ObsEvent;
 use modukit_core::identity::ServiceId;
 use modukit_core::introspect::{EventStream, LedgerDump, Snapshot};
 use modukit_core::kernel::Kernel;
-use modukit_core::lifecycle::PluginState;
+use modukit_core::lifecycle::BundleState;
 use modukit_core::manifest::Manifest;
 
 const EXAMPLE_ID: &str = "com.example.modukit.demo";
@@ -259,7 +259,7 @@ fn ledger_equality_bad_plugin_is_the_red_fixture_staying_red() {
     let plugin = view.one(&id.to_string()).expect("tracked");
     assert_eq!(
         plugin.state,
-        PluginState::Failed.to_string(),
+        BundleState::Failed.to_string(),
         "parked FAILED (04 §3)"
     );
 
@@ -334,7 +334,7 @@ fn dm_lite_blocks_a_dependent_when_its_provider_leaves_and_restores() {
         .expect("the consumer stays tracked");
     assert_eq!(
         state,
-        PluginState::Resolved.to_string(),
+        BundleState::Resolved.to_string(),
         "on_down = block parks the consumer on the Resolved tier"
     );
     assert!(

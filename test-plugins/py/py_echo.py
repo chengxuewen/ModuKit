@@ -45,13 +45,13 @@ def _find_skin():
     here = os.path.dirname(os.path.abspath(__file__))
     cands.append(os.path.normpath(os.path.join(here, "..", "..", "bindings", "py")))
     for c in cands:
-        if os.path.isfile(os.path.join(c, "plugin_runtime.py")):
+        if os.path.isfile(os.path.join(c, "bundle_runtime.py")):
             return c
     sys.exit(5)  # no console to complain to: the code IS the diagnosis
 
 
 sys.path.insert(0, _find_skin())
-import plugin_runtime as rt  # noqa: E402
+import bundle_runtime as rt  # noqa: E402
 
 state = {"seen": b"", "republished": False}
 

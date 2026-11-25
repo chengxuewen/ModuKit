@@ -15,7 +15,7 @@ use crate::error::KernelError;
 
 /// The plugin states of the machine (modules/03 §1 diagram).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum PluginState {
+pub enum BundleState {
     /// Not known to the kernel yet (initial and terminal state).
     Uninstalled,
     /// Artifact known, identity + manifest parsed, not yet validated.
@@ -36,17 +36,17 @@ pub enum PluginState {
     Failed,
 }
 
-impl fmt::Display for PluginState {
+impl fmt::Display for BundleState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let name = match self {
-            PluginState::Uninstalled => "UNINSTALLED",
-            PluginState::Installed => "INSTALLED",
-            PluginState::Resolving => "RESOLVING",
-            PluginState::Starting => "STARTING",
-            PluginState::Active => "ACTIVE",
-            PluginState::Stopping => "STOPPING",
-            PluginState::Resolved => "RESOLVED",
-            PluginState::Failed => "FAILED",
+            BundleState::Uninstalled => "UNINSTALLED",
+            BundleState::Installed => "INSTALLED",
+            BundleState::Resolving => "RESOLVING",
+            BundleState::Starting => "STARTING",
+            BundleState::Active => "ACTIVE",
+            BundleState::Stopping => "STOPPING",
+            BundleState::Resolved => "RESOLVED",
+            BundleState::Failed => "FAILED",
         };
         f.write_str(name)
     }
@@ -56,22 +56,22 @@ impl fmt::Display for PluginState {
 /// in the table; every other pair is invalid. `UNINSTALLED` is reachable from
 /// any state (uninstall guard, last row of the table).
 #[must_use]
-pub fn is_valid_transition(from: PluginState, to: PluginState) -> bool {
-    if to == PluginState::Uninstalled {
+pub fn is_valid_transition(from: BundleState, to: BundleState) -> bool {
+    if to == BundleState::Uninstalled {
         return true; // any -> UNINSTALLED (uninstall)
     }
     matches!(
         (from, to),
-        (PluginState::Uninstalled, PluginState::Installed)
-            | (PluginState::Installed, PluginState::Resolving)
-            | (PluginState::Resolving, PluginState::Starting)
-            | (PluginState::Resolving, PluginState::Failed)
-            | (PluginState::Starting, PluginState::Active)
-            | (PluginState::Starting, PluginState::Failed)
-            | (PluginState::Active, PluginState::Stopping)
-            | (PluginState::Stopping, PluginState::Resolved)
-            | (PluginState::Stopping, PluginState::Failed)
-            | (PluginState::Failed, PluginState::Resolving) // restart policy allows
+        (BundleState::Uninstalled, BundleState::Installed)
+            | (BundleState::Installed, BundleState::Resolving)
+            | (BundleState::Resolving, BundleState::Starting)
+            | (BundleState::Resolving, BundleState::Failed)
+            | (BundleState::Starting, BundleState::Active)
+            | (BundleState::Starting, BundleState::Failed)
+            | (BundleState::Active, BundleState::Stopping)
+            | (BundleState::Stopping, BundleState::Resolved)
+            | (BundleState::Stopping, BundleState::Failed)
+            | (BundleState::Failed, BundleState::Resolving) // restart policy allows
     )
 }
 
@@ -79,7 +79,7 @@ pub fn is_valid_transition(from: PluginState, to: PluginState) -> bool {
 /// invalid move returns `KernelError::InvalidTransition` and keeps the state.
 #[derive(Debug)]
 pub struct StateMachine {
-    state: PluginState,
+    state: BundleState,
 }
 
 impl StateMachine {
@@ -87,17 +87,17 @@ impl StateMachine {
     #[must_use]
     pub fn new() -> Self {
         Self {
-            state: PluginState::Uninstalled,
+            state: BundleState::Uninstalled,
         }
     }
 
     #[must_use]
-    pub fn state(&self) -> PluginState {
+    pub fn state(&self) -> BundleState {
         self.state
     }
 
     /// Move to `to` if the §2 table allows it; error otherwise (state kept).
-    pub fn transition(&mut self, to: PluginState) -> Result<(), KernelError> {
+    pub fn transition(&mut self, to: BundleState) -> Result<(), KernelError> {
         if !is_valid_transition(self.state, to) {
             return Err(KernelError::InvalidTransition {
                 from: self.state.to_string(),
@@ -111,7 +111,7 @@ impl StateMachine {
     /// Move to FAILED (the edge every guard failure lands on, 03 §2).
     /// Legal only from RESOLVING/STARTING/STOPPING under the table.
     pub fn fail(&mut self) -> Result<(), KernelError> {
-        self.transition(PluginState::Failed)
+        self.transition(BundleState::Failed)
     }
 }
 
