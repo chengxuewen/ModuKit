@@ -1,6 +1,6 @@
 # ModuKit Architecture
 
-**Status**: adjudicated engineering baseline (2026-10-10; D56-D63 added 2026-10-13; D64-D73 added 2026-10-15; D74-D110 added through 2026-11-03). Where this document differs from the
+**Status**: adjudicated engineering baseline (2026-10-10; D56-D63 added 2026-10-13; D64-D73 added 2026-10-15; D74-D110 added through 2026-11-03; D111 added 2026-11-25). Where this document differs from the
 [whitepaper](whitepaper.md) v1.0 vision text, the delta table in §9 is authoritative and the
 whitepaper remains canon for naming (§2.3) and principles (§3) not amended here.
 **Provenance**: architecture questions were adjudicated one-by-one with the maintainer
@@ -317,6 +317,7 @@ them. Re-review trigger recorded in D5.
 | D108 | parent-push hearing | five-A adjudicated; batches 0-2 landed 2026-11-02: production hook installed, bell pump and timer gate retired, writes ride the bounded outbox, and legs 12+13 prove `HOST PUSH PASS` with the host-origin-only lever. D99 R5-A delivery clause is superseded; accepted and closed by D110. |
 | D109 | VE-parity plan | non-functional surface adopts the VisiaEngine shape: adjudications through #26; B0-B7 landed; B8 COMPLETE (H0a-H4 landed, full activation; live skill count 42 on 2026-11-04), deviations and triggers in docs/ve-parity-plan.md |
 | D110 | parent-push acceptance | D108 execution accepted 2026-11-03: 36-leg `ci`, pinned coverage (core 84.58%), frozen-surface zero-touch, ledger reds/equivalents, and HOST PUSH + host-origin-only lever accepted; wall-counter folding, timer-driven retry, and post-start overlap stay trigger-gated |
+| D111 | one-word terminology | 2026-11-25: the managed unit is ONE word - **bundle** (two panels, sunk costs excluded; `plugin` retires from user-facing vocabulary, `service` unchanged, `module` quarantined); the ABI face renames with the vocabulary; execution waves W0-W6 and mechanics A1-A6 in docs/bundle-unification-plan.md; history append-only |
 
 _(Index note: D53 carries no ruling - reserved during the 2026-10-12 doc-audit F1 discussion, tombstoned in the ledger; see `.agents/memorys/decisions.md`.)_
 
