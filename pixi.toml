@@ -22,7 +22,7 @@ clang_win-64 = "*"       # windows-side compiler shim (conda convention: activat
 [feature.tools.tasks]
 configure = "cmake --preset default"
 demo = "bash scripts/demo.sh"
-warm = "cmake --build --preset default --target modukit-rust-build"
+warm = "bash scripts/warm-lanes.sh"
 build = { cmd = "cmake --build --preset default", depends-on = ["configure", "warm"] }
 ci = "bash scripts/check.sh"                                   # the local gate; CONSTRAINTS is generated from --list
 docs-gen = "bash scripts/gen-llms-txt.sh"                        # regenerate llms.txt (committed)

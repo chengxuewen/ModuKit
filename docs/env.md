@@ -203,7 +203,12 @@ and stays out until one appears.
 `.a` files are ninja inputs without a producer edge (cargo rides a lane
 stamp), so ninja cannot parse the graph until the artifacts exist on disk.
 `pixi run build` handles this via the `warm` step; IDE builders should run
-`pixi run warm` once before the first full Build of a cold tree.
+`pixi run warm` once before the first full Build of a cold tree. The warm
+step now SELF-HEALS: `cargo clean` (or a wiped `build/cargo-target`) leaves
+the lane stamps fresh while the artifacts are gone - warm detects the
+missing artifact, busts its tree's stale stamps, and re-materializes it
+(`scripts/warm-lanes.sh`). Single-target IDE builds are covered by the same
+heal: one `pixi run warm` after any artifact wipe unblocks them.
 
 ## Output territory
 
