@@ -62,7 +62,7 @@ C headers, `.proto`, golden frames, fixtures, docs, and the binding skins are
 text, not Rust symbols. For any ABI or wire name, this step is mandatory:
 
 ```bash
-grep -rn '<name>' contracts/ crates/ bindings/ test-plugins/ docs/ \
+grep -rn '<name>' contracts/ crates/ bindings/ test-bundles/ docs/ \
   scripts/check-*.sh
 ```
 

@@ -73,11 +73,11 @@ trap 'rm -f "$log"' EXIT
   exit 1
 }
 
-so="$bd/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so"
+so="$bd/test-bundles/cpp/cpp-example-plugin/libcpp-example-plugin.so"
 demo="$bd/examples/cpp/modukit-cpp-host-demo"
 # The ONLY legit skip: the cpp band auto-skipped in this graph (pinned env
 # carries no protoc/libprotobuf, or the cargo lanes are off) -- mirror the
-# bindings/cpp + test-plugins/cpp auto-skip. Everything else is RED.
+# bindings/cpp + test-bundles/cpp auto-skip. Everything else is RED.
 if [ ! -x "$demo" ] && grep -qE "cpp shelf/env incomplete|cpp fixture band skipped|bindings/cpp: no protoc|shelf skipped" "$log"; then
   echo "demo-stage4-m1: SKIP (cpp band auto-skipped: no env protoc / lanes off)"
   exit 0
@@ -85,7 +85,7 @@ fi
 [ -x "$demo" ] || { echo "demo-stage4-m1: RED (demo binary missing: $demo)"; exit 1; }
 [ -f "$so" ]   || { echo "demo-stage4-m1: RED (fixture .so missing: $so)"; exit 1; }
 
-"$demo" "$so" "$bd/test-plugins/cpp/cpp-busv2-plugin/libcpp-busv2-plugin.so" 2>&1 | tee "$log"
+"$demo" "$so" "$bd/test-bundles/cpp/cpp-busv2-plugin/libcpp-busv2-plugin.so" 2>&1 | tee "$log"
 status=${PIPESTATUS[0]}
 if [ "$status" -ne 0 ]; then
   echo "demo-stage4-m1: RED (demo exited $status)"
@@ -99,7 +99,7 @@ fi
 # E2 C-band ride: same falsifiable grammar - the C host demo must print
 # C-DEMO PASS against the real C fixture (its own sabotage lever,
 # DEMO_C_SABOTAGE=1, corrupts the manifest at its scene [2]).
-cso="$bd/test-plugins/c/c-example-plugin/libc-example-plugin.so"
+cso="$bd/test-bundles/c/c-example-plugin/libc-example-plugin.so"
 cdemo="$bd/examples/c/c-host-demo"
 [ -x "$cdemo" ] || { echo "demo-stage4-m1: RED (c demo binary missing: $cdemo - MODUKIT_BUILD_C off?)"; exit 1; }
 [ -f "$cso" ]   || { echo "demo-stage4-m1: RED (c fixture .so missing: $cso)"; exit 1; }

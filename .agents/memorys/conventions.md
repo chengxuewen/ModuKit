@@ -75,7 +75,7 @@ scan (caught by the negative proof the same day; C0 working as intended).
 grep -rIlP '[\x{2460}-\x{2473}\x{7532}\x{4e59}\x{4e19}\x{4e01}]' AGENTS.md SKILL.md README.md bootstrap.sh bootstrap.bat \
   pixi.toml CMakeLists.txt cmake/ contracts/ examples/ bindings/ docs/ \
   book/book.toml book/toc.toml book/web/*.js book/web/*.html book/web/graph.md \
-  .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-plugins/ crates/ \
+  .agents/AGENTS.md .agents/memorys/ .agents/rules/ scripts/ test-bundles/ crates/ \
   && echo "C4 VIOLATION (files above)" || echo "C4 OK"
 ```
 # negative proof observed 2026-10-23: planted circled glyph under docs/, RED shown,

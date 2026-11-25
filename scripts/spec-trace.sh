@@ -7,7 +7,7 @@ set -uo pipefail
 cd "$(dirname "${BASH_SOURCE[0]:-$0}")/.."
 
 PREFIX_RE='KERNEL|EMBED|WIRE|BUS|TRANSPORT'
-SCAN_ROOTS=(crates test-plugins examples)
+SCAN_ROOTS=(crates test-bundles examples)
 
 sdds=$(grep -ohE "^## ($PREFIX_RE)-[0-9]{2}\b" docs/sdd/*.md 2>/dev/null | sed 's/^## //' | sort -u)
 tags=$(grep -rhoE "(//|#) spec: ($PREFIX_RE)-[0-9]{2}\b" "${SCAN_ROOTS[@]}" 2>/dev/null \

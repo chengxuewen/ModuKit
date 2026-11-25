@@ -7,7 +7,7 @@
 # per-file table of
 # one instrumented `cargo llvm-cov --workspace` run: region % =
 # (sum(lines) - sum(missed)) / sum(lines) over crates/<region>/src/*.rs.
-# Boundary-excluded by D84a: modukit-runtime bins and the test-plugins /
+# Boundary-excluded by D84a: modukit-runtime bins and the test-bundles /
 # example fixture crates (they stay in the run for census, not in the metric).
 # modukit-js is bin-like-exempt per D103 (generated face; its proofs run node-side):
 # the row still PRINTS and the table still needs all four rows - visibility,

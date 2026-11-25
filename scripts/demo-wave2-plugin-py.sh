@@ -62,7 +62,7 @@ if [ "$protoc_found" -eq 0 ]; then
 fi
 # The skin + fixtures are tracked repo content now (gitignore carve-out
 # batch-2 T2.4): absence = broken tree, RED by the same law as a failed build.
-for f in bindings/py/bundle_runtime.py test-plugins/py/py_echo.py test-plugins/py/py_liar.py; do
+for f in bindings/py/bundle_runtime.py test-bundles/py/py_echo.py test-bundles/py/py_liar.py; do
   [ -f "$f" ] || { echo "demo-wave2-plugin-py: RED (tracked content missing: $f)"; exit 1; }
 done
 
@@ -102,7 +102,7 @@ rm -rf "$scratch"
 
 # Stage the plugin artifacts (the manifest names staged paths, runner and
 # artifact both absolute and existing - the spawn doorway checks is_file).
-cp test-plugins/py/py_echo.py test-plugins/py/py_liar.py "$stage/"
+cp test-bundles/py/py_echo.py test-bundles/py/py_liar.py "$stage/"
 # Absolutize the runner path (the kernel is_file-checks the manifest runner
 # - executor_proc.rs:225 refuses bare "python3").
 case "$PYBIN" in

@@ -31,8 +31,8 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ├── crates/modukit-js/        # napi bridge crate (D102/D103; node-side proofs)
 ├── contracts/                # .proto ledger + checked-in fdsets (regen-diff gated) + embed.h/plugin.h C
 │                             #   originals, HostEmbedV1 24 verbs (sup service-call door, M3), three-way parity-gated (D93/D94)
-├── examples/ test-plugins/   # demo shelf / fixture crates, language bands on disk
-│                             #   (examples rs/cpp/py/js; test-plugins rs+cpp bands, rs 2026-10-23);
+├── examples/ test-bundles/   # demo shelf / fixture crates, language bands on disk
+│                             #   (examples rs/cpp/py/js; test-bundles rs+cpp bands, rs 2026-10-23);
 │                             #   plugins/ = reserved, NOT created
 ├── bindings/cpp/             # C++ wrapper shelf: generated faces + live probe (Visia-grammar)
 ├── bindings/py/              # generated ctypes floor (D100/D101)

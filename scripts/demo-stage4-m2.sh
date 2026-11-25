@@ -56,7 +56,7 @@ runner="$PWD/build/cargo-target/debug/modukit-run"
   echo "demo-stage4-m2: RED (cmake build failed; last lines:)"; tail -10 "$log"; exit 1
 }
 
-so="build/presets/demo/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so"
+so="build/presets/demo/test-bundles/cpp/cpp-example-plugin/libcpp-example-plugin.so"
 demo="build/presets/demo/examples/cpp/modukit-cpp-host-sup-demo"
 if [ ! -x "$demo" ] && grep -qE "cpp shelf/env incomplete|cpp fixture band skipped|bindings/cpp: no protoc|shelf skipped" "$log"; then
   echo "demo-stage4-m2: SKIP (cpp band auto-skipped: no env protoc / lanes off)"

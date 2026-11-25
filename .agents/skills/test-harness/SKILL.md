@@ -45,7 +45,7 @@ The five clause prefixes are `KERNEL`, `EMBED`, `WIRE`, `BUS`, `TRANSPORT`
 (`docs/sdd/`). A clause is an index entry; the existing gate stays the authority.
 
 Tag convention: `// spec: PREFIX-NN` in Rust/C/C++/JS, `# spec: PREFIX-NN` in
-Python/shell. Scan roots: `crates/*/src`, `crates/*/tests`, `test-plugins/`,
+Python/shell. Scan roots: `crates/*/src`, `crates/*/tests`, `test-bundles/`,
 `examples/`. A clause whose proof is a demo script is named in the ownership table,
 not forced into a tag.
 

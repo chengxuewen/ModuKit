@@ -50,7 +50,7 @@ modukit_add_demo_twins()           # ctest twins for the 13 demo legs (repo-audi
 option(MODUKIT_BUILD_CPP "register the C++ shelf, fixture band and embed demo in the graph" ON)
 if(MODUKIT_BUILD_CPP)
   add_subdirectory(bindings/cpp)      # Stage-4 M1 cpp shelf: generated faces + modukit_cpp + ctest probe (auto-skips without the env protoc)
-  add_subdirectory(test-plugins/cpp)  # Stage-4 M1 cpp fixture band: the .so pair the probe dlopens
+  add_subdirectory(test-bundles/cpp)  # Stage-4 M1 cpp fixture band: the .so pair the probe dlopens
   add_subdirectory(examples/cpp)     # Stage-4 M1 embed demo: HostEmbedV1 face end-to-end (auto-skips without the cpp shelf/lanes)
 endif()
 
@@ -62,7 +62,7 @@ endif()
 option(MODUKIT_BUILD_C "register the C fixture band and the C embed demo in the graph" ON)
 if(MODUKIT_BUILD_C)
   enable_language(C)
-  add_subdirectory(test-plugins/c)   # E2 C fixture band: the .so the C host demo dlopens
+  add_subdirectory(test-bundles/c)   # E2 C fixture band: the .so the C host demo dlopens
   add_subdirectory(examples/c)       # E2 C embed demo: the embed face from plain C (auto-skips without the band)
 endif()
 # add_subdirectory(crates/...) stays off - the lanes ride the helper surface, cargo keeps its workspace authority (D65)

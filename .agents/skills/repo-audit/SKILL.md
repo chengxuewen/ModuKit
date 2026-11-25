@@ -33,7 +33,7 @@ description: Whole-repo 10-domain engineering audit + six-asset governance inven
 | 5 | **docs** | `docs/` (README, env, whitepaper, sdd/, reference/) | gate-docs, spec-trace | cross-reference audit; numbering HOLES detected here, numbering SEMANTICS hand off to doc-audit dimension 3; gate-prose is deferred |
 | 6 | **book** | `book/` + `build/book/` | book-check, gate-docs book SUMMARY | toc<->SUMMARY<->sidebar nesting consistency, vendored offline assets, fold structure, title-length budget |
 | 7 | **cli** | `modukit.sh` / `.bat` | gate-docs 3/3b | USAGE<->pixi task sync, sh/bat parity (advertised set diff), front-door discoverability |
-| 8 | **tests** | examples/, test-plugins, demo-*, ctest registry | cmake-smoke, ctest, demo legs | orphaned tests, registry<->examples consistency, dual-mode (human/ctest) coverage |
+| 8 | **tests** | examples/, test-bundles, demo-*, ctest registry | cmake-smoke, ctest, demo legs | orphaned tests, registry<->examples consistency, dual-mode (human/ctest) coverage |
 | 9 | **structure** | repo tree | manual | AGENTS.md STRUCTURE tree vs `ls` drift, root pollution (unexpected top-level dirs), territory ownership (`build/` `target/` `.tools/`) |
 | 10 | **naming** | files, tasks, branches | gate-rules (partial) | case-collision detection, task-name style consistency, kebab-case adherence, mixed line-ending detection |
 

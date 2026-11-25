@@ -23,7 +23,7 @@ notes: "route a task to the right ModuKit layer"
 | **runtime/executor** | `crates/modukit-runtime`, `crates/modukit-core/src/executor*`, `proc_*` | `.agents/rules/rust` | `debugging-and-error-recovery`, `observability-and-instrumentation` |
 | **transport** | `crates/modukit-transport`, `seam.rs`, `fdpass.rs`, `vendor_shm.rs` | `.agents/rules/rust` | `rust-engineering`, `security-hardening` |
 | **codegen/contracts** | `crates/modukit-codegen`, `contracts/` | `.agents/rules/rust`, `.agents/rules/common` | `constraint-driven-development`, `api-interface-design` |
-| **bindings/bundle door** | `bindings/{cpp,py,js}`, `crates/modukit-js`, `test-plugins/` | `.agents/rules/rust`, `.agents/rules/common` | `api-interface-design`, `security-hardening` |
+| **bindings/bundle door** | `bindings/{cpp,py,js}`, `crates/modukit-js`, `test-bundles/` | `.agents/rules/rust`, `.agents/rules/common` | `api-interface-design`, `security-hardening` |
 | **examples** | `examples/{rs,cpp,py,js}` | `.agents/rules/rust`, `.agents/rules/common` | `rust-engineering`, `test-harness` |
 | **cli-infra** | `scripts/`, `pixi.toml`, `.agents/`, `.github/` | `.agents/rules/common` | `ci-cd-automation`, `ecosystem-scan`, `constraint-driven-development` |
 | **docs** | `docs/`, `AGENTS.md`, `CONSTRAINTS.md`, `SKILL.md` | `.agents/rules/common` | `doc-audit`, `documentation-and-adrs` |

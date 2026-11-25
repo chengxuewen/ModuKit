@@ -65,7 +65,7 @@ fi
 # The skin + fixtures are tracked repo content (no ignore rule exists under
 # bindings/js - nothing generated lands there, unlike bindings/py): absence
 # = broken tree, RED by the same law as a failed build.
-for f in bindings/js/bundle_runtime.mjs test-plugins/js/js_echo.mjs test-plugins/js/js_liar.mjs; do
+for f in bindings/js/bundle_runtime.mjs test-bundles/js/js_echo.mjs test-bundles/js/js_liar.mjs; do
   [ -f "$f" ] || { echo "demo-wave2-plugin-js: RED (tracked content missing: $f)"; exit 1; }
 done
 
@@ -127,7 +127,7 @@ cp target/debug/libmodukit_js.so target/js/modukit_js.node
 
 # Stage the plugin artifacts (the manifest names staged paths, runner and
 # artifact both absolute and existing - the spawn doorway checks is_file).
-cp test-plugins/js/js_echo.mjs test-plugins/js/js_liar.mjs "$stage/"
+cp test-bundles/js/js_echo.mjs test-bundles/js/js_liar.mjs "$stage/"
 # Absolutize the runner path (the kernel is_file-checks the manifest runner
 # - executor_proc.rs:225 refuses bare "node").
 case "$NBIN" in

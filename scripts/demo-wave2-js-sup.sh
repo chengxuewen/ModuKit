@@ -129,8 +129,8 @@ cp "$addon_js" target/js/modukit_js.node
 # demo dlopens it through the SAME kernel); when neither tree carries it the
 # demo has nothing to install - the host_sup_demo.cc skip rule (exit 77).
 so=""
-for c in build/presets/demo/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so \
-         build/presets/default/test-plugins/cpp/cpp-example-plugin/libcpp-example-plugin.so; do
+for c in build/presets/demo/test-bundles/cpp/cpp-example-plugin/libcpp-example-plugin.so \
+         build/presets/default/test-bundles/cpp/cpp-example-plugin/libcpp-example-plugin.so; do
   if [ -f "$c" ]; then so="$c"; break; fi
 done
 if [ -z "$so" ]; then

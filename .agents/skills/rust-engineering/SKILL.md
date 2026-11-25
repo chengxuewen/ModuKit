@@ -1,6 +1,6 @@
 ---
 name: rust-engineering
-description: "Rust engineering workflow for the ModuKit workspace: fmt/clippy/test/deny gates, unsafe and C ABI review, MSRV/edition awareness, and property tests. Use when writing, reviewing, or debugging Rust in crates/, examples/, test-plugins/, or when a Rust change must pass the local quality gates before commit."
+description: "Rust engineering workflow for the ModuKit workspace: fmt/clippy/test/deny gates, unsafe and C ABI review, MSRV/edition awareness, and property tests. Use when writing, reviewing, or debugging Rust in crates/, examples/, test-bundles/, or when a Rust change must pass the local quality gates before commit."
 type: rust
 notes: "workspace gates, unsafe/C ABI review, MSRV 1.88"
 ---
@@ -9,7 +9,7 @@ notes: "workspace gates, unsafe/C ABI review, MSRV 1.88"
 
 ## Overview
 
-- This repo is a **Cargo workspace**: `edition = "2024"`, `rust-version = "1.88.0"`, members `crates/modukit-*` + `examples` + `test-plugins/rs/*`; the C ABI lives in `modukit-core` and `contracts/`.
+- This repo is a **Cargo workspace**: `edition = "2024"`, `rust-version = "1.88.0"`, members `crates/modukit-*` + `examples` + `test-bundles/rs/*`; the C ABI lives in `modukit-core` and `contracts/`.
 - The toolchain is provided by **pixi** only (mise/rust-toolchain retired in B4). Quality gates are pixi tasks, not ad-hoc commands.
 - This skill is the **execution workflow**. The *knowledge* (style, patterns, security, testing, hooks) lives in `.agents/rules/rust/*.md` — read the relevant file(s) instead of duplicating them here.
 - Before asserting any version/edition, **read the file** (`Cargo.toml`); never guess.
