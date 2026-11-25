@@ -11,7 +11,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 ```text
 ├── README.md / SKILL.md      # front door / skills registry
 ├── docs/whitepaper.md        # v1.0 canon - crate names §2.3, roadmap §8 (superseded by §9/§10/§12)
-├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D110, §12 roadmap (amended at D95 2026-10-21))
+├── docs/architecture.md      # adjudicated baseline (§9 deltas, §11 decision index D1-D111, §12 roadmap (amended at D95 2026-10-21))
 ├── docs/modules/             # 00-11 deep dives (placement, service model, lifecycle, codegen,
 │                             #   manifest, bus, transport, walkthrough, record, observability, media base)
 ├── docs/stage-{1,2,3,4}-plan.md # PLANS OF RECORD: S1-S3 closed, S4 = INFRA volume (D93/D95: M1-M3 landed, ACCEPTED)
@@ -53,7 +53,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 | Task | Location | Notes |
 |---|---|---|
 | What ModuKit is / naming authority | `docs/whitepaper.md` | §2.3 canonical; §8 roadmap superseded by architecture §12 |
-| Current architecture + deltas | `docs/architecture.md` + `docs/modules/` | §11 = decision index D1-D110; §9 = whitepaper deltas; §12 = roadmap |
+| Current architecture + deltas | `docs/architecture.md` + `docs/modules/` | §11 = decision index D1-D111; §9 = whitepaper deltas; §12 = roadmap |
 | What stage are we in, what's next | `.agents/memorys/status.md` | loaded every turn; plans of record in docs/stage-*.md |
 | Which embed/plugin verbs exist (capability map) | `docs/capability-ledger.md` + `contracts/modukit_embed.h` | 24 verbs = EMBED_VERBS; parity + ledger legs in check.sh (D93/D94) |
 | Which skills exist / when they fire | `SKILL.md` | registry incl. inoperative flags |
