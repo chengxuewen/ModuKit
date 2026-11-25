@@ -1,7 +1,7 @@
 # Bundle-unification plan - the one-word terminology refactor (repo-wide)
 
-> STATUS: PLAN OF RECORD, 2026-11-25 (revision 2 - adjudications A1-A6 ALL
-> RESOLVED, execution-ready, W1 first). Origin:
+> STATUS: PLAN OF RECORD, 2026-11-25 (revision 3 - adjudications closed,
+> execution schedule S0-S5 queued; S1 first). Origin:
 > the maintainer ruled (2026-11-25, two expert panels, sunk costs explicitly
 > excluded): the managed unit is named **bundle** - ONE word, everywhere the
 > user looks. The prior vocabulary split (plugin = code unit, bundle = D28
@@ -72,21 +72,22 @@ terms, band names (C/C++/py/js "bands"), placement kinds (dl/exe).
 | A5 | Identity copy: README tagline | **RESOLVED A** (2026-11-25): the model-signaling tagline - an OSGi-style bundle and service framework (bundle + service co-present in the first sentence; the next line's Rust kernel / C ABI / C/C++/Python/JS counters the Java smell) |
 | A6 | Reintroduction guard | **RESOLVED A** (2026-11-25): a plugin-word scan with an explicit allowlist (decisions.md, history-archive, plan-of-record bodies, docs/reference/ external profiles) folded into gate-i18n - zero new legs; written in W1, ACTIVATED in W6 (the migration waves legitimately carry the word) |
 
-## 4. Waves (ordered; each wave lands green with atomic commits)
+## 4. Slices (ordered; each lands green with atomic commits - rev3: W1+W3 merged, S0 added)
 
-| Wave | Delivers | Key gates |
+| Slice | Delivers | Key gates |
 |---|---|---|
-| W0 | This plan + the ruling entry (decisions D111) + vocabulary table in AGENTS.md; the terminology target becomes canon | i18n, doc-refs |
-| W1 | Contracts rename: contracts/modukit_plugin.h -> modukit_bundle.h (types + entry symbol + MODUKIT_ENTRY_SYMBOL macro, per A1); embed.h's modukit_plugin_state -> modukit_bundle_state; codegen regen (the generated faces follow the header - single source, D63); D51/wire name audit (expect zero plugin tokens; any hit is a finding) | regen-fdset, embed-parity, golden |
-| W2 | Rust internals: PluginId/PluginState/PluginRecord/PluginAbiV1/PluginView and friends -> Bundle* (1067 hits, mechanical); kernel dm_report field, ops output column | cargo fmt/clippy/test, workspace |
-| W3 | Fixtures + examples: 13 modukit_bundle_init exports + include updates + local type names (449 hits); PASS lines unchanged | m1/m2/stage legs, wave2 legs |
-| W4 | Structural: test-plugins/ -> test-bundles/ (dir), crate names (example-bundle...), cmake targets + FOLDERs, leg names demo-wave2-bundle-*, script paths + router table + ctest names + census/lane accounting; PolyOrch submodule word-audit (edits ride its branch, C2); build outputs -> bundles/<name>/ (A4) | lane-table, census, check.sh full |
-| W5 | Docs volume: 77 files - module 01-bundle-placement-model.md (file rename + toc + links), tutorials, README (tagline per A5), AGENTS, llms.txt, capability-ledger (plugin-face sections -> bundle face), features, gap matrix | doc-refs, book-build, gate-docs |
-| W6 | Reintroduction scan (A6) + full-leg rehearsal + closure note; the word `plugin` survives ONLY in the allowlist (decisions history, plan bodies, .refinfo) | check.sh all green; the scan |
+| S0 | status.md offload (7568/8000 - memory budget before the volume) | i18n, numbering |
+| S1 | THE ATOMIC ABI BREAK (A1 clean-break makes contracts+fixtures ONE slice - a split would leave a red compile window): contracts/modukit_plugin.h -> modukit_bundle.h (types, entry symbol, MODUKIT_ENTRY_SYMBOL); embed.h's plugin-named types; abi.rs layout mirror; codegen regen (all generated faces follow the header, D63); ALL 13 fixtures' entry symbols + includes + the examples' generated-type references; the A6 scan written but INACTIVE; D51/wire token audit (expect zero; any hit is a finding) | regen-fdset, embed-parity, golden, m1/m2/stage/wave2 legs, full check.sh |
+| S2 | Rust internals: PluginId/PluginState/PluginRecord/PluginView and friends -> Bundle* (the remaining ~1067 hits, mechanical); kernel dm_report field, ops output column | cargo fmt/clippy/test, workspace |
+| S3 | Structural: test-plugins/ -> test-bundles/ (dir), crate names (example-bundle...), cmake targets + FOLDERs, leg names demo-wave2-bundle-*, script paths + router table + ctest names + census/lane accounting; PolyOrch submodule word-audit (edits ride its branch, C2); build outputs -> bundles/<name>/ (A4) | lane-table, census, full gallery re-run, check.sh |
+| S4 | Docs volume: 77 files - module 01-bundle-placement-model.md (file rename + toc + links), tutorials, README (the A5 tagline), AGENTS, llms.txt, capability-ledger (plugin-face sections -> bundle face), features, gap matrix; the A3 bridge notes land (decisions top, each plan-of-record header, history-archive) | doc-refs, book-build, gate-docs |
+| S5 | Closure: ACTIVATE the A6 guard in gate-i18n; full-leg rehearsal (E7-style, warm-cache labeled); the word `plugin` survives ONLY in the allowlist | check.sh all green; the scan zero outside allowlist |
 
-Ordering rationale: W1 precedes W3 because fixtures compile against the new
-header; W4 is last-but-one because structural renames re-touch scripts that
-W3 verified; W5 lands after code so docs quote final names.
+Ordering rationale: A1's clean break makes the ABI rename ATOMIC - contracts,
+codegen, and the 13 fixtures' entry symbols land as ONE green slice (S1); S2
+is pure Rust internals (no fixture coupling); S3 re-touches scripts after the
+code vocabulary settled; S4 lands docs last so prose quotes final names; S5
+closes with the guard activation. Every slice boundary is interruptible.
 
 ## 5. Verification ledger
 
@@ -112,6 +113,10 @@ two-tier context-narrowing feature (separately trigger-gated); donor clones
 
 ## 8. Change log
 
+- 2026-11-25 revision 3: execution schedule concretized as slices S0-S5; the
+  rev2 wave table's atomicity flaw fixed (W1+W3 merged into S1 - A1's clean
+  break forbids a contracts-without-fixtures red window); S0 offload added
+  (status.md at 7568/8000); the A6 guard is written in S1 and activated in S5.
 - 2026-11-25 revision 2: A1-A6 walked one by one, ALL RESOLVED A (A3 amended
   with terminology bridge notes on every historical entry point). Clean-break
   ABI rename; full structural renames; append-only history + bridges;
