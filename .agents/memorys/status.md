@@ -49,7 +49,7 @@ Design baseline whitepaper v1.0 (2026-10-09). Architecture adjudicated through 2
 
 ## Open Items
 
-- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger D1-D112 in `.agents/memorys/decisions.md`)
+- [ ] Architecture docs awaiting maintainer review (`docs/architecture.md` + `docs/modules/00-11`; ledger max D lives in `decisions.md` and is gate-checked by `check-numbering`, never frozen here)
 - [ ] Agent-system track: see `.agents/memorys/backlog.md`; CodeBuddy restart visibility pending after skill/rule-count regeneration
 - [ ] K7 follow-through (OWNER: MAINTAINER): send the v1-STABLE note (draft: `docs/reference/k7-v1-stable-note-draft.md`); proposal stays ARMED (D89-K7)
 - [ ] Media-server base doctrine landed (D68-D73); MediaServo integration = declared intent only; wiring-hearing proposal ARMED, not opened
