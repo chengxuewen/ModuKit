@@ -12,13 +12,13 @@
 > functions, use cases, and patterns across the multi-language bands
 > (C / C++ / Python / JS). Adjudication points A1-A6 walked one by one and
 > ALL RESOLVED (2026-11-24; A1 = B-expanded by maintainer requirement: the
-> full 3x2 host+plugin matrix ships in v1); execution-ready, W0 first.
+> full 3x2 host+bundle matrix ships in v1); execution-ready, W0 first.
 
 ## 0. Discussion anchors
 
 ### 0.1 Panel-verified diagnosis (not "we have no examples")
 
-- The real gap is TWO-LAYER: (a) a content gap - no plugin-AUTHOR-view zero-to
+- The real gap is TWO-LAYER: (a) a content gap - no bundle-AUTHOR-view zero-to
   running path (today's examples/ are host-side gate walkers); (b) a
   discoverability gap - README has no quickstart heading and never links the
   book; docs/env.md "three steps" is environment-facing, not pedagogical.
@@ -34,21 +34,21 @@
   while `pixi.toml` platforms are linux-64/win-64; no `pixi demo-*` one-command
   task exists.
 - The "same story across bands" acceptance criterion was REWRITTEN by the
-  panel: Python plugins ride the exe wall + TL wire, a different world from
+  panel: Python bundles ride the exe wall + TL wire, a different world from
   dl + C ABI. The honest framing is "one business domain, two mechanism
-  narratives" - never fake a Python plugin by driving the cpp .so from a py
+  narratives" - never fake a Python bundle by driving the cpp .so from a py
   host.
-- Four hidden contracts for script plugins must be taught explicitly: the
-  manifest `runner` must be an ABSOLUTE existing path; a plugin subprocess
+- Four hidden contracts for script bundles must be taught explicitly: the
+  manifest `runner` must be an ABSOLUTE existing path; a bundle subprocess
   must NEVER print (fd 0 is the control channel); `MODUKIT_PY_SKIN` must point
-  at bindings/py for out-of-tree plugins; generated skins are DO-NOT-EDIT
+  at bindings/py for out-of-tree bundles; generated skins are DO-NOT-EDIT
   (D63).
 
 ### 0.2 Community survey (local-clone-verified)
 
 | Project | Shape | What we borrow / reject |
 |---|---|---|
-| CppMicroServices | Progressive tutorial: dictionaryservice -> consumers v1/v2/v3 -> spellcheck -> eventlistener; Example1-7 chapters + getting_started.rst; code lives beside chapters | Borrow the PROGRESSION spine (naive consumer -> tracker -> filter maps onto our S1/S2); reject the dictionary domain (we are a plugin HOST; echo/sensor family is ours) |
+| CppMicroServices | Progressive tutorial: dictionaryservice -> consumers v1/v2/v3 -> spellcheck -> eventlistener; Example1-7 chapters + getting_started.rst; code lives beside chapters | Borrow the PROGRESSION spine (naive consumer -> tracker -> filter maps onto our S1/S2); reject the dictionary domain (we are a bundle HOST; echo/sensor family is ours) |
 | celix | documents/ topic pages (framework/components/services/patterns/properties_and_filter) + a separate bundled examples tree | Topic pages ~ our modules 00-11 already; separate examples tree would drift - reject |
 | CTK | Documentation/ dir, doxygen | Nothing new for us |
 | dora | examples/ with SCENARIO-named dirs (python-dataflow, c-dataflow, rust-dynamic-add-remove, multiple-daemons...) each with a README | Borrow scenario-naming for future example volumes; but our v1 rides existing legs rather than minting parallel scenarios |
@@ -60,10 +60,10 @@ docs-only example that nothing compiles.
 
 ## 1. Goals (three user journeys)
 
-1. **First 15 minutes**: fresh clone -> one command -> watch a full plugin
+1. **First 15 minutes**: fresh clone -> one command -> watch a full bundle
    lifecycle (install, resolve, start, service call, late-join, uninstall) -
    with copy-paste that works on Linux/WSL and honest platform notes.
-2. **First plugin per band**: an author writes and runs their own plugin in
+2. **First bundle per band**: an author writes and runs their own bundle in
    C++ (dl), Python (script/exe), JS (script/exe), or embeds the host from C
    / C++ / Python / JS - knowing the four hidden contracts up front.
 3. **Full capability map**: one page answers "what can this thing do and
@@ -88,7 +88,7 @@ browser translation).
 
 | # | Question | Recommendation |
 |---|---|---|
-| A1 | C band: mint the first C plugin fixture (`test-plugins/c/`, rides cmake + census = a real CI-face change) vs embed-C-only chapter (zero new surface) | **RESOLVED B-expanded** (2026-11-24, maintainer requirement): the FULL 3x2 matrix ships in v1 - host/embed AND plugin faces in C, C++, AND Python. New cells: `examples/c/host_demo.c` (embed verbs; links the STATIC `modukit-core-static` handle exactly as examples/cpp does - no .so handle exists in the lane table) + `test-plugins/c/` fixture (mirrors the cpp band's guard STYLE; rev4 panel: mirroring the cpp band literally means ZERO new ctest/census entries - proof rides the host demo the way m1 proves the cpp fixture; the lane table is rust-only, untouched). Prerequisite verified: `x86_64-conda-linux-gnu-cc` compiles and runs in the pixi env. W6 dissolves into W1 |
+| A1 | C band: mint the first C bundle fixture (`test-bundles/c/`, rides cmake + census = a real CI-face change) vs embed-C-only chapter (zero new surface) | **RESOLVED B-expanded** (2026-11-24, maintainer requirement): the FULL 3x2 matrix ships in v1 - host/embed AND bundle faces in C, C++, AND Python. New cells: `examples/c/host_demo.c` (embed verbs; links the STATIC `modukit-core-static` handle exactly as examples/cpp does - no .so handle exists in the lane table) + `test-bundles/c/` fixture (mirrors the cpp band's guard STYLE; rev4 panel: mirroring the cpp band literally means ZERO new ctest/census entries - proof rides the host demo the way m1 proves the cpp fixture; the lane table is rust-only, untouched). Prerequisite verified: `x86_64-conda-linux-gnu-cc` compiles and runs in the pixi env. W6 dissolves into W1 |
 | A2 | Extend `check-doc-refs` FILES with `docs/tutorials/*.md` (breaks the "on-demand docs not scanned" design on purpose) | **RESOLVED A** (2026-11-24, rev4-widened): extend FILES with BOTH `docs/tutorials/*.md` AND `docs/features.md` (the gallery is link-dense too); restate the header comment to the new boundary; add a tutorials-round to the self-test (three reds, clean green) |
 | A3 | `pixi demo-*` tasks: one per band (`demo-cpp`, `demo-py`, ...) or one router (`demo = bash scripts/demo-...`)? | **RESOLVED A** (2026-11-24): one router task `demo <leg>`, default stage1, unknown-leg error lists the gallery; one USAGE line, one parity surface |
 | A4 | Feature gallery home: `docs/tutorials/README.md` section vs own `docs/features.md` | **RESOLVED A** (2026-11-24): own `docs/features.md` page with its own book slot; README links tutorials and features as two separate doors (learners vs assessors) |
@@ -117,13 +117,13 @@ leg; every code block is verbatim from a CI-compiled fixture.
 
 | Chapter | Teaches (leg) | Canon links |
 |---|---|---|
-| README (index) | 3-reader routing: newcomer / plugin author / embedder + band-choice table | modules/00 reading order, env.md |
+| README (index) | 3-reader routing: newcomer / bundle author / embedder + band-choice table | modules/00 reading order, env.md |
 | 01-first-run | env three steps -> `demo-stage1` (full lifecycle in 60s) | modules/03 |
-| 02-first-plugin | manifest + install gates + sabotage lever (red then green) -> `demo-stage4-m1`; fixtures: cpp-example-bundle AND the new `test-plugins/c/` band (A1: C authors get a runnable path in v1) | modules/05, 02, 08 §9 |
+| 02-first-bundle | manifest + install gates + sabotage lever (red then green) -> `demo-stage4-m1`; fixtures: cpp-example-bundle AND the new `test-bundles/c/` band (A1: C authors get a runnable path in v1) | modules/05, 02, 08 §9 |
 | 03-the-bus | topics, late-join, clock bell -> `demo-stage5-n2` (hosts the busv2 fixture cross-wall; rev4 fix: 'busv2' is a fixture name, not a leg), late-join via `demo-stage1`, clock bell via `demo-wave2-clock` | modules/06 |
 | 04-the-exe-wall | supervisor, crash/revive, ORPHAN-PROOF -> `demo-stage2`, `demo-stage4-m2` | modules/01 |
 | 05-embed-from-your-language | ONE file, band subsections: C++ (m1) / Python (wave2-py) / JS (wave2-js) / C (the NEW `examples/c/host_demo.c` links libmodukit_core.so - A1) | capability-ledger, contracts headers, module 07 |
-| 06-script-plugins | py/js plugin door + the FOUR hidden contracts + liar fixtures -> `demo-wave2-plugin-{py,js}` | modules/04, D106/D107 |
+| 06-script-bundles | py/js bundle door + the FOUR hidden contracts + liar fixtures -> `demo-wave2-bundle-{py,js}` | modules/04, D106/D107 |
 
 Domain thread: the echo/sensor family already in fixtures. Progression
 motive (poll -> subscribe -> configure) appears as sentences, not chapters.
@@ -144,7 +144,7 @@ motive (poll -> subscribe -> configure) appears as sentences, not chapters.
 - `docs/tutorials/fixtures/manifest-sample.toml`: one commented sample
   manifest (all v0 fields incl. requires/on_down/config_live) marked as
   documentation copy of the grammar in modules/05.
-- The four script-plugin contracts get a canonical table in 06 (chapter) AND
+- The four script-bundle contracts get a canonical table in 06 (chapter) AND
   a one-line pointer from bindings/py/plugin_runtime.py and
   bindings/js/plugin_runtime.mjs headers.
 
@@ -166,7 +166,7 @@ steps in every chapter (report-only today, honest).
 
 ### W6 - dissolved into W1 by the A1 ruling (rev2)
 
-The C-plugin hearing is closed: A1 (B-expanded) ships the C band in v1 via
+The C-bundle hearing is closed: A1 (B-expanded) ships the C band in v1 via
 the E2 slice. Kept as a tombstone so the history reads straight; no separate
 volume remains.
 
@@ -190,9 +190,9 @@ flowchart TD
   A[newcomer: fresh clone] -->|README Quickstart| B[bash bootstrap.sh]
   B --> C[pixi run demo stage1]
   C -->|60s lifecycle aha| D{choose your path}
-  D -->|author| E[tutorials 02-04: plugin, bus, exe wall]
+  D -->|author| E[tutorials 02-04: bundle, bus, exe wall]
   D -->|embedder| F[tutorial 05: embed from C/C++/py/js]
-  D -->|script author| G[tutorial 06: py/js plugin door]
+  D -->|script author| G[tutorial 06: py/js bundle door]
   E & F & G --> H[docs/features.md capability map]
   H --> I[modules 00-11 canon + capability ledger]
 ```
@@ -228,7 +228,7 @@ book gates pick it up) and the llms.txt regen (existing generator). Full
 
 - Config hot-lane chapter deferred until it has a demo leg (S3-2 shipped
   code-first; the leg is the missing proof).
-- C band ships in v1 (A1 B-expanded): test-plugins/c + examples/c host demo,
+- C band ships in v1 (A1 B-expanded): test-bundles/c + examples/c host demo,
   Route A accounting (zero new legs; static link; subdirectory-level C
   language enablement so the root stays CXX-only and OFF-switches never
   probe a C compiler).
@@ -245,9 +245,9 @@ atomic commits, so the work is interruptible and resumable at any boundary.
 | Slice | Delivers | Key verification | Commits |
 |---|---|---|---|
 | **E1** W0 quick fixes | README count fixes at ALL SIX stale spots (:94/:106/:108/:109/:110/:111, rev4 panel count) + four code-comment pockets (examples/js/host_demo.js:12, examples/py/host_demo.py:11, examples/js/pin_test.js:24,45); wave2 SKIP copy points at build/ + m1; honest platform note; `pixi run demo <leg>` router as ONE atomic commit (pixi task + modukit.sh USAGE + modukit.bat USAGE + router body + README line together - gate 3b diffs the sh/bat ad SETS) | doc-refs + gate-docs 3/3b + full check.sh | 4 (counts / SKIP copy / platform note / router) |
-| **E2** C band foundations (A1, Route A per rev4 panel) | FIRST a one-line alias proof: `pixi run sh -c 'command -v x86_64-conda-linux-gnu-cc'`. Then: `test-plugins/c/` fixture (subdirectory-level `enable_language(C)` behind a `MODUKIT_BUILD_C` option, default ON - root stays CXX-only; guard style mirrors cpp but keys on its own conditions, NOT the modukit_cpp target); `examples/c/host_demo.c` (embed face; links `modukit-core-static` exactly like examples/cpp - no .so lane handle exists; drives install/resolve/start/service_call/find_services/stop modeled on host_demo.cc); ZERO new demo legs / twins / census entries; RECURRING PROOF (rev5): the host-demo build+walk rides the EXISTING m1 leg as a content extension (m1 already warms the mediator and builds a host target - it gains the C fixture + C host demo), so one-time acceptance becomes nightly regression with the leg count still 13; capability-ledger cells for the C band update in the SAME commit | the C fixture builds and the host demo completes its walk driving it INSIDE the m1 leg; full check.sh green, leg count UNCHANGED at 13 | 2 (fixture band + wiring + m1 extension; host demo + ledger cells) |
+| **E2** C band foundations (A1, Route A per rev4 panel) | FIRST a one-line alias proof: `pixi run sh -c 'command -v x86_64-conda-linux-gnu-cc'`. Then: `test-bundles/c/` fixture (subdirectory-level `enable_language(C)` behind a `MODUKIT_BUILD_C` option, default ON - root stays CXX-only; guard style mirrors cpp but keys on its own conditions, NOT the modukit_cpp target); `examples/c/host_demo.c` (embed face; links `modukit-core-static` exactly like examples/cpp - no .so lane handle exists; drives install/resolve/start/service_call/find_services/stop modeled on host_demo.cc); ZERO new demo legs / twins / census entries; RECURRING PROOF (rev5): the host-demo build+walk rides the EXISTING m1 leg as a content extension (m1 already warms the mediator and builds a host target - it gains the C fixture + C host demo), so one-time acceptance becomes nightly regression with the leg count still 13; capability-ledger cells for the C band update in the SAME commit | the C fixture builds and the host demo completes its walk driving it INSIDE the m1 leg; full check.sh green, leg count UNCHANGED at 13 | 2 (fixture band + wiring + m1 extension; host demo + ledger cells) |
 | **E3** tutorials core + gate extension (A2) | `docs/tutorials/` index + chapters 01-04; doc-refs FILES glob (with a nullglob/dir guard so an empty tree degrades visibly, no awk noise) + header restatement + self-test tutorials round - the glob edit and >=1 tutorial .md land in the SAME commit (else the self-test reds or the domain silently skips); `book/toc.toml` Tutorials group (type=how-to; renders as the FIRST group - accepted position, rev4) | doc-refs three-reds-one-green self-test incl. the tutorials round; book-build renders the group, no Appendix WARN; inline `bash scripts/...` mentions resolve | 2-3 |
-| **E4** tutorials language bands | chapter 05 embed-from-your-language (C++ m1 / py wave2 / js wave2 / **C = the E2 host demo**); chapter 06 script plugins + the four-contract table + binding-header pointer lines; `docs/tutorials/fixtures/manifest-sample.toml` (commented copy of a real fixture manifest, A5 provenance note) | chapters' code blocks each carry file:line provenance (A5); doc-refs green on the new links | 2 |
+| **E4** tutorials language bands | chapter 05 embed-from-your-language (C++ m1 / py wave2 / js wave2 / **C = the E2 host demo**); chapter 06 script bundles + the four-contract table + binding-header pointer lines; `docs/tutorials/fixtures/manifest-sample.toml` (commented copy of a real fixture manifest, A5 provenance note) | chapters' code blocks each carry file:line provenance (A5); doc-refs green on the new links | 2 |
 | **E5** discoverability triple | README Quickstart section (bootstrap -> `pixi run demo` -> tutorials -> features -> book; platform note); `gen-llms-txt.sh` lines + regen; `docs/modules/00-overview.md` reading-order note; `examples/README.md` router (bands -> legs -> tutorials, no teaching prose) | README links live (already in doc-refs scope); llms.txt regenerated and committed | 1-2 |
 | **E6** features gallery (W4/W5) | `docs/features.md`: one row per shipped capability (verb families, filter/tracker/events/ranges, DM-lite, ConfigAdmin, bus v1/v2, clock v3, parent push, supervisor, observability trio, ops face) x three columns (run-it leg / canon / band face); counts link `docs/capability-ledger.md`; the ConfigAdmin row explicitly marked 'no demo leg yet (S3-2)'; features.md rides the A2 FILES extension (path liveness); the Features toc slot lands in the SAME commit | no bare counts (grep); book renders the slot; doc-refs green incl. features.md | 1 |
 | **E7** rehearsal + closure | golden-path rehearsal of the README Quickstart AND every chapter's fenced commands verbatim (this IS the command-liveness check, H1); isolated HOME + fresh clone where feasible, else labeled warm-cache honestly; record network touchpoints (the submodule fetch is by-design online); fix what it bites; full gate; plan closure note | the rehearsal log IS the acceptance evidence; check.sh all green, leg count unchanged (E2 added none) | 1 |
@@ -267,7 +267,7 @@ extension rides E3 so every later chapter is link-protected from day one.
   bootstrap idempotent, bare demo = stage1, router list and unknown leg
   (13 legs, exit 2), stage4-m1 green (cpp+c), both sabotage levers RED as
   documented, stage5-n2 / wave2-clock / stage2 / stage4-m2 / wave2-py /
-  wave2-js / wave2-plugin-py / wave2-plugin-js all exit 0. Honest label:
+  wave2-js / wave2-bundle-py / wave2-bundle-js all exit 0. Honest label:
   warm-cache Linux rehearsal; a true fresh machine touches the network
   exactly at bootstrap (submodule + pixi install). Zero rehearsal bites.
   The volume is DONE; the trigger-gated remainders in section 9 stand.
@@ -293,8 +293,8 @@ extension rides E3 so every later chapter is link-protected from day one.
   the rev2 rulings.
 - 2026-11-24 revision 2: A1-A6 walked one by one, all resolved. A1 =
   B-expanded (maintainer requirement): the full 3x2 matrix - host/embed AND
-  plugin faces in C, C++ AND Python - ships in v1 (`examples/c/host_demo.c` +
-  `test-plugins/c/` fixture; cc verified in the pixi env; W6 dissolved into
+  bundle faces in C, C++ AND Python - ships in v1 (`examples/c/host_demo.c` +
+  `test-bundles/c/` fixture; cc verified in the pixi env; W6 dissolved into
   W1). A2 doc-refs extension; A3 one `demo <leg>` router task; A4 own
   features page; A5 verbatim-from-fixture code blocks; A6 no new gate.
   Execution-ready, W0 first.

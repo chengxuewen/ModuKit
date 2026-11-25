@@ -11,7 +11,7 @@ Topics are named channels (`com.yourco.hmi.Speed`-style reverse-DNS ids).
 Every topic keeps its semantics from the QoS the subscriber chooses;
 `QoS::LatestValue` (the default) keeps only the current value, so a
 late-joiner immediately receives it. Publishing is a host-level act;
-plugins publish through their host table (chapter 06) or the embed face.
+bundles publish through their host table (chapter 06) or the embed face.
 The canon is [../modules/06-topics-and-bus.md](../modules/06-topics-and-bus.md).
 
 ## See it in-process
@@ -32,11 +32,11 @@ bash scripts/demo-stage5-n2.sh
 ```
 
 The Stage-5 N2 leg hosts the `busv2` fixture
-(`test-plugins/rs/busv2-bundle`) on the OTHER side of the process wall:
-the plugin declares ABI v2 (D96), the kernel hands the `HostAbiV2` table
-(the v1 prefix plus four mailbox slots), and the plugin publishes through
+(`test-bundles/rs/busv2-bundle`) on the OTHER side of the process wall:
+the bundle declares ABI v2 (D96), the kernel hands the `HostAbiV2` table
+(the v1 prefix plus four mailbox slots), and the bundle publishes through
 the mailbox. The self-echo discipline is quoted from
-`test-plugins/rs/busv2-bundle/src/lib.rs:73-88`:
+`test-bundles/rs/busv2-bundle/src/lib.rs:73-88`:
 
 ```rust
 fn mailbox_walk(h: &HostAbiV2) -> Result<(), i32> {
@@ -57,8 +57,8 @@ fn mailbox_walk(h: &HostAbiV2) -> Result<(), i32> {
     }
 ```
 
-A v2 plugin that publishes at start is the chapter 02 shape plus four
-slots - the C++ twin (`test-plugins/cpp/cpp-busv2-bundle`) shows the same
+A v2 bundle that publishes at start is the chapter 02 shape plus four
+slots - the C++ twin (`test-bundles/cpp/cpp-busv2-bundle`) shows the same
 door in 70 lines, and the cpp host demo's scene [11] reads its seed back
 via late-join.
 
@@ -68,11 +68,11 @@ via late-join.
 bash scripts/demo-wave2-clock.sh
 ```
 
-A v3 plugin schedules one absolute-deadline job (`timer_schedule`, D99);
+A v3 bundle schedules one absolute-deadline job (`timer_schedule`, D99);
 the kernel fires it on the clock's own authority law and rings the per-
-plugin topic `org.modukit.timer.<plugin-id>` (payload: token u64 LE ++
+bundle topic `org.modukit.timer.<bundle-id>` (payload: token u64 LE ++
 label UTF-8, `Lossy(16)`). The schedule call is quoted from
-`test-plugins/rs/timerv3-bundle/src/lib.rs:100-106`:
+`test-bundles/rs/timerv3-bundle/src/lib.rs:100-106`:
 
 ```rust
     // 3. Schedule the one job the census and the bell ride on. The token is
@@ -84,14 +84,14 @@ label UTF-8, `Lossy(16)`). The schedule call is quoted from
     }
 ```
 
-There is no cancel verb - the kernel releases a stopped plugin's tokens
+There is no cancel verb - the kernel releases a stopped bundle's tokens
 itself (D99 §3), and the door must never half-schedule on bad input
 (the fixture's refusal cells prove it). The fixture is
-`test-plugins/rs/timerv3-bundle`.
+`test-bundles/rs/timerv3-bundle`.
 
 ## Configuration rides the same rails
 
-A plugin that declares `config_live = ["key", ...]` receives value
+A bundle that declares `config_live = ["key", ...]` receives value
 changes as ordinary topics - same publish/subscribe grammar, no second
 mechanism (D29; the face landed in S3-2,
 [../modules/05-manifest-and-deployment.md](../modules/05-manifest-and-deployment.md)
@@ -100,5 +100,5 @@ the honest path until a leg ships.
 
 ## Next
 
-Chapter 04: the exe wall - why some plugins run as processes, what the
+Chapter 04: the exe wall - why some bundles run as processes, what the
 supervisor does when they die, and why the census counts orphans.

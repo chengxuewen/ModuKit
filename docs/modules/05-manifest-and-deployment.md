@@ -10,13 +10,13 @@ binary lying is policed: §6.
 | Field | Meaning | Notes |
 |---|---|---|
 | `id` | stable plugin identity | reverse-DNS style per CLAP precedent (`clap-plugin-abi.md:58`); survives renames |
-| `version` | plugin semver | independent of ABI version (04 §3) |
-| `entry.kind` | `dl` / `exe` / `wasm` | the placement floor declared by the plugin |
+| `version` | bundle semver | independent of ABI version (04 §3) |
+| `entry.kind` | `dl` / `exe` / `wasm` | the placement floor declared by the bundle |
 | `entry.artifact` | path to the `.so` (or runner payload) | `dl`/`exe` share the artifact (01 §2) |
-| `entry.runner` | optional: interpreter for script plugins | the language axis (01 §1) — e.g. `node`, `quickjs`, `lua` |
+| `entry.runner` | optional: interpreter for script bundles | the language axis (01 §1) — e.g. `node`, `quickjs`, `lua` |
 
 Deployment may override `entry.kind` upward (`dl -> exe -> wasm`) — never downward without a
-trust review. Overriding is config; the plugin never rebuilds to change placement (D2).
+trust review. Overriding is config; the bundle never rebuilds to change placement (D2).
 
 ## 2. Placement and supervision fields
 
@@ -24,11 +24,11 @@ trust review. Overriding is config; the plugin never rebuilds to change placemen
 placement:  floor = dl              # host may raise (01 §5, 07 in architecture)
 start_level: 30                      # boot tiers (03 §3)
 start_timeout: 5s
-host_id: cockpit                     # host instance name (D36, deploy-level, not per-plugin);
+host_id: cockpit                     # host instance name (D36, deploy-level, not per-bundle);
                                      #   default = machine hostname; collision on the carrier
                                      #   (cloned machines) = startup warning + forced explicit
                                      #   distinct ids
-stop_timeout: 2s                     # shutdown budget per plugin (D34): on expiry,
+stop_timeout: 2s                     # shutdown budget per bundle (D34): on expiry,
                                      #   exe = SIGKILL the process, wasm = cancel execution
                                      #   (engine epoch), dl = mark FAILED and move on
                                      #   (in-process code cannot be killed; host never blocks
@@ -44,7 +44,7 @@ semantics); anything finer waits for the multi-vendor trigger.
 rejected at staging - identity is unique per host, not per version. Version supersession is
 an UPDATE (D8), never a parallel install.
 
-`restart` is honored by the supervisor; under `dl` the host is already dead when the plugin
+`restart` is honored by the supervisor; under `dl` the host is already dead when the bundle
 "crashes" (01 §4), so these fields are inert for `dl` — recorded in the state machine docs,
 not hidden.
 
@@ -58,12 +58,12 @@ integrity claim).
 
 ## 2.2 Capability additions: net-listen, net-connect, workdir (D54)
 
-Three verbs named for exe plugins (any language, Node/Web included - no special
+Three verbs named for exe bundles (any language, Node/Web included - no special
 privilege): `org.modukit.net-listen` (bind port; address/port in deploy `[net] listen`,
 default loopback, format cross-checked), `org.modukit.net-connect` (outbound third-party
 calls; optional target allowlist in deploy), `org.modukit.workdir` (one writable
-`<data-root>/<plugin-id>/` per plugin, boundary not configurable, uninstall removes it,
-data corruption is the plugin's business). All ride D26 machinery: manifest declaration,
+`<data-root>/<bundle-id>/` per bundle, boundary not configurable, uninstall removes it,
+data corruption is the bundle's business). All ride D26 machinery: manifest declaration,
 install-time freeze, ring audit, minimum grant. Vocabulary now 13 words.
 D56 extends the net-listen value grammar with port ranges and multicast
 group joins (DDS discovery declares a range, not a single port - still one
@@ -87,7 +87,7 @@ export = []                          # bridged planes see NOTHING unless listed 
 ```
 
 - `requires` is validated at `RESOLVING` (03 §1) for `required = true` — missing = deterministic
-  boot failure before any plugin code runs; the boot graph can say "who waits on whom".
+  boot failure before any bundle code runs; the boot graph can say "who waits on whom".
 - `requires.version` (S2, ruling S2-3 A) is an optional comparator range (`>=1.2,<2`; operators
   `>=`/`<=`/`>`/`<`/`=`, comma-conjoined, zero-padded numeric compare). The provider's version
   rides the `service.version` property; an absent or non-matching version is a deterministic
@@ -132,7 +132,7 @@ Verification ladder, each rung owned by a trigger, not by taste:
 | Rung | Defends against | Arrives |
 |---|---|---|
 | content-hash + ledger cross-check | corruption, drift | **year 1** (tens of lines on the resolve path) |
-| signature chain | malice | trigger: first untrusted-tier plugin (joins D1/D7 trust axis) |
+| signature chain | malice | trigger: first untrusted-tier bundle (joins D1/D7 trust axis) |
 | repository/OTA semantics | fleet logistics | trigger: production OTA need — split then: platform updater (A/B, swupdi class — general knowledge) vs `modukit-cli` packaging |
 
 Explicitly deferred with owners: archive format choice (decided at CLI packaging day),
@@ -141,9 +141,9 @@ anchor.
 
 ## 5. Resources: one bundle, two doors, pass-by-trust (D30)
 
-Resources are non-code assets a plugin ships: icons, layouts, i18n catalogs, model weights,
+Resources are non-code assets a bundle ships: icons, layouts, i18n catalogs, model weights,
 calibration curves. They are bundle members per D28 - no second packaging layer, no
-embedded-array compilation (CppMS-style resource compilers couple every plugin language to
+embedded-array compilation (CppMS-style resource compilers couple every bundle language to
 the build system; Qt rcc external mode works but its container would duplicate the archive
 we already have).
 
@@ -163,7 +163,7 @@ we already have).
   join the D7 liar family.
 - **Reading**: one semantic answer for all three placements (D2). The kernel mounts a
   ResourceService (ledger-native, introspect-trio shape: list / stat / open):
-  - **Fast lane (pass-by-trust)**: in-process `dl` plugins at trusted tier receive a plain
+  - **Fast lane (pass-by-trust)**: in-process `dl` bundles at trusted tier receive a plain
     fd at activation (same process, zero boundary cost) and read natively.
   - **Window lane (everyone else)**: `exe` (isolation semantics must stay intact; fds are
     irrevocable and would bypass the accounting gate), `wasm` (no filesystem by design),
@@ -181,18 +181,18 @@ we already have).
   the Stage-2 theme day). Qt-style runtime mount/unmount (registerResource) is
   deliberately not provided: resources update with the bundle under D8 semantics; a
   second hot channel would fork the update model. The fast lane skips live accounting by design (accepted for
-  trusted in-process plugins; install-time hashes remain).
+  trusted in-process bundles; install-time hashes remain).
 - **Concurrency**: the window lane may run reads on a pool behind the gate (D6 sync-boundary
   semantics preserved; pool = implementation note, not architecture; build it only when a
-  real plugin shows batch-read latency - second trigger after the window itself).
+  real bundle shows batch-read latency - second trigger after the window itself).
 - **Compression**: a packaging-tool concern, not a manifest field. Per-entry strategy by
   type (store already-compressed formats, deflate/zstd text) belongs to the future
   packaging CLI - same trigger day as the archive-format choice (D28).
 - **Year 1**: directory-form bundles + `resources[]` declaration + cross-check only.
   The ResourceService itself, the fd fast lane, and the window are trigger-gated on the
-  first plugin that needs resources across a boundary (first wasm/exe resource consumer).
+  first bundle that needs resources across a boundary (first wasm/exe resource consumer).
 - **Evaluated and rejected**: compiling resource packs as wasm modules (code container for
-  data: format/latency/memory/update-granularity taxes, zero industry adoption); plugin-side
+  data: format/latency/memory/update-granularity taxes, zero industry adoption); bundle-side
   direct file reads as the universal path (wasm has no filesystem; archives would need
   unpacking; breaks D2's one-answer rule).
 
@@ -200,22 +200,22 @@ we already have).
 
 Configuration is data, so it goes through doors that already exist:
 
-- **Schema** lives in the plugin's own `.proto` (a `Config` message per D13/D12) - typed,
+- **Schema** lives in the bundle's own `.proto` (a `Config` message per D13/D12) - typed,
   code-generated cross-language, validated by the same contract gates as any field.
 - **Values** live in the deploy-TOML; the D7 cross-check verifies names and value sanity at
   resolve, together with everything else it already checks.
 - **Change = restart with new values** (D8 stop-based semantics; zero new machinery). Restart
   is the default and the only year-1 lane.
-- **Hot lane is opt-in**: a plugin may declare `config_live = ["key", ...]` in its manifest.
-  Declared keys additionally receive change events as ordinary topics; the plugin must
-  tolerate mixed old/new values in flight. Undeclared keys never hot-apply - a plugin that
+- **Hot lane is opt-in**: a bundle may declare `config_live = ["key", ...]` in its manifest.
+  Declared keys additionally receive change events as ordinary topics; the bundle must
+  tolerate mixed old/new values in flight. Undeclared keys never hot-apply - a bundle that
   assumes hot-apply without declaring it is a liar fixture (same family as the D7 liar).
 
 Year 1 implements schema declaration + value read + cross-check only. The hot-lane event
 specification above is now LANDED (S3-2, 2026-11-24 — the maintainer plan was the trigger):
 `config_live` parses (unique non-empty keys), `set_config` refuses undeclared keys with a
 typed error (the liar enforcement point), accepted keys persist under `build/config-live/`
-(CTK precedent — CppMicroServices has no persistence) and publish on `config/<plugin-id>`
+(CTK precedent — CppMicroServices has no persistence) and publish on `config/<bundle-id>`
 with `QoS::LatestValue` (a late joiner reads the current value immediately). Values are
 strings until the proto `Config` schema lands; the deploy-TOML seeder arrives with the
 deploy-tier file type (M7+) and stays the value source.
@@ -227,7 +227,7 @@ configs never shared across hosts in writing):
 
 ```text
 runtime.toml    host itself: host_id, carrier endpoints, log sinks, shutdown budget
-deploy.toml     plugin instance values ([plugin-id] sections, D29)
+deploy.toml     bundle instance values ([bundle-id] sections, D29)
 overlay.toml    optional field overrides, deployment-floor hand edits (last word)
 bundles/<id>/<ver>/modukit.toml   author-owned manifest + proto defaults (immutable on-site)
 ```
@@ -235,15 +235,15 @@ bundles/<id>/<ver>/modukit.toml   author-owned manifest + proto defaults (immuta
 Precedence: overlay > deploy > manifest defaults (layered overrides, kustomize/drop-in
 pattern). Effective value resolution at load; missing keys take the `.proto` default;
 surplus stale keys warn (rollback-friendly, upgrade-critical); type mismatch fails resolve
-(D37 follow-up from the Cordis/DSH study: overlay sections target plugin ids - patches are
+(D37 follow-up from the Cordis/DSH study: overlay sections target bundle ids - patches are
 id-addressed, the shape fleet orchestrators will replay; `modukit config dump` prints the
 resolved effective tree annotated by source layer - one-screen answer to "where does this
 value come from")
-(D7 family). Schema migration is the plugin author's job (docs + migration guide); no
+(D7 family). Schema migration is the bundle author's job (docs + migration guide); no
 framework migration DSL (trigger-gated).
 
 Effect timing: the atomic unit of configuration effect is THE STARTUP OF WHAT IT DESCRIBES -
-plugin values ride plugin restart (D29), live keys ride the hot lane (D29 trigger),
+bundle values ride bundle restart (D29), live keys ride the hot lane (D29 trigger),
 overlay edits wait for the next explicit restart (no file watching - predictability, D3),
 host config rides host restart (changing host_id at runtime = split brain), bundle
 manifest never "takes effect" - changing it means replacing the bundle (D28). There is no
@@ -251,19 +251,19 @@ half-applied state.
 
 ## 6.2 ConfigService, hot-lane writes, RBAC, and audit (D37 - built at the D29 trigger)
 
-The live hot lane gets a full design now (built when the first `config_live` plugin
+The live hot lane gets a full design now (built when the first `config_live` bundle
 arrives):
 
-- **ConfigService** (ledger-native, D4/D9 identity): `set(plugin, key, value)` gates -
+- **ConfigService** (ledger-native, D4/D9 identity): `set(bundle, key, value)` gates -
   schema check (.proto types, free from D13), constraint check (range/enum extensions in
   proto), live-key verification (undeclared = reject, event recorded per D35 gate/audit),
   capability check (`org.modukit.config-write`, D26 vocabulary +1), then publishes the
-  change event (ordinary topic, `org.modukit.*` names) and atomically swaps the plugin's
+  change event (ordinary topic, `org.modukit.*` names) and atomically swaps the bundle's
   Config snapshot (immutable object; old references stay valid - lockless, no half-old).
 - **Persistence**: the new value is asynchronously written back to the overlay layer -
   the FILE remains the single source of truth; disk-write failure = event alarm + old
   value returns on next restart (honest mode, restart semantics unchanged).
-- **RBAC, deliberately thin**: identity = the bridge plugin's deployment declaration
+- **RBAC, deliberately thin**: identity = the bridge bundle's deployment declaration
   (runtime.toml `identity`/`allowed_roles`); NO account system year 1 (solo+AI, D5) -
   a real identity service is platform-level work (D35 orchestrator side). Role-to-key-
   prefix mapping lives in runtime.toml (`ops: ["*"]`, `biz: ["app-biz/*"]`, `viewer: []`);
@@ -280,7 +280,7 @@ arrives):
 
 ## 6.3 Web admin stance (D37): read = free rider, write = never in the framework
 
-Read-only views (current values/source layer/plugin health) ride the D32 live-view page
+Read-only views (current values/source layer/bundle health) ride the D32 live-view page
 tabs (trigger shared with D32) - data from introspect only, zero new machinery. Web WRITE
 paths never enter host or framework: the only sanctioned write path is FILES + version
 control (GitOps posture; K8s dashboard/kubectl division, rqt-parameter anti-lesson).
@@ -288,7 +288,7 @@ A full Web admin (write forms/RBAC UI/audit) is a STANDALONE TOOL hearing if a r
 ops-team need materializes - with RBAC + audit + double-confirm + git persistence, still
 bound by D37 effect semantics (files first, restart to apply). AccessBase evaluation
 (adjudicated): not a submodule (TS stack + door-access domain mismatch), not a hosted
-plugin (it assumes itself the authority - conflicts with file-as-truth; permission model
+bundle (it assumes itself the authority - conflicts with file-as-truth; permission model
 translation loss; lifecycle black box); adopted only as audit-ledger FORMAT reference
 (who/what/when/evidence) - a forwardable compatibility note exists; conditional future
 path: "external-authority mode" (pluggable persistence + pure-RBAC simplified mode +
@@ -312,7 +312,7 @@ standalone tool, never in the host (D17 constitution).
 The full-form admin web (all seven sections) is designed now, built only at its
 triggers - this section is the exhibit for the D37 standalone-tool hearing:
 
-- **Shape**: IDE skeleton + cockpit bays - fixed navigation (seven sections: plugins /
+- **Shape**: IDE skeleton + cockpit bays - fixed navigation (seven sections: bundles /
   communication / services / debugging / logs / audit / settings), panel-based interior
   (draggable layout, Foxglove/Grafana style). Shell = Svelte 5 (nav + RBAC facade +
   identity bridge); bays = separately-built static packages on separate pages (D37
@@ -323,7 +323,7 @@ triggers - this section is the exhibit for the D37 standalone-tool hearing:
   data; the host remains untouched.
 - **Multi-host view**: host switcher fed by carrier discovery (D36); every panel
   annotates data with host_id.
-- **Sections** (panels / data source / trigger): plugins (list/detail/install via D28 /
+- **Sections** (panels / data source / trigger): bundles (list/detail/install via D28 /
   introspect+dump / D32 bell); communication (topology live-view D32, topic browser with
   D16 replay, D21 rates / EventStream+Snapshot / D32 bell); services (three-view graph
   D32, edge table D18 / Snapshot+EventStream / D32 bell); debugging (online script/
@@ -334,18 +334,18 @@ triggers - this section is the exhibit for the D37 standalone-tool hearing:
   governance events per D35 / EventStream / D32 bell); settings (layer-annotated config
   dump, live-key editing under D37 RBAC, role-prefix map view / ConfigService+dump /
   ops-team trigger).
-- **Reference designs**: DSH plugin-manager (settings from schema, adopted D38),
+- **Reference designs**: DSH bundle-manager (settings from schema, adopted D38),
   Foxglove (panel layout/replay - tried first at the D32 bell), Grafana (embedded, never
   rebuilt), VS Code Web (IDE cabin), Portainer-class light ops consoles (install/log
   forms).
-- **Trigger ladder**: (1) D32 bell -> shell + plugins/communication/services read-only
+- **Trigger ladder**: (1) D32 bell -> shell + bundles/communication/services read-only
   (live-view expansion, weeks-scale); (2) first remote-debugging need -> debugging bay;
   (3) ops team appears -> D37 write-path hearing + settings unlock + full RBAC;
   (4) deployment scale -> Loki; (5) compliance export need -> audit export format.
 
 ## 6.6 Build-to-bundle: `modukit build` (D55)
 
-The build endpoint for a plugin is a deploy-ready bundle. `modukit build` detects the
+The build endpoint for a bundle is a deploy-ready bundle. `modukit build` detects the
 author's build system (CMake/Cargo/build.zig), compiles into a temp area, assembles the
 standard layout (modukit.toml + artifact + lib/ + vendor/ + resources/), locks $ORIGIN
 RPATH, collects dependencies, content-addresses >1MB files (`.modukit/objects/<hash>` +
@@ -375,7 +375,7 @@ architecture.md §12 — none of them changes the kernel object model.
 | Tier | Carrier | Fields | Owner |
 |---|---|---|---|
 | **deploy** | bundle `modukit.toml` (TOML by adjudication 28: human annotations + typed + nested tables + Cargo-grade parser; INI cannot nest the resource tree, JSON cannot carry comments, YAML's indentation minefield and parser divergence are deployment-floor hazards; `resources[]`/config ride the same envelope) | `entry.kind` floor (raise-only), artifact/runner, `start_level`, `start_timeout`, `stop_timeout` (D34), `host_id` (D36, host-level config), `restart{}`, requires `policy`/`on_down`, `capabilities[]`, `min_host`, `resources[]` (D30), `[net] listen` (D54/D56 grammar), `[ros2]` (D59) | ops / packaging |
-| **self-report** | `BundleAbiV1` descriptor fields (04 §3) | `id`, `version`, `provides[]` (+ ranking, `parallel_ok`), requires + `topics[]` summaries (D10) | plugin code — or its runner, for script plugins |
+| **self-report** | `BundleAbiV1` descriptor fields (04 §3) | `id`, `version`, `provides[]` (+ ranking, `parallel_ok`), requires + `topics[]` summaries (D10) | bundle code — or its runner, for script bundles |
 | **verification** | pre-dlopen ELF/Mach-O/PE parse | link/dependency sanity | kernel, stage-5 only (former numbering: the polyglot line dissolved into stage-4 wave-2 by the D95 §12 amendment; Stage 5 now means remote WebRTC); a guard, never a truth source |
 
 Ledger note (D13): the cross-check reads the `.proto`+`fdset` originals in the repo —
@@ -385,7 +385,7 @@ choice (`shm-first | compressed line | WebRTC | zenoh`) is a deployment-side man
 field (D14, 07 §4): the type side never encodes how cargo moves. Pool geometry
 (`cell_bytes`, depth — the deployment face of the ticket, D15 08 §2) lives here too.
 
-- **Boot DAG builds from the deploy tier alone**: zero plugin code loaded before the ordered
+- **Boot DAG builds from the deploy tier alone**: zero bundle code loaded before the ordered
   `RESOLVING` pass (the cockpit boot-budget requirement; same motivation that made VST3
   publish headless scan metadata — industry knowledge).
 - **Cross-check rule**: at resolve, deploy ↔ self-report must agree on `id`, `version`, and
@@ -395,10 +395,10 @@ field (D14, 07 §4): the type side never encodes how cargo moves. Pool geometry
 - Policy fields (`restart{}`, `on_down`, placement overrides) are deliberately not
   code-verifiable — ops-owned by design, enforced by host policy only.
 
-## 9. ROS 2 plugins via pixi (D56-D60)
+## 9. ROS 2 bundles via pixi (D56-D60)
 
-ROS 2 exe plugins (rclcpp processes built on RoboStack/pixi conda environments)
-are ordinary exe plugins - D34 lifecycle, D54 capabilities, D55 packaging apply
+ROS 2 exe bundles (rclcpp processes built on RoboStack/pixi conda environments)
+are ordinary exe bundles - D34 lifecycle, D54 capabilities, D55 packaging apply
 unchanged. Five rulings close the ROS-specific gaps:
 
 - **Network (D56)**: `net-listen` value grammar extends to PORT RANGES and
@@ -416,7 +416,7 @@ unchanged. Five rulings close the ROS-specific gaps:
   CONDA_PREFIX/AMENT_PREFIX_PATH/PYTHONPATH from the single conda prefix plus
   manifest `[env]` extras; activate.d scripts are not run. ESCAPE HATCH
   `env_mode = "activate-script"` (opt-in, wrapper contents ring-audited): a
-  generated wrapper sources the bundle's activate.sh and execs the plugin -
+  generated wrapper sources the bundle's activate.sh and execs the bundle -
   the script runs in the PLUGIN's process. PERMANENT: the host process never
   executes bundle-borne shell. GB-size environments are the content-addressed
   dedup's main stage (D55), never a reason to skip packaging.
@@ -429,15 +429,15 @@ unchanged. Five rulings close the ROS-specific gaps:
 - **Site settings (D59)**: `ROS_DOMAIN_ID`, `RMW_IMPLEMENTATION`,
   `ROS_LOCALHOST_ONLY` are site deployment facts in deploy-TOML `[ros2]` -
   host_id logic (D36) applied to the network domain. The host translates the
-  table into environment variables via D57's static path; all ROS plugins on
+  table into environment variables via D57's static path; all ROS bundles on
   one host share the domain by construction. Bundles carry no runtime values.
-  Bridge plugins read the same `[ros2]` table like any plugin (D59).
+  Bridge bundles read the same `[ros2]` table like any bundle (D59).
 - **Lifecycle (D60)**: ordinary D34 semantics; documented recommended deploy
   override `stop_timeout = 3s` for rclcpp graceful participant departure
   (suggestion, not mechanism). Discipline: ROS knowledge lives in templates,
   recipes, and author declarations - the host stays middleware-illiterate by
   construction (D25/D11 mirrored onto the build/deploy side).
 
-Interop with a live ROS 2 graph remains bridge-only (07, D11/D25): a plugin's
+Interop with a live ROS 2 graph remains bridge-only (07, D11/D25): a bundle's
 DDS traffic is its own declared network surface; the kernel and the object
 table never learn DDS.

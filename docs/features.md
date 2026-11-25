@@ -13,10 +13,10 @@ the [tutorials](tutorials/README.md).
 |---|---|---|---|
 | Install protocol (D28: stage/verify/commit, tamper RED) | `demo stage1` | [modules 05](modules/05-manifest-and-deployment.md) | every band's host demo; tutorial 02 |
 | Six-state lifecycle + FAILED edge (D3) | `demo stage1` | [module 03](modules/03-lifecycle-state-machine.md) | embed verbs `install/resolve/start/state/stop/uninstall` (25-verb face, all bands) |
-| exe placement + supervisor + crash/revive budget | `demo stage2` | [module 01](modules/01-plugin-placement-model.md) §4 | `exe` manifests + the `sup_*` verbs |
-| ORPHAN-PROOF (SIGKILL census, zero strays) | `demo stage2` / `demo stage4-m2` | [module 01](modules/01-plugin-placement-model.md) | automatic; the census is the proof |
+| exe placement + supervisor + crash/revive budget | `demo stage2` | [module 01](modules/01-bundle-placement-model.md) §4 | `exe` manifests + the `sup_*` verbs |
+| ORPHAN-PROOF (SIGKILL census, zero strays) | `demo stage2` / `demo stage4-m2` | [module 01](modules/01-bundle-placement-model.md) | automatic; the census is the proof |
 
-## Service model (plugin-management-plan S1-S3)
+## Service model (bundle-management-plan S1-S3)
 
 | Capability | Run it | Read it | Use it |
 |---|---|---|---|
@@ -33,7 +33,7 @@ the [tutorials](tutorials/README.md).
 | Capability | Run it | Read it | Use it |
 |---|---|---|---|
 | Topic bus v1 (LatestValue, late-join) | `demo stage1` | [module 06](modules/06-topics-and-bus.md) | embed verbs `bus_publish/subscribe/recv/unsubscribe` |
-| Bus v2 mailbox doors (D96) | `demo stage5-n2` | [module 06](modules/06-topics-and-bus.md); ledger section C | v2 host table slots (plugin-side) |
+| Bus v2 mailbox doors (D96) | `demo stage5-n2` | [module 06](modules/06-topics-and-bus.md); ledger section C | v2 host table slots (bundle-side) |
 | Clock v3 + timer bell (D99; no cancel - the kernel releases tokens) | `demo wave2-clock` | [module 03](modules/03-lifecycle-state-machine.md) clock section | v3 host table `timer_schedule/clock_now` |
 | Parent-to-child push (D108/D110, bounded outbox) | wave-3 legs in the gate | [../wave-3-parent-push-plan.md](wave-3-parent-push-plan.md); ledger section D | parent fanout pump |
 
@@ -43,7 +43,7 @@ the [tutorials](tutorials/README.md).
 |---|---|---|---|
 | proc-wire TL frames (11 wire kinds, D87-frozen) | every exe leg | [module 07](modules/07-transport-architecture.md) | the skin per band (tutorial 06) |
 | Transport seam: socketpair/memfd + SCM_RIGHTS + iceoryx2 + vendor-shm | gate transport legs | [module 07](modules/07-transport-architecture.md) §2-4 | `modukit-transport` crate |
-| Script plugin doors (D106/D107: py/js children speak the wire) | `demo wave2-plugin-py` / `-js` | [module 04](modules/04-contract-and-codegen.md); tutorial 06 | `bindings/{py,js}/plugin_runtime.*` skins |
+| Script bundle doors (D106/D107: py/js children speak the wire) | `demo wave2-bundle-py` / `-js` | [module 04](modules/04-contract-and-codegen.md); tutorial 06 | `bindings/{py,js}/plugin_runtime.*` skins |
 
 ## Observability and ops
 
@@ -67,4 +67,4 @@ the [tutorials](tutorials/README.md).
 Update-in-place hot swap (A4), ServiceFactory (D4), RSA cross-machine (A6),
 lazy activation (A3), Zenoh remote carrier / I420 media face (D89-K3), and
 the video-frame walkthrough (module 08 is design-only). Each names its
-trigger in the onboarding plan deviations or the plugin-management plan.
+trigger in the onboarding plan deviations or the bundle-management plan.

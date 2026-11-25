@@ -7,19 +7,19 @@ D2. Placement is a deployment property; language is orthogonal.
 
 | Executor | Where code runs | Artifact | Transport | Ships |
 |---|---|---|---|---|
-| `dl` | host address space | `plugin.so` | local (in-proc call) | Stage 1 |
-| `exe` | supervised child process | same `plugin.so` | wire over socketpair/stdio | Stage 2 (interface in Stage 1) |
-| `wasm` | sandboxed instance | `plugin.wasm` | wasmtime host calls | future (wave-3 candidate) |
+| `dl` | host address space | `bundle.so` | local (in-proc call) | Stage 1 |
+| `exe` | supervised child process | same `bundle.so` | wire over socketpair/stdio | Stage 2 (interface in Stage 1) |
+| `wasm` | sandboxed instance | `bundle.wasm` | wasmtime host calls | future (wave-3 candidate) |
 
-New placements are added as executors, never as new plugin concepts.
+New placements are added as executors, never as new bundle concepts.
 
 ## 2. Shadow-runner
 
-`exe` placement does not require a separate executable per plugin. The host spawns a generic
+`exe` placement does not require a separate executable per bundle. The host spawns a generic
 runner, hands it the artifact path and an inherited fd:
 
 ```text
-modukit-run <plugin.so> --fd=N
+modukit-run <bundle.so> --fd=N
 ```
 
 The runner `dlopen`s the same `.so` the `dl` executor would have loaded, and pumps the same
@@ -32,12 +32,12 @@ VST3 Gateway and ROS2 components (industry knowledge, not repo-verified).
 
 ## 3. Switchability preconditions
 
-A plugin may switch `dl <-> exe` only if all hold. The first five are code-level; the last two
+A bundle may switch `dl <-> exe` only if all hold. The first five are code-level; the last two
 are lifecycle-level.
 
 1. All host access goes through contract services — no `dlsym` on the host, no host singletons,
    no direct `stdout`/`syslog` assumptions.
-2. No ambient authority: the plugin receives no fd, socket, or `Arc` it did not request by name.
+2. No ambient authority: the bundle receives no fd, socket, or `Arc` it did not request by name.
 3. No raw pointers crossing a service call — messages carry registration ids and handles
    (architecture.md §5, modules/02-service-model.md).
 4. No process-global mutation: no signal handlers, no `setenv`, no locale or allocator changes.
@@ -47,17 +47,17 @@ are lifecycle-level.
 6. `start()` must not assume an event loop exists yet; `stop()` must be idempotent.
 7. Any shared-memory handle it obtains must be released before reporting stopped.
 
-> **Rules 3 + 7 carry the frame clause (D69):** the pool + descriptor channel (07 §3) is the only path frame bytes take to a plugin, any placement; a `dl` plugin mapping the pool is permitted but trusted-tier-only.
+> **Rules 3 + 7 carry the frame clause (D69):** the pool + descriptor channel (07 §3) is the only path frame bytes take to a bundle, any placement; a `dl` bundle mapping the pool is permitted but trusted-tier-only.
 
-**Switchability is a tested property.** The contract suite (04 §4) runs against the plugin under
-both placements; a plugin claims dl/exe-switch only after both passes. Documentation-only claims
+**Switchability is a tested property.** The contract suite (04 §4) runs against the bundle under
+both placements; a bundle claims dl/exe-switch only after both passes. Documentation-only claims
 are not accepted.
 
 ## 4. Asymmetries the abstraction never hides
 
 | | `dl` | `exe` |
 |---|---|---|
-| Blast radius of UB/crash | host corruption; process dies whole | plugin dies; host survives, `Failed` edge fires (03) |
+| Blast radius of UB/crash | host corruption; process dies whole | bundle dies; host survives, `Failed` edge fires (03) |
 | Crash blast radius is | identical to the host's | bounded and observable |
 | Cost per call | in-proc | wire hops, serialization |
 | Hot placement switch | needs restart of host | supervisor respawns with new policy |
@@ -65,7 +65,7 @@ are not accepted.
 | Debug | one debugger | two, plus the wire |
 
 The state machine, the registry and the contract deliberately do **not** paper over the
-crash-radius difference. `dl` has no `Failed` edge: if the plugin corrupts the host there is
+crash-radius difference. `dl` has no `Failed` edge: if the bundle corrupts the host there is
 nothing left to report to.
 
 ## 5. Trust veto
@@ -87,7 +87,7 @@ ModuKit is a single-machine framework with carrier-transparent reach. Three stat
 
 ProcessExecutor implementation, the shadow-runner binary, cgroup/rlimit supervision,
 witness-based liveness. Interfaces exist (so the closed set is real); implementations land in
-Stage 2 with a real untrusted plugin to justify them.
+Stage 2 with a real untrusted bundle to justify them.
 
 ## 8. As built (2026-10-19, S2 shipped)
 

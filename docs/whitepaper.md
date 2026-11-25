@@ -1,7 +1,7 @@
 # ModuKit Whitepaper
 
 **Version**: 1.0  
-**Positioning**: modular plugin framework & polyglot extension toolkit  
+**Positioning**: modular bundle framework & polyglot extension toolkit  
 **Core language**: Rust  
 **Target scenarios**: large-scale HMI, smart cockpit, multi-process UI hosts, remote streaming composition
 
@@ -9,9 +9,9 @@
 
 ## 1. Overview
 
-ModuKit is a **modular plugin host framework** for large-scale projects. Its core capabilities are in-process and multi-process plugin lifecycle management, service registry, polyglot bindings, and script extension. On top of that, ModuKit can optionally support **multi-process UI composition**, **zero-copy shared-memory transport**, and **multi-machine remote WebRTC streaming**.
+ModuKit is a **modular bundle host framework** for large-scale projects. Its core capabilities are in-process and multi-process bundle lifecycle management, service registry, polyglot bindings, and script extension. On top of that, ModuKit can optionally support **multi-process UI composition**, **zero-copy shared-memory transport**, and **multi-machine remote WebRTC streaming**.
 
-The project does not try to be a single "do-it-all engine". Through a layered architecture it decouples the **core plugin framework** from the **optional UI/streaming extensions**, so developers can either embed ModuKit as a lightweight plugin system or build a complete distributed HMI host.
+The project does not try to be a single "do-it-all engine". Through a layered architecture it decouples the **core bundle framework** from the **optional UI/streaming extensions**, so developers can either embed ModuKit as a lightweight bundle system or build a complete distributed HMI host.
 
 ---
 
@@ -26,13 +26,13 @@ The project does not try to be a single "do-it-all engine". Through a layered ar
 
 ### 2.2 Full project name and description
 
-> **ModuKit Runtime** — a modular plugin framework and polyglot extension toolkit.  
-> Core: plugin lifecycle, service registry, polyglot bindings, script hosts. Extensions: multi-process UI composition, zero-copy shared memory, and remote WebRTC streaming.
+> **ModuKit Runtime** — a modular bundle framework and polyglot extension toolkit.  
+> Core: bundle lifecycle, service registry, polyglot bindings, script hosts. Extensions: multi-process UI composition, zero-copy shared memory, and remote WebRTC streaming.
 
 ### 2.3 Namespace plan
 
 ```toml
-modukit-core          # core: plugin lifecycle, service registry, IPC abstraction
+modukit-core          # core: bundle lifecycle, service registry, IPC abstraction
 modukit-runtime       # runtime host (optional)
 modukit-compositor    # multi-process UI compositor (extension)
 modukit-transport     # transport abstraction: local SHM / remote WebRTC (extension)
@@ -62,11 +62,11 @@ modukit-cli           # command-line tooling
 
 ## 3. Design Principles
 
-1. **Core is narrow and deep**: the Rust core handles only plugin lifecycle, service registry, IPC abstraction and the basic runtime; it embeds no script engine and no UI compositor.
+1. **Core is narrow and deep**: the Rust core handles only bundle lifecycle, service registry, IPC abstraction and the basic runtime; it embeds no script engine and no UI compositor.
 2. **C ABI is the single cross-language exit**: every external export goes through a C ABI; polyglot bindings are generated, never hand-written per language.
-3. **Capability declarations beat assumptions**: platform differences are managed explicitly through capability discovery; plugins declare the capabilities they need in their manifest.
+3. **Capability declarations beat assumptions**: platform differences are managed explicitly through capability discovery; bundles declare the capabilities they need in their manifest.
 4. **Extensions are opt-in**: multi-process UI, SHM and WebRTC are optional extension packages; no user is forced to load everything.
-5. **Unified in-process / multi-process model**: the plugin model supports both in-thread plugins and standalone-process plugins with identical lifecycle semantics.
+5. **Unified in-process / multi-process model**: the bundle model supports both in-thread bundles and standalone-process bundles with identical lifecycle semantics.
 
 ---
 
@@ -89,12 +89,12 @@ flowchart TD
     end
 
     subgraph L3 [Ecosystem layer]
-        F1[C/C++ native plugins]
+        F1[C/C++ native bundles]
         F2[Python bindings]
         F3[C# bindings]
-        F4[JS/WASM plugins]
+        F4[JS/WASM bundles]
         F5[Lua scripts]
-        F6[Multi-machine remote plugins]
+        F6[Multi-machine remote bundles]
     end
 
     subgraph L4 [Extension capabilities]
@@ -124,9 +124,9 @@ flowchart TD
 
 ### 4.3 Ecosystem layer
 
-- Native plugins: Rust, C/C++.
-- Managed plugins: Python, C#, JS/Node.
-- Sandboxed plugins: WASM.
+- Native bundles: Rust, C/C++.
+- Managed bundles: Python, C#, JS/Node.
+- Sandboxed bundles: WASM.
 - Script extensions: Lua, embedded JS.
 
 ### 4.4 Extension capabilities
@@ -146,7 +146,7 @@ flowchart TD
 | **Python bindings** | PyO3 | mature; mind the GIL and async interaction |
 | **C# bindings** | csbindgen / P/Invoke | string encoding and GC interop |
 | **JS/Node bindings** | napi-rs | good developer experience, mature |
-| **WASM host** | wasmtime / wasmer | sandboxed execution of untrusted plugins |
+| **WASM host** | wasmtime / wasmer | sandboxed execution of untrusted bundles |
 | **Lua host** | mlua | Lua 5.1-5.4 and Luau |
 | **Embedded JS** | QuickJS / Boa | small footprint, fits extension logic |
 | **Local IPC** | iceoryx2 / Zenoh | zero-copy SHM, sub-microsecond latency |
@@ -159,10 +159,10 @@ flowchart TD
 
 ## 6. Key Capabilities
 
-### 6.1 Multi-process plugin management
+### 6.1 Multi-process bundle management
 
-- In-process plugins: dynamically loaded `cdylib`, called through the C ABI.
-- Multi-process plugins: a supervisor process starts, monitors and restarts child-process plugins.
+- In-process bundles: dynamically loaded `cdylib`, called through the C ABI.
+- Multi-process bundles: a supervisor process starts, monitors and restarts child-process bundles.
 - Lifecycle synchronization: state machines managed uniformly over IPC.
 - Crash isolation: a child-process crash does not affect the host; automatic restart is supported.
 
@@ -181,9 +181,9 @@ flowchart TD
 
 ### 6.4 Polyglot and script extension
 
-- **Trusted plugins**: C/C++/Rust native plugins, full API.
-- **Semi-trusted plugins**: Lua, embedded JS — restricted API.
-- **Untrusted plugins**: WASM sandbox behind WASI interfaces.
+- **Trusted bundles**: C/C++/Rust native bundles, full API.
+- **Semi-trusted bundles**: Lua, embedded JS — restricted API.
+- **Untrusted bundles**: WASM sandbox behind WASI interfaces.
 - All language bindings are generated from the same C ABI.
 
 ---
@@ -208,10 +208,10 @@ flowchart TD
 > `docs/architecture.md` §12 - the stage meanings below predate the Stage-3
 > re-scope (D89-K2 demotion) and the wave re-splits (D93-D95, wave-2). §12 first.
 
-1. **Stage 1: in-process plugin kernel**  
+1. **Stage 1: in-process bundle kernel**  
    OSGi-style lifecycle and service registry; reference `rutis`, `rustbridge`.
 
-2. **Stage 2: multi-process plugins & zero-copy IPC**  
+2. **Stage 2: multi-process bundles & zero-copy IPC**  
    Introduce iceoryx2/Zenoh, SHM transport of I420 frames; reference `event-engine`, `RS VST Host`.
 
 3. **Stage 3: multi-process UI composition**  
@@ -232,14 +232,14 @@ flowchart TD
 | Architectural complexity | strict layering, core/extensions decoupled, staged delivery |
 | Rust ABI instability | cross-language only through C ABI, code-generated bindings |
 | Large platform differences | capability discovery, platform adaptation layer, explicit support matrix |
-| Performance vs isolation trade-off | in-process plugins for performance, out-of-process for isolation |
-| Script engine security | WASM sandbox for untrusted plugins, resource limits and audit |
+| Performance vs isolation trade-off | in-process bundles for performance, out-of-process for isolation |
+| Script engine security | WASM sandbox for untrusted bundles, resource limits and audit |
 | Combinatorial explosion | publish an official support matrix; community maintains other combinations |
 
 ---
 
 ## 10. Summary
 
-ModuKit is a large-project framework with Rust at its core, a modular plugin framework as its identity, and a polyglot extension toolkit as its delivery form. It connects the polyglot ecosystem through the C ABI, achieves local zero-copy through shared memory, achieves multi-machine reach through WebRTC, and supports complex HMI scenarios through an optional UI compositor and script hosts.
+ModuKit is a large-project framework with Rust at its core, a modular bundle framework as its identity, and a polyglot extension toolkit as its delivery form. It connects the polyglot ecosystem through the C ABI, achieves local zero-copy through shared memory, achieves multi-machine reach through WebRTC, and supports complex HMI scenarios through an optional UI compositor and script hosts.
 
 **ModuKit does not aim to be a single engine — it aims to be the host platform that connects and composes many technologies.**

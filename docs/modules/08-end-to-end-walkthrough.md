@@ -59,7 +59,7 @@ cabin_video.proto ─┬─ fdset (ledger, checked in; CI regen-diff gate)
                    ├─ Rust:  VideoFrameMeta + FrameView<'a> + trait stubs + SERVICE_ID consts
                    ├─ C:     plain structs + encode/decode decls + vtable entries
                    ├─ C++:   header-only modukit/video_frame.h (class FrameView, Result<T>)
-                   │         — zero protobuf/abseil runtime inside plugins
+                   │         — zero protobuf/abseil runtime inside bundles
                    └─ (wave-2, LANDED) Python/JS stubs; WIT projection and ROS2 dialect stay trigger-gated (bridge-time)
 ```
 
@@ -154,7 +154,7 @@ Plugin author: 05 → 02 → 04 → 08 (this file). Kernel resident: 01 → 03 �
 
 The `example-bundle`/`bad-bundle` fixtures hold **template standing**: their layout (crate
 skeleton, `.proto` placement, manifest sample, contract-test stub, and the three mouth
-rules — logger (D19), clock (D20), no stdout in production) is the official plugin-starting
+rules — logger (D19), clock (D20), no stdout in production) is the official bundle-starting
 answer. Changing them is a compatibility-weighted documentation act (CI compiles them
 daily — the template cannot silently rot). The `modukit new` generator arrives with the
 Stage-2 CLI and must consume the ledger (`fdset`) and the D13 generation faces — it may

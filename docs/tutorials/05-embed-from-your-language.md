@@ -117,5 +117,5 @@ describes the honest chain; the leg header documents the pinned-env
 
 ## Next
 
-Chapter 06: flip the roles - your Python or JS program BECOMES the plugin,
+Chapter 06: flip the roles - your Python or JS program BECOMES the bundle,
 spawned by the kernel across the exe wall.

@@ -9,16 +9,16 @@ custom protocol, no back doors.
 | Service | Returns | Consumed by |
 |---|---|---|
 | `LedgerDump.dump()` | the exact fdset bytes this host loaded (+ host/ABI version stamps) | CLI `ledger`, recorder header (09), bridge type-mapping self-check |
-| `Snapshot.all(filter)/one(handle)` | object-table cut: plugins (state/placement/version/restart counts), services (provider/properties/ranking), topics (pubs/subs + **drop counters**), in-flight jobs, open slots + holders | CLI `ps`/`inspect`, dashboards, debug launch presets |
-| `EventStream.tail(since_seq)` | merged ring: lifecycle transitions, registry events, QoS drops, bridge/transport stats — monotonic seq, resumable | CLI `tail`, Foxglove live bridge (D61: foxglove-ws bridge plugin), gap-audit tools |
+| `Snapshot.all(filter)/one(handle)` | object-table cut: bundles (state/placement/version/restart counts), services (provider/properties/ranking), topics (pubs/subs + **drop counters**), in-flight jobs, open slots + holders | CLI `ps`/`inspect`, dashboards, debug launch presets |
+| `EventStream.tail(since_seq)` | merged ring: lifecycle transitions, registry events, QoS drops, bridge/transport stats — monotonic seq, resumable | CLI `tail`, Foxglove live bridge (D61: foxglove-ws bridge bundle), gap-audit tools |
 
-Read-only, side-effect-free; events are trust-tier filtered (D2 table) — a vendor plugin never
+Read-only, side-effect-free; events are trust-tier filtered (D2 table) — a vendor bundle never
 sees the cockpit's full wiring. **Constitutional rule: if a tool wants data that these three
 services and ordinary bus APIs cannot give, the tool is wrong, not the kernel.**
 
 ## 2. `ModuleLoaded` event (year 1, one enum variant)
 
-`{plugin id, artifact path, load base, symbol hint}` — the cheap trigger that lets native
+`{bundle id, artifact path, load base, symbol hint}` — the cheap trigger that lets native
 debug adapters do pending breakpoints at the exact right moment, and lets the CLI print a
 symbol inventory for attach flows. Five lines, disproportionate payoff.
 
@@ -48,7 +48,7 @@ dual-placement suite — this is the determinism layer, not the honesty layer.
 ## 4. Tool faces by stage (all downstream, none privileged)
 
 - **Year 1 (D44)**: `modukit status` - one-screen snapshot over the §1 services (tens of
-  lines of formatting); `modukit ctl start|stop|restart|reap <plugin>` - manual lifecycle
+  lines of formatting); `modukit ctl start|stop|restart|reap <bundle>` - manual lifecycle
   through the control panel (03 §8; gates: D37 identity, D26 `org.modukit.control`,
   ring-landed audit D35).
 - **TUI (D32 bell)**: `modukit watch` - live htop-style tree of states/resources/topology
@@ -61,7 +61,7 @@ dual-placement suite — this is the determinism layer, not the honesty layer.
   (mcap + protobuf encoding + fdset-in-schema-header); `serve --ws` is just an
   EventStream forwarder. Failure at adoption triggers the own-container fallback (09 §4).
 - **DAP**:
-  - *native plugins (dl & exe)* — **off-the-shelf adapters** (codelldb/gdb/debugpy) wrap
+  - *native bundles (dl & exe)* — **off-the-shelf adapters** (codelldb/gdb/debugpy) wrap
     real debuggers; the kernel ships only the §2 event + presets/launch-configs generated
     from introspect data. exe placement additionally gets fast restart-under-debugger
     (crash isolation is a debug feature) and **rr time-travel** for free (its DAP entry
@@ -71,25 +71,25 @@ dual-placement suite — this is the determinism layer, not the honesty layer.
   - *documented limits*: no cross-boundary stepping script<->native frames; DAP shows
     process state, never bus semantics (that is §1's job).
 - **Never**: a bespoke ModuKit debug protocol; an rqt-style UI-plugin-framework-inside-the-
-  plugin-framework (its maintenance ledger is the warning label).
+  bundle-framework (its maintenance ledger is the warning label).
 
-## 5. The plugin mouth — logger (D19)
+## 5. The bundle mouth — logger (D19)
 
 Plugins `acquire::<Logger>()` — the same posture as acquiring any service (01 §3 forbids
 ambient authority; the ban on stray `printf` implies a formal mouth). A log record =
-`{level, component = plugin id, msg, kv[], seq, ts}` and lands in the EventStream's
+`{level, component = bundle id, msg, kv[], seq, ts}` and lands in the EventStream's
 `LogEvent` variant — the **same monotonic ring as frames and lifecycle events**, so:
 recordings replay with narration (D16), `graph --diff` has an audit trail, and the
 Foxglove log panel fills from the bridge for free (mcap log encoding; general knowledge,
 verify at adoption). Sinks (stdout, rotating file, journald) are ordinary subscribers —
-D17 constitution again. Per-plugin rate limit with an explicit `dropped` counter (overflow
+D17 constitution again. Per-bundle rate limit with an explicit `dropped` counter (overflow
 is visible, never silent). Visibility is trust-tier filtered like all events (§1).
 OTLP export, when a real fleet/collector need arrives (P2), becomes a sink-subscriber of
 this ring: the OpenTelemetry world consumes B; B never depends on it.
 
 ## 6. Two ledgers, one analyzer (D18)
 
-The kernel keeps one live ledger: `(caller plugin, service, method) -> {count, last-use}`,
+The kernel keeps one live ledger: `(caller bundle, service, method) -> {count, last-use}`,
 recorded at the single legitimate doorway — the generated client stub (D13): one relaxed
 atomic add per call. Entries retire with their provider (`EdgeRemoved` event; long history
 belongs to recordings, never to RAM). `Snapshot.edges()` exposes it.
@@ -97,8 +97,8 @@ belongs to recordings, never to RAM). `Snapshot.edges()` exposes it.
 Paired with the **declared ledger** (manifest `requires`/`provides`, 05 §3), every graph
 question becomes a pure walk over the two ledgers:
 
-- `callers(service)` / `uses(plugin)` — the daily "will I break anything?" answer;
-- `impact(plugin)` — declared minus observed: who starves if it is removed;
+- `callers(service)` / `uses(bundle)` — the daily "will I break anything?" answer;
+- `impact(bundle)` — declared minus observed: who starves if it is removed;
 - orphans: provided-but-never-called (deprecation evidence), declared-but-never-used (pruning);
 - **declared-vs-observed diff** — dead dependencies vs. undeclared use. D18 stance:
   detect and warn (`graph --diff`); hard rejection of undeclared use is a deployment
@@ -118,7 +118,7 @@ Stage-2 CLI wagon (D23 wheel). `--diff` as a CI gate is a configuration, not a
 mechanism (D18 already left the stance).
 
 **Live view = trigger-gated (D32)**: an animated graph (edges light up per event,
-thickness from D21 counters) is NOT built now. Trigger: plugin count > 20 or a
+thickness from D21 counters) is NOT built now. Trigger: bundle count > 20 or a
 second team joins, whichever first. When it rings, the shape is fixed today: a
 plain browser page acting as an ordinary EventStream client (introspect trio,
 §1) rendering the graph client-side - never embedded in the framework, no new
@@ -147,11 +147,11 @@ No new doorway — the existing ones get richer:
 ### 6.2 The resource books (D22)
 
 The supervisor piggybacks: periodic `/proc/<pid>/stat` sampling plus `wait4` final
-accounting for `exe`-placed plugins — `Snapshot` plugin entries gain
+accounting for `exe`-placed bundles — `Snapshot` bundle entries gain
 `{pid, cpu_total, rss_peak}` and `ResourceTick` events join the shared ring (D21's
 consumers eat them identically). `dl` entries read **`n/a` by design**: shared-address
 accounting is theater, not measurement (01 §4). Quota enforcement (cgroup/rlimit) is a
-P2 trigger item — the bell rings with the first untrusted vendor plugin; the manifest
+P2 trigger item — the bell rings with the first untrusted vendor bundle; the manifest
 `resources{}` field will sit beside the reserved `rt_policy` family (05 §2).
 
 ## 7. Division of labor

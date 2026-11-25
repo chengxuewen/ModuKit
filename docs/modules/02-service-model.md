@@ -8,7 +8,7 @@ call sites.**
 
 ## 1. Registration and lookup
 
-**Host identity and name resolution (D36)**: plugins keep their contract names (D9, written in `.proto`) - the host_id is a door plate, not part of the contract. Cross-host addressing composes `host_id/name`; resolution: unqualified = this host first (never looks outward if found locally); cross-host access is always explicit (qualified name) or explicitly wildcarded. Same-app multi-path replicas = two hosts installing the same bundle under different host_ids - names never collide. Runtime renaming (ROS-style remapping) is REJECTED: names are contract + deployment fact, nothing else (D13 single door).
+**Host identity and name resolution (D36)**: bundles keep their contract names (D9, written in `.proto`) - the host_id is a door plate, not part of the contract. Cross-host addressing composes `host_id/name`; resolution: unqualified = this host first (never looks outward if found locally); cross-host access is always explicit (qualified name) or explicitly wildcarded. Same-app multi-path replicas = two hosts installing the same bundle under different host_ids - names never collide. Runtime renaming (ROS-style remapping) is REJECTED: names are contract + deployment fact, nothing else (D13 single door).
 
 **Gate/audit split (D35)**: checks stay at their own gates (install = bundle integrity, D28; resource window = path + capability, D30; executor = trust tier, D2; direct calls = no extra hop, this section). Every gate's allow/deny decision lands as an ordinary event on the observation ring (10 §5) - audits are pure walks over that ring (D17). Cross-tier calls are unrestricted in direction; a callback INTO a lower trust tier passes that tier's capability gate (D26).
 
@@ -75,7 +75,7 @@ repeated `acquire()` loops are a review smell.
   leases have **no production precedent across a process wall** — CppMicroServices, the
   canonical C++ OSGi, declares "no remote/distributed story" outright
   (`docs/reference/cppmicroservices.md:80`), and its own consumer surface weighs
-  ~1160 header lines (`cppmicroservices.md:38`) that every plugin author would pay.
+  ~1160 header lines (`cppmicroservices.md:38`) that every bundle author would pay.
   CTK carries "15 years of edge-case hardening" including tracker races
   (`docs/reference/ctk.md:79`). The invariants above exist so adopting those features later is
   purely additive, once a real cross-process need — not taste — demands it.
@@ -112,15 +112,15 @@ them by requires automatically. There is no second registration channel - the se
 table is the only extension mechanism (kernel-framework consensus: OSGi's own later
 guidance, Celix/CppMS/Cordis practice).
 
-Two dependency semantics, made explicit: (1) plugin-to-plugin side-effect dependencies
+Two dependency semantics, made explicit: (1) bundle-to-bundle side-effect dependencies
 ("A needs B to have created a directory before A's init") are MODELED AS SERVICES - B
 provides a readiness signal service; there is no declarative injection ordering. (2) A
-shared inter-plugin key-value blackboard is REJECTED - anything shared becomes a service
+shared inter-bundle key-value blackboard is REJECTED - anything shared becomes a service
 (consistency through the one table; otherwise someone invents env vars).
 
 **Job progress (D46)**: each JobToken gets a dedicated progress topic,
 `org.modukit.job.<token>`, latest-value QoS (late joiners see current progress instantly,
-D10). Payload shape is free (percent, items done, stage string - whatever the plugin's
+D10). Payload shape is free (percent, items done, stage string - whatever the bundle's
 proto says); the kernel routes, never interprets (D17 no business semantics). Completion
 and cancel stay on the D6 event path; this channel is mid-flight only. Panels (D39) and
 watch (D44) resolve progress with one rule: job -> its topic.
@@ -128,9 +128,9 @@ watch (D44) resolve progress with one rule: job -> its topic.
 ## 5. Deliberately not in year 1
 
 Service-level access control (a provider declaring "only these callers may invoke me") is
-not built - capabilities (D26) gate platform abilities, not inter-plugin calls. Named now,
-trigger-gated on the first multi-vendor ecosystem. Also: state handover between plugin
-generations during hot-update (old plugin passes state to the new one before exit) is NOT
+not built - capabilities (D26) gate platform abilities, not inter-bundle calls. Named now,
+trigger-gated on the first multi-vendor ecosystem. Also: state handover between bundle
+generations during hot-update (old bundle passes state to the new one before exit) is NOT
 defined - year-1 update is stop-then-start, cold state, by D8; named for the fleet-update
 trigger.
 
@@ -139,7 +139,7 @@ instances); per-bundle lease accounting beyond internal refcount; service regist
 across namespaces/tenants; multi-instance version routing for `parallel_ok` services
 (D8 — the declaration field ships inert; the routing mechanism arrives with exe placement).
 
-Progress (plugin-management-plan): the LDAP-subset property filter (`find`) shipped
+Progress (bundle-management-plan): the LDAP-subset property filter (`find`) shipped
 in S1; `Modified` events (`modify_props`, canonical `service.id` immutable) and
 filtered subscription (`subscribe_filtered`) and a bounded callback-driven
 `ServiceTracker` (`tracker.rs`, `ServiceCustomizer`) shipped in S2. The factory
@@ -147,4 +147,4 @@ refusal above stands (D4, ruling A5); version ranges on `requires` are the
 remaining S2 item.
 
 
-**Node factories and work units (D70, 2026-10-15).** The kind+formats+priority capability query rides the plugin family's own contract, not the registry - the refusal above stands unchanged (kernel routes, does not interpret, D46). A plugin's work unit (per-session pipeline instance, e.g. one encoder instance per stream) is a plain object by default; it registers an EPHEMERAL service record - deregistering on completion - when it needs observation (hot-swap drain, D21 counts, leases). Default rule: drainable or countable -> must register. No new registry syntax; per-unit records are ordinary entries.
+**Node factories and work units (D70, 2026-10-15).** The kind+formats+priority capability query rides the bundle family's own contract, not the registry - the refusal above stands unchanged (kernel routes, does not interpret, D46). A bundle's work unit (per-session pipeline instance, e.g. one encoder instance per stream) is a plain object by default; it registers an EPHEMERAL service record - deregistering on completion - when it needs observation (hot-swap drain, D21 counts, leases). Default rule: drainable or countable -> must register. No new registry syntax; per-unit records are ordinary entries.

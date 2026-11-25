@@ -73,7 +73,7 @@ no lockstep with the writer ever**.
   destructor — Rust lifetime, C++ RAII (+ debug assert), C release pairing: one ledger,
   three manners.
 
-- **Frame clause (D69, promoted 2026-10-15):** this pool + descriptor channel is the ONLY path frame bytes take to a plugin, in ANY placement (media-base posture, D68) - on-host; off-host frames travel the D15 bridge exchange above, and the clause bans raw-frame-pointer contract arguments in both directions. Contract signatures carry handles, descriptors and registration ids - never raw frame pointers, never ad-hoc malloc'd foreign buffers (01 §3 rules 3/7). A `dl` plugin mapping the pool is allowed as a trusted-tier privilege; SDK consumers receive frames over the API (pull / borrowed views / caller-allocated out-buffers). Shapes absorbed, fragility not: opaque pool handles across in-process calls = legal; wild-lifetime frame arguments = refused.
+- **Frame clause (D69, promoted 2026-10-15):** this pool + descriptor channel is the ONLY path frame bytes take to a bundle, in ANY placement (media-base posture, D68) - on-host; off-host frames travel the D15 bridge exchange above, and the clause bans raw-frame-pointer contract arguments in both directions. Contract signatures carry handles, descriptors and registration ids - never raw frame pointers, never ad-hoc malloc'd foreign buffers (01 §3 rules 3/7). A `dl` bundle mapping the pool is allowed as a trusted-tier privilege; SDK consumers receive frames over the API (pull / borrowed views / caller-allocated out-buffers). Shapes absorbed, fragility not: opaque pool handles across in-process calls = legal; wild-lifetime frame arguments = refused.
 
 ## 4. Carrier selection is deployment, not type (D14)
 
@@ -87,7 +87,7 @@ message type in the ledger. Pool geometry (cell size, depth — the third sheet,
 likewise deployment-side (05 §6): the `local` arm only means anything where the pool says
 how big the cells are.
 
-## 5. Foreign middleware = bridge plugins, never a heart swap
+## 5. Foreign middleware = bridge bundles, never a heart swap
 
 **Terminology (D35): ModuKit has no gateway.** Three worlds, three answers: plugin-to-plugin = direct handle-table calls (no routing layer exists); foreign middleware worlds (DDS etc.) = bridge plugins, any size (the DDS gateway below is the precedent - a bridge can be big, but its identity is always a plugin, gated by D26 capabilities); external entry points (phone/cloud/diagnostic tools) = also bridge plugins (zenoh-to-HTTP and kin) - when traffic policy needs central management, deploy more bridges; never build a kernel component. Observation of cross-world traffic rides the same ring as everything else (D19): sinks that forward to remote aggregators are ordinary subscribers - multi-machine observability is sink topology, not a gateway.
 
@@ -98,17 +98,17 @@ the same object API — dogfooding, not a privileged path): opt-in `export`/`imp
 the manifest gate what may cross; each bridge carries its type-mapping table (reverse-DNS
 ids <-> their topic/type names) and QoS translation; the bridge boundary **copies** —
 zero-copy never crosses it. Nothing is exported by default. (A ROS 2 exe
-plugin's own DDS traffic is not interop - it is the plugin's declared network
+bundle's own DDS traffic is not interop - it is the bundle's declared network
 surface under D56; the bridge rules govern what crosses into the object table.)
 
-**Foxglove live bridge (D61)**: a bridge plugin embedding the foxglove-sdk
+**Foxglove live bridge (D61)**: a bridge bundle embedding the foxglove-sdk
 (MIT, Rust) WebSocket server speaks the Foxglove WebSocket protocol, so the
 app connects unchanged with every stock panel lit. Writeback (publish /
 service call / parameter set) crosses as an ordinary client through the
 existing gates - object table + D26, normal resolution, D37 ConfigService
 four-gate; no debug exemption (D44). Each bridge carries its own type-mapping
 table (D11); dictionary-pack promotion fires at the second bridge/ecosystem.
-foxglove-sdk lives only in bridge plugins, never the host link domain (D60
+foxglove-sdk lives only in bridge bundles, never the host link domain (D60
 discipline); Foxlet/Data Platform upload is site-side (D61f).
 
 **Bridge toolbox** (D12, trigger-when-needed, unverified here): row-encoded external streams
@@ -117,7 +117,7 @@ self-reported benchmarks, no claims made in this repo); the kernel itself only e
 envelope + cargo formats.
 
 **Upgrade trigger** (narrow): an OEM contract requiring native RTPS graph visibility inside
-their existing DDS discovery. Answer = a bigger bridge (gateway plugin), still not a core
+their existing DDS discovery. Answer = a bigger bridge (gateway bundle), still not a core
 middleware swap. Recorded as the D11 re-review trigger.
 
 ## 6. What never crosses the seam

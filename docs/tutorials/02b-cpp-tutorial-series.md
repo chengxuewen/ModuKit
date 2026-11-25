@@ -10,13 +10,13 @@ the code is the truth (read each file top to bottom, it is all there is).
 
 | Step | Project | The lesson | Source |
 |---|---|---|---|
-| t1 | `t1-hello-bundle/` | a plugin is a DESCRIPTOR: entry symbol + abi_version + size + start/stop. Nothing else is required | `t1.cpp`, the `T1_DESCRIPTOR` initializer |
+| t1 | `t1-hello-bundle/` | a bundle is a DESCRIPTOR: entry symbol + abi_version + size + start/stop. Nothing else is required | `t1.cpp`, the `T1_DESCRIPTOR` initializer |
 | t2 | `t2-echo-bundle/` | a service is ONE register call through the borrowed host table; the call slot is your whole protocol | `t2.cpp`, the `t2_start` body |
 | t3 | `t3-bus-bundle/` | the v2 door: subscribe-your-own-topic first (the slot RETURNS the queue id), publish, read the self-echo back - all inside start | `t3.cpp`, the `t3_start` mailbox walk |
 | t4 | `t4-driver/` | the HOST side: the generated wrapper walks install -> resolve -> start -> state -> service_call -> stop -> uninstall | `t4_driver.cc`, `main` |
 | t5 | `t5-consumer-poll/` | the NAIVE consumer: call by well-known id; the typed NOT_FOUND while the provider is absent is the lesson (dictionaryclient) | `t5_consumer.cc`, `main` |
 | t6 | `t6-consumer-filter/` | the FILTER consumer: discover with the S1 query first (empty set = data, never an error), then call (dictionaryclient3) | `t6_consumer.cc`, `main` |
-| t7 | `t7-compose-bundle/` | COMPOSITION across the wire: a plugin cannot call another plugin directly (no call slot on the host table), so the topic is the seam - announce on the reply topic, subscribe the request topic, expose the aggregate service (spellcheckservice) | `t7.cpp`, the `t7_start` body |
+| t7 | `t7-compose-bundle/` | COMPOSITION across the wire: a bundle cannot call another bundle directly (no call slot on the host table), so the topic is the seam - announce on the reply topic, subscribe the request topic, expose the aggregate service (spellcheckservice) | `t7.cpp`, the `t7_start` body |
 | t8 | `t8-compose-walk/` | the composed WALK: install the composer, late-join its announcement, drive the aggregate service (request + seed), verify the request topic, close (spellcheckclient) | `t8_compose.cc`, `main` |
 
 ## Run it
@@ -31,7 +31,7 @@ lifecycle walk - the echo scene self-skips because t1 registers nothing),
 the consumer evolution t5 (typed absence -> same call round-trips) and
 t6 (discover, then call), then the composition pair t8 against t7 (the
 announcement late-join, the composed call). Each run prints its own PASS
-line; t7 itself is exercised by t8 (a plugin's start is not driven
+line; t7 itself is exercised by t8 (a bundle's start is not driven
 directly).
 
 ## What each step teaches (quoted, with provenance)
@@ -39,7 +39,7 @@ directly).
 Provenance anchors name the SYMBOL to read (line numbers rot; symbols do
 not - ruling B3). Every quote is verbatim from the compiled fixture.
 
-**t1** - the whole plugin, the `T1_DESCRIPTOR` initializer in
+**t1** - the whole bundle, the `T1_DESCRIPTOR` initializer in
 `examples/cpp/tutorial/t1-hello-bundle/t1.cpp`:
 
 ```cpp

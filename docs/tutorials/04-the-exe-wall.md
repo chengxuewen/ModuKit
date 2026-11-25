@@ -1,7 +1,7 @@
 # Tutorial 04 - The exe wall
 
-Chapter 02's plugins were `dl`-placed: the kernel dlopens them into its own
-process. The second placement is `exe`: the kernel SPAWNS the plugin as a
+Chapter 02's bundles were `dl`-placed: the kernel dlopens them into its own
+process. The second placement is `exe`: the kernel SPAWNS the bundle as a
 child process, and everything between them crosses a wire - a narrow,
 frozen frame set (D87) with 11 wire kinds. This chapter runs that wall and
 then breaks it on purpose.
@@ -16,7 +16,7 @@ which self-reports identity and is cross-checked against the manifest
 receives START and registers services back through a proxy - kernel-side
 consumers cannot tell an exe service from a dl one. The supervisor owns
 the rung: crash-watch, restart budget (D3), and the ORPHAN-PROOF census.
-Canon: [../modules/01-plugin-placement-model.md](../modules/01-plugin-placement-model.md),
+Canon: [../modules/01-bundle-placement-model.md](../modules/01-bundle-placement-model.md),
 [../modules/03-lifecycle-state-machine.md](../modules/03-lifecycle-state-machine.md) §4.
 
 ## See the wall hold
@@ -61,18 +61,18 @@ pair also carries the C band: the same leg ends with `C-DEMO PASS`
 ## The sabotage levers
 
 Every exe leg documents how to make it RED: stage2 and m2 carry
-`DEMO_STAGE2_SABOTAGE`-class hooks, and the script-plugin legs prove
+`DEMO_STAGE2_SABOTAGE`-class hooks, and the script-bundle legs prove
 theirs inline on every green run (chapter 06). Run a leg with its lever
 set, watch the typed refusal, then re-run green - the refusals are the
 product, not the failure.
 
 ## Why a wall at all
 
-The wall buys what dl cannot give: a crashed or crashed-ON-PURPOSE plugin
-cannot take the kernel down (01 §4: the host survives, the plugin lands
+The wall buys what dl cannot give: a crashed or crashed-ON-PURPOSE bundle
+cannot take the kernel down (01 §4: the host survives, the bundle lands
 on the FAILED edge, the supervisor revives it inside the D3 budget). It
 is also the seam the script languages cross - chapter 06's Python and JS
-plugins are exe children speaking the same 11 wire kinds. The honest
+bundles are exe children speaking the same 11 wire kinds. The honest
 asymmetry (native code cannot be preempted; stop budgets are
 documentation at v0 for `dl`) is written down in
 [../modules/03-lifecycle-state-machine.md](../modules/03-lifecycle-state-machine.md) §5.

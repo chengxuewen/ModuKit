@@ -73,5 +73,5 @@ fallback container, not a format negotiation with the kernel.
 ## 5. Year plan
 
 Year 1: this document; recorder-as-subscriber as a DESIGN record only (zero code, zero
-dependency — D5 thin edge intact). Stage 2: recorder plugin + mcap dependency + replay
+dependency — D5 thin edge intact). Stage 2: recorder bundle + mcap dependency + replay
 publisher; CLI packaging arrives with `modukit-cli` (still out of Stage-1).

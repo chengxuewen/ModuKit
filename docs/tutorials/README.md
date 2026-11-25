@@ -10,7 +10,7 @@ A5 discipline of `docs/onboarding-plan.md`).
 | You are | Start at | Then |
 |---|---|---|
 | A newcomer ("what is this thing?") | chapter 01 | the [feature gallery](../features.md) once it lands |
-| A plugin author (C / C++ / Python / JS) | chapter 02 | chapters 03-04, then 06 if you write script plugins |
+| A bundle author (C / C++ / Python / JS) | chapter 02 | chapters 03-04, then 06 if you write script bundles |
 | An embedder (your app drives the kernel) | chapter 05 | chapters 03-04 for the model behind the verbs |
 
 ## Platform note
@@ -23,15 +23,15 @@ today - `pixi.toml` declares linux-64/win-64 only.
 
 | Band | Plugin face | Host/embed face | Placement |
 |---|---|---|---|
-| C | `test-plugins/c/c-example-bundle` (pure C, one file) | `examples/c/host_demo.c` | dl |
-| C++ | `test-plugins/cpp/cpp-example-bundle` (generated shelf) | `examples/cpp/host_demo.cc` | dl |
-| Python | `test-plugins/py/py_echo.py` (script, exe wall) | `examples/py/host_demo.py` (ctypes) | exe |
-| JS | `test-plugins/js/js_echo.mjs` (script, exe wall) | `examples/js/host_demo.js` (napi) | exe |
+| C | `test-bundles/c/c-example-bundle` (pure C, one file) | `examples/c/host_demo.c` | dl |
+| C++ | `test-bundles/cpp/cpp-example-bundle` (generated shelf) | `examples/cpp/host_demo.cc` | dl |
+| Python | `test-bundles/py/py_echo.py` (script, exe wall) | `examples/py/host_demo.py` (ctypes) | exe |
+| JS | `test-bundles/js/js_echo.mjs` (script, exe wall) | `examples/js/host_demo.js` (napi) | exe |
 
 ## Chapters
 
 1. [First run](01-first-run.md) - 60 seconds, full lifecycle.
-2. [Your first plugin](02-first-plugin.md) - manifest, install gates, the
+2. [Your first bundle](02-first-bundle.md) - manifest, install gates, the
    sabotage levers (C and C++ bands). Sample manifest:
    [fixtures/manifest-sample.toml](fixtures/manifest-sample.toml).
 2b. [The C++ tutorial series](02b-cpp-tutorial-series.md) - four minimal
@@ -41,13 +41,13 @@ today - `pixi.toml` declares linux-64/win-64 only.
    ORPHAN-PROOF.
 5. [Embed from your language](05-embed-from-your-language.md) - C, C++,
    Python, JS hosts on the same verb walk.
-6. [Script plugins](06-script-plugins.md) - the Python/JS plugin door and
+6. [Script bundles](06-script-bundles.md) - the Python/JS bundle door and
    the four hidden contracts.
 
 ## Where to go next
 
 - The deep-dive canon: [../modules/00-overview.md](../modules/00-overview.md)
-  (reading order for newcomer / plugin author / comm-stack).
+  (reading order for newcomer / bundle author / comm-stack).
 - The environment: [../env.md](../env.md).
 - Everything the kernel can do: the [feature gallery](../features.md) and
   [../capability-ledger.md](../capability-ledger.md).

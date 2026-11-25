@@ -1,6 +1,6 @@
 # Tutorial 01 - First run
 
-Sixty seconds from a fresh clone to a full plugin lifecycle, and the mental
+Sixty seconds from a fresh clone to a full bundle lifecycle, and the mental
 model that explains every line of output.
 
 ## Prerequisites
@@ -40,7 +40,7 @@ STAGE1-DEMO PASS
 The Rust demo `examples/rs/stage1_demo.rs` (quoted from, see that file for
 the authoritative transcript) walks, in order:
 
-1. **A fixture cdylib is built** - the plugin is an ordinary shared library.
+1. **A fixture cdylib is built** - the bundle is an ordinary shared library.
 2. **The D28 install protocol** - a bundle archive is staged, verified, and
    installed over a fresh host tree.
 3. **A tampered bundle is refused at the install door** - RED before the
@@ -48,7 +48,7 @@ the authoritative transcript) walks, in order:
 4. **Lifecycle walk** - install -> resolve (the dl handshake) -> start ->
    ACTIVE -> stop -> uninstall, the six-state machine of
    [../modules/03-lifecycle-state-machine.md](../modules/03-lifecycle-state-machine.md).
-5. **Service echo** - the plugin registered a service; the host calls it.
+5. **Service echo** - the bundle registered a service; the host calls it.
 6. **Bus late-join** - a subscriber that arrives after the publish still
    gets the current value (`QoS::LatestValue`,
    [../modules/06-topics-and-bus.md](../modules/06-topics-and-bus.md)).
@@ -56,9 +56,9 @@ the authoritative transcript) walks, in order:
 The two most important ideas for everything that follows:
 
 - **The install door is a gate, not a formality**: identity, placement, and
-  manifest grammar are checked before the plugin root exists. Chapter 02
+  manifest grammar are checked before the bundle root exists. Chapter 02
   makes you trip it on purpose.
-- **Everything is a service**: the plugin published one; the host consumed
+- **Everything is a service**: the bundle published one; the host consumed
   one; the whole registry is queryable (chapter 03's tracker and the S1
   filter ride the same registry).
 
@@ -71,12 +71,12 @@ prints the full list. The same legs are standing members of the local gate
 
 ## After the walk: look at the machine
 
-A plugin ran, served, and left - the natural next question is "how do I
+A bundle ran, served, and left - the natural next question is "how do I
 WATCH a deployment?" The host's read-only ops face answers it
 (`crates/modukit-runtime/src/host.rs`, the `run_ops` body):
 
 ```bash
-modukit-host <manifest.toml> --ops=lb                # plugins: id / state / placement
+modukit-host <manifest.toml> --ops=lb                # bundles: id / state / placement
 modukit-host <manifest.toml> --ops=query:(service.id=org.modukit.snapshot)
 modukit-host <manifest.toml> --ops=dm                # required deps + loss policy + presence
 ```
@@ -89,4 +89,4 @@ into its own chapter (the recorded trigger, ruling B5).
 
 ## Next
 
-Chapter 02: write your own plugin - and watch the gate refuse a bad one.
+Chapter 02: write your own bundle - and watch the gate refuse a bad one.

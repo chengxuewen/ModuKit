@@ -1,6 +1,6 @@
-# Tutorial 06 - Script plugins
+# Tutorial 06 - Script bundles
 
-Python and JS programs can BE ModuKit plugins: the kernel spawns your
+Python and JS programs can BE ModuKit bundles: the kernel spawns your
 script as a child process across the exe wall (chapter 04), hands it a
 control socket, and speaks a frozen wire protocol to it. You write a plain
 script - stdlib only, no `.so`, no `LD_PRELOAD`, no npm - and a
@@ -9,16 +9,16 @@ hand-written skin (`bindings/py/bundle_runtime.py`,
 
 ## The four hidden contracts
 
-Read these BEFORE your first script plugin - all four are enforced or
+Read these BEFORE your first script bundle - all four are enforced or
 verified by the door:
 
 1. **The manifest `runner` must be an ABSOLUTE existing path.** Bare
    `python3` is refused (the executor resolves the runner literally -
    `crates/modukit-core/src/executor_proc.rs`; the leg wiring shows the
    shape at `scripts/demo-wave2-bundle-py.sh:103-116`).
-2. **Your plugin must NEVER print.** The control socket IS fd 0; stdout
+2. **Your bundle must NEVER print.** The control socket IS fd 0; stdout
    and stderr are nulled - any print corrupts the wire. Quoted from
-   `test-plugins/py/py_echo.py:4-6`:
+   `test-bundles/py/py_echo.py:4-6`:
    ```python
    # The kernel spawns it as `python3 <this-file> --fd=0` (manifest kind=exe,
    # runner=<absolute interpreter path>); the control socket IS fd 0 and
@@ -26,7 +26,7 @@ verified by the door:
    ```
 3. **Out-of-tree scripts need `MODUKIT_PY_SKIN`** pointing at
    `bindings/py` (the staged file cannot reach the repo-relative default;
-   quoted from `test-plugins/py/py_echo.py:24-28`). In-place checkouts
+   quoted from `test-bundles/py/py_echo.py:24-28`). In-place checkouts
    resolve it without the env.
 4. **The bindings are generated - DO NOT EDIT** (D63). Quoted from
    `bindings/py/modukit_embed.py:1-4`:
@@ -39,7 +39,7 @@ verified by the door:
 
 ## The shape (Python)
 
-Quoted from `test-plugins/py/py_echo.py:85-90` - the whole activation is
+Quoted from `test-bundles/py/py_echo.py:85-90` - the whole activation is
 one `serve` call:
 
 ```python
@@ -51,7 +51,7 @@ rt.serve(ID, VERSION, NAME,
 ```
 
 The JS twin is the same shape in ESM, quoted from
-`test-plugins/js/js_echo.mjs:86-94`:
+`test-bundles/js/js_echo.mjs:86-94`:
 
 ```js
 await rt.serve({
@@ -65,11 +65,11 @@ await rt.serve({
 });
 ```
 
-## The callbacks are where your plugin lives
+## The callbacks are where your bundle lives
 
-The `serve` shape is the doorway; the callbacks are the plugin. The echo
+The `serve` shape is the doorway; the callbacks are the bundle. The echo
 implementation and the bus derivative, quoted from
-`test-plugins/py/py_echo.py:59-76`:
+`test-bundles/py/py_echo.py:59-76`:
 
 ```python
 def on_call(method, inp):
@@ -115,9 +115,9 @@ PROOF.
 
 ## The liar fixtures are the negative proof
 
-`test-plugins/py/py_liar.py` / `test-plugins/js/js_liar.mjs` answer wrong
+`test-bundles/py/py_liar.py` / `test-bundles/js/js_liar.mjs` answer wrong
 ON PURPOSE. The typed `ServiceCallFailed` - not a crash, not a hang - is
-the liar family doing its job: a plugin that misbehaves gets a typed,
+the liar family doing its job: a bundle that misbehaves gets a typed,
 observable answer while staying alive for the census.
 
 ## Next

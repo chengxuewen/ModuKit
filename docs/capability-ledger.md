@@ -37,7 +37,7 @@ Citations (legend to keep rows short):
 - `header` (A) = `contracts/modukit_embed.h`; `header` (B) = `contracts/modukit_bundle.h`.
 - `generated` embed wrapper = `crates/modukit-codegen/testdata/golden/modukit_embed.hpp`
   (one `Kernel` forwarding method per verb, lane #3 face B).
-- `generated` plugin dispatch = `crates/modukit-codegen/testdata/golden/com_modukit_demo.hpp`
+- `generated` bundle dispatch = `crates/modukit-codegen/testdata/golden/com_modukit_demo.hpp`
   (C++ service skeleton + `Dispatch` byte door, lane #3 face A).
 
 - `generated` Python embed floor = `crates/modukit-codegen/testdata/golden/modukit_embed.py`
@@ -96,9 +96,9 @@ by `scripts/check-capability-ledger.sh` (check.sh leg "capability-ledger").
 
 ## B. Plugin-side surface (contracts/modukit_bundle.h <-> abi::BundleAbiV1/HostAbiV1)
 
-The generated C++ plugin face today is the service dispatch skeleton only
+The generated C++ bundle face today is the service dispatch skeleton only
 (golden cited above); entry-symbol and descriptor shims are hand-written by
-the plugin author, so those rows are `planned` until an emitter ships them.
+the bundle author, so those rows are `planned` until an emitter ships them.
 The Rust column here is the frozen v1 truth: `abi.rs` layout, consumed by
 `executor.rs` handshake guards (`open_validated`/`validate`).
 
@@ -128,7 +128,7 @@ the SAME in-process `Bus` (`bus.rs`). C++ `generated` =
 `crates/modukit-codegen/testdata/golden/modukit_bundle.hpp` (one
 forwarding method per mailbox slot, behind the declared major; `size`/`user`
 are the guard's data, not verbs, so they read `header`). Proof chain:
-`test-plugins/rs/busv2-bundle` + `crates/modukit-core/tests/abi_v2_door.rs` (rs band 2026-10-23); the C++ twin `test-plugins/cpp/cpp-busv2-bundle` rides the m1 leg (2026-11-24, onboarding deepening D2).
+`test-bundles/rs/busv2-bundle` + `crates/modukit-core/tests/abi_v2_door.rs` (rs band 2026-10-23); the C++ twin `test-bundles/cpp/cpp-busv2-bundle` rides the m1 leg (2026-11-24, onboarding deepening D2).
 
 | Capability | C | C++ | Rust | Python | JS |
 |---|---|---|---|---|---|
@@ -149,8 +149,8 @@ names (`HOST3_ABI_FIELDS` in `embed_abi.rs`);
 (same existence-only rule as sections A/C - the ordered layout truth lives
 in the parity gate). Rust column: `abi.rs` table + `host_v3.rs` door
 trampolines over the kernel's `Clock` (`clock.rs`), with the due bell
-posted at the ONE due-funnel `wiring.rs::post_jobs` onto the per-plugin
-topic `org.modukit.timer.<plugin-id>` (token LE ++ label, `Lossy(16)`,
+posted at the ONE due-funnel `wiring.rs::post_jobs` onto the per-bundle
+topic `org.modukit.timer.<bundle-id>` (token LE ++ label, `Lossy(16)`,
 late-join replay pinned) and the authority-law token release at
 stop/uninstall (`kernel.rs`). The seven prefix rows repeat here because
 they are HostAbiV3's fields too - the C++ `generated` column rides the
@@ -158,7 +158,7 @@ same v2 trampolines. C++ `generated` =
 `crates/modukit-codegen/testdata/golden/modukit_bundle.hpp` (one forwarding
 method per parsed slot, the timer pair behind the v3 size guard; `size`/
 `user` are the guard's data, not verbs, so they read `header`). Proof
-chain: `test-plugins/rs/timerv3-bundle` +
+chain: `test-bundles/rs/timerv3-bundle` +
 `crates/modukit-core/tests/abi_v3_door.rs`.
 
 | Capability | C | C++ | Rust | Python | JS |
@@ -175,7 +175,7 @@ chain: `test-plugins/rs/timerv3-bundle` +
 
 ## E. Plugin wire v1 (D106)
 
-The `exe` control-channel frame ledger (wave-2 plugin door, batch 1, plan
+The `exe` control-channel frame ledger (wave-2 bundle door, batch 1, plan
 T1.4). Row names + decimal values mirror the "NAME = value" constant
 table of `contracts/modukit_wire.h`; `scripts/check-capability-ledger.sh`
 requires one row per E-scope wire.h constant both ways (name AND value);

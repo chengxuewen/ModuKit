@@ -17,17 +17,17 @@ UNINSTALLED -> INSTALLED -> RESOLVING -> STARTING -> ACTIVE -> STOPPING -> RESOL
 
 - `INSTALLED`: artifact known, identity + manifest parsed, not yet validated.
 - `RESOLVING`: contract/link/placement prerequisites checked; required dependencies validated
-  (fail here = deterministic boot failure, before any plugin code executes).
+  (fail here = deterministic boot failure, before any bundle code executes).
 - `STARTING` / `ACTIVE` / `STOPPING`: `start()` / running / cooperative `stop()`.
   STOPPING drain semantics (D40, the industry-converged three-step): new calls are
   REFUSED (handle-table marked), in-flight calls complete naturally (bounded by the
-  plugin's `stop_timeout`, D34 expiry rules on overrun) - refuse new, finish old, with
+  bundle's `stop_timeout`, D34 expiry rules on overrun) - refuse new, finish old, with
   an alarm.
 - `FAILED`: reached from `RESOLVING`/`STARTING` (setup error) or — process placement only —
   from `ACTIVE` on supervised death or heartbeat loss.
 - `RESOLVED`: stopped-but-resolved, cheap restart origin.
 
-`dl` placement has **no** transition out of host corruption (01 §4): if a native plugin
+`dl` placement has **no** transition out of host corruption (01 §4): if a native bundle
 segfaults the host, no state machine survives to record it. `exe` placement is where
 `Failed` + restart actually protects the system.
 
@@ -68,7 +68,7 @@ real degraded-topology requirement; when it rings, it assembles ONLY from stock 
 D3 Failed event -> 03 §3.1's sibling gate (start approval) -> lazy activation in its
 purpose-specific form (D33's deferred general knob), with every switch landing on the
 ring (D35/D36 audit discipline). A general condition-startup DSL is rejected (D38: no
-logic in config, twice-ruled) - nobody may hand-roll a launch rules engine in a plugin.
+logic in config, twice-ruled) - nobody may hand-roll a launch rules engine in a bundle.
 
 ## 3.1 Start-approval hook (named, trigger-gated - D40)
 
@@ -86,11 +86,11 @@ requirement ever lands on ModuKit, that is a D3 re-review trigger, not a kernel 
 
 ## 5. Blocking and timeouts (the honest asymmetry, D6)
 
-Contract calls are synchronous at the boundary (04 §2), so a plugin may block inside a call:
+Contract calls are synchronous at the boundary (04 §2), so a bundle may block inside a call:
 
 | Placement | Caller timeout | Host defense |
 |---|---|---|
-| `dl` | none — native code cannot be preempted | review + contract rules + external watchdog; a blocked plugin blocks the host |
+| `dl` | none — native code cannot be preempted | review + contract rules + external watchdog; a blocked bundle blocks the host |
 | `exe` | caller abandons the correlation id; supervisor kills/restarts per §2 policy | full: timeout -> `FAILED` -> restart path |
 
 The job pattern (02 §4) removes the long-tail motivation to block: short sync `submit`,
@@ -110,7 +110,7 @@ fn timer(clock, deadline) -> JobToken            // fires as a `done` JobEvent (
   under `step|burst`, so frames, logs (D19) and time stay one axis.
 - `sim` domain accepts an external time base (test rigs/HIL; wiring field deferred to the
   tooling round).
-- Convention: plugin time comes from the service; **high-rate loops use the message's own
+- Convention: bundle time comes from the service; **high-rate loops use the message's own
   `capture_ts`** (authoritative at capture, zero lookups on hot paths); raw wall-clock use
   is reserved for host-owned binaries (CLI/daemons) that sit outside the bus.
 - Rejected alternatives (D20): LD_PRELOAD-style interception (co-poisons the host under
@@ -120,12 +120,12 @@ fn timer(clock, deadline) -> JobToken            // fires as a `done` JobEvent (
 ## 7. The host's own lifecycle (D34)
 
 The host is a long-lived process; its own lifecycle is three statements, all mirrors of
-existing plugin-side rulings:
+existing bundle-side rulings:
 
 1. **Cold start**: bring up the observation ring first (D19 - the host's own logs ride it),
    read deploy-TOML (D29), then load bundles along the boot DAG (03 §3).
 2. **Graceful shutdown**: on SIGTERM/SIGINT, stop bundles in REVERSE start_level order;
-   each plugin gets its `stop_timeout` (05 §2, D34) with the per-placement expiry outcome;
+   each bundle gets its `stop_timeout` (05 §2, D34) with the per-placement expiry outcome;
    the host itself has a total shutdown budget - exceeded, it exits with a code that says
    "unclean".
 3. **Self-healing belongs to the OS**: host crash/keepalive is the OS service manager's job
@@ -152,7 +152,7 @@ Gates: every ctl call passes identity (D37 bridge/local declarations) + capabili
 (D35 audit). Monitors wanting a button press this panel through the same gates - there
 is no second control channel.
 
-Honest limits: dl per-plugin resource remains n/a (D22 physics, not laziness - panels
+Honest limits: dl per-bundle resource remains n/a (D22 physics, not laziness - panels
 show aggregates, not illusions); the monitor binary itself obeys this section's sibling
 (§7 host lifecycle) - the oxmgr lesson: a watcher that ignores shutdown blinds the house.
 
@@ -180,4 +180,4 @@ The whitepaper lifecycle includes update (§4.1, `whitepaper.md:111`); year-1 se
 - OTA distribution (fetch/verify/rollback of bundles) remains outside the kernel
   (architecture.md §10 out-of-scope list).
 
-- **Media-base recheck (D71, 2026-10-15):** the control-plane-base swap needs ride the two lanes above (exe bundle swap; dl next-boot) - the inert `parallel_ok` routing was explicitly re-examined and NOT activated. Doorbell: a real customer needing an in-process plugin hot-swapped WHILE carrying in-flight tasks = a fresh hearing, not automatic enable.
+- **Media-base recheck (D71, 2026-10-15):** the control-plane-base swap needs ride the two lanes above (exe bundle swap; dl next-boot) - the inert `parallel_ok` routing was explicitly re-examined and NOT activated. Doorbell: a real customer needing an in-process bundle hot-swapped WHILE carrying in-flight tasks = a fresh hearing, not automatic enable.

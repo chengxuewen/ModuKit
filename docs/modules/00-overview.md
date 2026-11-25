@@ -8,7 +8,7 @@ by `gate-docs`); this index page is the one exemption.
 
 | # | Document | Covers | Status |
 |---|---|---|---|
-| 01 | [plugin-placement-model.md](01-plugin-placement-model.md) | executor closed set, shadow-runner, switchability preconditions, asymmetries, trust veto, cluster identity | D2/D35/D69 |
+| 01 | [bundle-placement-model.md](01-bundle-placement-model.md) | executor closed set, shadow-runner, switchability preconditions, asymmetries, trust veto, cluster identity | D2/D35/D69 |
 | 02 | [service-model.md](02-service-model.md) | C+ registry: six invariants, canonical identity, host-qualified resolution, dependency policies, job pattern, gate/audit split, job-progress discipline, non-goals | D4/D6/D9/D35/D36/D46/D70 |
 | 03 | [lifecycle-state-machine.md](03-lifecycle-state-machine.md) | six states + Failed edge, restart policy, boot orchestration, blocking asymmetry, update path, clock & timers, host lifecycle, control panel, failover naming | D3/D6/D8/D20/D34/D40/D44/D47/D71 |
 | 04 | [contract-and-codegen.md](04-contract-and-codegen.md) | `.proto` single door, protoc plugin (Rust/C ABI/fdset), two-stage views, cargo oneof, sidecar framing, error shape + 14-entry dictionary, generated doc catalogs | D2/D4/D6/D7/D9/D12/D13/D14/D15/D23/D27/D48/D51/D63/D66/D67 |
@@ -22,7 +22,7 @@ by `gate-docs`); this index page is the one exemption.
 
 Reading order for a newcomer: run the [tutorials](../tutorials/README.md) first,
 then 03 -> 02 -> 01 -> 05 -> 04.
-Reading order for a plugin author: the [tutorials](../tutorials/README.md)
+Reading order for a bundle author: the [tutorials](../tutorials/README.md)
 chapters 02 and 06, then 05 -> 02 -> 04 -> 06.
 Communication stack reading order: 06 (semantics) -> 07 (mechanics).
 End-to-end picture (video-frame worked example): [08-end-to-end-walkthrough.md](08-end-to-end-walkthrough.md).

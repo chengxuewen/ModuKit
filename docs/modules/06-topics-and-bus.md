@@ -2,7 +2,7 @@
 
 <!-- module-status: implemented - v2/clock doors and the parent pump landed (D96/D99/D108/D110); section 7 is the pre-v2 historical snapshot -->
 
-D10. Cross-plugin communication is one object table with four kinds of handles.
+D10. Cross-bundle communication is one object table with four kinds of handles.
 
 ## 1. One table, four handle kinds
 
@@ -57,7 +57,7 @@ Industrial point/tag workflows ride the bus unchanged:
   kernel-side change filtering).
 - **Tag breakpoints belong to debuggers** (D17: DAP for native, runner hooks for
   scripts); the bus never grows a stop-the-world hook. "If value then act" is a
-  watchdog plugin (ordinary subscriber), not a rule engine (config-mounts-code lesson,
+  watchdog bundle (ordinary subscriber), not a rule engine (config-mounts-code lesson,
   D38).
 - **Observation** (D43): the tag table and trend curves are named bays of the D39 web
   blueprint (live half via EventStream, history half via the tool below). Historical
@@ -97,9 +97,9 @@ RPC; QoS vocabulary borrowed from any vendor (the kernel owns the list, bridges 
 > wall behavior is §8, with D96/D99/D108/D110 as the decision provenance.
 
 The bus remains the kernel-side face: in-process publish/subscribe and latest-value live
-in `bus.rs`, and a plugin still receives no bus handle — §5's "Stage 2: topics cross the
+in `bus.rs`, and a bundle still receives no bus handle — §5's "Stage 2: topics cross the
 wire" row is honestly UNBUILT, not quietly bridged. The cross-process clause (D81) was
-resolved at the freeze hearing as an admitted direction, not a frozen door: plugin-facing
+resolved at the freeze hearing as an admitted direction, not a frozen door: bundle-facing
 bus/clock verbs (publish, subscribe, schedule-timer) are the first residents of a future
 ABI v2, signatures explicitly NOT drawn — drawing day is its own hearing (D82); v1
 (register_service, byte-identical) stays STABLE (D87). The lineage continues outward: the

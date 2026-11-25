@@ -1,13 +1,13 @@
-# Tutorial 02 - Your first plugin
+# Tutorial 02 - Your first bundle
 
-A plugin author writes exactly two things: the plugin binary that exports
+A bundle author writes exactly two things: the bundle binary that exports
 one entry symbol, and a manifest that tells the kernel what it is and where
 its binary lives. Everything else - verification, handshake, lifecycle -
 is the kernel's job.
 
 This chapter uses the two bands the repo compiles every night: **C++**
 (the generated-shelf shape) and **C** (the raw-ABI shape, one source file).
-Python and JS plugin authors jump to chapter 06.
+Python and JS bundle authors jump to chapter 06.
 
 ## The manifest (three fields, one shape)
 
@@ -19,19 +19,19 @@ version = "0.1.0"
 
 [entry]
 kind = "dl"
-artifact = "<path-to-the-built-plugin-.so>"
+artifact = "<path-to-the-built-bundle-.so>"
 ```
 
 `id` is a canonical reverse-DNS id (D9). `kind = "dl"` means: the kernel
 dlopens this artifact in-process. The full v0 grammar - `requires` with
 version ranges, `on_down` policies, `config_live` - is
 [../modules/05-manifest-and-deployment.md](../modules/05-manifest-and-deployment.md);
-three fields are all a first plugin needs.
+three fields are all a first bundle needs.
 
-## The plugin binary (C++ band)
+## The bundle binary (C++ band)
 
 Quoted verbatim from
-`test-plugins/cpp/cpp-example-bundle/src/plugin.cc:68-76` - the entire
+`test-bundles/cpp/cpp-example-bundle/src/bundle.cc:68-76` - the entire
 self-report descriptor:
 
 ```cpp
@@ -40,7 +40,7 @@ const modukit_bundle_abi_v1 DESCRIPTOR = {
     sizeof(modukit_bundle_abi_v1), /* size - guard 3 */
     "cpp-example-bundle",  /* name */
     DemoServiceImpl::kServiceId, /* id == registered service id, mirroring the rs twin (D9) */
-    "0.1.0",               /* version - plugin's own semver */
+    "0.1.0",               /* version - bundle's own semver */
     demo_start,            /* start - guard 4 */
     demo_stop,             /* stop - guard 4 */
 };
@@ -50,17 +50,17 @@ The handshake guards (04 §3) check exactly: the entry symbol resolves and
 returns non-NULL; `abi_version` equals the host's; `size` is at least the
 host's compiled size; `start`/`stop` are non-NULL. The generated shelf
 (`bindings/cpp`) carries the message dispatch; the author implements the
-service class above it (`plugin.cc:16-35`).
+service class above it (`bundle.cc:16-35`).
 
-## The plugin binary (C band)
+## The bundle binary (C band)
 
 The C twin is the whole story in one hand-written file:
-`test-plugins/c/c-example-bundle/src/hello.c` (43 lines, no generated
+`test-bundles/c/c-example-bundle/src/hello.c` (43 lines, no generated
 shelf, no C++ runtime). The descriptor is the same struct; the service is
 `com.modukit.demo.hello` with one method `hello` that echoes the request
-payload; the call slot returns a plugin-author negative code on anything
+payload; the call slot returns a bundle-author negative code on anything
 else (D27 code space). Read it top to bottom - it is the minimal complete
-plugin.
+bundle.
 
 ## Run the walk (and trip the gate on purpose)
 
@@ -78,10 +78,10 @@ documents how to make it RED.
 
 ## The negative fixtures are canonical
 
-`test-plugins/cpp/cpp-bad-bundle` and the rust `bad-bundle` are the
+`test-bundles/cpp/cpp-bad-bundle` and the rust `bad-bundle` are the
 ABI-lie liars: a descriptor that lies about its ABI version parks the
-plugin on the FAILED edge at resolve (D3's Failed edge exists for exactly
-this). D23 ruled these fixtures the official plugin-starting answer - when
+bundle on the FAILED edge at resolve (D3's Failed edge exists for exactly
+this). D23 ruled these fixtures the official bundle-starting answer - when
 in doubt, copy the positive one and break it on purpose.
 
 ## Where the grammar lives

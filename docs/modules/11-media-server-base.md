@@ -9,21 +9,21 @@
 
 Control-plane base (P1) when serving a media server: the kernel owns
 lifecycle/registry/manifest/supervisor/ABI governance; the media pipeline core stays
-compiled; GPU inner loops are core, never plugins. Industry comparison and sibling
+compiled; GPU inner loops are core, never bundles. Industry comparison and sibling
 facts: `docs/reference/mediaservo.md`, `docs/reference/00-overview.md`.
 
 ## Frame clause (D69) - law lives at home
 
-The pool + descriptor channel is the ONLY path frame bytes take to a plugin, any
+The pool + descriptor channel is the ONLY path frame bytes take to a bundle, any
 placement. Normative wording: `docs/modules/07-transport-architecture.md` §3 (promoted
-clause) and `docs/modules/01-plugin-placement-model.md` §3 (rule 3/7 note). Contract
+clause) and `docs/modules/01-bundle-placement-model.md` §3 (rule 3/7 note). Contract
 signatures pass handles/descriptors/registration ids - never raw frame pointers, never
-foreign malloc'd buffers. A dl plugin mapping the pool is a trusted-tier privilege; SDK
+foreign malloc'd buffers. A dl bundle mapping the pool is a trusted-tier privilege; SDK
 consumers take frames over API borrow/pull/out-buffer (Visia-validated shapes).
 
 ## Factories and work units (D70)
 
-The kind+formats+priority query rides the plugin family's own contract, NOT the
+The kind+formats+priority query rides the bundle family's own contract, NOT the
 registry; observable work units (drainable/countable) register ephemeral service
 records and deregister on completion. Law + default rule: `docs/modules/02-service-model.md`.
 
