@@ -72,7 +72,7 @@ ModuKit — modular plugin host framework & polyglot extension toolkit (Rust cor
 
 - **C1**: all artifacts English; chat follows user. (CJK scan is the canonical block below — keep it synced with conventions.md verbatim.)
 - **C0**: every constraint carries a runnable check, observed red once before trusted.
-- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D111/C6/PIT-43; the prose re-sync at every mint covers high-water AND index ranges (doc-audit 2026-10-23 fixed three missed sites); numbering gate in status.md guards bounds.
+- Memory: `C{n}` / `D{n}` / five-part `PIT-{n}`; high-water today D111/C6/PIT-44; the prose re-sync at every mint covers high-water AND index ranges (doc-audit 2026-10-23 fixed three missed sites); numbering gate in status.md guards bounds.
 - **C2**: ModuKit lands on master; PolyOrch edits on dev-modukit, tests blessed on main; pin = fresh dev-modukit tip via standalone bumps.
 - **C3**: commit subject ≤60 (`type(scope): doing`), body = wrapped ` - ` bullets ≤100, ONE physical line per bullet (machine leg in check.sh; continuation lines are the recurring self-violation this leg caught x5).
 - `Cargo.lock` commits with `Cargo.toml`.
@@ -262,8 +262,7 @@ file. Read the source file before acting on a rule you are unsure about.
 
 ### pitfalls
 - full text: `.agents/memorys/pitfalls.md`
-- ... 28 older entries omitted (read the full file)
-- PIT-29: a worker session reports "complete" while its transcript reader errors - the tree is the deliverable (2026-10-23)
+- ... 29 older entries omitted (read the full file)
 - PIT-30: warm clippy fingerprint serves false green to re-verification (2026-10-23)
 - PIT-31: worktree edits can vanish between green verification and commit under parallel agents (2026-10-23)
 - PIT-32: gate cold window times out transport's dead-lane assertion (2026-10-27)
@@ -278,6 +277,7 @@ file. Read the source file before acting on a rule you are unsure about.
 - PIT-41: after a cancelled/skipped command, verify file state BEFORE conclusions (2026-11-25)
 - PIT-42 (trivial): subdirectory-level `enable_language(C)` leaves `CMAKE_C_COMPILE_OBJECT` unset (configure-time death); a guarded ROOT-scope enable is the working shape (2026-11-24, comment in test-plugins/c/CMakeLists.txt).
 - PIT-43: answer the SLICE asked - an aggregate that offsets a per-slice gap is spin (2026-11-24/25, corrected x3)
+- PIT-44: when the user scopes the analysis ("ignore sunk costs"), in-repo status quo facts are not arguments (2026-11-25, x2 same day)
 
 ### status
 - full text: `.agents/memorys/status.md`

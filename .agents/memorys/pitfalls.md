@@ -330,3 +330,10 @@
 - **Solution**: when the question names a slice, the FIRST sentence answers that slice's own numbers; aggregates appear only as context after, never as the headline.
 - **Verification**: the only real test is the user's trust trajectory; apply on every "is X too few?" question.
 - **Forbidden**: leading with a favorable aggregate; "we have more in total" as the opening of a per-slice answer.
+
+## PIT-44: when the user scopes the analysis ("ignore sunk costs"), in-repo status quo facts are not arguments (2026-11-25, x2 same day)
+- **Symptom**: in one terminology discussion the maintainer corrected twice ("Do I still need to explain sunk costs again" -> "you AGAIN considered history and code status") after answers whose decisive reasons were the frozen ABI face, file counts, and already-shipped tutorials.
+- **Root cause**: availability bias - the in-repo artifacts are the cheapest evidence to cite, so they drifted into being the DECISIVE arguments even inside a scope that explicitly excluded them.
+- **Solution**: before answering a scoped question, re-derive the analysis with the excluded class removed ("greenfield: what survives?"); only facts that survive may decide. Sunk-cost facts may appear ONLY as an implementation price tag, never as the recommendation's reason.
+- **Verification**: a recommendation whose top-3 reasons include an existing-artifact fact, under an explicit exclusion, is a red flag - re-derive before shipping the answer.
+- **Forbidden**: "the ABI is already frozen" as a first-principles argument; "39 files already say X" inside a greenfield comparison.
