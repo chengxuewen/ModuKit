@@ -69,6 +69,24 @@ the hood). A bare `pixi run demo` runs this chapter's leg; an unknown leg
 prints the full list. The same legs are standing members of the local gate
 (`bash scripts/check.sh`) - what you just ran is what CI replays.
 
+## After the walk: look at the machine
+
+A plugin ran, served, and left - the natural next question is "how do I
+WATCH a deployment?" The host's read-only ops face answers it
+(`crates/modukit-runtime/src/host.rs`, the `run_ops` body):
+
+```bash
+modukit-host <manifest.toml> --ops=lb                # plugins: id / state / placement
+modukit-host <manifest.toml> --ops=query:(service.id=org.modukit.snapshot)
+modukit-host <manifest.toml> --ops=dm                # required deps + loss policy + presence
+```
+
+Boot, one command over the live state, print, graceful stop - by design
+the channel carries NO mutating verbs (those stay with the host
+lifecycle). The working example is `examples/rs/ops_demo.rs` on the
+`demo-rs-examples` leg. When a third ops command appears, this grows
+into its own chapter (the recorded trigger, ruling B5).
+
 ## Next
 
 Chapter 02: write your own plugin - and watch the gate refuse a bad one.
