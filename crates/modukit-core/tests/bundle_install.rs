@@ -83,16 +83,16 @@ fn stage_bundle(
     std::fs::create_dir_all(&dir).expect("staging bundle dir");
     write_at(
         &dir,
-        "plugin.so",
+        "bundle.so",
         &std::fs::read(artifact_src).expect("read fixture so"),
     );
-    let mut members = vec!["plugin.so".to_string()];
+    let mut members = vec!["bundle.so".to_string()];
     for (rel, bytes) in extra {
         write_at(&dir, rel, bytes);
         members.push((*rel).to_string());
     }
     let mut toml = format!(
-        "id = \"{id}\"\nversion = \"{version}\"\n[entry]\nkind = \"dl\"\nartifact = \"plugin.so\"\n"
+        "id = \"{id}\"\nversion = \"{version}\"\n[entry]\nkind = \"dl\"\nartifact = \"bundle.so\"\n"
     );
     for rel in &members {
         let hash = to_hex(&hash_file(&dir.join(rel)).expect("hash member"));
@@ -140,7 +140,7 @@ fn deploy_config_defaults_and_field_cross_check() {
 
 #[test]
 fn clean_install_renames_atomically_then_walks_the_kernel() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let root = scratch("clean");
@@ -155,12 +155,12 @@ fn clean_install_renames_atomically_then_walks_the_kernel() {
         "staging entry consumed by rename"
     );
     assert!(
-        installed.dir.join("plugin.so").is_file(),
+        installed.dir.join("bundle.so").is_file(),
         "bundle live under install root"
     );
     assert_eq!(
         installed.manifest.entry.artifact,
-        installed.dir.join("plugin.so").to_string_lossy(),
+        installed.dir.join("bundle.so").to_string_lossy(),
         "the produced manifest carries the installed absolute artifact path"
     );
 
@@ -178,17 +178,17 @@ fn clean_install_renames_atomically_then_walks_the_kernel() {
 
 #[test]
 fn tampered_file_fails_install_before_anything_touches_the_install_root() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let root = scratch("tamper");
     std::fs::create_dir_all(root.join("staging")).expect("staging");
     let dir = stage_bundle(&root.join("staging"), "demo", EXAMPLE_ID, "0.1.0", &so, &[]);
     // Flip one artifact byte after the hash manifest was written.
-    let mut bytes = std::fs::read(dir.join("plugin.so")).expect("read so");
+    let mut bytes = std::fs::read(dir.join("bundle.so")).expect("read so");
     let last = bytes.len() - 1;
     bytes[last] ^= 0xFF;
-    std::fs::write(dir.join("plugin.so"), &bytes).expect("tamper");
+    std::fs::write(dir.join("bundle.so"), &bytes).expect("tamper");
 
     let inst = installer(&root);
     let err = inst
@@ -215,7 +215,7 @@ fn tampered_file_fails_install_before_anything_touches_the_install_root() {
 
 #[test]
 fn lying_size_fails_install() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let root = scratch("liesize");
@@ -232,7 +232,7 @@ fn lying_size_fails_install() {
 
 #[test]
 fn duplicate_id_rejected_at_staging_not_by_path() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let root = scratch("dup");
@@ -268,7 +268,7 @@ fn duplicate_id_rejected_at_staging_not_by_path() {
 
 #[test]
 fn big_files_dedupe_to_one_object_two_hardlinks() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let root = scratch("dedupe");
@@ -354,7 +354,7 @@ fn big_files_dedupe_to_one_object_two_hardlinks() {
 
 #[test]
 fn load_reverification_flags_tampered_backed_file() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let root = scratch("reverify");
@@ -388,7 +388,7 @@ fn load_reverification_flags_tampered_backed_file() {
 
 #[test]
 fn uninstall_removes_install_dir_and_the_plugins_data_root() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let root = scratch("uninstall");
@@ -397,7 +397,7 @@ fn uninstall_removes_install_dir_and_the_plugins_data_root() {
     let inst = installer(&root);
     let installed = inst.install("demo").expect("install");
 
-    // D26: the plugin's writable boundary is <data-root>/<plugin-id>/ —
+    // D26: the bundle's writable boundary is <data-root>/<bundle-id>/ —
     // not configurable, and uninstall removes it.
     write_at(inst.data_dir(), &format!("{EXAMPLE_ID}/state.db"), b"cache");
     assert!(inst.data_dir().join(EXAMPLE_ID).is_dir());

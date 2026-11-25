@@ -1,5 +1,5 @@
 //! The `dl` ABI v1 handshake surface (modules/04 §3), shared by the kernel
-//! and plugin fixtures as one source of layout truth.
+//! and bundle fixtures as one source of layout truth.
 //!
 //! Contract honored here: one exported entry symbol (`modukit_bundle_init`)
 //! returning `*const BundleAbiV1`; version integer + struct size are checked
@@ -19,12 +19,12 @@ use crate::identity::ServiceId;
 /// Host-side ABI major (04 §3: one integer compare is the whole negotiation).
 pub const ABI_VERSION: u32 = 1;
 
-/// Host-side ABI major v2 (D96 ruling 2): a plugin declaring this major is
+/// Host-side ABI major v2 (D96 ruling 2): a bundle declaring this major is
 /// handed the `HostAbiV2` table (the v1 prefix plus the four mailbox slots).
 /// `ABI_VERSION` and every v1 line above stay byte-identical (D87 STABLE).
 pub const ABI_VERSION_V2: u32 = 2;
 
-/// Host-side ABI major v3 (D99 R2): a plugin declaring this major is
+/// Host-side ABI major v3 (D99 R2): a bundle declaring this major is
 /// handed the `HostAbiV3` table (the v2 prefix byte-identical in front plus
 /// the two timer slots at the tail). `ABI_VERSION`, `ABI_VERSION_V2` and
 /// every v1/v2 line above stay byte-identical (D87/D96 STABLE precedent).
@@ -39,14 +39,14 @@ pub type BundleInitFn = extern "C" fn() -> *const BundleAbiV1;
 
 /// Activation: called once with the host context; non-zero = start failure
 /// (03 §2 STARTING -> FAILED).
-pub type PluginStartFn = unsafe extern "C" fn(host: *const HostAbiV1) -> i32;
+pub type BundleStartFn = unsafe extern "C" fn(host: *const HostAbiV1) -> i32;
 
 /// Cooperative stop; must be idempotent-friendly (01 §3 rule 6).
-pub type PluginStopFn = unsafe extern "C" fn() -> i32;
+pub type BundleStopFn = unsafe extern "C" fn() -> i32;
 
 /// Message-shaped service call: method name + owned bytes in, bytes out.
 /// Returns the number of bytes written to `output`, or a negative
-/// plugin-side error code (D27 author code space stays the int channel).
+/// bundle-side error code (D27 author code space stays the int channel).
 pub type ServiceCallFn = unsafe extern "C" fn(
     method: *const c_char,
     input: *const u8,
@@ -61,7 +61,7 @@ pub type RegisterServiceFn =
     unsafe extern "C" fn(user: *mut c_void, service_id: *const c_char, call: ServiceCallFn) -> i64;
 
 /// The self-report descriptor (04 §3, D7 self-report tier). `size` is the
-/// plugin's compiled `size_of` of this struct; the host checks
+/// bundle's compiled `size_of` of this struct; the host checks
 /// `abi_version` and `size` before calling anything.
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -75,8 +75,8 @@ pub struct BundleAbiV1 {
     pub id: *const c_char,
     /// Plugin semver string (05 §1: independent of the ABI version).
     pub version: *const c_char,
-    pub start: Option<PluginStartFn>,
-    pub stop: Option<PluginStopFn>,
+    pub start: Option<BundleStartFn>,
+    pub stop: Option<BundleStopFn>,
 }
 
 // SAFETY: the descriptor is read-only publication data; its C-string
@@ -85,7 +85,7 @@ pub struct BundleAbiV1 {
 unsafe impl Sync for BundleAbiV1 {}
 
 impl BundleAbiV1 {
-    /// The exact compiled size a conforming plugin must report.
+    /// The exact compiled size a conforming bundle must report.
     #[must_use]
     pub const fn expected_size() -> u32 {
         size_of::<BundleAbiV1>() as u32
@@ -93,7 +93,7 @@ impl BundleAbiV1 {
 }
 
 /// The host table handed to `start` (CLAP `host_t` precedent). Valid only
-/// for the duration of the call — plugins keep no ambient authority
+/// for the duration of the call — bundles keep no ambient authority
 /// (01 §3 rule 2).
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
@@ -132,13 +132,13 @@ impl NativeService {
     }
 
     /// Synchronous message-shaped call (D6): bytes in, owned bytes out.
-    /// The output buffer is host-allocated; a plugin needing more than
+    /// The output buffer is host-allocated; a bundle needing more than
     /// `cap` returns a negative code, which surfaces as an error (the
     /// cap is `max(input, 64) + 64` at v0 — real sizing is M4's job).
     ///
     /// # Errors
     ///
-    /// `KernelError::ServiceCallFailed` for negative plugin codes and for
+    /// `KernelError::ServiceCallFailed` for negative bundle codes and for
     /// a reported write larger than the buffer (the `-2` code).
     pub fn invoke(&self, method: &str, input: &[u8]) -> Result<Vec<u8>, KernelError> {
         let mut method_z = method.as_bytes().to_vec();
@@ -213,11 +213,11 @@ pub type BusRecvFn = unsafe extern "C" fn(
 /// a later recv on it answers negated NOT_FOUND.
 pub type BusUnsubscribeFn = unsafe extern "C" fn(user: *mut c_void, queue_id: i32) -> i32;
 
-/// The host table handed to a plugin that declared `ABI_VERSION_V2`
+/// The host table handed to a bundle that declared `ABI_VERSION_V2`
 /// (D96 ruling 2: a SECOND table, negotiated by declared major; `HostAbiV1`
 /// stays frozen). The three v1 fields keep their exact order and types so
 /// the table doubles as a valid `HostAbiV1` prefix (offsets pinned by the
-/// `abi_v2_door` layout test); a v2 plugin reads the four bus slots after
+/// `abi_v2_door` layout test); a v2 bundle reads the four bus slots after
 /// checking `size >= HostAbiV2::expected_size()`. Same borrowed-for-the-
 /// `start`-call authority law as v1 (01 §3 rule 2).
 #[repr(C)]
@@ -240,7 +240,7 @@ impl HostAbiV2 {
         size_of::<HostAbiV2>() as u32
     }
 
-    // Sugar for Rust plugins only (D63: sugar lives plugin-side, never a
+    // Sugar for Rust bundles only (D63: sugar lives bundle-side, never a
     // contract direction) - thin safe views over the table slots.
 
     /// Publish bytes on a topic (`qos` = the embed `modukit_qos` int).
@@ -292,7 +292,7 @@ impl HostAbiV2 {
 /// Timer verb (D99 R3-A, mirroring `Clock::timer` exactly): schedule one
 /// absolute-deadline job; answers 0 or a negated D51 code and writes the
 /// correlation token (`JobToken` mirror, clock.rs) through `out_token`.
-/// The token never re-fires once the plugin stops: the kernel's register
+/// The token never re-fires once the bundle stops: the kernel's register
 /// release (D99 R4-A) is authority-law grammar kernel-side, not a verb.
 pub type TimerScheduleFn = unsafe extern "C" fn(
     user: *mut c_void,
@@ -301,18 +301,18 @@ pub type TimerScheduleFn = unsafe extern "C" fn(
     out_token: *mut u64,
 ) -> i32;
 
-/// Clock-read verb (D99 R1-B): the plugin's view of the kernel's one clock
+/// Clock-read verb (D99 R1-B): the bundle's view of the kernel's one clock
 /// (D20); mirrors the embed face `modukit_clock_now` shape (out-param i64,
 /// status int channel). `Step`/`Sim` domains: the dial so far; `Real`:
 /// monotonic nanos since host start.
 pub type ClockNowFn = unsafe extern "C" fn(user: *mut c_void, out_now_ns: *mut i64) -> i32;
 
-/// The host table handed to a plugin that declared `ABI_VERSION_V3`
+/// The host table handed to a bundle that declared `ABI_VERSION_V3`
 /// (D99 R2: a THIRD table, negotiated by declared major; `HostAbiV1` and
 /// `HostAbiV2` stay frozen). The seven v2 fields keep their exact order and
 /// types so the table doubles as a valid `HostAbiV2` (and through it
 /// `HostAbiV1`) prefix (offsets pinned by the `abi_v3_door` layout test);
-/// a v3 plugin reads the two timer slots after checking
+/// a v3 bundle reads the two timer slots after checking
 /// `size >= HostAbiV3::expected_size()`. Same borrowed-for-the-`start`-call
 /// authority law as v1/v2 (01 §3 rule 2).
 #[repr(C)]
@@ -337,7 +337,7 @@ impl HostAbiV3 {
         size_of::<HostAbiV3>() as u32
     }
 
-    // Sugar for Rust plugins only (D63: sugar lives plugin-side, never a
+    // Sugar for Rust bundles only (D63: sugar lives bundle-side, never a
     // contract direction) - thin safe views over the two new table slots;
     // the v2-prefix views stay on `HostAbiV2` (the prefix read is legal on
     // a v3 table by the repr(C) layout pinned in the door layout test).

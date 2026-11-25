@@ -67,7 +67,7 @@ fn multiple_timers_fire_in_deadline_order() {
 fn kernel_owns_the_clock_as_org_modukit_clock_service() {
     let kernel = modukit_core::kernel::Kernel::new();
     // The clock is a registered ordinary service (D40: one table, no
-    // ambient authority): plugins acquire it like anything else.
+    // ambient authority): bundles acquire it like anything else.
     let view = kernel
         .registry()
         .lookup(&ServiceId::new("org.modukit.clock".to_string()))

@@ -236,7 +236,7 @@ function main() {
   if (sTake.raw >= 0 && Number(sTake.out_len) === sProbe.out_len) {
     const text = sTake.out_buf.toString('utf8');
     snapOk =
-      text.includes(`plugin\t${K_BUNDLE_ID}\tACTIVE`) &&
+      text.includes(`bundle\t${K_BUNDLE_ID}\tACTIVE`) &&
       text.includes('service\torg.modukit.snapshot\t') &&
       text.includes('counters\t');
   }

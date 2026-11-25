@@ -1,6 +1,6 @@
-//! `wire-golden` - emit the 14 canonical plugin-wire v1 golden frames plus
+//! `wire-golden` - emit the 14 canonical bundle-wire v1 golden frames plus
 //! an `index.txt` ledger into `--out <dir>` (D106 batch 1,
-//! wave-2-plugin-door-plan.md T1.2).
+//! wave-2-bundle-door-plan.md T1.2).
 //!
 //! Implementation-derived regression lock: the payload bytes come ONLY
 //! from the public payload fns of `modukit_core::proc_wire`; the 6-byte

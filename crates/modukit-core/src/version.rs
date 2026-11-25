@@ -1,4 +1,4 @@
-//! Version ranges for `requires` (plugin-management-plan S2, ruling S2-3 A).
+//! Version ranges for `requires` (bundle-management-plan S2, ruling S2-3 A).
 //!
 //! A small, dependency-free comparator-range parser: comma-separated
 //! comparators like `>=1.2,<2` (operators `>=`, `<=`, `>`, `<`, `=`). Versions

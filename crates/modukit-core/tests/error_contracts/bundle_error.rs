@@ -10,17 +10,17 @@ use modukit_core::identity::IdGrammar;
 fn bundle_error_code_map_splits_the_integrity_tier_exactly() {
     let integrity_tier: Vec<BundleError> = vec![
         BundleError::HashMismatch {
-            path: "lib/plugin.so".into(),
+            path: "lib/bundle.so".into(),
             expected: "aa".into(),
             found: "bb".into(),
         },
         BundleError::SizeMismatch {
-            path: "lib/plugin.so".into(),
+            path: "lib/bundle.so".into(),
             expected: 10,
             found: 12,
         },
         BundleError::ArtifactNotListed {
-            path: "lib/plugin.so".into(),
+            path: "lib/bundle.so".into(),
         },
     ];
     for e in integrity_tier {
@@ -143,7 +143,7 @@ fn bundle_error_hint_lines_are_the_d86_stable_strings() {
         ),
         (
             BundleError::HashMismatch {
-                path: "lib/plugin.so".into(),
+                path: "lib/bundle.so".into(),
                 expected: "aa".into(),
                 found: "bb".into(),
             },
@@ -151,7 +151,7 @@ fn bundle_error_hint_lines_are_the_d86_stable_strings() {
         ),
         (
             BundleError::SizeMismatch {
-                path: "lib/plugin.so".into(),
+                path: "lib/bundle.so".into(),
                 expected: 10,
                 found: 12,
             },
@@ -159,7 +159,7 @@ fn bundle_error_hint_lines_are_the_d86_stable_strings() {
         ),
         (
             BundleError::ArtifactNotListed {
-                path: "lib/plugin.so".into(),
+                path: "lib/bundle.so".into(),
             },
             "list the entry artifact in the [[files]] checklist, then rebuild the bundle",
         ),
@@ -231,31 +231,31 @@ fn bundle_error_display_renders_documented_prose_per_variant() {
         ),
         (
             BundleError::HashMismatch {
-                path: "lib/plugin.so".into(),
+                path: "lib/bundle.so".into(),
                 expected: "aa".into(),
                 found: "bb".into(),
             },
-            "hash mismatch for lib/plugin.so: manifest says aa, file says bb".into(),
+            "hash mismatch for lib/bundle.so: manifest says aa, file says bb".into(),
         ),
         (
             BundleError::SizeMismatch {
-                path: "lib/plugin.so".into(),
+                path: "lib/bundle.so".into(),
                 expected: 10,
                 found: 12,
             },
-            "size mismatch for lib/plugin.so: manifest says 10, file says 12".into(),
+            "size mismatch for lib/bundle.so: manifest says 10, file says 12".into(),
         ),
         (
             BundleError::ArtifactNotListed {
-                path: "lib/plugin.so".into(),
+                path: "lib/bundle.so".into(),
             },
-            "artifact lib/plugin.so carries no hash-manifest entry".into(),
+            "artifact lib/bundle.so carries no hash-manifest entry".into(),
         ),
         (
             BundleError::DuplicateId {
                 id: "com.example.a".into(),
             },
-            "plugin id com.example.a is already installed (D34: one identity per host)".into(),
+            "bundle id com.example.a is already installed (D34: one identity per host)".into(),
         ),
         (
             BundleError::CrossCheck { what: "abi".into() },

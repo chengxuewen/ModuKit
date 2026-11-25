@@ -256,7 +256,7 @@ def main():
     if rc >= 0 and copied.value == snap_len.value:
         text = snap.raw[:copied.value].decode("utf-8", "replace")
         snap_ok = (
-            "plugin\t%s\tACTIVE" % K_BUNDLE_ID in text
+            "bundle\t%s\tACTIVE" % K_BUNDLE_ID in text
             and "service\torg.modukit.snapshot\t" in text
             and "counters\t" in text
         )

@@ -1,4 +1,4 @@
-//! D106 amendment A1 residuals at the script door (wave-2-plugin-door plan
+//! D106 amendment A1 residuals at the script door (wave-2-bundle-door plan
 //! v3 §2 batch 0): the ACK encoder twin of `parse_ack` (T0.2) and the
 //! spawn-time HELLO cross-check that the install-time probe exemption
 //! defers to. The t4 leg proves the deferral with a `/bin/sh` stand-in:

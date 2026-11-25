@@ -1,6 +1,6 @@
 //! Wave-2 T2 clock-crossing demo (D99 R5-A, the crossing lane): the REAL
 //! shadow-runner hosts the timerv3 fixture across the `exe` wall. The child
-//! schedules a plugin timer on its runner clock inside the v3 walk; the
+//! schedules a bundle timer on its runner clock inside the v3 walk; the
 //! supervisor's WIRE DIAL turns it; the bell rides the existing FWD_PUB frame
 //! mid-dial into the PARENT's bus, where a host subscriber decodes the
 //! pinned payload (gen u64 LE ++ token u64 LE ++ label UTF-8, the token
@@ -13,7 +13,7 @@
 //! FINDING (docs/wave-2-t2-clock-crossing-plan.md execution notes): the
 //! parent->child LIVE bell pump (a supervisor-originated bell reaching a
 //! child) is not end-to-end observable today - the Supervisor kernel boots
-//! the `exe` executor and hosts no dl plugin (no bell producer with a
+//! the `exe` executor and hosts no dl bundle (no bell producer with a
 //! fanout), the child's wall interest lives only inside the start window
 //! (retire at the ack sweeps it), and `Kernel` is not `Send`/`Sync`, so no
 //! second thread may dial while the start call is in flight. The pump
@@ -159,7 +159,7 @@ fn main() {
         "[S3] the v3 walk held ACROSS the wall: mailbox self-echo landed from the parent-side DELIVER writer (wall-in path), schedule child-local"
     );
 
-    // [S4] The crossing claim: dial the child over the wire; its plugin
+    // [S4] The crossing claim: dial the child over the wire; its bundle
     // bell must ride the existing FWD_PUB mid-dial into the PARENT's bus
     // and decode there as gen ++ token ++ label with the token equal to the
     // DUE answer of the same turn. Under the [S2] lever no FORWARD is ever
@@ -176,7 +176,7 @@ fn main() {
     let fired = match turn.jobs.iter().find(|job| job.job() == "tick-v3") {
         Some(job) => job,
         None => {
-            fail("the plugin job did not fire on the runner clock (child side broke, not the wall)")
+            fail("the bundle job did not fire on the runner clock (child side broke, not the wall)")
         }
     };
     let payload = match rx.try_recv() {

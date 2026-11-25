@@ -20,7 +20,7 @@ fn handshake_abort_on_abi_lie_lands_failed_edge_no_panic() {
         .resolve(&id)
         .expect_err("abi 999 must never be accepted silently");
 
-    // Assert: typed failure, FAILED edge, the bad-plugin doorway counted.
+    // Assert: typed failure, FAILED edge, the bad-bundle doorway counted.
     assert!(
         matches!(err, KernelError::AbiMismatch { found, .. } if found == 999),
         "expected typed AbiMismatch(found=999), got {err}"

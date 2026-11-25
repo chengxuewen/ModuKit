@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
   bool snap_ok = false;
   if (take.ok() && copied == snap_len) {
     const std::string text(reinterpret_cast<const char *>(snap.data()), snap_len);
-    snap_ok = text.find("plugin\t" + kBundleId + "\tACTIVE") != std::string::npos &&
+    snap_ok = text.find("bundle\t" + kBundleId + "\tACTIVE") != std::string::npos &&
               text.find("service\torg.modukit.snapshot\t") != std::string::npos &&
               text.find("counters\t") != std::string::npos;
   }

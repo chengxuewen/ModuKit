@@ -48,10 +48,10 @@ fn main() -> ExitCode {
         return ExitCode::FAILURE;
     }
 
-    println!("{PREFIX}: ledger plugins={ledger_plugins}");
+    println!("{PREFIX}: ledger bundles={ledger_plugins}");
     println!(
-        "{PREFIX}: snapshot plugins={} services={} topics={} edges={}",
-        snapshot.plugins.len(),
+        "{PREFIX}: snapshot bundles={} services={} topics={} edges={}",
+        snapshot.bundles.len(),
         snapshot.services.len(),
         snapshot.topics.len(),
         snapshot.edges.len()

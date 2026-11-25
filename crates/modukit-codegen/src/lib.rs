@@ -11,12 +11,12 @@
 //! - a C ABI vtable SHADE + `.h` (Stage 1: shape only, "frozen later" per
 //!   modules/04 §1 - function tables with i32 status returns, no Rust types
 //!   in the header);
-//! - a C++ plugin-face skeleton `.hpp` (Stage-4 M1, ruling C++-3 face A -
+//! - a C++ bundle-face skeleton `.hpp` (Stage-4 M1, ruling C++-3 face A -
 //!   messages ride the stock protoc C++ output, C++-1).
 //!
 //! Module map: `wire` (raw varint/LD reader), `model` (decoded subset
 //! types), `descriptor` (descriptor.proto subset decode), `emit` (Rust
-//! skeleton), `cabi` (vtable shade + header), `cpp` (C++ plugin face),
+//! skeleton), `cabi` (vtable shade + header), `cpp` (C++ bundle face),
 //! `embed` (C++ embed-face wrapper generator from
 //! `contracts/modukit_embed.h`, C++-3 face B), `py` (Python ctypes embed
 //! floor from the same header text, D100 R2-A), `js` (napi embed bridge +
@@ -50,7 +50,7 @@ pub use py::emit_embed_py;
 /// - `a_b_c.rs` - Rust skeleton (every contract file, the runtime ledger
 ///   included: its vocabulary is generated output too, same door);
 /// - `a_b_c.abi.rs` + `a_b_c.h` + `a_b_c.hpp` - the C ABI shade and the
-///   C++ plugin face, only for files that declare services.
+///   C++ bundle face, only for files that declare services.
 ///
 /// # Errors
 ///

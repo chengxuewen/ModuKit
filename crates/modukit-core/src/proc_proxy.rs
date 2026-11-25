@@ -1,4 +1,4 @@
-//! The kernel-side proxy of an `exe` plugin's service (S2-M3a, closing the
+//! The kernel-side proxy of an `exe` bundle's service (S2-M3a, closing the
 //! S2-M2 F2 deferral): one `ProxyService` per REGISTER frame rides the SAME
 //! registry door the `dl` arm's trampoline uses (`Registry::register` —
 //! message bytes in, message bytes out, D69), so a kernel-side consumer
@@ -6,13 +6,13 @@
 //! in-process `NativeService`.
 //!
 //! Rule check (01 §3 rule 2): nothing ambient crosses — the proxy carries a
-//! plugin id + generation stamp and speaks `proc_wire` CALL/RESULT frames on
+//! bundle id + generation stamp and speaks `proc_wire` CALL/RESULT frames on
 //! the control socket the supervisor already owns. No host pointer, no
 //! memory, no authority: `invoke` is a synchronous id-correlated
 //! request/response (04 §2, the LSP/Wayland shape).
 //!
 //! Unknown methods are NOT pre-rejected here: the call rides to the child,
-//! whose own plugin code answers with its author code — the typed
+//! whose own bundle code answers with its author code — the typed
 //! passthrough that makes the `dl` and `exe` rejections byte-equal.
 
 use std::sync::atomic::{AtomicU32, Ordering};

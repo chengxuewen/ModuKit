@@ -10,7 +10,7 @@
   T1 v3 clock-door views per D99 R2): one forwarding method per
   parsed HostAbiV2 slot (4 today), the timer tail forwarded
   behind the HostAbiV3 size guard, and per parsed HostAbiV3 tail slot. `has_bus()` is the size
-  guard a plugin owes before reading the v2 tail (`has_timer()` for the v3 tail); a slot
+  guard a bundle owes before reading the v2 tail (`has_timer()` for the v3 tail); a slot
   called without its table answers kNoV2/kNoV3 and never dereferences.
   Status is the raw negated-D51 i32 channel. No exceptions across
   the boundary (D6 sync-boundary discipline, as the embed wrapper). */
@@ -24,7 +24,7 @@
 
 namespace modukit {
 
-/* View over the host table handed to a plugin's start (borrowed for
+/* View over the host table handed to a bundle's start (borrowed for
   the call; 01 §3 rule 2 applies unchanged to v2 and v3). */
 class Host {
  public:

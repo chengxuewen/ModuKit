@@ -8,8 +8,8 @@
 //! exercises latest-value late-join on the bus, reads the D21 counters
 //! view, uninstalls (data-root removal included), then lands the negative
 //! scenes: tampered bundle RED before the install root is touched; the bad
-//! plugin RED with ABI_MISMATCH and parked FAILED with a D27-shaped record
-//! — zero segfaults, zero plugin code executed. Public API surface only.
+//! bundle RED with ABI_MISMATCH and parked FAILED with a D27-shaped record
+//! — zero segfaults, zero bundle code executed. Public API surface only.
 //! `scripts/demo-stage1.sh` gates on the final `STAGE1-DEMO PASS` line.
 
 use std::fs;
@@ -66,16 +66,16 @@ fn build_so(crate_name: &str, lib_stem: &str) -> PathBuf {
 
 /// Stage one bundle directory: `modukit.toml` (manifest + `[[files]]` hash
 /// checklist computed by the SAME sha256 the installer verifies with) plus
-/// the artifact at the bundle-relative path `plugin.so`.
+/// the artifact at the bundle-relative path `bundle.so`.
 fn stage_bundle(staging: &Path, name: &str, artifact_src: &Path, tamper: bool) -> PathBuf {
     let dir = staging.join(name);
     fs::create_dir_all(&dir).expect("demo gate: staging bundle dir");
-    let member = dir.join("plugin.so");
+    let member = dir.join("bundle.so");
     fs::copy(artifact_src, &member).expect("demo gate: copy artifact into bundle");
     let hash = sha256::to_hex(&sha256::hash_file(&member).expect("demo gate: hash member"));
     let size = fs::metadata(&member).expect("demo gate: stat member").len();
     let toml = format!(
-        "id = \"{name}\"\nversion = \"0.1.0\"\n[entry]\nkind = \"dl\"\nartifact = \"plugin.so\"\n\n[[files]]\npath = \"plugin.so\"\nsha256 = \"{hash}\"\nsize = {size}\n"
+        "id = \"{name}\"\nversion = \"0.1.0\"\n[entry]\nkind = \"dl\"\nartifact = \"bundle.so\"\n\n[[files]]\npath = \"bundle.so\"\nsha256 = \"{hash}\"\nsize = {size}\n"
     );
     fs::write(dir.join("modukit.toml"), toml).expect("demo gate: write modukit.toml");
     if tamper {
@@ -91,18 +91,18 @@ fn stage_bundle(staging: &Path, name: &str, artifact_src: &Path, tamper: bool) -
 // density survives the default chain-width unwrapping that would otherwise
 // blow the file past the 400-line cap.
 #[rustfmt::skip]
-/// Lifecycle edges of one plugin as a single `A->B->C` line (ring walk).
-fn walk(tail: &Tail, plugin: &str) -> String {
+/// Lifecycle edges of one bundle as a single `A->B->C` line (ring walk).
+fn walk(tail: &Tail, bundle: &str) -> String {
     tail.events.iter().filter_map(|r| match &r.event {
-        ObsEvent::Lifecycle { plugin: p, to, .. } if p == plugin => Some(to.clone()),
+        ObsEvent::Lifecycle { bundle: p, to, .. } if p == bundle => Some(to.clone()),
         _ => None,
     }).collect::<Vec<_>>().join("->")
 }
 
 #[rustfmt::skip]
-fn module_loads(tail: &Tail, plugin: &str) -> usize {
+fn module_loads(tail: &Tail, bundle: &str) -> usize {
     tail.events.iter().filter(|r| matches!(&r.event,
-        ObsEvent::ModuleLoaded { plugin: p, .. } if p == plugin)).count()
+        ObsEvent::ModuleLoaded { bundle: p, .. } if p == bundle)).count()
 }
 
 #[rustfmt::skip]
@@ -133,7 +133,7 @@ fn main() {
     stage_bundle(installer.staging_dir(), GOOD_ID, &good_so, false);
     let installed = installer.install(GOOD_ID).expect("demo gate: clean install");
     assert_eq!(installed.id, id);
-    let member = installed.dir.join("plugin.so");
+    let member = installed.dir.join("bundle.so");
     let meta = fs::metadata(&member).expect("demo gate: stat installed so");
     if meta.len() > 1 << 20 {
         use std::os::unix::fs::MetadataExt;
@@ -176,7 +176,7 @@ fn main() {
     // [6] One SERVICE CALL through the ABI-v1 NativeService seam: method
     // name + bytes in, owned bytes out (D69 shapes; D6 sync boundary).
     let payload = b"stage1 m8 vertical slice";
-    let svc = registry.acquire::<NativeService>().expect("demo gate: plugin service");
+    let svc = registry.acquire::<NativeService>().expect("demo gate: bundle service");
     assert_eq!(svc.service_id().as_str(), GOOD_ID);
     let echoed = svc.invoke("echo", payload).expect("demo gate: call over the C ABI");
     assert_eq!(echoed, payload.to_vec(), "echo returns the same bytes");
@@ -202,7 +202,7 @@ fn main() {
     kernel.uninstall(&mid).expect("demo gate: kernel uninstall");
     assert_eq!(st(&mid), BundleState::Uninstalled);
     let data_slot = installer.data_dir().join(GOOD_ID);
-    fs::create_dir_all(&data_slot).expect("demo gate: fake plugin data root");
+    fs::create_dir_all(&data_slot).expect("demo gate: fake bundle data root");
     fs::write(data_slot.join("state.db"), b"cache").expect("demo gate: write data");
     installer.uninstall(&id).expect("demo gate: bundle uninstall");
     assert!(!installer.bundles_dir().join(GOOD_ID).exists(), "install dir removed");
@@ -244,9 +244,9 @@ fn main() {
     println!("[11] negative B (bundle door) RED: {err} (code {} domain=contract source=d7-cross-check)", err.code());
 
     // [12] Negative B through the kernel door: resolve lands FAILED with a
-    // D27-shaped record; nothing registers, no ModuleLoaded, no plugin code
+    // D27-shaped record; nothing registers, no ModuleLoaded, no bundle code
     // runs — and the process never segfaults.
-    let bad_staged = installer.staging_dir().join(BAD_ID).join("plugin.so");
+    let bad_staged = installer.staging_dir().join(BAD_ID).join("bundle.so");
     let bad_manifest = Manifest::from_toml_str(&format!(
         "id = \"{BAD_ID}\"\nversion = \"0.1.0\"\n[entry]\nkind = \"dl\"\nartifact = \"{}\"\n",
         bad_staged.display()
@@ -260,8 +260,8 @@ fn main() {
     assert_eq!(walk(&tail, BAD_ID), "INSTALLED->RESOLVING->FAILED");
     assert_eq!(module_loads(&tail, BAD_ID), 0, "a rejected module never posts ModuleLoaded");
     assert!(snap.all().services.iter().all(|s| s.service_id.as_str() != BAD_ID),
-        "a rejected plugin runs no code and registers nothing");
-    let entry = dump.dump().into_iter().find(|e| e.plugin == BAD_ID)
+        "a rejected bundle runs no code and registers nothing");
+    let entry = dump.dump().into_iter().find(|e| e.bundle == BAD_ID)
         .expect("demo gate: ledger tracks the attempt");
     assert!(!entry.loaded, "the RED fixture stays red in the ledger");
     assert_eq!((entry.abi_stamps.expected, entry.abi_stamps.found), (ABI_VERSION, 999));

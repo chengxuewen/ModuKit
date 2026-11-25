@@ -1,8 +1,8 @@
-//! C++ plugin-face host wrapper generator (Stage-5 N1, D96 ruling 2/5).
+//! C++ bundle-face host wrapper generator (Stage-5 N1, D96 ruling 2/5).
 //!
 //! Sibling of `embed` (face B over `modukit_embed.h`): this module turns the
 //! checked-in contract original `contracts/modukit_bundle.h` into a
-//! header-only C++ view over the HOST TABLE a plugin receives at `start`.
+//! header-only C++ view over the HOST TABLE a bundle receives at `start`.
 //! The same parse-not-reinvent discipline applies - the parity gate pins the
 //! header to `abi::HostAbiV2`, so a textual parse of the typedef struct and
 //! the slot typedefs is the one authority-preserving way to emit (see the
@@ -10,7 +10,7 @@
 //!
 //! The wrapper exposes the v1 `register_service` unconditionally and the
 //! parsed v2 slots behind the declared major: the v2 table exists only for a
-//! plugin that declared `MODUKIT_ABI_VERSION_V2`, so `has_bus()` is exactly
+//! bundle that declared `MODUKIT_ABI_VERSION_V2`, so `has_bus()` is exactly
 //! `table->size >= sizeof(modukit_host_abi_v2)`; a slot called without it
 //! answers `kNoV2` (the D51 SCHEMA_INVALID number) and never derefs.
 
@@ -27,7 +27,7 @@ struct Slot {
     params: Vec<String>,
 }
 
-/// Emit the C++ plugin-face host wrapper text from the plugin contract
+/// Emit the C++ bundle-face host wrapper text from the bundle contract
 /// header text.
 ///
 /// # Errors
@@ -104,7 +104,7 @@ pub fn emit_plugin_hpp(header_text: &str) -> Result<String, CodegenError> {
     out.push_str("  --bundle_header contracts/modukit_bundle.h --output_dir <dir>\n\n");
     let _ = write!(
         out,
-        "  C++ PLUGIN FACE host view (Stage-5 N1, D96 ruling 2/5; the wave-2\n  T1 v3 clock-door views per D99 R2): one forwarding method per\n  parsed HostAbiV2 slot ({count} today), the timer tail forwarded\n  behind the HostAbiV3 size guard{tail}. `has_bus()` is the size\n  guard a plugin owes before reading the v2 tail{guard}; a slot\n  called without its table answers {no_v3} and never dereferences.\n",
+        "  C++ PLUGIN FACE host view (Stage-5 N1, D96 ruling 2/5; the wave-2\n  T1 v3 clock-door views per D99 R2): one forwarding method per\n  parsed HostAbiV2 slot ({count} today), the timer tail forwarded\n  behind the HostAbiV3 size guard{tail}. `has_bus()` is the size\n  guard a bundle owes before reading the v2 tail{guard}; a slot\n  called without its table answers {no_v3} and never dereferences.\n",
     );
     out.push_str("  Status is the raw negated-D51 i32 channel. No exceptions across\n");
     out.push_str("  the boundary (D6 sync-boundary discipline, as the embed wrapper). */\n");
@@ -113,7 +113,7 @@ pub fn emit_plugin_hpp(header_text: &str) -> Result<String, CodegenError> {
     out.push_str("#include \"modukit_bundle.h\"\n\nnamespace modukit {\n\n");
     let _ = write!(
         out,
-        "/* View over the host table handed to a plugin's start (borrowed for\n  the call; 01 §3 rule 2 applies unchanged to v2 and v3). */\nclass Host {{\n public:\n  explicit Host(const modukit_host_abi_v1 *table)\n    : v1_(table),\n      v2_(table != nullptr &&\n              table->size >= sizeof(modukit_host_abi_v2)\n                  ? reinterpret_cast<const modukit_host_abi_v2 *>(table)\n                  : nullptr){v3_init}\n  {{\n  }}\n\n",
+        "/* View over the host table handed to a bundle's start (borrowed for\n  the call; 01 §3 rule 2 applies unchanged to v2 and v3). */\nclass Host {{\n public:\n  explicit Host(const modukit_host_abi_v1 *table)\n    : v1_(table),\n      v2_(table != nullptr &&\n              table->size >= sizeof(modukit_host_abi_v2)\n                  ? reinterpret_cast<const modukit_host_abi_v2 *>(table)\n                  : nullptr){v3_init}\n  {{\n  }}\n\n",
     );
     out.push_str("  /* The frozen v1 verb works on either table (v2 is the v1 prefix\n     plus the mailbox tail, D96 ruling 2; v3 is the v2 prefix plus the\n     timer tail, D99 R2). */\n  [[nodiscard]] int64_t register_service(\n      const char *service_id, modukit_service_call_fn_t call) const {\n    return v1_ != nullptr\n               ? v1_->register_service(v1_->user, service_id, call)\n               : kNoTable;\n  }\n\n");
     out.push_str("  /* The v2 door: true only when the declared major delivered a\n     table at least sizeof(modukit_host_abi_v2) wide. */\n  [[nodiscard]] bool has_bus() const {\n    return v2_ != nullptr;\n  }\n");

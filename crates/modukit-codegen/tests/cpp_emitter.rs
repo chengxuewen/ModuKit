@@ -1,6 +1,6 @@
 //! Stage-4 M1 lane #3: C++ emitter golden tests (ruling C++-3, both faces).
 //!
-//! Face A (plugin): `generate` also emits a `<module>.hpp` plugin skeleton
+//! Face A (bundle): `generate` also emits a `<module>.hpp` bundle skeleton
 //! beside the existing Rust/C outputs, wired to the stock protoc C++
 //! generated headers (`--cpp_out` output is consumed AS-IS per C++-1 -
 //! this emitter writes includes/dispatch, never redefines messages).
@@ -95,8 +95,8 @@ fn plugin_wrapper_matches_golden() {
     // discipline; regen is the --bundle_header banner recipe (main door).
     let root = repo_root();
     let text =
-        std::fs::read_to_string(root.join("contracts/modukit_bundle.h")).expect("plugin header");
-    let produced = emit_plugin_hpp(&text).expect("plugin wrapper emits");
+        std::fs::read_to_string(root.join("contracts/modukit_bundle.h")).expect("bundle header");
+    let produced = emit_plugin_hpp(&text).expect("bundle wrapper emits");
     let golden = root
         .join("crates/modukit-codegen/testdata/golden")
         .join("modukit_bundle.hpp");
@@ -108,7 +108,7 @@ fn plugin_wrapper_matches_golden() {
     });
     assert_eq!(
         produced, golden_text,
-        "plugin wrapper golden drifted (rerun the --bundle_header regen and review)"
+        "bundle wrapper golden drifted (rerun the --bundle_header regen and review)"
     );
 }
 
@@ -202,7 +202,7 @@ fn embed_wrapper_tracks_the_real_header_verbs() {
 
 #[test]
 fn emitted_cpp_passes_fsyntax_only() {
-    // Smoke: the emitted plugin face + the emitted embed wrapper must be
+    // Smoke: the emitted bundle face + the emitted embed wrapper must be
     // compilable C++ under the pinned pixi-env compiler. Skips cleanly when
     // no compiler is on PATH (the pinned env has one; lane #2 proved it).
     let root = repo_root();
@@ -211,7 +211,7 @@ fn emitted_cpp_passes_fsyntax_only() {
     let _ = std::fs::remove_dir_all(&out_dir);
     std::fs::create_dir_all(&out_dir).unwrap();
 
-    // The plugin face includes the stock protoc C++ header for the same
+    // The bundle face includes the stock protoc C++ header for the same
     // package; for the smoke we pre-generate that header with the pinned
     // protoc into the same temp dir.
     let contracts = root.join("contracts");
@@ -226,7 +226,7 @@ fn emitted_cpp_passes_fsyntax_only() {
     let face = written
         .iter()
         .find(|p| p.extension().and_then(|e| e.to_str()) == Some("hpp"))
-        .expect("plugin-face .hpp emitted");
+        .expect("bundle-face .hpp emitted");
     let embed_text =
         std::fs::read_to_string(contracts.join("modukit_embed.h")).expect("embed header");
     // The wrapper's quoted include finds the contract header beside it -
@@ -238,14 +238,14 @@ fn emitted_cpp_passes_fsyntax_only() {
     .expect("copy embed header into smoke dir");
     let embed_hpp = out_dir.join("modukit_embed.hpp");
     std::fs::write(&embed_hpp, emit_embed_hpp(&embed_text).unwrap()).unwrap();
-    // Stage-5 N1: the plugin-face host wrapper rides the same smoke leg.
+    // Stage-5 N1: the bundle-face host wrapper rides the same smoke leg.
     std::fs::copy(
         contracts.join("modukit_bundle.h"),
         out_dir.join("modukit_bundle.h"),
     )
-    .expect("copy plugin header into smoke dir");
+    .expect("copy bundle header into smoke dir");
     let plugin_text =
-        std::fs::read_to_string(contracts.join("modukit_bundle.h")).expect("plugin header");
+        std::fs::read_to_string(contracts.join("modukit_bundle.h")).expect("bundle header");
     let plugin_hpp = out_dir.join("modukit_bundle.hpp");
     std::fs::write(&plugin_hpp, emit_plugin_hpp(&plugin_text).unwrap()).unwrap();
 

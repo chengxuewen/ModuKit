@@ -35,7 +35,7 @@ class DemoServiceSkeleton {
 
    virtual ~DemoServiceSkeleton() = default;
 
-   /* Negative dispatch codes: the plugin-side half of the D27 int
+   /* Negative dispatch codes: the bundle-side half of the D27 int
       channel (the byte door mirrors the C ABI shade call shape). */
    static constexpr int32_t kBadRequest = -1;    // request bytes failed to parse
    static constexpr int32_t kUnknownMethod = -2; // no method carries that name

@@ -38,7 +38,7 @@ fn wire_constants_are_the_frozen_frame_grammar() {
 fn hello_roundtrip_preserves_all_fields() {
     let hello = Hello {
         abi: 1,
-        id: "com.example.plugin".into(),
+        id: "com.example.bundle".into(),
         version: "1.2.3".into(),
         name: "Example".into(),
         caps: 0,
@@ -51,7 +51,7 @@ fn hello_roundtrip_preserves_all_fields() {
 fn hello_parse_refuses_truncated_and_lying_frames() {
     let hello = Hello {
         abi: 1,
-        id: "com.example.plugin".into(),
+        id: "com.example.bundle".into(),
         version: "1.2.3".into(),
         name: "Example".into(),
         caps: 0,
@@ -68,7 +68,7 @@ fn hello_parse_refuses_truncated_and_lying_frames() {
     assert_eq!(parse_hello(&trailing), None);
     // Non-UTF-8 id bytes refuse the frame (silence and lies both disagree).
     let mut lying = full.clone();
-    assert_eq!(lying[4] as usize, "com.example.plugin".len());
+    assert_eq!(lying[4] as usize, "com.example.bundle".len());
     lying[5] = 0xFF;
     assert_eq!(parse_hello(&lying), None);
 }

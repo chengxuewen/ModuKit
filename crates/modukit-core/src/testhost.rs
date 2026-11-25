@@ -21,14 +21,14 @@ use crate::kernel::Kernel;
 use crate::registry::ServiceEvent;
 
 /// Fold `Lifecycle` edges out of an event sequence into a
-/// plugin-id → latest-state table (the `fold(events) -> snapshot` half of
+/// bundle-id → latest-state table (the `fold(events) -> snapshot` half of
 /// the 10 §3 machinery).
 #[must_use]
 pub fn fold_states(events: &[ObsRecord]) -> HashMap<String, String> {
     let mut table = HashMap::new();
     for record in events {
-        if let ObsEvent::Lifecycle { plugin, to, .. } = &record.event {
-            table.insert(plugin.clone(), to.clone());
+        if let ObsEvent::Lifecycle { bundle, to, .. } = &record.event {
+            table.insert(bundle.clone(), to.clone());
         }
     }
     table
@@ -102,7 +102,7 @@ impl TestHost {
         let snapshot = Snapshot::new(
             &kernel.registry,
             Arc::clone(&kernel.bus),
-            Arc::clone(&kernel.plugins),
+            Arc::clone(&kernel.bundles),
             Arc::clone(&kernel.obs),
             Arc::clone(&kernel.edges),
         );
@@ -143,25 +143,25 @@ impl TestHost {
     }
 
     /// The 10 §3 checker: fold(events since genesis) must equal the live
-    /// tables — plugin states and the service set may never disagree.
+    /// tables — bundle states and the service set may never disagree.
     /// Panics with the first disagreement it finds.
     pub fn assert_consistent(&self) {
         let tail = self.kernel.observatory().tail(0);
         let states = fold_states(&tail.events);
         let live_services = fold_services(&tail.events);
         let view = self.snapshot.all();
-        for plugin in &view.plugins {
+        for bundle in &view.bundles {
             assert_eq!(
-                states.get(&plugin.id),
-                Some(&plugin.state),
-                "plugin {} exists in the table; the fold says otherwise",
-                plugin.id
+                states.get(&bundle.id),
+                Some(&bundle.state),
+                "bundle {} exists in the table; the fold says otherwise",
+                bundle.id
             );
         }
         for (id, state) in &states {
             assert!(
-                view.plugins.iter().any(|p| &p.id == id),
-                "the fold knows plugin {id} ({state}) the table lost",
+                view.bundles.iter().any(|p| &p.id == id),
+                "the fold knows bundle {id} ({state}) the table lost",
             );
         }
         let table_services: BTreeSet<String> = view

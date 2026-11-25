@@ -10,7 +10,7 @@
 //!
 //! Parse, don't validate: `parse_hello`/`parse_ack` return `Option` and the
 //! caller decides the typed error; a malformed frame never reaches the
-//! plugin's code paths (04 §3 discipline, `exe` flavor).
+//! bundle's code paths (04 §3 discipline, `exe` flavor).
 
 use std::io::{self, Read, Write};
 use std::os::unix::net::UnixStream;
@@ -28,14 +28,14 @@ pub const WIRE_VERSION: u8 = 1;
 
 /// child -> host: ABI v1 handshake self-report (D7 tier).
 pub const MSG_HELLO: u8 = 1;
-/// host -> child: run the plugin's start (03 §2 STARTING).
+/// host -> child: run the bundle's start (03 §2 STARTING).
 pub const MSG_START: u8 = 2;
 /// host -> child: cooperative stop (01 §3 rule 6; teardown of `exe`
 /// escalates to kill on timeout, 01 §3 rule 5).
 pub const MSG_STOP: u8 = 3;
 /// child -> host: completion of the last verb, payload = `i32 LE` status.
 pub const MSG_ACK: u8 = 4;
-/// child -> host (S2-M3a, before the START ack): the plugin published a
+/// child -> host (S2-M3a, before the START ack): the bundle published a
 /// service — payload = service id + method list (04 §2: every call names
 /// its service and method; the list is advertisement, the child's own
 /// code stays the unknown-method authority). See `parse_register`.
@@ -95,7 +95,7 @@ pub const FWD_UNSUB: u8 = 2;
 /// never bumped a transport promise (the K7 public claim holds).
 pub const HELLO_CAP_BUS_V2: u32 = 1;
 /// HELLO capability bit (D99 R5-A, wave-2 T2): the timer crossing. A child
-/// declaring it rides the SAME landed frames for plugin bells both ways -
+/// declaring it rides the SAME landed frames for bundle bells both ways -
 /// its own bells FORWARD (FWD_PUB) to the parent, parent-kernel bells pump
 /// back as DELIVER; a peer without the bit is never pumped to (the legacy
 /// pin). Vocabulary growth again: `WIRE_VERSION` stays 1 (ruling 4 verbatim).
@@ -280,7 +280,7 @@ fn read_pstr(rest: &mut &[u8]) -> Option<String> {
     Some(s)
 }
 
-/// A REGISTER payload's decoded shape: what the child's plugin published.
+/// A REGISTER payload's decoded shape: what the child's bundle published.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ServiceRegistration {
     pub service_id: String,

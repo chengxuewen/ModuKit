@@ -3,7 +3,7 @@
 //!
 //! Parent side (`ParentFanout`, attached by `Supervisor::with_clock`): a
 //! child's FORWARD(pub) hits the PARENT bus through the very same
-//! `Bus::publish` an in-process plugin uses - one fan-out code path, no
+//! `Bus::publish` an in-process bundle uses - one fan-out code path, no
 //! parallel semantics (ruling 6). A child's interest rides as a proxy
 //! `Receiver` on that same bus, so the retained-late-join snapshot of
 //! ruling 6 needs no second retention machinery: `Bus::subscribe` seeds
@@ -125,7 +125,7 @@ impl Outbox {
 /// executor table so the start-window pump reaches it from the frame loop.
 pub(crate) struct ParentFanout {
     bus: Arc<Bus>,
-    /// Child plugin id -> a writable control-socket clone. Registration
+    /// Child bundle id -> a writable control-socket clone. Registration
     /// happens at the child's first FORWARD; the ack retires it (the
     /// child's queues die with its `start` per 01 §3 rule 2).
     children: Mutex<HashMap<String, UnixStream>>,
@@ -192,7 +192,7 @@ impl ParentFanout {
 
     fn on_publish(&self, topic: &TopicId, fwd: &Forward) -> Result<(), String> {
         // THE single fan-out doorway, ruling 6: the same `Bus::publish`
-        // an in-process plugin calls - parent-local subscribers, the
+        // an in-process bundle calls - parent-local subscribers, the
         // D21 gate tallies, retention, all ride it unchanged. The general
         // hook (installed by the kernel) drains the proxy queues after the
         // fan-out; the old manual wall loop is retired.
@@ -481,7 +481,7 @@ impl Bridge {
         })
     }
 
-    /// Whether plugin bells may ride this bridge across the wall
+    /// Whether bundle bells may ride this bridge across the wall
     /// (`HELLO_CAP_TIMER_V2` was declared; the demo lever drops it).
     #[must_use]
     pub(crate) const fn timer_bells(&self) -> bool {

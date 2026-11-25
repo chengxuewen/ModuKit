@@ -132,19 +132,19 @@ pub enum KernelError {
     HandshakeIncomplete { what: &'static str },
     /// A `required = true` dependency was absent at resolve (03 §1, D51).
     DependencyMissing { service: String },
-    /// The plugin's `start()` returned a non-zero status (03 §2).
+    /// The bundle's `start()` returned a non-zero status (03 §2).
     BundleStartFailed { status: i32 },
     /// A message-shaped call through an ABI service returned an error code
-    /// (02 §4 sync boundary; the plugin's own code space is the int).
+    /// (02 §4 sync boundary; the bundle's own code space is the int).
     ServiceCallFailed { code: i32 },
     /// The placement has no executor installed in this kernel (01 §1 closed
     /// set: each executor answers exactly one kind; wasm stays Stage-5).
     UnsupportedPlacement { kind: String },
-    /// No plugin record under this id.
+    /// No bundle record under this id.
     UnknownPlugin { id: String },
     /// A supervised `exe` child died outside the cooperative stop path
     /// (crash-watch reap or kill-after-timeout teardown; 01 §4: the host
-    /// survives and the plugin lands on the FAILED edge). S2-M1.
+    /// survives and the bundle lands on the FAILED edge). S2-M1.
     ProcessCrashed { id: String, exit: String },
     /// The control envelope carries a foreign wire version (S2-M3 frame
     /// versioning): peer and host disagree on the frame format itself. The
@@ -164,7 +164,7 @@ pub enum KernelError {
     /// `parallel_ok`. The declaration gets a typed voice — "declared,
     /// routing not built" — never a silent ignore and never the bare M7
     /// refusal that hides what the author actually asked for.
-    RoutingDeferred { plugin: String, service: String },
+    RoutingDeferred { bundle: String, service: String },
     /// The child's handshake self-report disagrees with the deploy tier
     /// (D7 strict cross-check, `exe` flavor: silence or a lie is refusal —
     /// the `bundle.rs` liar family, never a panic). S2-M1.
@@ -173,10 +173,10 @@ pub enum KernelError {
         expected: String,
         found: String,
     },
-    /// DM-lite (S3-1b): a dependency was lost while the plugin carried
+    /// DM-lite (S3-1b): a dependency was lost while the bundle carried
     /// `on_down = block` - start stays refused until the dependency is
     /// restored and the host clears the block.
-    DependencyBlocked { plugin: String },
+    DependencyBlocked { bundle: String },
 }
 
 impl KernelError {
@@ -250,7 +250,7 @@ impl fmt::Display for KernelError {
             }
             KernelError::AbiMismatch { expected, found } => write!(
                 f,
-                "ABI mismatch: host speaks v{expected}, plugin reports v{found}"
+                "ABI mismatch: host speaks v{expected}, bundle reports v{found}"
             ),
             KernelError::DescriptorTooSmall { expected, found } => write!(
                 f,
@@ -263,22 +263,22 @@ impl fmt::Display for KernelError {
                 write!(f, "required service missing at resolve: {service}")
             }
             KernelError::BundleStartFailed { status } => {
-                write!(f, "plugin start() returned error status {status}")
+                write!(f, "bundle start() returned error status {status}")
             }
             KernelError::ServiceCallFailed { code } => {
-                write!(f, "service call failed with plugin-side code {code}")
+                write!(f, "service call failed with bundle-side code {code}")
             }
             KernelError::UnsupportedPlacement { kind } => write!(
                 f,
                 "placement {kind} has no executor in this kernel (dl only until S2-M1 wiring)"
             ),
-            KernelError::UnknownPlugin { id } => write!(f, "no plugin record for {id}"),
+            KernelError::UnknownPlugin { id } => write!(f, "no bundle record for {id}"),
             KernelError::ProcessCrashed { id, exit } => {
-                write!(f, "supervised plugin {id} died outside stop ({exit})")
+                write!(f, "supervised bundle {id} died outside stop ({exit})")
             }
-            KernelError::RoutingDeferred { plugin, service } => write!(
+            KernelError::RoutingDeferred { bundle, service } => write!(
                 f,
-                "plugin {plugin} declares parallel_ok for {service}; the swap door was asked \
+                "bundle {bundle} declares parallel_ok for {service}; the swap door was asked \
                  to co-host two versions but version-affinity routing is deferred (D80) — \
                  stop the running instance first: stop + install is the legal swap lane"
             ),
@@ -299,9 +299,9 @@ impl fmt::Display for KernelError {
                 f,
                 "handshake self-report {what} mismatch: manifest says {expected:?}, artifact says {found:?}"
             ),
-            KernelError::DependencyBlocked { plugin } => write!(
+            KernelError::DependencyBlocked { bundle } => write!(
                 f,
-                "plugin {plugin} is DM-blocked: a required dependency was lost \
+                "bundle {bundle} is DM-blocked: a required dependency was lost \
                  (on_down = block); start stays refused until it is restored"
             ),
         }

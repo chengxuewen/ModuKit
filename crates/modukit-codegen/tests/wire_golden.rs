@@ -1,5 +1,5 @@
 //! Instrumented reproduction test for the `wire-golden` bin (D106 batch 1,
-//! wave-2-plugin-door-plan.md T1.2, delta-review F5): a fresh run of the
+//! wave-2-bundle-door-plan.md T1.2, delta-review F5): a fresh run of the
 //! bin must be byte-identical to the checked-in goldens under
 //! `contracts/golden/wire-v1/`. The shell parity leg alone produces no
 //! profraw - this test is the coverage path for the bin in the codegen

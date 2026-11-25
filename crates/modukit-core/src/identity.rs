@@ -1,4 +1,4 @@
-//! Canonical string identities (D9): plugin ids, service ids, topic ids,
+//! Canonical string identities (D9): bundle ids, service ids, topic ids,
 //! plus the reverse-DNS grammar validator (M7 — the M3 deferral lands
 //! here: ONE shared validator, reused by `identity` constructors,
 //! `bundle` install and the bus's topic declaration paths; the publish
@@ -99,7 +99,7 @@ impl std::fmt::Display for IdGrammar {
 
 impl std::error::Error for IdGrammar {}
 
-/// Stable plugin identity from the manifest `id` field (05 §1).
+/// Stable bundle identity from the manifest `id` field (05 §1).
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BundleId(String);
 

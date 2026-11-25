@@ -1,6 +1,6 @@
 //! Wave-2 T2 clock-crossing suite (D99 R5-A, contract drawn at
 //! docs/wave-2-clock-hearing.md §8, plan docs/wave-2-t2-clock-crossing-plan.md):
-//! the plugin bell rides the EXISTING frames across the wall. Harness is the
+//! the bundle bell rides the EXISTING frames across the wall. Harness is the
 //! abi_v2_cross / dual_placement real-runner precedent verbatim (fixtures are
 //! not built by `cargo test`; a runner build failure is FATAL, a fixture
 //! build failure skips cleanly; the runner env levers ride the serial guard).
@@ -17,7 +17,7 @@
 //! parent->child LIVE pump leg (leg DOWN end to end) is not observable with
 //! the named precedents. Derivation: (1) the supervisor's kernel is booted
 //! with `ProcessExecutor`, which polices its placement kind, so it hosts NO
-//! dl plugin and its `plugin_timers` register can never fill - there is no
+//! dl bundle and its `bundle_timers` register can never fill - there is no
 //! parent-originated bell producer on any tree that also owns a fanout;
 //! (2) even with a producer, the general pump can reach a child only while
 //! the child's interest is live, and that window is the START exchange
@@ -60,7 +60,7 @@ use modukit_core::proc_wire::{self, HELLO_CAP_BUS_V2, HELLO_CAP_TIMER_V2, Hello,
 /// arm cross-checks HELLO against the manifest strictly).
 const ID: &str = "com.example.modukit.timerv3";
 const VERSION: &str = "0.1.0";
-/// The composed per-plugin bell topic (D99 R4-A) for the exe child.
+/// The composed per-bundle bell topic (D99 R4-A) for the exe child.
 const BELL_TOPIC: &str = "org.modukit.timer.com.example.modukit.timerv3";
 const JOB_LABEL: &[u8] = b"tick-v3";
 
@@ -229,8 +229,8 @@ fn leg_out_child_bell_crosses_the_wall_at_the_dial_site() {
         .subscribe(&bell)
         .expect("host subscribe to the child's bell topic");
 
-    // The dial turn: the runner fires marker alpha (1 s) and the plugin job
-    // (1 s); the plugin bell's FORWARD arrives BEFORE the DUE answer and the
+    // The dial turn: the runner fires marker alpha (1 s) and the bundle job
+    // (1 s); the bundle bell's FORWARD arrives BEFORE the DUE answer and the
     // crossing dial absorbs it into the fan-out. A hang here is RED by
     // construction (plan §4: this is the first test that exercises it).
     let turn = sup
@@ -240,7 +240,7 @@ fn leg_out_child_bell_crosses_the_wall_at_the_dial_site() {
         .jobs
         .iter()
         .find(|job| job.job() == "tick-v3")
-        .expect("the plugin job fired on the runner clock (mirror law)");
+        .expect("the bundle job fired on the runner clock (mirror law)");
 
     let payload = rx
         .try_recv()
@@ -322,7 +322,7 @@ fn lever_drops_the_timer_bit_and_the_bell_stays_home() {
         .expect("the dial still answers DUE (no FORWARD was owed to it)");
     assert!(
         turn.jobs.iter().any(|job| job.job() == "tick-v3"),
-        "the plugin still fired - child-local, exactly as T1 pinned"
+        "the bundle still fired - child-local, exactly as T1 pinned"
     );
     assert!(
         rx.try_recv().is_none(),

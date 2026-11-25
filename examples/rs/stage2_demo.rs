@@ -218,7 +218,7 @@ fn main() {
     if sup.kernel().counters().process_restarts() < 1 {
         fail("process_restarts counter never moved");
     }
-    println!("[8] step() revived the plugin inside the D3 budget: ACTIVE again, restarts counted");
+    println!("[8] step() revived the bundle inside the D3 budget: ACTIVE again, restarts counted");
 
     // Second death must stay INSIDE the budget: one more revive is granted,
     // then the budget exhausts and parks (assert the bound is real).
@@ -235,17 +235,17 @@ fn main() {
         sup.kernel().advance_clock(Duration::from_secs(1));
     }
     if !parked {
-        fail("budget exhaustion never parked the plugin");
+        fail("budget exhaustion never parked the bundle");
     }
-    println!("[8] second crash: budget spent, plugin PARKED in FAILED (operator-visible, bounded)");
+    println!("[8] second crash: budget spent, bundle PARKED in FAILED (operator-visible, bounded)");
 
-    // [9] Graceful stop through the existing door (a plugin parked in
+    // [9] Graceful stop through the existing door (a bundle parked in
     // FAILED by the spent budget cannot take the stop edge — that is the
     // parked contract, not a defect); proxies leave; uninstall + data-root
     // removal (D26).
     let parked = sup.kernel().state(&id).expect("state") != BundleState::Active;
     if parked {
-        println!("[9] plugin parked in FAILED: the stop edge does not exist there (by contract), uninstall reaps");
+        println!("[9] bundle parked in FAILED: the stop edge does not exist there (by contract), uninstall reaps");
     } else {
         sup.kernel().stop(&id).expect("stop must ack");
     }
@@ -274,7 +274,7 @@ fn main() {
     // door refuses the lie earlier, at install cross-check — stage1 proved
     // that door): the runner reads the descriptor and HELLOs version 0.1.0
     // while this manifest claims 9.9.9 — the strict cross-check kills the
-    // child before anything goes live. FAILED, zero segfaults, no plugin
+    // child before anything goes live. FAILED, zero segfaults, no bundle
     // code beyond the descriptor read.
     let lie_manifest = Manifest::from_toml_str(&format!(
         "id = \"{GOOD_ID}\"\nversion = \"9.9.9\"\n[entry]\nkind = \"exe\"\nartifact = \"{}\"\nrunner = \"{}\"\n",
@@ -286,7 +286,7 @@ fn main() {
     if sup.kernel().state(&lie_id).expect("state") != BundleState::Failed {
         fail("version lie must park FAILED");
     }
-    println!("[11] negative B RED: {err} (code {} hint={:?}) — FAILED, no segfault, zero plugin code", err.code(), err.hint());
+    println!("[11] negative B RED: {err} (code {} hint={:?}) — FAILED, no segfault, zero bundle code", err.code(), err.hint());
 
     // [12] ORPHAN-PROOF (new proof, nothing like it anywhere): modukit-host
     // as a REAL child process; its runner grandchild must die ALONE when the
@@ -319,7 +319,7 @@ fn main() {
             Ok(_) => {}
             Err(err) => fail(&format!("read host stdout: {err}")),
         }
-        if line.contains("modukit-host: ACTIVE plugin=") {
+        if line.contains("modukit-host: ACTIVE bundle=") {
             break;
         }
         if Instant::now() >= deadline {
@@ -356,7 +356,7 @@ fn stage_exe_bundle(staging: &Path, name: &str, so_src: &Path, runner_src: &Path
     let dir = staging.join(name);
     let _ = std::fs::remove_dir_all(&dir);
     std::fs::create_dir_all(&dir).expect("demo gate: staging bundle dir");
-    std::fs::copy(so_src, dir.join("plugin.so")).expect("demo gate: copy artifact");
+    std::fs::copy(so_src, dir.join("bundle.so")).expect("demo gate: copy artifact");
     if std::fs::copy(runner_src, dir.join("modukit-run")).is_err() {
         fail("sabotage: runner path missing, staging RED (the gate must not PASS)");
     }
@@ -366,20 +366,20 @@ fn stage_exe_bundle(staging: &Path, name: &str, so_src: &Path, runner_src: &Path
         std::fs::set_permissions(dir.join("modukit-run"), std::fs::Permissions::from_mode(0o755))
             .expect("demo gate: chmod runner executable");
     }
-    let so_hash = sha256::to_hex(&sha256::hash_file(&dir.join("plugin.so")).expect("demo gate: hash so"));
-    let so_size = std::fs::metadata(dir.join("plugin.so")).expect("demo gate: stat so").len();
+    let so_hash = sha256::to_hex(&sha256::hash_file(&dir.join("bundle.so")).expect("demo gate: hash so"));
+    let so_size = std::fs::metadata(dir.join("bundle.so")).expect("demo gate: stat so").len();
     let run_hash = sha256::to_hex(&sha256::hash_file(&dir.join("modukit-run")).expect("demo gate: hash runner"));
     let run_size = std::fs::metadata(dir.join("modukit-run")).expect("demo gate: stat runner").len();
     let toml = format!(
-        "id = \"{name}\"\nversion = \"0.1.0\"\n[entry]\nkind = \"exe\"\nartifact = \"plugin.so\"\nrunner = \"{}\"\n\n[restart]\npolicy = \"on-failure\"\nmax_retries = 1\nbackoff = \"1s..4s\"\n\n[[files]]\npath = \"plugin.so\"\nsha256 = \"{so_hash}\"\nsize = {so_size}\n\n[[files]]\npath = \"modukit-run\"\nsha256 = \"{run_hash}\"\nsize = {run_size}\n",
+        "id = \"{name}\"\nversion = \"0.1.0\"\n[entry]\nkind = \"exe\"\nartifact = \"bundle.so\"\nrunner = \"{}\"\n\n[restart]\npolicy = \"on-failure\"\nmax_retries = 1\nbackoff = \"1s..4s\"\n\n[[files]]\npath = \"bundle.so\"\nsha256 = \"{so_hash}\"\nsize = {so_size}\n\n[[files]]\npath = \"modukit-run\"\nsha256 = \"{run_hash}\"\nsize = {run_size}\n",
         dir.join("modukit-run").display()
     );
     std::fs::write(dir.join("modukit.toml"), toml).expect("demo gate: write modukit.toml");
     if tamper {
-        let mut bytes = std::fs::read(dir.join("plugin.so")).expect("demo gate: read member to tamper");
+        let mut bytes = std::fs::read(dir.join("bundle.so")).expect("demo gate: read member to tamper");
         let last = bytes.len() - 1;
         bytes[last] ^= 0xFF;
-        std::fs::write(dir.join("plugin.so"), bytes).expect("demo gate: flip one byte after the checklist");
+        std::fs::write(dir.join("bundle.so"), bytes).expect("demo gate: flip one byte after the checklist");
     }
 }
 

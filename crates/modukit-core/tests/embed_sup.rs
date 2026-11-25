@@ -1,5 +1,5 @@
 //! Integration proof for the exe rung of the embed face (M2a): the real
-//! shadow-runner + the real rs example-plugin .so, walked end-to-end over
+//! shadow-runner + the real rs example-bundle .so, walked end-to-end over
 //! the C ABI verbs. Helper discipline (shared test target dirs, skip
 //! guards, always-run cargo) is the dual_placement pattern verbatim.
 
@@ -66,7 +66,7 @@ fn build_example_so() -> Option<PathBuf> {
         return None;
     }
     let so = target_dir().join("debug").join("libexample_plugin.so");
-    match cargo_build(&["build", "-p", "example-plugin"]) {
+    match cargo_build(&["build", "-p", "example-bundle"]) {
         Some(true) => {}
         Some(false) => {
             eprintln!("SKIPPING: fixture build failed");

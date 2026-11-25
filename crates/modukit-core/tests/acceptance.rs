@@ -5,7 +5,7 @@
 //!
 //! Acceptance trio per the M6 row: TWO GREEN (churn fold-equality,
 //! step-replay content equality) + ONE deliberately RED-fixture (the
-//! bad-plugin: its ledger entry must show it never became live).
+//! bad-bundle: its ledger entry must show it never became live).
 //!
 //! dlopen legs follow the M3 fixture-build pattern: they SKIP green with a
 //! printed reason where cargo/artifacts cannot run (D16 timing NOT
@@ -173,15 +173,15 @@ fn churn_200_cycles_snapshot_equals_the_fold_of_the_event_stream() {
     assert_eq!(tail.dropped, 0, "churn must not shed ring history mid-test");
     let fold = modukit_core::testhost::fold_states(&tail.events);
     let view = snap.all();
-    let plugin = view
+    let bundle = view
         .one(&id.to_string())
-        .expect("tracked plugin in the snapshot");
+        .expect("tracked bundle in the snapshot");
     assert_eq!(
         fold.get(&id.to_string()).map(String::as_str),
-        Some(plugin.state.as_str()),
+        Some(bundle.state.as_str()),
         "fold(events) must equal the live table (10 §3 churn)"
     );
-    assert_eq!(plugin.state, "UNINSTALLED");
+    assert_eq!(bundle.state, "UNINSTALLED");
 }
 
 #[test]
@@ -207,7 +207,7 @@ fn step_replay_same_fixture_same_content_sequence_on_fresh_kernels() {
             .into_iter()
             .map(|r| match r.event {
                 // Content projections only: no seq, no ts, no base address.
-                ObsEvent::Lifecycle { plugin, from, to } => format!("L:{plugin}:{from}->{to}"),
+                ObsEvent::Lifecycle { bundle, from, to } => format!("L:{bundle}:{from}->{to}"),
                 ObsEvent::Registry(modukit_core::registry::ServiceEvent::Registered {
                     service_id,
                     ..
@@ -216,7 +216,7 @@ fn step_replay_same_fixture_same_content_sequence_on_fresh_kernels() {
                     service_id,
                     ..
                 }) => format!("U:{}", service_id.as_str()),
-                ObsEvent::ModuleLoaded { plugin, .. } => format!("M:{plugin}"),
+                ObsEvent::ModuleLoaded { bundle, .. } => format!("M:{bundle}"),
                 other => format!("X:{other:?}"),
             })
             .collect()
@@ -230,7 +230,7 @@ fn step_replay_same_fixture_same_content_sequence_on_fresh_kernels() {
 
 #[test]
 fn ledger_equality_bad_plugin_is_the_red_fixture_staying_red() {
-    // The deliberately RED leg: the bad plugin (ABI v999) must NEVER appear
+    // The deliberately RED leg: the bad bundle (ABI v999) must NEVER appear
     // as a loaded module in the ledger, must have no ModuleLoaded event,
     // and must sit FAILED with the D51 code string. The fixture goes red;
     // the kernel's honesty stays green.
@@ -253,12 +253,12 @@ fn ledger_equality_bad_plugin_is_the_red_fixture_staying_red() {
         .count();
     // One ModuleLoaded may exist only if a GOOD module was loaded; this
     // kernel loaded only the bad one — so zero is the honest answer.
-    assert_eq!(states, 0, "the bad plugin must never post ModuleLoaded");
+    assert_eq!(states, 0, "the bad bundle must never post ModuleLoaded");
 
     let view = snap.all();
-    let plugin = view.one(&id.to_string()).expect("tracked");
+    let bundle = view.one(&id.to_string()).expect("tracked");
     assert_eq!(
-        plugin.state,
+        bundle.state,
         BundleState::Failed.to_string(),
         "parked FAILED (04 §3)"
     );
@@ -266,7 +266,7 @@ fn ledger_equality_bad_plugin_is_the_red_fixture_staying_red() {
     let ledger = dump.dump();
     let entry = ledger
         .iter()
-        .find(|e| e.plugin == id.to_string())
+        .find(|e| e.bundle == id.to_string())
         .expect("the ledger tracks the attempted module");
     assert!(
         !entry.loaded,
@@ -279,7 +279,7 @@ fn ledger_equality_bad_plugin_is_the_red_fixture_staying_red() {
     assert_eq!(entry.abi_stamps.expected, modukit_core::abi::ABI_VERSION);
 }
 
-/// S3-1b (plugin-management-plan): the DM-lite wiring end to end — a real
+/// S3-1b (bundle-management-plan): the DM-lite wiring end to end — a real
 /// dlopen dependent parked by `on_down = block` when its provider leaves,
 /// start refused while blocked, and startable again once the provider is
 /// restored and the block clears.
@@ -327,7 +327,7 @@ fn dm_lite_blocks_a_dependent_when_its_provider_leaves_and_restores() {
     let (snap, ..) = acquire_trio(&kernel);
     let state = snap
         .all()
-        .plugins
+        .bundles
         .iter()
         .find(|p| p.id == EXAMPLE_ID)
         .map(|p| p.state.clone())

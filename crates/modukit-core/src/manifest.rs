@@ -47,7 +47,7 @@ impl std::fmt::Display for PlacementKind {
 pub struct Entry {
     pub kind: PlacementKind,
     pub artifact: String,
-    /// Optional interpreter for script plugins (05 §1); inert in Stage-1.
+    /// Optional interpreter for script bundles (05 §1); inert in Stage-1.
     pub runner: Option<String>,
 }
 
@@ -108,7 +108,7 @@ pub struct Manifest {
     pub restart: RestartPolicy,
     pub requires: Vec<Requires>,
     pub provides: Vec<Provides>,
-    /// D29 hot-lane opt-in (05 §6, landed S3-2): keys a plugin declares for
+    /// D29 hot-lane opt-in (05 §6, landed S3-2): keys a bundle declares for
     /// live change events. Undeclared keys never hot-apply — `set` refuses
     /// them with a typed error (the liar-family enforcement point).
     pub config_live: Vec<String>,

@@ -30,14 +30,14 @@ pub enum EdgeKind {
     /// A provider retired — its entries retire with it (the `EdgeRemoved`
     /// moment for this ledger; D18).
     Unregistered,
-    /// A plugin lifecycle transition (03 §2 edge, floor-2a doorway).
+    /// A bundle lifecycle transition (03 §2 edge, floor-2a doorway).
     Transition,
     /// A module became live in the address space (10 §2).
     ModuleLoaded,
 }
 
 /// One edge record. `seq` mirrors the event ring's monotonic seq (the fold
-/// checker pairs records by it); `subject` is the service id or plugin id.
+/// checker pairs records by it); `subject` is the service id or bundle id.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EdgeRecord {
     pub seq: u64,
@@ -93,15 +93,15 @@ impl EdgeLedger {
                 String::new(),
             ),
             ObsEvent::Lifecycle {
-                plugin, from, to, ..
+                bundle, from, to, ..
             } => (
                 EdgeKind::Transition,
-                plugin.clone(),
+                bundle.clone(),
                 format!("{from}->{to}"),
             ),
             ObsEvent::ModuleLoaded {
-                plugin, artifact, ..
-            } => (EdgeKind::ModuleLoaded, plugin.clone(), artifact.clone()),
+                bundle, artifact, ..
+            } => (EdgeKind::ModuleLoaded, bundle.clone(), artifact.clone()),
             _ => return,
         };
         let mut state = self

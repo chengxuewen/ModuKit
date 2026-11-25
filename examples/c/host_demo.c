@@ -212,7 +212,7 @@ int main(int argc, char **argv) {
     if (modukit_introspect_snapshot(snap, snap_len, &copied) > 0 &&
         copied == snap_len) {
       snap[snap_len] = 0;
-      snap_ok = strstr((const char *)snap, "plugin\t" BUNDLE_ID "\tACTIVE") !=
+      snap_ok = strstr((const char *)snap, "bundle\t" BUNDLE_ID "\tACTIVE") !=
                     NULL &&
                 strstr((const char *)snap, "service\t") != NULL &&
                 strstr((const char *)snap, "counters\t") != NULL;

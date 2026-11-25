@@ -141,7 +141,7 @@ fn probe_reads_self_report_for_a_good_artifact() {
         return;
     };
     let report = DlopenExecutor::probe_self_report(&so).expect("probe must read the good fixture");
-    assert_eq!(report.plugin_name, "example-plugin");
+    assert_eq!(report.bundle_name, "example-plugin");
     assert_eq!(report.id.as_deref(), Some(EXAMPLE_ID));
     assert_eq!(report.version.as_deref(), Some("0.1.0"));
 }

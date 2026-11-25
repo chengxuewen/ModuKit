@@ -56,7 +56,7 @@ fn fdset_bytes_booted_into_the_kernel_read_back_byte_equal() {
     );
 
     // The M6 module-ledger half of the dump keeps its frozen shape: a
-    // testhost that booted no plugins still answers zero loaded modules.
+    // testhost that booted no bundles still answers zero loaded modules.
     let dump = acquire_ledger(host.kernel()).dump();
     assert!(
         dump.iter().all(|e| !e.loaded),

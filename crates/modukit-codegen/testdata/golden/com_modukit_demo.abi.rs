@@ -4,7 +4,7 @@
 // C ABI vtable SHADE - Stage 1 freezes the shape contract only
 // (modules/04 §1: "frozen later"). Function pointers take encoded
 // bytes in / bytes out and return an i32 status (>= 0 bytes written,
-// < 0 plugin-side code, the D27 int channel). No Rust types cross.
+// < 0 bundle-side code, the D27 int channel). No Rust types cross.
 
 use std::ffi::c_void;
 use std::mem::size_of;
@@ -20,10 +20,10 @@ pub struct DemoServiceVtable {
     /// consumer rejects an undersized table before calling anything.
     pub size: u32,
     /// fn(ctx, request bytes, request len, response buffer, response
-    ///    cap) -> bytes written, or a negative plugin-side code.
+    ///    cap) -> bytes written, or a negative bundle-side code.
     pub echo: Option<DemoServiceEchoFn>,
     /// fn(ctx, request bytes, request len, response buffer, response
-    ///    cap) -> bytes written, or a negative plugin-side code.
+    ///    cap) -> bytes written, or a negative bundle-side code.
     pub describe: Option<DemoServiceDescribeFn>,
 }
 

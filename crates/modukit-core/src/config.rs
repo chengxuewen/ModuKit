@@ -1,8 +1,8 @@
-//! ConfigAdmin (plugin-management-plan S3-2, ruling A3; D29 hot lane).
+//! ConfigAdmin (bundle-management-plan S3-2, ruling A3; D29 hot lane).
 //!
 //! Implements the recorded `config_live` specification (modules/05 §6):
-//! a plugin that declares `config_live = ["key", ...]` receives change
-//! events for those keys as ordinary bus topics (`config/<plugin-id>`,
+//! a bundle that declares `config_live = ["key", ...]` receives change
+//! events for those keys as ordinary bus topics (`config/<bundle-id>`,
 //! `QoS::LatestValue` so a late-joining consumer gets the current value
 //! immediately); keys that were never declared are refused with a typed
 //! error - never hot-applied, never published (the liar-family enforcement
@@ -10,7 +10,7 @@
 //! proto `Config` message (05 §6 first bullet).
 //!
 //! Persistence (the CTK precedent, which CppMicroServices lacks): every
-//! accepted `set` rewrites the plugin's `<dir>/<plugin-id>.toml`, so values
+//! accepted `set` rewrites the bundle's `<dir>/<bundle-id>.toml`, so values
 //! survive a host restart. The deploy-TOML stays the value source once the
 //! deploy-tier file type lands (M7+); until then the store seeds from these
 //! persistence files only - `set` is the sole year-1 write path, which is
@@ -27,9 +27,9 @@ use crate::topic::QoS;
 /// The typed refusals of the hot lane.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ConfigError {
-    /// The key was not declared in the plugin's `config_live` - hot-apply is
-    /// refused outright (a plugin that assumed otherwise is the liar fixture).
-    NotLive { plugin: String, key: String },
+    /// The key was not declared in the bundle's `config_live` - hot-apply is
+    /// refused outright (a bundle that assumed otherwise is the liar fixture).
+    NotLive { bundle: String, key: String },
     /// The persistence write failed (the in-memory store is still updated).
     Persist(String),
 }
@@ -37,9 +37,9 @@ pub enum ConfigError {
 impl std::fmt::Display for ConfigError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ConfigError::NotLive { plugin, key } => write!(
+            ConfigError::NotLive { bundle, key } => write!(
                 f,
-                "config key {key:?} is not declared in plugin {plugin}'s config_live - \
+                "config key {key:?} is not declared in bundle {bundle}'s config_live - \
                  hot-apply refused (declare it first, 05 §6)"
             ),
             ConfigError::Persist(what) => write!(f, "config persistence failed: {what}"),
@@ -69,7 +69,7 @@ impl ConfigAdmin {
         }
     }
 
-    /// Attach the hot lane: accepted `set`s publish on `config/<plugin-id>`.
+    /// Attach the hot lane: accepted `set`s publish on `config/<bundle-id>`.
     #[must_use]
     pub fn with_bus(mut self, bus: Arc<Bus>) -> Self {
         self.bus = Some(bus);
@@ -98,7 +98,7 @@ impl ConfigAdmin {
             let Some(stem) = path.file_stem().and_then(|s| s.to_str()) else {
                 continue;
             };
-            let plugin = BundleId::new(stem.to_string());
+            let bundle = BundleId::new(stem.to_string());
             let Ok(text) = std::fs::read_to_string(&path) else {
                 continue;
             };
@@ -107,44 +107,44 @@ impl ConfigAdmin {
             };
             let mut store = self.store.lock().unwrap_or_else(PoisonError::into_inner);
             for (key, value) in values {
-                store.insert((plugin.clone(), key), value);
+                store.insert((bundle.clone(), key), value);
             }
         }
     }
 
-    /// Declare a plugin's hot keys (the kernel install tail feeds this from
+    /// Declare a bundle's hot keys (the kernel install tail feeds this from
     /// the manifest's `config_live`). Idempotent replace.
-    pub fn declare(&self, plugin: BundleId, keys: Vec<String>) {
+    pub fn declare(&self, bundle: BundleId, keys: Vec<String>) {
         self.live
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
-            .insert(plugin, keys.into_iter().collect());
+            .insert(bundle, keys.into_iter().collect());
     }
 
-    /// Drop a plugin's declarations (it uninstalled). Persisted values stay
+    /// Drop a bundle's declarations (it uninstalled). Persisted values stay
     /// on disk - the deploy source of truth outlives one install cycle.
-    pub fn forget(&self, plugin: &BundleId) {
+    pub fn forget(&self, bundle: &BundleId) {
         self.live
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
-            .remove(plugin);
+            .remove(bundle);
     }
 
     /// Hot-apply one key: store, persist, publish - in that order, and only
-    /// for a key the plugin declared.
+    /// for a key the bundle declared.
     ///
     /// # Errors
     ///
     /// `ConfigError::NotLive` for an undeclared key (nothing is stored,
     /// written or published); `ConfigError::Persist` when the disk write
     /// fails (the in-memory store and the bus event still carry the value).
-    pub fn set(&self, plugin: &BundleId, key: &str, value: &str) -> Result<(), ConfigError> {
+    pub fn set(&self, bundle: &BundleId, key: &str, value: &str) -> Result<(), ConfigError> {
         {
             let live = self.live.lock().unwrap_or_else(PoisonError::into_inner);
-            let declared = live.get(plugin).is_some_and(|keys| keys.contains(key));
+            let declared = live.get(bundle).is_some_and(|keys| keys.contains(key));
             if !declared {
                 return Err(ConfigError::NotLive {
-                    plugin: plugin.as_str().to_string(),
+                    bundle: bundle.as_str().to_string(),
                     key: key.to_string(),
                 });
             }
@@ -152,10 +152,10 @@ impl ConfigAdmin {
         self.store
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
-            .insert((plugin.clone(), key.to_string()), value.to_string());
-        self.persist(plugin)?;
+            .insert((bundle.clone(), key.to_string()), value.to_string());
+        self.persist(bundle)?;
         if let Some(bus) = &self.bus {
-            let topic = TopicId::new(format!("config/{}", plugin.as_str()));
+            let topic = TopicId::new(format!("config/{}", bundle.as_str()));
             bus.publish(
                 &topic,
                 QoS::LatestValue,
@@ -167,27 +167,27 @@ impl ConfigAdmin {
 
     /// Read one value (the year-1 "value read" path, 05 §6).
     #[must_use]
-    pub fn get(&self, plugin: &BundleId, key: &str) -> Option<String> {
+    pub fn get(&self, bundle: &BundleId, key: &str) -> Option<String> {
         self.store
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
-            .get(&(plugin.clone(), key.to_string()))
+            .get(&(bundle.clone(), key.to_string()))
             .cloned()
     }
 
-    fn persist(&self, plugin: &BundleId) -> Result<(), ConfigError> {
+    fn persist(&self, bundle: &BundleId) -> Result<(), ConfigError> {
         let Some(dir) = &self.dir else {
             return Ok(()); // no persistence attached: the store is the door
         };
         let store = self.store.lock().unwrap_or_else(PoisonError::into_inner);
         let values: BTreeMap<&String, &String> = store
             .iter()
-            .filter(|((p, _), _)| p == plugin)
+            .filter(|((p, _), _)| p == bundle)
             .map(|((_, k), v)| (k, v))
             .collect();
         let text = toml::to_string(&values).map_err(|e| ConfigError::Persist(e.to_string()))?;
         std::fs::create_dir_all(dir).map_err(|e| ConfigError::Persist(e.to_string()))?;
-        std::fs::write(dir.join(format!("{}.toml", plugin.as_str())), text)
+        std::fs::write(dir.join(format!("{}.toml", bundle.as_str())), text)
             .map_err(|e| ConfigError::Persist(e.to_string()))
     }
 }
@@ -204,14 +204,14 @@ mod tests {
     use crate::identity::ServiceId;
     use crate::registry::{Properties, PropertyValue, Registry};
 
-    fn plugin(name: &str) -> BundleId {
+    fn bundle(name: &str) -> BundleId {
         BundleId::new(name.to_string())
     }
 
     #[test]
     fn declared_set_stores_but_a_bare_admin_cannot_publish() {
         let admin = ConfigAdmin::new();
-        let p = plugin("com.acme.sensor");
+        let p = bundle("com.acme.sensor");
         admin.declare(p.clone(), vec!["interval".into()]);
         admin
             .set(&p, "interval", "500")
@@ -222,14 +222,14 @@ mod tests {
     #[test]
     fn undeclared_key_is_refused_outright() {
         let admin = ConfigAdmin::new();
-        let p = plugin("com.acme.sensor");
+        let p = bundle("com.acme.sensor");
         admin.declare(p.clone(), vec!["interval".into()]);
         // the liar family: assuming hot-apply without declaring it
         let err = admin.set(&p, "secret_mode", "on").unwrap_err();
         assert_eq!(
             err,
             ConfigError::NotLive {
-                plugin: "com.acme.sensor".into(),
+                bundle: "com.acme.sensor".into(),
                 key: "secret_mode".into()
             }
         );
@@ -240,7 +240,7 @@ mod tests {
     fn hot_lane_publishes_on_the_plugin_topic() {
         let bus = Arc::new(Bus::new());
         let admin = ConfigAdmin::new().with_bus(Arc::clone(&bus));
-        let p = plugin("com.acme.sensor");
+        let p = bundle("com.acme.sensor");
         admin.declare(p.clone(), vec!["interval".into()]);
         let topic = TopicId::new("config/com.acme.sensor".to_string());
         let mut rx = bus.subscribe(&topic).expect("subscribe");
@@ -254,7 +254,7 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("modukit-config-test-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         let first = ConfigAdmin::new().with_persistence(dir.clone());
-        let p = plugin("com.acme.sensor");
+        let p = bundle("com.acme.sensor");
         first.declare(p.clone(), vec!["interval".into()]);
         first.set(&p, "interval", "500").expect("set");
         drop(first);

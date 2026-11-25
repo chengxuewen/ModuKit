@@ -1,5 +1,5 @@
 //! Logger service with `LogEvent` in the shared ring (D19, modules/10 §5) —
-//! M6 floor 3. The plugin mouth is an ordinary kernel service: acquire it
+//! M6 floor 3. The bundle mouth is an ordinary kernel service: acquire it
 //! like anything else (no ambient authority), records ride the same bounded
 //! drop-counted ring as frames and lifecycle events, and a slow consumer
 //! never blocks the producer (observation, not enforcement).

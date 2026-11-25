@@ -118,7 +118,7 @@ fn every_kernel_error_variant() -> Vec<KernelError> {
             found: "9.9.9".into(),
         },
         KernelError::RoutingDeferred {
-            plugin: "com.example.p".into(),
+            bundle: "com.example.p".into(),
             service: "svc".into(),
         },
         KernelError::ClockDialRefused { status: -2 },

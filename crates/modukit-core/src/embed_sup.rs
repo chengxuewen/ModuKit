@@ -4,8 +4,8 @@
 //! - a second ambient kernel, separate from M1's in-process one.
 //!
 //! Two-rung contract (ruled; do not fake unity):
-//! - `embed.rs` serves the dl rung (in-process plugins, `DlopenExecutor`).
-//! - this module serves the exe rung (child-process plugins,
+//! - `embed.rs` serves the dl rung (in-process bundles, `DlopenExecutor`).
+//! - this module serves the exe rung (child-process bundles,
 //!   `ProcessExecutor` + supervision). The two kernels own SEPARATE
 //!   registries, buses, clocks and observatories: a service registered on
 //!   one rung is NOT visible on the other, and a wrong-kind manifest is

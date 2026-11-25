@@ -1,4 +1,4 @@
-//! ServiceTracker (plugin-management-plan S2, ruling S2-2 A).
+//! ServiceTracker (bundle-management-plan S2, ruling S2-2 A).
 //!
 //! A callback-driven tracker riding the registry's filtered subscription
 //! (`subscribe_filtered`, S2). It keeps the current set of matching

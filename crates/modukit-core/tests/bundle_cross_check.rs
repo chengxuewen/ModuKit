@@ -1,5 +1,5 @@
 //! M7 D7 cross-check + reverse-DNS grammar (the M3 deferral closes here).
-//! First-red area: cross-check/grammar — the bad-plugin ABI rejection now
+//! First-red area: cross-check/grammar — the bad-bundle ABI rejection now
 //! happens at INSTALL (before the atomic rename), and a manifest that lies
 //! about the artifact's self-report never reaches the install root.
 
@@ -67,14 +67,14 @@ fn stage(
     use modukit_core::sha256::{hash_file, to_hex};
     let dir = staging.join(name);
     std::fs::create_dir_all(&dir).expect("bundle dir");
-    std::fs::copy(artifact_src, dir.join("plugin.so")).expect("copy so");
-    let hash = to_hex(&hash_file(&dir.join("plugin.so")).expect("hash so"));
-    let size = std::fs::metadata(dir.join("plugin.so"))
+    std::fs::copy(artifact_src, dir.join("bundle.so")).expect("copy so");
+    let hash = to_hex(&hash_file(&dir.join("bundle.so")).expect("hash so"));
+    let size = std::fs::metadata(dir.join("bundle.so"))
         .expect("size")
         .len();
     let mut toml = format!(
-        "id = \"{id}\"\nversion = \"{version}\"\n[entry]\nkind = \"dl\"\nartifact = \"plugin.so\"\n\
-         [[files]]\npath = \"plugin.so\"\nsha256 = \"{hash}\"\nsize = {size}\n"
+        "id = \"{id}\"\nversion = \"{version}\"\n[entry]\nkind = \"dl\"\nartifact = \"bundle.so\"\n\
+         [[files]]\npath = \"bundle.so\"\nsha256 = \"{hash}\"\nsize = {size}\n"
     );
     if let Some(service) = provides {
         toml.push_str(&format!("\n[[provides]]\nservice = \"{service}\"\n"));
@@ -84,7 +84,7 @@ fn stage(
 
 #[test]
 fn bad_plugin_abi_mismatch_is_refused_at_install_before_the_rename() {
-    let Some(so) = build_fixture("bad-plugin", "bad_plugin") else {
+    let Some(so) = build_fixture("bad-bundle", "bad_plugin") else {
         return;
     };
     let root = scratch("abi");
@@ -96,7 +96,7 @@ fn bad_plugin_abi_mismatch_is_refused_at_install_before_the_rename() {
     assert_eq!(
         err.code(),
         "ABI_MISMATCH",
-        "the plan-row gate: bad-plugin proves ABI-mismatch rejection at install"
+        "the plan-row gate: bad-bundle proves ABI-mismatch rejection at install"
     );
     assert!(
         !root.join("bundles").join(BAD_ID).exists(),
@@ -111,7 +111,7 @@ fn bad_plugin_abi_mismatch_is_refused_at_install_before_the_rename() {
 
 #[test]
 fn liar_manifest_version_fails_cross_check_before_any_call() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let root = scratch("liar");
@@ -139,7 +139,7 @@ fn liar_manifest_version_fails_cross_check_before_any_call() {
 
 #[test]
 fn liar_manifest_id_fails_cross_check() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let root = scratch("liarid");
@@ -201,7 +201,7 @@ fn reverse_dns_grammar_matrix() {
 
 #[test]
 fn install_refuses_grammar_violations_before_anything_else() {
-    let Some(so) = build_fixture("example-plugin", "example_plugin") else {
+    let Some(so) = build_fixture("example-bundle", "example_plugin") else {
         return;
     };
     let root = scratch("grammar");

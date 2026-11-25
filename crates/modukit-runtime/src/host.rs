@@ -8,7 +8,7 @@
 //! Boots `Supervisor` with the `exe` executor pair (`with_clock` wires
 //! `ProcessExecutor::paired()` + the kernel-side registry door for REGISTER
 //! proxies — that IS the production pair constructor; no separate wiring
-//! exists), installs/resolves/starts the ONE manifest plugin (V0 hosts
+//! exists), installs/resolves/starts the ONE manifest bundle (V0 hosts
 //! exactly one manifest — nothing more), then runs the documented host
 //! loop: `drive_until_idle` each pass. On a Real clock the loop parks on
 //! `IDLE_PARK` between passes (the loop's wall-time surface: due-job
@@ -78,11 +78,11 @@ fn parse_args() -> (String, ClockDomain, Option<String>) {
             println!(
                 "modukit-host <manifest.toml> [--clock=step|real] [--ops=lb|query:<filter>|dm]"
             );
-            println!("  Supervise ONE exe-placement plugin: install, resolve, start,");
+            println!("  Supervise ONE exe-placement bundle: install, resolve, start,");
             println!("  then drive the supervisor loop (crash-watch, D3 restarts,");
             println!("  due-job posting) until SIGTERM/SIGINT: graceful stop, exit 0.");
             println!("  --ops: READ-ONLY diagnose mode - boot, run one command over the");
-            println!("  live state, print, graceful stop, exit 0 (lb = plugins, query =");
+            println!("  live state, print, graceful stop, exit 0 (lb = bundles, query =");
             println!("  property-filter over services, dm = dependency report). Mutating");
             println!("  ops stay with the host lifecycle, never this channel.");
             std::process::exit(0);
@@ -133,7 +133,7 @@ fn run(path: &str, domain: ClockDomain, ops: Option<String>) -> i32 {
         eprintln!("modukit-host: start (START ack / REGISTER): {err}");
         return 6;
     }
-    println!("modukit-host: ACTIVE plugin={id}");
+    println!("modukit-host: ACTIVE bundle={id}");
 
     // S4 ops mode: boot, run ONE read-only command over the live state,
     // print, graceful stop, exit. Mutating ops stay with the host lifecycle
@@ -171,7 +171,7 @@ fn run(path: &str, domain: ClockDomain, ops: Option<String>) -> i32 {
     }
     match sup.kernel().stop(&pid) {
         Ok(()) => {
-            println!("modukit-host: stopped plugin={id}");
+            println!("modukit-host: stopped bundle={id}");
             0
         }
         Err(err) => {
@@ -189,18 +189,18 @@ fn run(path: &str, domain: ClockDomain, ops: Option<String>) -> i32 {
 fn run_ops(kernel: &modukit_core::kernel::Kernel, cmd: &str) -> String {
     let mut out = String::new();
     if cmd == "lb" {
-        // plugin listing rides the snapshot service (D17), the same answer
+        // bundle listing rides the snapshot service (D17), the same answer
         // introspection gives - one source of truth.
         if let Some(snap) = kernel
             .registry()
             .acquire::<modukit_core::introspect::Snapshot>()
         {
-            for p in &snap.all().plugins {
+            for p in &snap.all().bundles {
                 out.push_str(&format!("{}\t{}\t{}\n", p.id, p.state, p.placement));
             }
         }
         if out.is_empty() {
-            out.push_str("(no plugins installed)\n");
+            out.push_str("(no bundles installed)\n");
         }
         return out;
     }
@@ -226,7 +226,7 @@ fn run_ops(kernel: &modukit_core::kernel::Kernel, cmd: &str) -> String {
         for r in rows {
             out.push_str(&format!(
                 "{}\t{}\t{}\tpresent={}\n",
-                r.plugin, r.service, r.on_down, r.present
+                r.bundle, r.service, r.on_down, r.present
             ));
         }
         return out;
@@ -255,7 +255,7 @@ mod ops_tests {
     fn lb_on_a_fresh_kernel_notes_the_empty_table() {
         let k = Kernel::new();
         let out = run_ops(&k, "lb");
-        assert!(out.contains("no plugins installed"), "got: {out:?}");
+        assert!(out.contains("no bundles installed"), "got: {out:?}");
     }
 
     #[test]

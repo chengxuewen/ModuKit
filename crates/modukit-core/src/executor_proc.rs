@@ -1,5 +1,5 @@
 //! The `exe` arm of the closed executor set (S2-M1; modules/01 §1, D13 seam
-//! extension). `ProcessExecutor` spawns the plugin executable as a
+//! extension). `ProcessExecutor` spawns the bundle executable as a
 //! supervised child and speaks the `proc_wire` envelope over a socketpair
 //! control channel; the crash-watch + restart-policy loop is `Supervisor`
 //! (`proc_supervisor`).
@@ -49,7 +49,7 @@ pub const HANDSHAKE_TIMEOUT: Duration = Duration::from_secs(5);
 /// Read bound for the START ack and the REGISTER-before-ack exchange.
 pub const START_ACK_TIMEOUT: Duration = Duration::from_secs(5);
 /// Read bound for one proxied service CALL's RESULT (S2-M3a): the child
-/// runs plugin code synchronously, so the budget matches the handshake/
+/// runs bundle code synchronously, so the budget matches the handshake/
 /// START family — a peer slower than that is hung, not busy, and is
 /// killed on the timeout edge (the `dl` arm cannot time out at all; this
 /// is the honest cross-process cost of 01 §3 rule 5 teardown).
@@ -97,7 +97,7 @@ pub(crate) struct LiveProc {
     pub(crate) status: Option<ExitStatus>,
 }
 
-/// The shared supervision state: live children keyed by plugin id, plus
+/// The shared supervision state: live children keyed by bundle id, plus
 /// the monotonic run counter behind the generation stamps.
 #[derive(Debug, Default)]
 pub(crate) struct Shared {
@@ -243,7 +243,7 @@ impl Executor for ProcessExecutor {
         // checks cannot see this leak because the number is recycled).
         let mut child = {
             let mut cmd = Command::new(&exe);
-            // modules/01 §2 command shape: `<runner> <plugin.so> --fd=N`; the
+            // modules/01 §2 command shape: `<runner> <bundle.so> --fd=N`; the
             // M1 stand-in executables are the artifact itself (no runner).
             if manifest.entry.runner.is_some() {
                 cmd.arg(&manifest.entry.artifact);
@@ -392,7 +392,7 @@ fn read_hello(parent: &mut UnixStream, id: &str) -> Result<proc_wire::Hello, Ker
     })
 }
 
-/// One running `exe` plugin: verbs ride the control channel; the child
+/// One running `exe` bundle: verbs ride the control channel; the child
 /// itself lives in the shared live table (one source for the supervisor).
 /// `run_gen` pins the verbs to THIS supervised run.
 struct ProcPlugin {
@@ -413,7 +413,7 @@ struct ProcPlugin {
 }
 
 impl LoadedPlugin for ProcPlugin {
-    fn plugin_name(&self) -> &str {
+    fn bundle_name(&self) -> &str {
         &self.name
     }
 
@@ -946,7 +946,7 @@ mod tests {
     }
 
     fn true_copy(dir: &Path) -> std::path::PathBuf {
-        let exe = dir.join("fake-plugin");
+        let exe = dir.join("fake-bundle");
         std::fs::copy("/bin/true", &exe).expect("copy /bin/true");
         exe
     }

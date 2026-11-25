@@ -141,7 +141,7 @@ fn edge_kind_name(kind: EdgeKind) -> &'static str {
 #[must_use]
 pub(crate) fn event_payload(event: &ObsEvent) -> String {
     match event {
-        ObsEvent::Lifecycle { plugin, from, to } => format!("{plugin} {from}->{to}"),
+        ObsEvent::Lifecycle { bundle, from, to } => format!("{bundle} {from}->{to}"),
         ObsEvent::Registry(ServiceEvent::Registered { id, service_id, .. }) => {
             format!("registered {} rid={}", service_id.as_str(), id.value())
         }
@@ -152,11 +152,11 @@ pub(crate) fn event_payload(event: &ObsEvent) -> String {
             format!("modified {} rid={}", service_id.as_str(), id.value())
         }
         ObsEvent::ModuleLoaded {
-            plugin,
+            bundle,
             artifact,
             load_base,
             symbol_hint,
-        } => format!("{plugin} {artifact} base={load_base} sym={symbol_hint}"),
+        } => format!("{bundle} {artifact} base={load_base} sym={symbol_hint}"),
         ObsEvent::TimerDone { token, job } => format!("token={token} job={job}"),
         ObsEvent::EdgeRemoved { subject } => subject.clone(),
         ObsEvent::Marker(text) => text.clone(),
@@ -166,9 +166,9 @@ pub(crate) fn event_payload(event: &ObsEvent) -> String {
 
 /// Snapshot codec (one shape per line, `\n`-joined, UTF-8, lines sorted
 /// lexicographically inside each section; sections in the documented
-/// order plugin/service/topic/edge/counter). Field separator: TAB.
+/// order bundle/service/topic/edge/counter). Field separator: TAB.
 #[must_use]
-/// Render a property-filter query result (plugin-management-plan S1): one
+/// Render a property-filter query result (bundle-management-plan S1): one
 /// `service\t<id>\t<service_id>\t<ranking>` line per match, sorted for a
 /// deterministic byte image (the `find_services` verb's line codec, same
 /// family as `render_snapshot`).
@@ -196,11 +196,11 @@ pub(crate) fn render_find(hits: &[crate::registry_types::RegisteredService]) -> 
 pub(crate) fn render_snapshot(view: &HostView) -> Vec<u8> {
     let mut out = String::new();
     let mut lines: Vec<String> = view
-        .plugins
+        .bundles
         .iter()
         .map(|p| {
             format!(
-                "plugin\t{}\t{}\t{}\t{}",
+                "bundle\t{}\t{}\t{}\t{}",
                 p.id, p.state, p.placement, p.version
             )
         })
@@ -462,7 +462,7 @@ mod tests {
             },
             KernelError::ClockDialRefused { status: 1 },
             KernelError::RoutingDeferred {
-                plugin: "p".into(),
+                bundle: "p".into(),
                 service: "s".into(),
             },
             KernelError::IdentityMismatch {
@@ -500,7 +500,7 @@ mod tests {
     #[test]
     fn snapshot_codec_is_sorted_tab_separated_lines() {
         let view = HostView {
-            plugins: vec![
+            bundles: vec![
                 crate::introspect::BundleView {
                     id: "b.two".into(),
                     state: "ACTIVE".into(),
@@ -524,8 +524,8 @@ mod tests {
         let mut expect_line = |want: &str| {
             assert_eq!(lines.next().as_deref(), Some(want));
         };
-        expect_line("plugin\ta.one\tINSTALLED\tdl\t0.2.0");
-        expect_line("plugin\tb.two\tACTIVE\tdl\t0.1.0");
+        expect_line("bundle\ta.one\tINSTALLED\tdl\t0.2.0");
+        expect_line("bundle\tb.two\tACTIVE\tdl\t0.1.0");
         expect_line("counters\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0");
         assert_eq!(lines.next(), None);
     }
@@ -536,7 +536,7 @@ mod tests {
             seq: 7,
             ts: crate::clock::Timestamp::from(1234),
             event: ObsEvent::Lifecycle {
-                plugin: "com.x.y".into(),
+                bundle: "com.x.y".into(),
                 from: "STARTING".into(),
                 to: "ACTIVE".into(),
             },

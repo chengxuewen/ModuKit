@@ -21,7 +21,7 @@ use crate::events::{Observatory, Tail};
 use crate::identity::BundleId;
 use crate::kernel::BundleRecord;
 use crate::registry::{RegisteredService, Registry};
-use crate::wiring::PluginTable;
+use crate::wiring::BundleTable;
 
 /// One load-handshake outcome record: host/ABI stamps as plain numbers
 /// (the `LedgerDump` row of 10 §1; the D27 record family).
@@ -54,7 +54,7 @@ impl LoadStamp {
     }
 }
 
-/// The per-plugin line of the object-table cut (10 §1 Snapshot row:
+/// The per-bundle line of the object-table cut (10 §1 Snapshot row:
 /// state/placement/version; restart counts ride M7's restart machinery).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BundleView {
@@ -78,7 +78,7 @@ pub struct EdgeView {
 /// The exact `Snapshot.all()` answer: one cut of the object table.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HostView {
-    pub plugins: Vec<BundleView>,
+    pub bundles: Vec<BundleView>,
     pub services: Vec<RegisteredService>,
     /// Topics with pub/sub/drop counters (10 §1 Snapshot row).
     pub topics: Vec<TopicStats>,
@@ -88,12 +88,12 @@ pub struct HostView {
 }
 
 impl HostView {
-    /// `Snapshot.one(handle)`: v0 looks plugins up by id string (the
+    /// `Snapshot.one(handle)`: v0 looks bundles up by id string (the
     /// in-process analogue of a table handle; id-string keys are what the
     /// reserved namespace actually has until bridge handles exist).
     #[must_use]
     pub fn one(&self, id: &str) -> Option<&BundleView> {
-        self.plugins.iter().find(|p| p.id == id)
+        self.bundles.iter().find(|p| p.id == id)
     }
 }
 
@@ -102,7 +102,7 @@ impl HostView {
 pub struct Snapshot {
     registry: Registry,
     bus: Arc<crate::bus::Bus>,
-    table: PluginTable,
+    table: BundleTable,
     obs: Arc<Observatory>,
     edges: Arc<EdgeLedger>,
 }
@@ -117,7 +117,7 @@ impl Snapshot {
     pub(crate) fn new(
         registry: &Registry,
         bus: Arc<crate::bus::Bus>,
-        table: PluginTable,
+        table: BundleTable,
         obs: Arc<Observatory>,
         edges: Arc<EdgeLedger>,
     ) -> Self {
@@ -130,12 +130,12 @@ impl Snapshot {
         }
     }
 
-    /// The object-table cut: plugins, services, topics (with drop
+    /// The object-table cut: bundles, services, topics (with drop
     /// counters), edges, counters — one consistent read (each source is
     /// snapshotted under its own lock; year-1 single-writer discipline).
     #[must_use]
     pub fn all(&self) -> HostView {
-        let plugins: Vec<BundleView> = {
+        let bundles: Vec<BundleView> = {
             let table = self
                 .table
                 .lock()
@@ -166,7 +166,7 @@ impl Snapshot {
             (topics, view)
         };
         HostView {
-            plugins,
+            bundles,
             services: self.registry.snapshot(),
             topics: counters.0,
             edges: self
@@ -185,7 +185,7 @@ impl Snapshot {
         }
     }
 
-    /// `Snapshot.one`: a plugin line by id string.
+    /// `Snapshot.one`: a bundle line by id string.
     #[must_use]
     pub fn one(&self, id: &str) -> Option<BundleView> {
         let table = self
@@ -238,7 +238,7 @@ impl EventStream {
 /// One recorded module attempt in the load ledger.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ModuleEntry {
-    pub plugin: String,
+    pub bundle: String,
     pub artifact: String,
     /// True once the ABI handshake passed and the image is mapped.
     pub loaded: bool,
@@ -258,7 +258,7 @@ pub struct AbiStamps {
 /// The load ledger (`org.modukit.ledger_dump`).
 #[derive(Clone)]
 pub struct LedgerDump {
-    table: PluginTable,
+    table: BundleTable,
     /// M7: the contract-ledger (fdset) bytes the kernel was booted with.
     contract: std::sync::Arc<std::sync::Mutex<Vec<u8>>>,
 }
@@ -271,7 +271,7 @@ impl std::fmt::Debug for LedgerDump {
 
 impl LedgerDump {
     pub(crate) fn new(
-        table: PluginTable,
+        table: BundleTable,
         contract: std::sync::Arc<std::sync::Mutex<Vec<u8>>>,
     ) -> Self {
         Self { table, contract }
@@ -301,7 +301,7 @@ impl LedgerDump {
         table
             .iter()
             .map(|(id, record)| ModuleEntry {
-                plugin: id.to_string(),
+                bundle: id.to_string(),
                 artifact: record.manifest.entry.artifact.clone(),
                 loaded: record.last_load.is_some_and(|s| s.loaded),
                 abi_stamps: record

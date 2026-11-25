@@ -1,12 +1,12 @@
 //! S2-M2 fd hygiene for the REAL shadow-runner path (extends the S2-M1
 //! probe in `proc_fd_hygiene.rs` from stand-in executables to
-//! `modukit-run` + the genuine example-plugin cdylib). Own test file = own
+//! `modukit-run` + the genuine example-bundle cdylib). Own test file = own
 //! process (the M1 rationale), so the descriptor count is perturbed only by
 //! this file's own tests.
 //!
 //! Coverage: spawn/handshake/start/stop/uninstall cycles against the real
 //! runner (`/proc/self/fd` before == after), one silent-death cycle (the
-//! bad-plugin: the child dies before HELLO, the parent reads EOF and
+//! bad-bundle: the child dies before HELLO, the parent reads EOF and
 //! classifies ProcessCrashed (post-F1-fix), reaping via `kill_wait_child` —
 //! zombie may survive that path either), and the zero-zombie scan for the
 //! whole process.
@@ -65,7 +65,7 @@ fn build_pairs() -> Option<(PathBuf, PathBuf)> {
     let so = debug.join("libexample_plugin.so");
     let bad = debug.join("libbad_plugin.so");
     let bin = debug.join("modukit-run");
-    match build_cargo(&["build", "-p", "example-plugin", "-p", "bad-plugin"]) {
+    match build_cargo(&["build", "-p", "example-bundle", "-p", "bad-bundle"]) {
         Some(true) => {}
         Some(false) => {
             eprintln!("SKIPPING: fixture build failed");
@@ -167,7 +167,7 @@ fn real_runner_cycles_leak_no_descriptors_or_zombies() {
     }
 
     // Silent-death cycle through the kill_wait_child reap: the runner
-    // refuses bad-plugin at its own dlopen guards and dies before HELLO;
+    // refuses bad-bundle at its own dlopen guards and dies before HELLO;
     // the parent reads EOF (the F1 fix dropped its copy of the child
     // control-end at spawn) and must release every descriptor anyway.
     // NOTE (limitation worth recording): the count-based probe below and

@@ -170,7 +170,7 @@ impl Clock {
         self.inner.boot_gen
     }
 
-    /// The single stamp source (modules/03 §6: plugin time comes from the
+    /// The single stamp source (modules/03 §6: bundle time comes from the
     /// service, never from a private `Instant`).
     #[must_use]
     pub fn now(&self) -> Timestamp {
@@ -230,7 +230,7 @@ impl Clock {
 
     /// Wave-2 T1 (D99 R4-A): the ONLY cancel path - drop pending jobs whose
     /// token is in `tokens` (the kernel's stop/uninstall release feeds this
-    /// from the per-plugin register; the authority-law grammar lives in
+    /// from the per-bundle register; the authority-law grammar lives in
     /// `kernel.rs`, this is the mechanism). Scans the due buckets; a job
     /// already collected by `advance`/`due_jobs` is gone regardless. Returns
     /// the number removed - introspection for the census, never enforcement.

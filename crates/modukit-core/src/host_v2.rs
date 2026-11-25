@@ -1,6 +1,6 @@
 //! The Stage-5 N1 v2 door (D96 ruling 2): wiring behind `abi::HostAbiV2`.
 //!
-//! A plugin that declares `ABI_VERSION_V2` at the handshake is handed this
+//! A bundle that declares `ABI_VERSION_V2` at the handshake is handed this
 //! second host table at `start` — the v1 prefix (`size`/`user`/
 //! `register_service`) plus the four mailbox slots. `HostAbiV1` and the v1
 //! start path in `kernel.rs` are untouched (D87); this module is pure
@@ -11,8 +11,8 @@
 //! per-call queue table the id-returning mailbox grammar requires.
 //!
 //! Authority law is the v1 law: the table and its queue ids live only for
-//! the duration of the plugin's `start` call (01 §3 rule 2 — no ambient
-//! authority past it). Cross-process plugins keep their v1-only door here;
+//! the duration of the bundle's `start` call (01 §3 rule 2 — no ambient
+//! authority past it). Cross-process bundles keep their v1-only door here;
 //! the HELLO/wire side of v2 belongs to lane N2 (stage-5-plan §2).
 
 use std::collections::HashMap;
@@ -40,7 +40,7 @@ struct Mailbox {
 }
 
 /// The `user` context behind every v2 slot. Lives on `start_v2`'s stack for
-/// the duration of the plugin's `start` call (the v1 `ActivationSink` law).
+/// the duration of the bundle's `start` call (the v1 `ActivationSink` law).
 pub(crate) struct V2Context<'a> {
     registry: &'a Registry,
     bus: &'a Bus,
@@ -57,7 +57,7 @@ pub(crate) struct V2Context<'a> {
     /// never reads them.
     pub(crate) clock: Option<Clock>,
     pub(crate) bundle_id: Option<BundleId>,
-    pub(crate) plugin_timers: Option<&'a Mutex<HashMap<u64, BundleId>>>,
+    pub(crate) bundle_timers: Option<&'a Mutex<HashMap<u64, BundleId>>>,
 }
 
 /// Borrow a caller NUL-string and parse it as a canonical topic id
@@ -273,7 +273,7 @@ pub(crate) unsafe extern "C" fn trampoline_bus_unsubscribe(
 }
 
 /// The v2 half of `Kernel::start`: build the `HostAbiV2` table over the
-/// kernel's real `Bus`, run the plugin's `start`, and hand back its status
+/// kernel's real `Bus`, run the bundle's `start`, and hand back its status
 /// plus whatever services registered (the same bookkeeping the v1 path
 /// does with its `ActivationSink`).
 pub(crate) fn start_v2(
@@ -290,7 +290,7 @@ pub(crate) fn start_v2(
         next_queue: 1,
         clock: None,
         bundle_id: None,
-        plugin_timers: None,
+        bundle_timers: None,
     };
     let table = HostAbiV2 {
         size: HostAbiV2::expected_size(),
@@ -314,13 +314,13 @@ pub(crate) fn start_v2(
 /// register/bus trampolines verbatim (D99 plan §1: same `user` type,
 /// one authority law), so the v3 door and the v2 door share one
 /// context shape. Lives on `start_v3`'s stack for the duration of the
-/// plugin's `start` call (01 §3 rule 2, unchanged).
+/// bundle's `start` call (01 §3 rule 2, unchanged).
 pub(crate) fn v3_context<'a>(
     registry: &'a Registry,
     bus: &'a Bus,
     clock: Clock,
     bundle_id: BundleId,
-    plugin_timers: &'a Mutex<HashMap<u64, BundleId>>,
+    bundle_timers: &'a Mutex<HashMap<u64, BundleId>>,
 ) -> V2Context<'a> {
     V2Context {
         registry,
@@ -331,6 +331,6 @@ pub(crate) fn v3_context<'a>(
         next_queue: 1,
         clock: Some(clock),
         bundle_id: Some(bundle_id),
-        plugin_timers: Some(plugin_timers),
+        bundle_timers: Some(bundle_timers),
     }
 }

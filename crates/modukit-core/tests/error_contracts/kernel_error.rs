@@ -110,7 +110,7 @@ fn kernel_error_code_map_is_the_frozen_d85_mapping() {
         ),
         (
             KernelError::RoutingDeferred {
-                plugin: "p".into(),
+                bundle: "p".into(),
                 service: "svc.ui".into(),
             },
             "DEFERRAL_DECLINED",
@@ -191,7 +191,7 @@ fn kernel_error_hint_every_other_variant_is_do_not_retry() {
         },
         KernelError::ClockDialRefused { status: -2 },
         KernelError::RoutingDeferred {
-            plugin: "p".into(),
+            bundle: "p".into(),
             service: "svc.ui".into(),
         },
         KernelError::IdentityMismatch {
@@ -269,7 +269,7 @@ fn kernel_error_display_renders_documented_prose_per_variant() {
                 expected: 1,
                 found: 2,
             },
-            "ABI mismatch: host speaks v1, plugin reports v2".into(),
+            "ABI mismatch: host speaks v1, bundle reports v2".into(),
         ),
         (
             KernelError::DescriptorTooSmall {
@@ -290,11 +290,11 @@ fn kernel_error_display_renders_documented_prose_per_variant() {
         ),
         (
             KernelError::BundleStartFailed { status: 7 },
-            "plugin start() returned error status 7".into(),
+            "bundle start() returned error status 7".into(),
         ),
         (
             KernelError::ServiceCallFailed { code: -3 },
-            "service call failed with plugin-side code -3".into(),
+            "service call failed with bundle-side code -3".into(),
         ),
         (
             KernelError::UnsupportedPlacement {
@@ -304,22 +304,22 @@ fn kernel_error_display_renders_documented_prose_per_variant() {
         ),
         (
             KernelError::UnknownPlugin { id: "p".into() },
-            "no plugin record for p".into(),
+            "no bundle record for p".into(),
         ),
         (
             KernelError::ProcessCrashed {
                 id: "p".into(),
                 exit: "signal 11".into(),
             },
-            "supervised plugin p died outside stop (signal 11)".into(),
+            "supervised bundle p died outside stop (signal 11)".into(),
         ),
         (
             KernelError::RoutingDeferred {
-                plugin: "p".into(),
+                bundle: "p".into(),
                 service: "svc.ui".into(),
             },
             concat!(
-                "plugin p declares parallel_ok for svc.ui; the swap door was asked to co-host two ",
+                "bundle p declares parallel_ok for svc.ui; the swap door was asked to co-host two ",
                 "versions but version-affinity routing is deferred (D80) — stop the running ",
                 "instance first: stop + install is the legal swap lane"
             )

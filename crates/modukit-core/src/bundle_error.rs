@@ -147,7 +147,7 @@ impl std::fmt::Display for BundleError {
             BundleError::DuplicateId { id } => {
                 write!(
                     f,
-                    "plugin id {id} is already installed (D34: one identity per host)"
+                    "bundle id {id} is already installed (D34: one identity per host)"
                 )
             }
             BundleError::CrossCheck { what } => write!(f, "D7 cross-check failed: {what}"),

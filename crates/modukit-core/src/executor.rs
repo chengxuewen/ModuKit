@@ -2,7 +2,7 @@
 //! the S2-M1 `exe` side next door (re-exported below).
 //! implementation: `DlopenExecutor`.
 //!
-//! `Executor::load` validates the handshake without executing plugin service
+//! `Executor::load` validates the handshake without executing bundle service
 //! logic; the lifecycle verbs live on the returned boxed handle (modules/03
 //! §2: `RESOLVING -> STARTING` is the load+handshake edge, `start()` runs
 //! under `STARTING`). The `exe` arm of the closed set lives next door —
@@ -36,14 +36,14 @@ pub trait Executor {
     fn load(&self, manifest: &Manifest) -> Result<Box<dyn LoadedPlugin + Send>, KernelError>;
 }
 
-/// A plugin loaded by an executor: `start` / `stop` drive the plugin-side
+/// A bundle loaded by an executor: `start` / `stop` drive the bundle-side
 /// lifecycle; dropping the handle releases the artifact (for `dl`: the
 /// library, i.e. `dlclose`).
 pub trait LoadedPlugin {
     /// The descriptor's human name.
-    fn plugin_name(&self) -> &str;
+    fn bundle_name(&self) -> &str;
 
-    /// Call the plugin `start` with the host table. The host pointer is
+    /// Call the bundle `start` with the host table. The host pointer is
     /// valid only for the call (01 §3 rule 2: no ambient authority).
     ///
     /// # Errors
@@ -51,7 +51,7 @@ pub trait LoadedPlugin {
     /// `KernelError::BundleStartFailed` on a non-zero status (03 §2).
     fn start(&mut self, host: *const HostAbiV1) -> Result<(), KernelError>;
 
-    /// Cooperative stop (01 §3 rule 6: idempotence is the plugin's duty).
+    /// Cooperative stop (01 §3 rule 6: idempotence is the bundle's duty).
     ///
     /// # Errors
     ///
@@ -94,7 +94,7 @@ pub struct DlopenExecutor;
 /// silent-descriptor case the `LoadedPlugin::self_report` default answers.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SelfReport {
-    pub plugin_name: String,
+    pub bundle_name: String,
     pub id: Option<String>,
     pub version: Option<String>,
 }
@@ -120,7 +120,7 @@ impl DlopenExecutor {
         }
         // SAFETY: loading native code runs initializers from a file path
         // supplied by the caller (trusted internal code at the dl tier, 01 §5);
-        // the descriptor guards below run before any plugin call.
+        // the descriptor guards below run before any bundle call.
         //
         // RTLD_NODELETE (M2 finding, linux): the probe-then-load doors (the
         // runner's self-report probe, the bundle cross-check) DROP the handle
@@ -191,19 +191,19 @@ impl DlopenExecutor {
     /// LoadFailed, SymbolMissing, HandshakeNull, AbiMismatch,
     /// DescriptorTooSmall, HandshakeIncomplete.
     pub fn probe_self_report(artifact: &Path) -> Result<SelfReport, KernelError> {
-        let plugin = Self::open_validated(&artifact.to_string_lossy())?;
-        let (id, version) = plugin.self_report();
+        let bundle = Self::open_validated(&artifact.to_string_lossy())?;
+        let (id, version) = bundle.self_report();
         let report = SelfReport {
-            plugin_name: plugin.plugin_name().to_string(),
+            bundle_name: bundle.bundle_name().to_string(),
             id,
             version,
         };
-        drop(plugin); // release the mapping before the report leaves
+        drop(bundle); // release the mapping before the report leaves
         Ok(report)
     }
 }
 
-/// A loaded `plugin.so`. Unloading is best-effort per the platform
+/// A loaded `bundle.so`. Unloading is best-effort per the platform
 /// (the linux door opens RTLD_NODELETE - see the residency law at the
 /// dlopen site below); the descriptor pointer is only dereferenced while
 /// `_lib` is alive inside this same struct (drop order: `desc` is a raw
@@ -217,7 +217,7 @@ struct DlopenPlugin {
 }
 
 // SAFETY: a loaded library handle is process-global; this wrapper is kept
-// inside the kernel's `Mutex`-guarded plugin table and only driven from the
+// inside the kernel's `Mutex`-guarded bundle table and only driven from the
 // calling thread. The descriptor lives in the library image, which the
 // `Library` keeps mapped.
 unsafe impl Send for DlopenPlugin {}
@@ -340,7 +340,7 @@ impl Executor for DlopenExecutor {
 }
 
 impl LoadedPlugin for DlopenPlugin {
-    fn plugin_name(&self) -> &str {
+    fn bundle_name(&self) -> &str {
         &self.name
     }
 
@@ -491,13 +491,13 @@ mod v3_door_guard_tests {
 
     /// PINNED behavior, plan §1 exe item (review recast): the child runner
     /// loads through this SAME shared `validate` that T1 opens, so a v3
-    /// plugin in an exe child passes the child's door and schedules on the
+    /// bundle in an exe child passes the child's door and schedules on the
     /// child's own D74 clock BY CONSTRUCTION (R5-A local semantics). The
     /// honest T1 interim: child-local bells reach child-local subscribers
     /// only - the due-site bridge routing (parent->child and child->parent
     /// crossing) is lane T2, which also flips this pin. There is no
     /// refusal anywhere on the exe arm and the HELLO abi field is the
-    /// runner's own self-report (=1), never the plugin's declared major.
+    /// runner's own self-report (=1), never the bundle's declared major.
     #[test]
     fn exe_interim_pin_shared_door_accepts_v3_and_no_refusal_exists() {
         // The same acceptance asserted above IS the pin: the shared door

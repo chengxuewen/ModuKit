@@ -93,8 +93,8 @@ fn lifecycle_transitions_are_emitted_at_the_same_doorways() {
         .events
         .iter()
         .filter_map(|r| match &r.event {
-            ObsEvent::Lifecycle { plugin, from, to } => {
-                Some((plugin.clone(), from.clone(), to.clone()))
+            ObsEvent::Lifecycle { bundle, from, to } => {
+                Some((bundle.clone(), from.clone(), to.clone()))
             }
             _ => None,
         })

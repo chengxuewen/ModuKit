@@ -13,7 +13,7 @@
 //!    binds ONE process-global kernel built by `Kernel::new()` — the
 //!    standard in-process posture: real-clock domain + `DlopenExecutor`.
 //!    Everything the verbs need is process-global by construction: the
-//!    kernel, the plugin-id string table, the bus subscription table.
+//!    kernel, the bundle-id string table, the bus subscription table.
 //! 2. THE BIG LOCK. `Kernel` is `!Send + !Sync` (measured by compile
 //!    probe: the `Box<dyn Executor>` field, a trait without a `Send`
 //!    bound). The ambient wraps it in a newtype carrying a minimal
@@ -22,7 +22,7 @@
 //!    stateless unit, every other field `Arc`/`Mutex`-guarded. All verbs
 //!    serialize through one outer Mutex (year-1 single-writer
 //!    discipline, the posture the introspect trio documents). shortcut: a
-//!    plugin calling back into these verbs from inside its `start`/`stop`
+//!    bundle calling back into these verbs from inside its `start`/`stop`
 //!    would self-deadlock — the D6 sync boundary forbids host callbacks
 //!    there; revisit with the M2 dial-verb tail-add.
 //! 3. OWNERSHIP (the header's `modukit_install` comment): `out_plugin_id`
@@ -44,7 +44,7 @@
 //!    answers CONTRACT_VIOLATION(10)).
 //! 5. OPAQUE CODECS (the header fixes shapes only; the wrapper + demo are
 //!    the pinning consumers — documented in `embed_codec.rs`): snapshot =
-//!    UTF-8 TAB-separated lines, section-ordered (plugin/service/topic/
+//!    UTF-8 TAB-separated lines, section-ordered (bundle/service/topic/
 //!    edge, each sorted, then one counters line); events = little-endian
 //!    self-delimiting records mirroring the `modukit_event` struct
 //!    field-for-field. NULL buffer = size query through `*out_len` on
@@ -173,7 +173,7 @@ pub extern "C" fn modukit_install(
             Ok(id) => id,
             Err(err) => return codec::neg_kernel(&err),
         };
-        // S3-1b: the install declared this plugin's watched dependencies.
+        // S3-1b: the install declared this bundle's watched dependencies.
         k.0.dm_drain();
         match registered_id(id.as_str()) {
             Some(c) => {
@@ -187,7 +187,7 @@ pub extern "C" fn modukit_install(
 }
 
 #[unsafe(no_mangle)]
-/// uninstall (any -> UNINSTALLED; drops the plugin's registrations).
+/// uninstall (any -> UNINSTALLED; drops the bundle's registrations).
 pub extern "C" fn modukit_uninstall(id: *const c_char) -> i32 {
     codec::guard(|| lifecycle_move(id, |k, pid| k.uninstall(pid)))
 }
@@ -200,7 +200,7 @@ pub extern "C" fn modukit_resolve(id: *const c_char) -> i32 {
 }
 
 #[unsafe(no_mangle)]
-/// start (STARTING -> ACTIVE|FAILED): the plugin's own `start()`.
+/// start (STARTING -> ACTIVE|FAILED): the bundle's own `start()`.
 pub extern "C" fn modukit_start(id: *const c_char) -> i32 {
     codec::guard(|| lifecycle_move(id, |k, pid| k.start(pid)))
 }
@@ -237,9 +237,9 @@ pub extern "C" fn modukit_state(id: *const c_char, out_state: *mut i32) -> i32 {
 #[unsafe(no_mangle)]
 /// The synchronous message-shaped call door: bytes in, bytes out; answers
 /// the response byte count or a negative D51 code. The cap is
-/// fail-rather-than-truncate; a plugin-side failure surfaces as
+/// fail-rather-than-truncate; a bundle-side failure surfaces as
 /// SERVICE_CALL_FAILED(25) — the D27 two-code-space rule keeps the
-/// plugin's own int out of the kernel channel (it lives in the prose).
+/// bundle's own int out of the kernel channel (it lives in the prose).
 pub extern "C" fn modukit_service_call(
     service_id: *const c_char,
     method: *const c_char,
@@ -504,7 +504,7 @@ pub extern "C" fn modukit_introspect_events(
 }
 
 #[unsafe(no_mangle)]
-/// Property-filter query (plugin-management-plan S1, D83 tail-add): parse an
+/// Property-filter query (bundle-management-plan S1, D83 tail-add): parse an
 /// RFC1960-subset filter and serialize the matching registrations (best-first)
 /// in the line codec. NULL buffer = size query. A malformed filter returns
 /// `NEG_SCHEMA_INVALID`; an undeclared property simply yields an empty result.

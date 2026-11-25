@@ -1,16 +1,16 @@
-//! DM-lite dependency monitor (plugin-management-plan S3, ruling S3-1 A).
+//! DM-lite dependency monitor (bundle-management-plan S3, ruling S3-1 A).
 //!
-//! Activates the previously-inert `on_down` declaration: a plugin's required
+//! Activates the previously-inert `on_down` declaration: a bundle's required
 //! dependencies drive its lifecycle. The monitor watches the registry's
 //! presence stream and, when a required service transitions present->absent,
 //! dispatches the dependent's `on_down` policy to a `DmHandler` (the kernel
 //! wires the actual stop / restart / block action); absent->present dispatches
 //! a restore so start eligibility can be re-evaluated.
 //!
-//! Deliberately plugin-level and bounded (celix DM is the reference, lighter
+//! Deliberately bundle-level and bounded (celix DM is the reference, lighter
 //! than CppMS SCR; module 02 §5 warns against full component machinery): one
-//! plugin = one component, single-threaded drain, transition-only notifications
-//! (no duplicate fires while a service stays absent). No intra-plugin
+//! bundle = one component, single-threaded drain, transition-only notifications
+//! (no duplicate fires while a service stays absent). No intra-bundle
 //! multi-component SCR, no cardinality/locking strategies in year 1.
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -20,7 +20,7 @@ use crate::identity::{BundleId, ServiceId};
 use crate::manifest::OnDown;
 use crate::registry::{Registry, ServiceEvent};
 
-/// One required dependency of a plugin, with its loss policy.
+/// One required dependency of a bundle, with its loss policy.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RequiredDep {
     pub service: ServiceId,
@@ -28,12 +28,12 @@ pub struct RequiredDep {
 }
 
 /// The lifecycle actions the kernel implements; the monitor only decides WHEN
-/// and WHY, never how to stop/restart a plugin (that stays in the kernel).
+/// and WHY, never how to stop/restart a bundle (that stays in the kernel).
 pub trait DmHandler {
     /// A required service went away; apply the dependent's `on_down` policy.
-    fn dep_lost(&mut self, plugin: &BundleId, dep: &RequiredDep);
+    fn dep_lost(&mut self, bundle: &BundleId, dep: &RequiredDep);
     /// A required service (re)appeared; re-evaluate start eligibility.
-    fn dep_restored(&mut self, plugin: &BundleId, dep: &RequiredDep);
+    fn dep_restored(&mut self, bundle: &BundleId, dep: &RequiredDep);
 }
 
 /// Watches presence and dispatches dependency transitions to a handler.
@@ -61,14 +61,14 @@ impl DependencyMonitor {
         }
     }
 
-    /// Declare a plugin's required dependencies (idempotent replace).
-    pub fn register_dependent(&mut self, plugin: BundleId, deps: Vec<RequiredDep>) {
-        self.dependents.insert(plugin, deps);
+    /// Declare a bundle's required dependencies (idempotent replace).
+    pub fn register_dependent(&mut self, bundle: BundleId, deps: Vec<RequiredDep>) {
+        self.dependents.insert(bundle, deps);
     }
 
-    /// Remove a plugin's declarations (it uninstalled).
-    pub fn forget(&mut self, plugin: &BundleId) {
-        self.dependents.remove(plugin);
+    /// Remove a bundle's declarations (it uninstalled).
+    pub fn forget(&mut self, bundle: &BundleId) {
+        self.dependents.remove(bundle);
     }
 
     /// Pump pending presence events, dispatching only real transitions.
@@ -91,13 +91,13 @@ impl DependencyMonitor {
     }
 
     fn notify(&self, handler: &mut dyn DmHandler, service: &ServiceId, present: bool) {
-        for (plugin, deps) in &self.dependents {
+        for (bundle, deps) in &self.dependents {
             for dep in deps {
                 if &dep.service == service {
                     if present {
-                        handler.dep_restored(plugin, dep);
+                        handler.dep_restored(bundle, dep);
                     } else {
-                        handler.dep_lost(plugin, dep);
+                        handler.dep_lost(bundle, dep);
                     }
                 }
             }
@@ -120,15 +120,15 @@ mod tests {
     }
 
     impl DmHandler for Recorder {
-        fn dep_lost(&mut self, plugin: &BundleId, dep: &RequiredDep) {
+        fn dep_lost(&mut self, bundle: &BundleId, dep: &RequiredDep) {
             self.lost.push((
-                plugin.as_str().to_string(),
+                bundle.as_str().to_string(),
                 dep.service.as_str().to_string(),
             ));
         }
-        fn dep_restored(&mut self, plugin: &BundleId, dep: &RequiredDep) {
+        fn dep_restored(&mut self, bundle: &BundleId, dep: &RequiredDep) {
             self.restored.push((
-                plugin.as_str().to_string(),
+                bundle.as_str().to_string(),
                 dep.service.as_str().to_string(),
             ));
         }
@@ -198,15 +198,15 @@ mod tests {
         let r = Registry::new();
         let id = r.register(Arc::new(Svc), props("com.acme.Nav")).unwrap();
         let mut mon = DependencyMonitor::new(&r);
-        let plugin = BundleId::new("com.acme.consumer".into());
-        mon.register_dependent(plugin.clone(), vec![dep("com.acme.Nav")]);
-        mon.forget(&plugin);
+        let bundle = BundleId::new("com.acme.consumer".into());
+        mon.register_dependent(bundle.clone(), vec![dep("com.acme.Nav")]);
+        mon.forget(&bundle);
         let mut rec = Recorder::default();
         r.unregister(id).unwrap();
         mon.drain(&mut rec);
         assert!(
             rec.lost.is_empty(),
-            "forgotten plugin gets no notifications"
+            "forgotten bundle gets no notifications"
         );
     }
 }

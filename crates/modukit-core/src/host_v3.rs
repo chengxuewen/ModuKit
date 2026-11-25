@@ -1,7 +1,7 @@
 //! The wave-2 T1 v3 clock door (D99 ruling R2: a THIRD host table, the
 //! byte-identical v2 prefix plus the two timer slots at the tail).
 //!
-//! A plugin that declares `ABI_VERSION_V3` at the handshake is handed this
+//! A bundle that declares `ABI_VERSION_V3` at the handshake is handed this
 //! table at `start`. The v1/v2 lines and the v2 start path in `kernel.rs`
 //! are untouched (D87/D96); this module is pure addition. The five
 //! prefix slots reuse the v2 trampolines VERBATIM (same `user` context
@@ -13,13 +13,13 @@
 //! `clock_now` mirrors the embed face `modukit_clock_now` (out-param i64,
 //! status int channel, negated D51 codes for bad input).
 //!
-//! The due bell is NOT rung here: the kernel posts fired plugin timers onto
-//! the per-plugin bus topic in `wiring.rs::post_jobs` (the ONE due-funnel,
-//! D99 R4-A), and releases the plugin's tokens at stop/uninstall (the
+//! The due bell is NOT rung here: the kernel posts fired bundle timers onto
+//! the per-bundle bus topic in `wiring.rs::post_jobs` (the ONE due-funnel,
+//! D99 R4-A), and releases the bundle's tokens at stop/uninstall (the
 //! authority-law register, kernel-side — not an ABI verb, no cancel slot).
 //!
 //! Authority law is the v1 law: the table and its queue ids live only for
-//! the duration of the plugin's `start` call (01 §3 rule 2); the REGISTER,
+//! the duration of the bundle's `start` call (01 §3 rule 2); the REGISTER,
 //! by contrast, is kernel state and outlives the call — that is what makes
 //! a post-start firing addressable, and what the release census reclaims.
 
@@ -44,8 +44,8 @@ use crate::identity::BundleId;
 use crate::registry::{RegistrationId, Registry};
 
 /// The v3 `timer_schedule` slot (D99 R3-A): schedule on the kernel's one
-/// clock (D20) and record token -> plugin in the register (D99 R4-A), the
-/// pair that later lets `post_jobs` ring the per-plugin bell and the
+/// clock (D20) and record token -> bundle in the register (D99 R4-A), the
+/// pair that later lets `post_jobs` ring the per-bundle bell and the
 /// release reclaim the token. Bad input answers the negated D51 codes on
 /// the same channel as every landed verb; there is no cancel verb (§3).
 ///
@@ -67,9 +67,9 @@ pub(crate) unsafe extern "C" fn trampoline_timer_schedule(
         return codec::NEG_SCHEMA_INVALID;
     }
     let (Some(clock), Some(bundle_id), Some(register)) =
-        (ctx.clock.clone(), ctx.bundle_id.clone(), ctx.plugin_timers)
+        (ctx.clock.clone(), ctx.bundle_id.clone(), ctx.bundle_timers)
     else {
-        // A v3 slot on a non-v3 hand is a kernel bug, not a plugin error -
+        // A v3 slot on a non-v3 hand is a kernel bug, not a bundle error -
         // the door can never build this shape; refuse on the input slot.
         return codec::NEG_SCHEMA_INVALID;
     };
@@ -86,7 +86,7 @@ pub(crate) unsafe extern "C" fn trampoline_timer_schedule(
     0
 }
 
-/// The v3 `clock_now` slot (D99 R1-B): the plugin's read of the same water
+/// The v3 `clock_now` slot (D99 R1-B): the bundle's read of the same water
 /// source the deadlines ride (D20). Mirrors `modukit_clock_now` exactly -
 /// saturating i64 out-param, negated SCHEMA_INVALID on a null out.
 ///
@@ -111,8 +111,8 @@ pub(crate) unsafe extern "C" fn trampoline_clock_now(
 }
 
 /// The v3 half of `Kernel::start`: build the `HostAbiV3` table over the
-/// kernel's real `Bus`, `Clock` and per-plugin timer register, run the
-/// plugin's `start`, and hand back its status plus whatever services
+/// kernel's real `Bus`, `Clock` and per-bundle timer register, run the
+/// bundle's `start`, and hand back its status plus whatever services
 /// registered (the same bookkeeping `start_v2` does).
 pub(crate) fn start_v3(
     handle: &mut dyn LoadedPlugin,
@@ -120,14 +120,14 @@ pub(crate) fn start_v3(
     bus: &Bus,
     clock: Clock,
     bundle_id: BundleId,
-    plugin_timers: &Mutex<HashMap<u64, BundleId>>,
+    bundle_timers: &Mutex<HashMap<u64, BundleId>>,
 ) -> (Result<(), KernelError>, Vec<RegistrationId>) {
-    let mut ctx = v3_context(registry, bus, clock, bundle_id, plugin_timers);
+    let mut ctx = v3_context(registry, bus, clock, bundle_id, bundle_timers);
     let table = HostAbiV3 {
         size: HostAbiV3::expected_size(),
         user: &raw mut ctx as *mut c_void,
         // The byte-identical v2 prefix: the SAME trampolines, the SAME
-        // context shape - a v3 plugin's mailbox reads are v2 reads.
+        // context shape - a v3 bundle's mailbox reads are v2 reads.
         register_service: trampoline_register_service as RegisterServiceFn,
         bus_publish: trampoline_bus_publish as BusPublishFn,
         bus_subscribe: trampoline_bus_subscribe as BusSubscribeFn,

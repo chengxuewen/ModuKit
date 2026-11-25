@@ -1,4 +1,4 @@
-//! tracker_demo - the ServiceTracker topic example (plugin-management-plan
+//! tracker_demo - the ServiceTracker topic example (bundle-management-plan
 //! example-volume sweep, ruling B1; the celix track_tracker analogue).
 //!
 //! The tracker watches one RFC1960 filter and pumps presence events into a

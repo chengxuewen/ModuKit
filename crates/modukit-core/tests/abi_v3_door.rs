@@ -2,7 +2,7 @@
 //! docs/wave-2-t1-clock-door-plan.md §1): the declared-major-3 handshake
 //! through the REAL install door, the two new verbs (`clock_now` ->
 //! `timer_schedule` at stamp+1s) walked on the TestHost step clock, the
-//! per-plugin due bell on the kernel bus (`org.modukit.timer.<plugin-id>`,
+//! per-bundle due bell on the kernel bus (`org.modukit.timer.<bundle-id>`,
 //! gen u64 LE ++ token u64 LE ++ label UTF-8 (the T2 boot-generation
 //! prefix), `LOSSY_RING` (64) capacity unified with the wire vocabulary,
 //! late-join replay PINNED), the
@@ -37,7 +37,7 @@ use modukit_core::testhost::TestHost;
 const TIMERV3_ID: &str = "com.example.modukit.timerv3";
 const ECHO_ID: &str = "com.example.modukit.timerv3.echo";
 const OWN_TOPIC: &str = "com.example.modukit.timerv3";
-/// The composed per-plugin bell topic (D99 R4-A) - grammar pinned below
+/// The composed per-bundle bell topic (D99 R4-A) - grammar pinned below
 /// before any wiring relied on it.
 const BELL_TOPIC: &str = "org.modukit.timer.com.example.modukit.timerv3";
 const JOB_LABEL: &[u8] = b"tick-v3";
@@ -134,7 +134,7 @@ fn bell_publish_count(kernel: &Kernel) -> u64 {
 }
 
 /// Plan §5 pin, asserted BEFORE any wiring: the TopicId reverse-DNS grammar
-/// must accept the composed per-plugin timer topic. If this test is RED the
+/// must accept the composed per-bundle timer topic. If this test is RED the
 /// hearing's topic scheme does not survive the grammar - that is a finding
 /// for the maintainer walk, never a reason to work around the validator.
 #[test]
@@ -147,7 +147,7 @@ fn composed_timer_topic_passes_the_reverse_dns_grammar() {
     let tid = TopicId::try_new(composed.clone())
         .unwrap_or_else(|e| panic!("grammar refuses the composed timer topic {composed}: {e}"));
     assert_eq!(tid.as_str(), BELL_TOPIC);
-    // The same composition for any grammar-valid plugin id stays valid:
+    // The same composition for any grammar-valid bundle id stays valid:
     // every label of `org.modukit.timer.` + a reverse-DNS id is lowercase-
     // leading and inside [a-z0-9-_].
     for id in ["com.example.a", "org.modukit.x_1-2"] {
@@ -163,7 +163,7 @@ fn composed_timer_topic_passes_the_reverse_dns_grammar() {
 /// the byte-identical HostAbiV2 prefix (which is itself the HostAbiV1
 /// prefix), and the two timer slots ride the tail (D99 R2 - a THIRD table,
 /// v1/v2 frozen). The v2 handoff is unchanged by construction: the door
-/// picks the struct by declared major, so a v2 plugin never sees a v3 table
+/// picks the struct by declared major, so a v2 bundle never sees a v3 table
 /// (plan §5 size-guard note); this test pins the prefix that stays readable.
 #[test]
 fn v3_table_is_the_v2_prefix_plus_two_timer_slots() {
@@ -221,7 +221,7 @@ fn v3_table_is_the_v2_prefix_plus_two_timer_slots() {
 /// The full v3 walk through the real door on the TestHost step clock:
 /// the fixture read `clock_now`, scheduled on the dialed stamp + 1s, and
 /// returned; the kernel's dial then fired it and the bell rang on the
-/// plugin's OWN topic with the pinned token+label payload. Registrations
+/// bundle's OWN topic with the pinned token+label payload. Registrations
 /// still land through the v1 prefix slot, and the v2-prefix mailbox answered
 /// on the v3 table (the prefix read the layout test pins).
 #[test]
@@ -254,7 +254,7 @@ fn declared_major_3_walks_the_clock_door_and_the_bell_rings_live() {
     assert_eq!(
         kernel.clock().pending_timers(),
         1,
-        "one plugin timer pending"
+        "one bundle timer pending"
     );
 
     // A live subscriber BEFORE the dial hears the bell as it is posted.
@@ -267,7 +267,7 @@ fn declared_major_3_walks_the_clock_door_and_the_bell_rings_live() {
     assert_eq!(seqs.len(), 1, "the fired job posted exactly one TimerDone");
     let payload = rx
         .try_recv()
-        .expect("live bell on the plugin's own topic (the door-suite recv assertion)");
+        .expect("live bell on the bundle's own topic (the door-suite recv assertion)");
     let (_boot_gen, token, label) = decode_bell(&payload);
     assert_eq!(token, 1, "fresh step-clock token (D74 replay precedent)");
     assert_eq!(
@@ -307,7 +307,7 @@ fn declared_major_3_walks_the_clock_door_and_the_bell_rings_live() {
 }
 
 /// D99 R4-A PINNED behavior (not accidental): a subscriber that joins AFTER
-/// a firing on the plugin's topic receives the Lossy retention ring (the
+/// a firing on the bundle's topic receives the Lossy retention ring (the
 /// T2 unified `LOSSY_RING` capacity; the replay DEPTH is deliberately not
 /// asserted by a literal number) -
 /// the same late-join replay every year-1 bus word already does (bus.rs
@@ -346,7 +346,7 @@ fn late_join_after_a_firing_replays_the_bell_ring() {
     kernel.uninstall(&id).expect("uninstall");
 }
 
-/// The stop census (D99 R4-A authority-law release): stop the plugin, dial
+/// The stop census (D99 R4-A authority-law release): stop the bundle, dial
 /// past the deadline - no TimerDone post, no bus publish, the pending
 /// register drops at the stop door itself.
 #[test]

@@ -1,11 +1,11 @@
 //! modukit-run — the shadow-runner (S2-M2; modules/01 §2).
 //!
-//! `exe` placement does not require a separate executable per plugin: the
+//! `exe` placement does not require a separate executable per bundle: the
 //! host spawns this generic runner with the SAME artifact the `dl` executor
 //! would load plus the inherited control fd —
 //!
 //! ```text
-//! modukit-run <plugin.so> --fd=N [--clock=step|sim|real]
+//! modukit-run <bundle.so> --fd=N [--clock=step|sim|real]
 //! ```
 //!
 //! (N = 0 today: `ProcessExecutor` injects the child end of the socketpair as
@@ -13,7 +13,7 @@
 //! honored, not the number.) The runner `dlopen`s the artifact through
 //! `DlopenExecutor` — one source of truth for the ABI v1 guards — embeds a
 //! kernel of its own as the in-process host, and pumps the contract over the
-//! fd with the `proc_wire` envelope: HELLO (the plugin's OWN self-report,
+//! fd with the `proc_wire` envelope: HELLO (the bundle's OWN self-report,
 //! D7 tier) on connect, START -> `kernel.start` -> REGISTER -> ACK,
 //! CALL -> dispatch -> RESULT (S2-M3a proxy lane), DIAL -> clock turn ->
 //! DUE (D74 replay track; refused typed on `--clock=real`), STOP ->
@@ -54,7 +54,7 @@ use modukit_core::testhost::schedule_replay_markers;
 const HELLO_STR_MAX: usize = u8::MAX as usize;
 
 /// The `NativeService` probe the runner round-trips inside its own process
-/// after `start` (D69: bytes only) — kept as an INTERNAL guard: a plugin
+/// after `start` (D69: bytes only) — kept as an INTERNAL guard: a bundle
 /// whose template contract broke never acks START. The kernel-observable
 /// path is no longer gated on this: S2-M3a announces the verified service
 /// via REGISTER and dispatches CALL/RESULT across the boundary (F2
@@ -113,7 +113,7 @@ fn parse_args() -> (String, i32, ClockDomain, bool) {
         } else {
             die(
                 2,
-                "usage: modukit-run <plugin.so> --fd=N [--clock=step|sim|real]",
+                "usage: modukit-run <bundle.so> --fd=N [--clock=step|sim|real]",
             );
         }
     }
@@ -121,7 +121,7 @@ fn parse_args() -> (String, i32, ClockDomain, bool) {
         Some(path) => (path, fd_num, domain, bus_on),
         None => die(
             2,
-            "usage: modukit-run <plugin.so> --fd=N [--clock=step|sim|real] [--bus=off]",
+            "usage: modukit-run <bundle.so> --fd=N [--clock=step|sim|real] [--bus=off]",
         ),
     }
 }
@@ -163,12 +163,12 @@ fn self_report(artifact: &str) -> (String, String, String) {
         Ok(report) => report,
         Err(err) => die(4, &format!("load {artifact}: {err}")),
     };
-    let name = report.plugin_name;
+    let name = report.bundle_name;
     let (id, version) = (report.id, report.version);
     let (Some(id), Some(version)) = (id, version) else {
         die(
             5,
-            "plugin self-report is silent (id/version): refusing to speak a lie",
+            "bundle self-report is silent (id/version): refusing to speak a lie",
         );
     };
     for (what, s) in [("id", &id), ("version", &version), ("name", &name)] {
@@ -183,11 +183,11 @@ fn self_report(artifact: &str) -> (String, String, String) {
 }
 
 /// START handling: run the embedded kernel's start, round-trip the
-/// plugin's own service through the SAME `NativeService` path the dl
+/// bundle's own service through the SAME `NativeService` path the dl
 /// placement uses (D69 bytes only, now the internal guard), then
 /// announce the verified service with a REGISTER frame BEFORE the ack —
 /// the parent installs a kernel-side proxy from it (S2-M3a). Returns the
-/// ACK status. A plugin that registers no native service is not failed
+/// ACK status. A bundle that registers no native service is not failed
 /// by the runner — there is nothing here to verify or announce.
 fn handle_start(kernel: &Kernel, id: &BundleId, control: &mut UnixStream) -> i32 {
     if let Err(err) = kernel.start(id) {
@@ -236,7 +236,7 @@ fn handle_start(kernel: &Kernel, id: &BundleId, control: &mut UnixStream) -> i32
     }
 }
 
-/// A non-zero plugin status rides the same int channel the dl placement uses
+/// A non-zero bundle status rides the same int channel the dl placement uses
 /// (D27 author code space); everything else is a runner-side -1 with a note.
 fn verb_status(err: KernelError) -> i32 {
     match err {
@@ -264,7 +264,7 @@ fn run(artifact: &str, fd_num: i32, domain: ClockDomain, bus_on: bool) {
     // Wave-2 T2 (D99 R5-A): the timer capability. ONE named demo lever,
     // read exactly like `bus_on` in `parse_args` above:
     // DEMO_WAVE2_CLOCK_SABOTAGE=1 drops ONLY the TIMER bit (semantics:
-    // "timer capability off") - the bus bridge stays live, plugin bells
+    // "timer capability off") - the bus bridge stays live, bundle bells
     // stop crossing the wall.
     let timer_on = env::var("DEMO_WAVE2_CLOCK_SABOTAGE")
         .map(|v| v != "1")
@@ -323,7 +323,7 @@ fn run(artifact: &str, fd_num: i32, domain: ClockDomain, bus_on: bool) {
     // The D74 replay scenario (D17 test-2): the v0 marker pair both
     // placements schedule identically, dialed by the testhost in-process on
     // the `dl` arm and over the wire on this one. shortcut: ABI v1 has no
-    // clock verbs for plugins — the markers stand in for plugin-side timer
+    // clock verbs for bundles — the markers stand in for bundle-side timer
     // jobs until the surface hearing (same missing-face class as the bus).
     if domain != ClockDomain::Real {
         schedule_replay_markers(kernel.clock());
@@ -364,7 +364,7 @@ fn run(artifact: &str, fd_num: i32, domain: ClockDomain, bus_on: bool) {
             MSG_CALL => {
                 // Kernel-side proxy dispatch (S2-M3a): answer exactly one
                 // CALL, echoing the seq back (04 §2 request/response). The
-                // plugin's own code is the method authority — the runner
+                // bundle's own code is the method authority — the runner
                 // never pre-rejects, so the rejection is byte-equal with the
                 // dl arm; -1 is reserved for "no native service here".
                 let Some(call) = parse_call(&_payload) else {

@@ -1,4 +1,4 @@
-//! The plugin mouth — logger service (D19, modules/10 §5) — M6 floor 3.
+//! The bundle mouth — logger service (D19, modules/10 §5) — M6 floor 3.
 //!
 //! `acquire::<Logger>()` like any service (01 §3: no ambient authority; the
 //! ban on stray `printf` implies a formal mouth). A record is
@@ -47,7 +47,7 @@ impl fmt::Display for LogLevel {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LogEvent {
     pub level: LogLevel,
-    /// Component = plugin id (or `org.modukit.*` for kernel parts).
+    /// Component = bundle id (or `org.modukit.*` for kernel parts).
     pub component: String,
     pub msg: String,
     pub kv: Vec<(String, String)>,
@@ -99,7 +99,7 @@ impl Logger {
     }
 
     /// Distinct components seen — small cardinality by construction
-    /// (plugin ids), so a plain count is enough.
+    /// (bundle ids), so a plain count is enough.
     #[must_use]
     pub fn components(&self) -> usize {
         let counts = self

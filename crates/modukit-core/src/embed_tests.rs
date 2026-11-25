@@ -114,7 +114,7 @@ fn install_out_id_is_kernel_owned_and_states_walk() {
     assert_eq!(modukit_state(pid.as_ptr(), &raw mut state), 0);
     assert_eq!(state, codec::state_number(BundleState::Installed));
     // A TOML file is not an ELF image: the dl door refuses NOT_FOUND
-    // (LoadFailed) and the guard parks the plugin on FAILED.
+    // (LoadFailed) and the guard parks the bundle on FAILED.
     assert_eq!(modukit_resolve(pid.as_ptr()), codec::NEG_NOT_FOUND);
     assert_eq!(modukit_state(pid.as_ptr(), &raw mut state), 0);
     assert_eq!(state, codec::state_number(BundleState::Failed));

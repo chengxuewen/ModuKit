@@ -30,8 +30,8 @@ fn cohost_request_on_a_declared_parallel_ok_service_is_deferred_typed() {
         .install(swap)
         .expect_err("parallel_ok co-host must get a typed voice");
     assert!(
-        matches!(&err, KernelError::RoutingDeferred { plugin, service }
-            if plugin == ID && service == "com.example.proc.stand-in.echo"),
+        matches!(&err, KernelError::RoutingDeferred { bundle, service }
+            if bundle == ID && service == "com.example.proc.stand-in.echo"),
         "expected typed RoutingDeferred, got {err}"
     );
     // The deferral is a refusal at the door, not a teardown: the run lives.

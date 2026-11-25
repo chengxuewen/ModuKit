@@ -78,7 +78,7 @@ fn build_example_so(tag: &str) -> Option<PathBuf> {
         return None;
     }
     let so = target_dir().join("debug").join("libexample_plugin.so");
-    match cargo_build(&["build", "-p", "example-plugin"]) {
+    match cargo_build(&["build", "-p", "example-bundle"]) {
         Some(true) => {}
         Some(false) => {
             eprintln!("SKIPPING: fixture build failed ({tag})");

@@ -1,4 +1,4 @@
-//! dm_demo - the DM-lite topic example (plugin-management-plan example-volume
+//! dm_demo - the DM-lite topic example (bundle-management-plan example-volume
 //! sweep, ruling B1; the celix dm_example analogue).
 //!
 //! The DependencyMonitor watches the required dependencies a dependent
@@ -22,25 +22,25 @@ struct Rec {
 }
 
 impl DmHandler for Rec {
-    fn dep_lost(&mut self, plugin: &BundleId, dep: &RequiredDep) {
+    fn dep_lost(&mut self, bundle: &BundleId, dep: &RequiredDep) {
         self.lost.push((
-            plugin.as_str().to_string(),
+            bundle.as_str().to_string(),
             dep.service.as_str().to_string(),
         ));
         println!(
             "  dep_lost     {} watches {}",
-            plugin.as_str(),
+            bundle.as_str(),
             dep.service.as_str()
         );
     }
-    fn dep_restored(&mut self, plugin: &BundleId, dep: &RequiredDep) {
+    fn dep_restored(&mut self, bundle: &BundleId, dep: &RequiredDep) {
         self.restored.push((
-            plugin.as_str().to_string(),
+            bundle.as_str().to_string(),
             dep.service.as_str().to_string(),
         ));
         println!(
             "  dep_restored {} watches {}",
-            plugin.as_str(),
+            bundle.as_str(),
             dep.service.as_str()
         );
     }
@@ -53,7 +53,7 @@ fn main() {
     let registry = Registry::new();
     let mut monitor = DependencyMonitor::new(&registry);
 
-    // The dependent: a plugin whose manifest declared
+    // The dependent: a bundle whose manifest declared
     //   [[requires]] service = "com.acme.dep", required, on_down = block
     let dependent = BundleId::new("com.acme.consumer".to_string());
     monitor.register_dependent(

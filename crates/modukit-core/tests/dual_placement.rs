@@ -1,6 +1,6 @@
 //! S2-M2 dual-placement contract-suite run (modules/01 §3: "switchability is
 //! a tested property", modules/04 §4: "one suite, two placements"). The SAME
-//! `example-plugin` cdylib fixture (read-only template per D23) is driven
+//! `example-bundle` cdylib fixture (read-only template per D23) is driven
 //! through BOTH executor arms of the closed set:
 //!
 //! * `dl`  — the kernel with `DlopenExecutor` (the M3 path, assertions' shape
@@ -22,7 +22,7 @@
 //!     (modules/01 §3 rule 2 stands: the host table never crosses; the wire
 //!     carries message bytes, ids and method names only)
 //!  4. cooperative stop lands RESOLVED, services gone
-//!  5. bad-plugin fixture refused: dl `AbiMismatch(999)`, exe the runner
+//!  5. bad-bundle fixture refused: dl `AbiMismatch(999)`, exe the runner
 //!     refuses at its own dlopen guards and dies before HELLO — the parent
 //!     parks FAILED promptly: the runner dies before HELLO, the parent reads
 //!     EOF and classifies it as ProcessCrashed (F1 fixed in S2-M2 follow-up:
@@ -86,7 +86,7 @@ fn cargo_build(args: &[&str]) -> Option<bool> {
     }
 }
 
-/// The example-plugin fixture cdylib (built, never modified).
+/// The example-bundle fixture cdylib (built, never modified).
 fn build_example_so(tag: &str) -> Option<PathBuf> {
     if std::env::var_os("MODUKIT_SKIP_DLOPEN").is_some() {
         eprintln!("SKIPPING: MODUKIT_SKIP_DLOPEN is set");
@@ -140,7 +140,7 @@ fn exe_manifest_toml(artifact: &Path, runner: &Path) -> String {
     )
 }
 
-/// Lifecycle `from->to` strings for the tracked plugin (process_executor.rs
+/// Lifecycle `from->to` strings for the tracked bundle (process_executor.rs
 /// helper shape), taken from either arm's kernel.
 fn lifecycle_walk(kernel: &Kernel) -> Vec<String> {
     kernel
@@ -150,8 +150,8 @@ fn lifecycle_walk(kernel: &Kernel) -> Vec<String> {
         .iter()
         .filter_map(|r| match &r.event {
             modukit_core::events::ObsEvent::Lifecycle {
-                plugin, from, to, ..
-            } if plugin == ID => Some(format!("{from}->{to}")),
+                bundle, from, to, ..
+            } if bundle == ID => Some(format!("{from}->{to}")),
             _ => None,
         })
         .collect()
@@ -159,7 +159,7 @@ fn lifecycle_walk(kernel: &Kernel) -> Vec<String> {
 
 /// Plugin-visible services only (D40 platform services filtered, the
 /// dlopen_kernel.rs helper shape).
-fn plugin_services(kernel: &Kernel) -> Vec<modukit_core::registry::RegisteredService> {
+fn bundle_services(kernel: &Kernel) -> Vec<modukit_core::registry::RegisteredService> {
     kernel
         .registry()
         .snapshot()
@@ -207,10 +207,10 @@ fn exe_arm(so: &Path, runner: &Path) -> (Vec<String>, Vec<u8>, Vec<String>) {
     sup.kernel()
         .start(&id)
         .expect("START ack 0: the runner round-tripped the echo service");
-    // S2-M3a: the runner announced its plugin's service via REGISTER and
+    // S2-M3a: the runner announced its bundle's service via REGISTER and
     // the executor installed a kernel-observable proxy. The host table
     // never crossed (01 §3 rule 2) — CALL/RESULT ride message bytes only.
-    let svc = plugin_services(sup.kernel());
+    let svc = bundle_services(sup.kernel());
     assert_eq!(svc.len(), 1, "the proxy service is kernel-observable");
     assert_eq!(svc[0].service_id.as_str(), ID, "canonical id (D9)");
     let proxy = sup
@@ -239,7 +239,7 @@ fn exe_arm(so: &Path, runner: &Path) -> (Vec<String>, Vec<u8>, Vec<String>) {
         .expect("STOP acked, graceful teardown (proxy unregistered)");
     sup.kernel().uninstall(&id).expect("exe uninstall");
     assert_eq!(
-        plugin_services(sup.kernel()),
+        bundle_services(sup.kernel()),
         Vec::<modukit_core::registry::RegisteredService>::new(),
         "proxy gone after stop — same service lifecycle as the dl arm"
     );
@@ -306,7 +306,7 @@ fn self_report_tier_agrees_with_the_manifest_under_both_placements() {
         (Some(ID.to_string()), Some("0.1.0".to_string())),
         "dl descriptor self-report"
     );
-    assert_eq!(handle.plugin_name(), "example-plugin");
+    assert_eq!(handle.bundle_name(), "example-plugin");
     drop(handle);
 
     // exe: the same strings must arrive in the HELLO the runner sends — a
@@ -388,11 +388,11 @@ fn cooperative_stop_unregisters_services_under_both_placements() {
     let id = m.id.clone();
     kernel.install(m).expect("install");
     kernel.resolve(&id).expect("resolve");
-    assert!(plugin_services(&kernel).is_empty(), "no code ran yet");
+    assert!(bundle_services(&kernel).is_empty(), "no code ran yet");
     kernel.start(&id).expect("start");
-    assert_eq!(plugin_services(&kernel).len(), 1, "echo registered");
+    assert_eq!(bundle_services(&kernel).len(), 1, "echo registered");
     kernel.stop(&id).expect("stop");
-    assert!(plugin_services(&kernel).is_empty(), "services gone");
+    assert!(bundle_services(&kernel).is_empty(), "services gone");
     assert_eq!(
         kernel.state(&id).expect("state"),
         BundleState::Resolved,
@@ -410,7 +410,7 @@ fn cooperative_stop_unregisters_services_under_both_placements() {
     sup.kernel()
         .start(&id)
         .expect("start: the runner REGISTERed its service before the ack");
-    assert_eq!(plugin_services(sup.kernel()).len(), 1, "proxy installed");
+    assert_eq!(bundle_services(sup.kernel()).len(), 1, "proxy installed");
     sup.kernel()
         .stop(&id)
         .expect("stop acked, proxy unregistered");
@@ -419,7 +419,7 @@ fn cooperative_stop_unregisters_services_under_both_placements() {
         BundleState::Resolved,
         "exe cooperative stop lands RESOLVED too"
     );
-    assert!(plugin_services(sup.kernel()).is_empty(), "proxy gone");
+    assert!(bundle_services(sup.kernel()).is_empty(), "proxy gone");
     assert_eq!(sup.poll(), Vec::<String>::new());
 }
 
@@ -428,7 +428,7 @@ fn bad_abi_fixture_is_refused_under_both_placements() {
     let Some(_fixture) = build_example_so("badabi") else {
         return;
     };
-    // The bad-plugin fixture (ABI v999) — built alongside example-plugin in
+    // The bad-bundle fixture (ABI v999) — built alongside example-bundle in
     // build_example_so; locate it in the same debug dir.
     let bad_so = target_dir().join("debug").join("libbad_plugin.so");
     assert!(bad_so.is_file(), "bad fixture cdylib missing");
@@ -457,7 +457,7 @@ fn bad_abi_fixture_is_refused_under_both_placements() {
     // exe arm: the runner's OWN guards refuse the artifact before it can
     // speak a HELLO truth — the child dies at setup, the parent observes the
     // closed control as a typed crash and lands FAILED. Both arms: zero
-    // plugin code executed, no supervised run, no zombie.
+    // bundle code executed, no supervised run, no zombie.
     let sup = Supervisor::with_clock(Clock::new(ClockDomain::Step));
     let m = Manifest::from_toml_str(&{
         let mut t = exe_manifest_toml(&bad_so, &runner);

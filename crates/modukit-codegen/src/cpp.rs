@@ -1,4 +1,4 @@
-//! C++ plugin-face skeleton emitter (Stage-4 M1 lane #3, ruling C++-3 face A).
+//! C++ bundle-face skeleton emitter (Stage-4 M1 lane #3, ruling C++-3 face A).
 //!
 //! Sibling of `emit` (Rust skeleton) and `cabi` (C shade): same fdset model,
 //! same flat text-emission discipline. Messages ride the stock protoc C++
@@ -15,7 +15,7 @@
 //!   serializes the reply into caller memory.
 //!
 //! Author failures: typed methods MAY throw; `Dispatch` converts any
-//! exception to a negative plugin-side code at the door — the C++
+//! exception to a negative bundle-side code at the door — the C++
 //! equivalent of the Rust trait's `Result` — and unwinding never crosses
 //! the byte boundary (D6 sync-boundary discipline).
 
@@ -24,7 +24,7 @@ use std::fmt::Write as _;
 use crate::descriptor::{File, Service};
 use crate::error::CodegenError;
 
-/// Emit the C++ plugin-face header (`<module>.hpp`) for one contract file.
+/// Emit the C++ bundle-face header (`<module>.hpp`) for one contract file.
 /// Files without services produce nothing here (same rule as the C shade).
 pub fn emit_cpp_header(file: &File) -> Result<String, CodegenError> {
     let guard = file.package.to_uppercase().replace('.', "_");
@@ -78,7 +78,7 @@ fn emit_service(out: &mut String, file: &File, s: &Service) -> Result<(), Codege
          \x20  static constexpr const char *kServiceId = \"{sid}\";\n\
          \x20  static constexpr int kMethodCount = {count};\n\n\
          \x20  virtual ~{skeleton}() = default;\n\n\
-         \x20  /* Negative dispatch codes: the plugin-side half of the D27 int\n\
+         \x20  /* Negative dispatch codes: the bundle-side half of the D27 int\n\
          \x20     channel (the byte door mirrors the C ABI shade call shape). */\n\
          \x20  static constexpr int32_t kBadRequest = -1;    // request bytes failed to parse\n\
          \x20  static constexpr int32_t kUnknownMethod = -2; // no method carries that name\n\

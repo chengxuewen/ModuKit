@@ -244,7 +244,7 @@ impl Registry {
     }
 
     /// Remove a registration (kernel-side housekeeping: the `dl` executor
-    /// path unregisters a plugin's services when the plugin stops).
+    /// path unregisters a bundle's services when the bundle stops).
     ///
     /// # Errors
     ///
@@ -341,7 +341,7 @@ impl Registry {
         store.entries.values().map(view).collect()
     }
 
-    /// Property-filter query (plugin-management-plan S1, ruling A2): parse an
+    /// Property-filter query (bundle-management-plan S1, ruling A2): parse an
     /// RFC1960-subset filter and return the matching registrations best-first
     /// (ranking descending, then registration order - the `acquire` tie-break).
     /// A well-formed filter naming an undeclared property simply yields no

@@ -6,7 +6,7 @@
 //! buffers cross, status is `i32`, no Rust types appear in the header. The
 //! shape deliberately mirrors `modukit-core::abi` (abi_version + size guard
 //! fields first, 04 §3) so a generated service rides the same handshake
-//! grammar as the plugin descriptor.
+//! grammar as the bundle descriptor.
 
 use std::fmt::Write as _;
 
@@ -25,7 +25,7 @@ pub fn emit_cabi_rust(file: &File) -> Result<String, CodegenError> {
          // C ABI vtable SHADE - Stage 1 freezes the shape contract only\n\
          // (modules/04 §1: \"frozen later\"). Function pointers take encoded\n\
          // bytes in / bytes out and return an i32 status (>= 0 bytes written,\n\
-         // < 0 plugin-side code, the D27 int channel). No Rust types cross.\n\n\
+         // < 0 bundle-side code, the D27 int channel). No Rust types cross.\n\n\
          use std::ffi::c_void;\n\
          use std::mem::size_of;\n",
         src = file.name
@@ -52,7 +52,7 @@ pub fn emit_cabi_rust(file: &File) -> Result<String, CodegenError> {
                 out,
                 "    \
                  /// fn(ctx, request bytes, request len, response buffer, response\n    \
-                 ///    cap) -> bytes written, or a negative plugin-side code.\n    \
+                 ///    cap) -> bytes written, or a negative bundle-side code.\n    \
                  pub {field}: Option<{ty}>,\n",
                 ty = ty,
                 field = field

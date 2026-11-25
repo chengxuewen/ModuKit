@@ -13,7 +13,7 @@ use std::time::Duration;
 
 use crate::error::KernelError;
 
-/// The plugin states of the machine (modules/03 §1 diagram).
+/// The bundle states of the machine (modules/03 §1 diagram).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BundleState {
     /// Not known to the kernel yet (initial and terminal state).
@@ -22,7 +22,7 @@ pub enum BundleState {
     Installed,
     /// Contract/link/placement prerequisites being checked; required
     /// dependencies validated here (deterministic boot failure, before any
-    /// plugin code executes). Transient: passes on to STARTING or FAILED.
+    /// bundle code executes). Transient: passes on to STARTING or FAILED.
     Resolving,
     /// `start()` in progress.
     Starting,
@@ -75,7 +75,7 @@ pub fn is_valid_transition(from: BundleState, to: BundleState) -> bool {
     )
 }
 
-/// One plugin's state machine. Transitions are checked against §2; an
+/// One bundle's state machine. Transitions are checked against §2; an
 /// invalid move returns `KernelError::InvalidTransition` and keeps the state.
 #[derive(Debug)]
 pub struct StateMachine {
@@ -83,7 +83,7 @@ pub struct StateMachine {
 }
 
 impl StateMachine {
-    /// Fresh machine; plugins start `UNINSTALLED` until the kernel installs them.
+    /// Fresh machine; bundles start `UNINSTALLED` until the kernel installs them.
     #[must_use]
     pub fn new() -> Self {
         Self {

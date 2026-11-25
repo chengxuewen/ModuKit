@@ -167,7 +167,7 @@ pub(crate) fn io_err(path: &Path, reason: impl std::fmt::Display) -> BundleError
     }
 }
 
-/// The one writable data boundary per plugin (D26): `<data-root>/<id>/`,
+/// The one writable data boundary per bundle (D26): `<data-root>/<id>/`,
 /// not configurable; the id is grammar-checked before it names a path
 /// (never let an unvalidated string reach join — same discipline as
 /// `validate_rel`). The installer removes it on uninstall.

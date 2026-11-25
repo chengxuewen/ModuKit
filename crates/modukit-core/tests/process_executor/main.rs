@@ -282,7 +282,7 @@ fn install_resolve_start(sup: &Supervisor, exe: &Path, restart_toml: &str) -> Bu
     id
 }
 
-/// Lifecycle `from->to` strings for the tracked plugin, in ring order.
+/// Lifecycle `from->to` strings for the tracked bundle, in ring order.
 fn lifecycle_walk(sup: &Supervisor) -> Vec<String> {
     sup.kernel()
         .observatory()
@@ -291,8 +291,8 @@ fn lifecycle_walk(sup: &Supervisor) -> Vec<String> {
         .iter()
         .filter_map(|r| match &r.event {
             modukit_core::events::ObsEvent::Lifecycle {
-                plugin, from, to, ..
-            } if plugin == ID => Some(format!("{from}->{to}")),
+                bundle, from, to, ..
+            } if bundle == ID => Some(format!("{from}->{to}")),
             _ => None,
         })
         .collect()

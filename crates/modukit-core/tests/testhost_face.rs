@@ -1,10 +1,10 @@
 //! The testhost face (D24, modules/10 §3.1) — M6 floor 6.
 //!
 //! Programmatic host: kernel construction on the step-domain clock, fixture
-//! services and plugin manifests installed/driven through the PRODUCTION
+//! services and bundle manifests installed/driven through the PRODUCTION
 //! path, clock turning via `advance()` (no wall-clock sleeps anywhere),
 //! snapshot/event reads, and the fold(events)->snapshot checker — the §3
-//! machinery exported for plugin authors' own rigs.
+//! machinery exported for bundle authors' own rigs.
 
 use std::sync::Arc;
 use std::time::Duration;

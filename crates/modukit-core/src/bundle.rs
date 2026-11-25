@@ -111,7 +111,7 @@ impl InstallConfig {
 }
 
 /// The installed-bundle answer of `BundleInstaller::install`: everything a
-/// consumer needs to boot the plugin through the untouched kernel doors and
+/// consumer needs to boot the bundle through the untouched kernel doors and
 /// to re-verify the object-backed files before any dlopen (D31 load gate).
 #[derive(Debug, Clone)]
 pub struct InstalledBundle {
@@ -287,7 +287,7 @@ impl BundleInstaller {
         })
     }
 
-    /// (e) Uninstall: remove the install dir and the plugin's data root
+    /// (e) Uninstall: remove the install dir and the bundle's data root
     /// (D26). Object-store entries stay — links die, the refcount retires
     /// the object (D55).
     ///
@@ -329,13 +329,13 @@ impl BundleInstaller {
 }
 
 /// The D7 deploy <-> self-report agreement, executed through the executor
-/// door: dlopen reads the descriptor (no plugin code runs — 04 §3), the
+/// door: dlopen reads the descriptor (no bundle code runs — 04 §3), the
 /// reported id/version must equal the manifest's, ABI mismatch arrives as
-/// a typed `KernelError` (the bad-plugin path). A silent descriptor (no
+/// a typed `KernelError` (the bad-bundle path). A silent descriptor (no
 /// id/version strings) is disagreement: the strict v0 side of the liar
 /// family.
 fn cross_check(manifest: &Manifest, staged: &Path) -> Result<(), BundleError> {
-    // D106 amendment A1 (wave-2-plugin-door plan v3 §2, delta-review F1
+    // D106 amendment A1 (wave-2-bundle-door plan v3 §2, delta-review F1
     // narrowing): a runner-bearing entry whose artifact does NOT end ".so"
     // is a script door — dlopen has no descriptor to read there, so
     // install-time identity DEFERS to the spawn-time HELLO cross-check
@@ -355,7 +355,7 @@ fn cross_check(manifest: &Manifest, staged: &Path) -> Result<(), BundleError> {
         .join(&manifest.entry.artifact)
         .to_string_lossy()
         .into_owned();
-    // The probe door is dlopen (descriptor read, no plugin code runs —
+    // The probe door is dlopen (descriptor read, no bundle code runs —
     // 04 §3), so the probe rides the dl kind whatever the bundle declares:
     // `DlopenExecutor` polices its own placement kind, and an exe bundle's
     // spawn-time identity is cross-checked again at HELLO (executor_proc).

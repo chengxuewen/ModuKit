@@ -1,13 +1,13 @@
-//! ops_demo - the ops-face topic example (plugin-management-plan
+//! ops_demo - the ops-face topic example (bundle-management-plan
 //! example-volume sweep, ruling B1; the S4 read-only diagnose walk).
 //!
 //! `modukit-host --ops=lb|query:<filter>|dm` boots a host, runs ONE
 //! read-only command over the live state, prints, and stops. This demo
 //! exercises the same three commands against a live kernel via the
 //! runtime-facing API shape, so the reader sees what each answers:
-//!   lb   -> the plugin table (id/state/placement)
+//!   lb   -> the bundle table (id/state/placement)
 //!   query-> an RFC1960 filter over the service registry
-//!   dm   -> the required-dependency report (plugin/service/policy/present)
+//!   dm   -> the required-dependency report (bundle/service/policy/present)
 //! Gated by `scripts/demo-rs-examples.sh` on the final `OPS-DEMO PASS`.
 
 use modukit_core::abi::NativeService;
@@ -44,7 +44,7 @@ fn main() {
         .register(Arc::new(provider), p)
         .expect("the provider registers");
 
-    // 1. lb: the plugin table rides the snapshot service (one source of
+    // 1. lb: the bundle table rides the snapshot service (one source of
     //    truth with introspection). This demo asserts the query face
     //    directly; the CLI prints the same rows.
     let found = kernel
@@ -75,13 +75,13 @@ fn main() {
     for r in &rows {
         println!(
             "         {} -> {} (on_down={}, present={})",
-            r.plugin, r.service, r.on_down, r.present
+            r.bundle, r.service, r.on_down, r.present
         );
     }
 
-    // 4. the manifest-level grammar: the dependent plugin declares
+    // 4. the manifest-level grammar: the dependent bundle declares
     //    [[requires]] with version = ">=1.0" - a manifest whose provider
-    //    disappears resolves RED before any plugin code (the S2-3 check).
+    //    disappears resolves RED before any bundle code (the S2-3 check).
     let _ = BundleId::new("com.acme.consumer".to_string()); // the D9 face
     println!("OPS-DEMO PASS");
 }

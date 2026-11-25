@@ -6,7 +6,7 @@
 //! extension mechanism; D17: tools are downstream consumers, no back doors).
 //! Kept out of `kernel.rs` so the lifecycle spine stays readable.
 //!
-//! Wave-2 T2 amendment (D83 tail-add by record, NAMED here): the plugin
+//! Wave-2 T2 amendment (D83 tail-add by record, NAMED here): the bundle
 //! bell's QoS capacity is `embed_codec::LOSSY_RING` — the wire vocabulary's
 //! decode of qos code 2 (64) — replacing T1's `Lossy(16)` literal so wall-
 //! in and wall-out rings behave identically (ruling 6's mirror law beats the
@@ -63,7 +63,7 @@ impl Kernel {
         let edges = Arc::new(EdgeLedger::new());
         obs.attach_edges(Arc::clone(&edges));
         let bus = Arc::new(Bus::new());
-        let plugins: PluginTable = Arc::new(Mutex::new(HashMap::new()));
+        let bundles: BundleTable = Arc::new(Mutex::new(HashMap::new()));
         // M7 boot seam: the contract-ledger (fdset) bytes, shared with the
         // `LedgerDump` service so a post-boot set is visible to consumers.
         let contract_ledger: Arc<Mutex<Vec<u8>>> = Arc::new(Mutex::new(Vec::new()));
@@ -72,7 +72,7 @@ impl Kernel {
         let snapshot = Snapshot::new(
             &registry,
             Arc::clone(&bus),
-            Arc::clone(&plugins),
+            Arc::clone(&bundles),
             Arc::clone(&obs),
             Arc::clone(&edges),
         );
@@ -85,7 +85,7 @@ impl Kernel {
         register_platform(
             &registry,
             Arc::new(LedgerDump::new(
-                Arc::clone(&plugins),
+                Arc::clone(&bundles),
                 Arc::clone(&contract_ledger),
             )),
             "org.modukit.ledger_dump",
@@ -104,8 +104,8 @@ impl Kernel {
             logger,
             edges,
             executor,
-            plugins,
-            plugin_timers: Mutex::new(HashMap::new()),
+            bundles,
+            bundle_timers: Mutex::new(HashMap::new()),
             contract_ledger,
             dm: Mutex::new(dm),
             dm_state: Mutex::new(crate::kernel::DmState::default()),
@@ -114,7 +114,7 @@ impl Kernel {
         }
     }
 
-    /// The unified clock (D20) — the kernel's and every plugin's only
+    /// The unified clock (D20) — the kernel's and every bundle's only
     /// sanctioned time source.
     #[must_use]
     pub fn clock(&self) -> &Clock {
@@ -184,12 +184,12 @@ impl Kernel {
             .collect()
     }
 
-    /// Wave-2 T1 (D99 R4-A/R5-A): the per-plugin bell at the ONE due-funnel.
+    /// Wave-2 T1 (D99 R4-A/R5-A): the per-bundle bell at the ONE due-funnel.
     /// Every dial/poll doorway (`post_due_jobs`/`advance_clock`/
     /// `dial_clock`) passes through `post_jobs`, so this is the only place a
-    /// plugin token can be answered on the bus. Host-owned timers keep the
+    /// bundle token can be answered on the bus. Host-owned timers keep the
     /// `TimerDone` ring posting above EXACTLY as today; the bus publish is
-    /// additive and scoped to registered plugin tokens. `bus.publish` touches
+    /// additive and scoped to registered bundle tokens. `bus.publish` touches
     /// only bus internals and never re-enters the registry/kernel locks (the
     /// deadlock class plan §5 names), and it never blocks (bus commandment 3).
     /// T2 (D99 R5-A) grows the TWO wall outlets after this local publish,
@@ -197,7 +197,7 @@ impl Kernel {
     /// the parent-side fan-out pump - bells only, at the one due-funnel.
     fn post_timer_bell(&self, job: &crate::clock::DueJob) {
         let Some(bundle_id) = self
-            .plugin_timers
+            .bundle_timers
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
             .get(&job.token.value())
@@ -261,15 +261,15 @@ impl Kernel {
     }
 }
 
-/// The plugin table handle shared with the introspect trio (kernel-owned,
+/// The bundle table handle shared with the introspect trio (kernel-owned,
 /// read-only from there — D17). Kept here so `BundleRecord` visibility
 /// never widens beyond this crate.
-pub(crate) type PluginTable = Arc<Mutex<HashMap<crate::identity::BundleId, BundleRecord>>>;
+pub(crate) type BundleTable = Arc<Mutex<HashMap<crate::identity::BundleId, BundleRecord>>>;
 
 #[cfg(test)]
 /// T2 leg DOWN at the REAL bell site, frame-level (the crossing plan's
 /// named precedent set, landed where the observation surface reaches):
-/// the supervisor kernel hosts no dl plugin, so no live child can see a
+/// the supervisor kernel hosts no dl bundle, so no live child can see a
 /// parent-originated bell end to end (finding F-2 in the execution
 /// report) - these tests drive `post_timer_bell` itself against an
 /// attached, wired fan-out and read the DELIVER bytes off the socket.
@@ -286,18 +286,18 @@ mod bell_crossing_tests {
     use crate::identity::{BundleId, TopicId};
     use crate::proc_wire::{self, FWD_SUB, Forward, MSG_DELIVER};
 
-    fn bell_topic(plugin: &str) -> TopicId {
-        TopicId::new(format!("org.modukit.timer.{plugin}"))
+    fn bell_topic(bundle: &str) -> TopicId {
+        TopicId::new(format!("org.modukit.timer.{bundle}"))
     }
 
     /// Kernel + wired, timer-capable child "cap", interest established.
-    fn wired_pair(plugin: &str) -> (Kernel, UnixStream, TopicId) {
+    fn wired_pair(bundle: &str) -> (Kernel, UnixStream, TopicId) {
         let kernel = Kernel::with_clock(Clock::new(ClockDomain::Step));
         let (wired, reader) = UnixStream::pair().expect("socketpair");
         reader
             .set_read_timeout(Some(Duration::from_millis(300)))
             .expect("read timeout");
-        let topic = bell_topic(plugin);
+        let topic = bell_topic(bundle);
         let fan = Arc::new(ParentFanout::new(Arc::clone(&kernel.bus)));
         fan.register_child("cap".into(), wired);
         fan.handle_forward(
@@ -314,12 +314,12 @@ mod bell_crossing_tests {
         (kernel, reader, topic)
     }
 
-    fn register(kernel: &Kernel, token: u64, plugin: &str) {
+    fn register(kernel: &Kernel, token: u64, bundle: &str) {
         kernel
-            .plugin_timers
+            .bundle_timers
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
-            .insert(token, BundleId::new(plugin.to_string()));
+            .insert(token, BundleId::new(bundle.to_string()));
     }
 
     /// The parent-side bell crosses its own wall: dial, and the DELIVER

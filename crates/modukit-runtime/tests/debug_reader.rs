@@ -24,8 +24,8 @@ fn debug_reader_default_prints_pass_line() {
         output.status.success(),
         "debug reader failed: stdout={stdout} stderr={stderr}"
     );
-    assert!(stdout.contains("debug-reader: ledger plugins="));
-    assert!(stdout.contains("debug-reader: snapshot plugins="));
+    assert!(stdout.contains("debug-reader: ledger bundles="));
+    assert!(stdout.contains("debug-reader: snapshot bundles="));
     assert!(stdout.contains("debug-reader: events head="));
     assert!(stdout.contains("debug-reader: PASS"));
 }

@@ -1,9 +1,9 @@
-//! config_demo - the ConfigAdmin topic example (plugin-management-plan
+//! config_demo - the ConfigAdmin topic example (bundle-management-plan
 //! example-volume sweep, ruling B1; the hot-lane + persistence walk).
 //!
-//! The D29 contract: only keys a plugin DECLARED in its `config_live` are
+//! The D29 contract: only keys a bundle DECLARED in its `config_live` are
 //! hot-applyable; accepted keys persist across restarts and publish on
-//! `config/<plugin-id>` (LatestValue - a late joiner reads the current
+//! `config/<bundle-id>` (LatestValue - a late joiner reads the current
 //! value). This demo walks the whole grammar against a temp territory:
 //!   declare [interval] -> set interval OK + a subscriber received it
 //!   set an UNDECLARED key -> typed NotLive refusal (the liar enforcement)
@@ -15,7 +15,7 @@ use modukit_core::config::ConfigAdmin;
 use modukit_core::identity::{BundleId, TopicId};
 use std::sync::Arc;
 
-fn plugin(name: &str) -> BundleId {
+fn bundle(name: &str) -> BundleId {
     BundleId::new(format!("com.acme.{name}"))
 }
 
@@ -26,7 +26,7 @@ fn main() {
     std::fs::create_dir_all(&dir).expect("the demo territory creates");
 
     let bus = Arc::new(Bus::new());
-    let sensor = plugin("sensor");
+    let sensor = bundle("sensor");
     let admin = ConfigAdmin::new()
         .with_bus(Arc::clone(&bus))
         .with_persistence(dir.clone());

@@ -2,9 +2,9 @@
 //!
 //! v0 seam (reported to the orchestrator): the binary reads FileDescriptorSet
 //! binaries directly (`@path.fdset`) instead of a CodeGeneratorRequest on
-//! stdin, and takes `--output_dir` like protoc's plugin convention - so it is
-//! NOT yet registered as a real `--plugin` for protoc. The fdset bytes on the
-//! wire are the same FileDescriptorSet protoc sends a plugin; switching the
+//! stdin, and takes `--output_dir` like protoc's bundle convention - so it is
+//! NOT yet registered as a real `--bundle` for protoc. The fdset bytes on the
+//! wire are the same FileDescriptorSet protoc sends a bundle; switching the
 //! seam is a read-path change, not an emitter change.
 //!
 //! Stage-4 M1 (ruling C++-3 face B): `--embed_header <modukit_embed.h>`

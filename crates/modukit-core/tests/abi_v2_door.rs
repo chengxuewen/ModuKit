@@ -161,7 +161,7 @@ fn declared_major_2_walks_the_real_door_and_the_kernel_sees_the_same_bus() {
 
 /// The liar guard stays RED-worthy after the door widened (D96): declaring
 /// major 99 is ABI_MISMATCH at resolve and a FAILED parking, with no code
-/// run - the same law bad-plugin proves at 999.
+/// run - the same law bad-bundle proves at 999.
 #[test]
 fn declared_major_99_still_parks_failed_at_the_v2_door() {
     let Some(so) = build_fixture("liar-plugin", "liar_plugin") else {
@@ -187,14 +187,14 @@ fn declared_major_99_still_parks_failed_at_the_v2_door() {
         BundleState::Failed,
         "unknown ABI version -> FAILED at RESOLVING (04 §3), never a partial start"
     );
-    let plugin_services: Vec<_> = kernel
+    let bundle_services: Vec<_> = kernel
         .registry()
         .snapshot()
         .into_iter()
         .filter(|s| !s.service_id.as_str().starts_with("org.modukit."))
         .collect();
     assert!(
-        plugin_services.is_empty(),
-        "a rejected plugin must have run no code"
+        bundle_services.is_empty(),
+        "a rejected bundle must have run no code"
     );
 }

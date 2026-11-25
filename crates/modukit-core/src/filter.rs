@@ -1,4 +1,4 @@
-//! RFC1960 service-filter subset (plugin-management-plan S1, ruling A2).
+//! RFC1960 service-filter subset (bundle-management-plan S1, ruling A2).
 //!
 //! A hand-rolled, dependency-free parser + matcher for the OSGi-style filter
 //! grammar the three reference frameworks all speak (CppMicroServices

@@ -25,10 +25,10 @@ pub const RING_CAP: usize = 8192;
 /// QoS-visible + the §2 `ModuleLoaded` + D6 timer postings + D19 logs).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ObsEvent {
-    /// A plugin lifecycle transition, emitted at the kernel's own doorway
+    /// A bundle lifecycle transition, emitted at the kernel's own doorway
     /// (03 §2 table). Names are the `BundleState` display forms.
     Lifecycle {
-        plugin: String,
+        bundle: String,
         from: String,
         to: String,
     },
@@ -39,7 +39,7 @@ pub enum ObsEvent {
     /// breakpoint trigger for off-the-shelf debug adapters. `load_base` is
     /// a stable address inside the mapped image (v0 hint: the descriptor).
     ModuleLoaded {
-        plugin: String,
+        bundle: String,
         artifact: String,
         load_base: u64,
         symbol_hint: String,

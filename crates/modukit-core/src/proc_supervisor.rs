@@ -22,14 +22,14 @@ use crate::lifecycle::{BundleState, RestartPolicy};
 use crate::manifest::PlacementKind;
 
 /// The supervisor's boot answer: one production `Kernel` wired with the
-/// `exe` executor, the shared live table, and the per-plugin budget memory.
+/// `exe` executor, the shared live table, and the per-bundle budget memory.
 pub struct Supervisor {
     kernel: Kernel,
     live: Control,
     watch: Mutex<HashMap<String, Watch>>,
 }
 
-/// Per-plugin supervision memory: D3 budget spent so far, and when the
+/// Per-bundle supervision memory: D3 budget spent so far, and when the
 /// crash-watch last reaped a child (the backoff/cooldown window anchor).
 #[derive(Default)]
 struct Watch {
@@ -143,7 +143,7 @@ impl Supervisor {
     /// FAILED edge through the existing state machine by taking the
     /// cooperative-stop path against the dead control channel.
     ///
-    /// Returns the ids whose child newly died. A plugin still in STARTING
+    /// Returns the ids whose child newly died. A bundle still in STARTING
     /// keeps its crash for the ordinary `start` doorway (the handle reports
     /// it there) — no invented transition either way.
     pub fn poll(&self) -> Vec<String> {
@@ -211,7 +211,7 @@ impl Supervisor {
         let failed: Vec<BundleId> = {
             let table = self
                 .kernel
-                .plugins
+                .bundles
                 .lock()
                 .unwrap_or_else(PoisonError::into_inner);
             table
@@ -279,7 +279,7 @@ impl Supervisor {
         crate::executor_proc::dial_child_crossing(&self.live, id.as_str(), delta)
     }
 
-    /// Restart one FAILED `exe` plugin per its manifest policy (D3 table:
+    /// Restart one FAILED `exe` bundle per its manifest policy (D3 table:
     /// `allows_restart` budget + backoff window grown per attempt inside
     /// the `min..max` range, floored by `cooldown`, measured on the boot
     /// clock). The respawn rides `FAILED -> RESOLVING` — the edge the
@@ -294,7 +294,7 @@ impl Supervisor {
         let (policy, state) = {
             let table = self
                 .kernel
-                .plugins
+                .bundles
                 .lock()
                 .unwrap_or_else(PoisonError::into_inner);
             let record = table.get(id).ok_or_else(|| KernelError::UnknownPlugin {

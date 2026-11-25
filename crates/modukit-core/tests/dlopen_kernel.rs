@@ -66,8 +66,8 @@ fn manifest_toml(artifact: &Path) -> String {
 
 /// Plugin-visible services only: the M6 floors boot the kernel with
 /// platform services (`org.modukit.*`) on the same table (D40), so the
-/// fixture assertions filter the plugin's own entries out.
-fn plugin_services(kernel: &Kernel) -> Vec<modukit_core::registry::RegisteredService> {
+/// fixture assertions filter the bundle's own entries out.
+fn bundle_services(kernel: &Kernel) -> Vec<modukit_core::registry::RegisteredService> {
     kernel
         .registry()
         .snapshot()
@@ -101,17 +101,17 @@ fn happy_path_walks_states_and_round_trips_the_service() {
         BundleState::Starting,
         "resolve lands on the STARTING edge (03 §2: deps + handshake pass)"
     );
-    assert!(plugin_services(&kernel).is_empty(), "no code has run yet");
+    assert!(bundle_services(&kernel).is_empty(), "no code has run yet");
 
-    // start: plugin code runs, registers exactly one service.
+    // start: bundle code runs, registers exactly one service.
     kernel.start(&id).expect("start must pass");
     assert_eq!(kernel.state(&id).expect("started"), BundleState::Active);
 
-    let snap = plugin_services(&kernel);
+    let snap = bundle_services(&kernel);
     assert_eq!(
         snap.len(),
         1,
-        "example-plugin registers exactly one service"
+        "example-bundle registers exactly one service"
     );
     assert_eq!(snap[0].service_id.as_str(), EXAMPLE_ID);
     let event = events
@@ -129,12 +129,12 @@ fn happy_path_walks_states_and_round_trips_the_service() {
     let svc = kernel
         .registry()
         .acquire::<NativeService>()
-        .expect("lookup returns a handle to the plugin service");
+        .expect("lookup returns a handle to the bundle service");
     assert_eq!(svc.service_id().as_str(), EXAMPLE_ID);
     let echo = svc
         .invoke("echo", b"kernel-v0")
         .expect("service call over the C ABI");
-    assert_eq!(echo, b"kernel-v0", "echo round trip through the plugin");
+    assert_eq!(echo, b"kernel-v0", "echo round trip through the bundle");
     let err = svc
         .invoke("no-such-method", b"x")
         .expect_err("unknown method must be a typed error");
@@ -147,14 +147,14 @@ fn happy_path_walks_states_and_round_trips_the_service() {
         .release(&svc)
         .expect("acquire/release pair is mandatory (invariant 6)");
 
-    // stop: cooperative stop, the kernel deregisters the plugin's services.
+    // stop: cooperative stop, the kernel deregisters the bundle's services.
     kernel.stop(&id).expect("stop must pass");
     assert_eq!(
         kernel.state(&id).expect("stopped"),
         BundleState::Resolved,
         "STOPPING -> RESOLVED on clean stop (03 §2)"
     );
-    assert!(plugin_services(&kernel).is_empty(), "services gone");
+    assert!(bundle_services(&kernel).is_empty(), "services gone");
     let event = events
         .recv_timeout(std::time::Duration::from_secs(2))
         .expect("Unregistered event must arrive");
@@ -200,8 +200,8 @@ fn bad_plugin_abi_mismatch_lands_failed_with_typed_error_never_a_crash() {
         "unknown ABI version -> FAILED at RESOLVING (04 §3), never a partial start"
     );
     assert!(
-        plugin_services(&kernel).is_empty(),
-        "a rejected plugin must have run no code"
+        bundle_services(&kernel).is_empty(),
+        "a rejected bundle must have run no code"
     );
     // Reaching here without a segfault IS the second half of the assertion.
 }

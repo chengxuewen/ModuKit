@@ -10,9 +10,9 @@
 //! NOT wired into kernel dispatch — M1 lane #3 (emitter) and the demo lane
 //! consume this mirror; this lane establishes contract + mirror + gate only.
 //! The HostEmbedV1 embed surface itself touches neither of the two frozen
-//! v1 plugin tables (`abi::BundleAbiV1` / `abi::HostAbiV1`, D87 STABLE);
+//! v1 bundle tables (`abi::BundleAbiV1` / `abi::HostAbiV1`, D87 STABLE);
 //! the `BUNDLE_ABI_FIELDS`/`HOST_ABI_FIELDS` constants below are read-only
-//! field-name mirrors of those tables for the plugin-header parity gate -
+//! field-name mirrors of those tables for the bundle-header parity gate -
 //! the layout truth stays in `abi.rs`.
 
 /// Embed table major version (`modukit_embed_abi_version()` returns this).
@@ -49,7 +49,7 @@ pub const EMBED_VERBS: &[&str] = &[
     "modukit_sup_uninstall",
     // M3 tail-add (D94): the service-call door on the exe rung.
     "modukit_sup_service_call",
-    // S1 tail-add (plugin-management-plan, D83 record): property-filter query.
+    // S1 tail-add (bundle-management-plan, D83 record): property-filter query.
     "modukit_embed_find_services",
 ];
 
@@ -80,7 +80,7 @@ pub const HOST_ABI_FIELDS: &[&str] = &["size", "user", "register_service"];
 
 /// `abi::HostAbiV2` fields in declaration order - the v2 sibling of
 /// `HOST_ABI_FIELDS` (Stage-5 N1, D96 ruling 2). Same three-way parity
-/// contract: abi.rs <-> `modukit_host_abi_v2` in the plugin header <->
+/// contract: abi.rs <-> `modukit_host_abi_v2` in the bundle header <->
 /// this const, diffed UNSORTED by the parity script; the v1 lists above
 /// are untouched (D87).
 pub const HOST2_ABI_FIELDS: &[&str] = &[
@@ -95,7 +95,7 @@ pub const HOST2_ABI_FIELDS: &[&str] = &[
 
 /// `abi::HostAbiV3` fields in declaration order - the v3 sibling of
 /// `HOST2_ABI_FIELDS` (Wave-2 T1, D99 R2). Same three-way parity
-/// contract: abi.rs <-> `modukit_host_abi_v3` in the plugin header <->
+/// contract: abi.rs <-> `modukit_host_abi_v3` in the bundle header <->
 /// this const, diffed UNSORTED by the parity script; the v1/v2 lists above
 /// are untouched (D87/D96).
 pub const HOST3_ABI_FIELDS: &[&str] = &[
