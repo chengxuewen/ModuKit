@@ -113,7 +113,7 @@ done < "$tmp/host3.txt"
 if [ "$missing" -eq 0 ]; then
   echo "check-capability-ledger: ok ($(wc -l < "$tmp/host3.txt") rows cover HOST3_ABI_FIELDS)"
 fi
-# Section E (wave-2 plugin door batch 1, D106 plan T1.4): every E-table row
+# Section E (wave-2 bundle door batch 1, D106 plan T1.4): every E-table row
 # mirrors a "NAME = value" constant line in contracts/modukit_wire.h - row
 # name AND decimal value pinned, checked BOTH directions (a row without its
 # ledger constant and a ledger constant without its row are both red).

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# test-plugins/py/py_echo.py - the wave-2 plugin-door echo fixture
-# (D106 batch 2, plan T2.2: docs/wave-2-plugin-door-plan.md section 4).
+# test-plugins/py/py_echo.py - the wave-2 bundle-door echo fixture
+# (D106 batch 2, plan T2.2: docs/wave-2-bundle-door-plan.md section 4).
 # The kernel spawns it as `python3 <this-file> --fd=0` (manifest kind=exe,
 # runner=<absolute interpreter path>); the control socket IS fd 0 and
 # stdout/stderr are nulled - this file must never print.

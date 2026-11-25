@@ -48,8 +48,8 @@ FILE_ALLOW_EXACT = {
     ".agents/memorys/status.md",            # mirrors D111 wording only
     "docs/plugin-management-plan.md",       # plan-of-record body (A3)
     "docs/onboarding-plan.md",              # plan-of-record body (A3)
-    "docs/wave-2-plugin-door-plan.md",      # plan-of-record body (A3)
-    "docs/wave-2-plugin-door-hearing.md",   # plan-of-record body (A3)
+    "docs/wave-2-bundle-door-plan.md",      # plan-of-record body (A3)
+    "docs/wave-2-bundle-door-hearing.md",   # plan-of-record body (A3)
     "docs/stage-1-plan.md",                 # plan-of-record body (A3)
     "docs/bundle-unification-plan.md",      # this plan quotes the retired word
     "docs/reference/k7-v1-stable-note-draft.md",  # external-facing draft, M2

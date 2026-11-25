@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Wave-2 plugin-door NODE leg (leg thirteen; D106 batch 3, plan T3.3):
+# Wave-2 bundle-door NODE leg (leg thirteen; D106 batch 3, plan T3.3):
 # the hand-written skin bindings/js/bundle_runtime.mjs walks the exe wall as
 # a kernel-spawned script child (runner = the absolute node path, artifact =
 # a staged js_echo.mjs copy). Stages mirror demo-wave2-bundle-py.sh exactly:
@@ -22,10 +22,10 @@
 # route through pixi per D65. Auto-SKIP only when an instrument is absent
 # (no node, no build toolchain at all, no pinned-env protoc - the cpp-band
 # instrument contract) - a present toolchain that fails to build is RED,
-# never a silent skip (C0). The PLUGIN child needs no .so and no npm (pure
+# never a silent skip (C0). The bundle child needs no .so and no npm (pure
 # node stdlib skin); the driver loads libmodukit_core.so through the
 # generated napi bridge, no LD_PRELOAD anywhere in this leg (no cpp fixture
-# chain: the plugin child is a .mjs file).
+# chain: the bundle child is a .mjs file).
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
@@ -125,7 +125,7 @@ cmp -s crates/modukit-js/src/lib.rs crates/modukit-codegen/testdata/golden/moduk
 [ -f target/debug/libmodukit_js.so ] || { echo "demo-wave2-bundle-js: RED (no libmodukit_js.so after a green build)"; exit 1; }
 cp target/debug/libmodukit_js.so target/js/modukit_js.node
 
-# Stage the plugin artifacts (the manifest names staged paths, runner and
+# Stage the bundle artifacts (the manifest names staged paths, runner and
 # artifact both absolute and existing - the spawn doorway checks is_file).
 cp test-bundles/js/js_echo.mjs test-bundles/js/js_liar.mjs "$stage/"
 # Absolutize the runner path (the kernel is_file-checks the manifest runner
@@ -273,7 +273,7 @@ try {
   if (!(e instanceof rt.FrameTooLarge)) throw e;
 }
 
-console.log('wave2-plugin-js: CONFORMANCE OK (14 frames + 2 hostile)');
+console.log('wave2-bundle-js: CONFORMANCE OK (14 frames + 2 hostile)');
 JSEOF
 "$NBIN" "$stage/conformance.mjs" "$PWD/bindings/js" "$PWD/contracts/golden/wire-v1" >"$log" 2>&1
 status=$?
@@ -283,14 +283,14 @@ if [ "$status" -ne 0 ]; then
   exit 1
 fi
 cat "$log"
-grep -q 'wave2-plugin-js: CONFORMANCE OK (14 frames + 2 hostile)' "$log" || {
+grep -q 'wave2-bundle-js: CONFORMANCE OK (14 frames + 2 hostile)' "$log" || {
   echo "demo-wave2-bundle-js: RED (no CONFORMANCE OK line - the codec walk did not complete)"
   exit 1
 }
 
 # --- [2]+[3] driver. Runs the sup-rung lifecycle as its OWN process: the
 # leg SIGKILLs it mid-life for the census, so the orphan walk exercises the
-# kernel child's EOF path (the .so dies WITH the driver; the plugin child is
+# kernel child's EOF path (the .so dies WITH the driver; the bundle child is
 # the kernel's own child, not one this shell ever managed).
 cat > "$stage/driver.mjs" <<'JSEOF'
 // Scratch embed driver for scripts/demo-wave2-bundle-js.sh stage [2]: drives
@@ -434,7 +434,7 @@ stopUninstall(pid, 'js_echo');
 console.log('STOP PASS (cooperative ack + uninstall)');
 
 // --- js_liar: every call answers the author code -1; the door maps it to
-// SERVICE_CALL_FAILED. Two calls both fail TYPED and the plugin stays
+// SERVICE_CALL_FAILED. Two calls both fail TYPED and the bundle stays
 // ACTIVE between them - the i32 channel is a contract, not decoration.
 const liarJs = path.join(stage, 'js_liar.mjs');
 pid = install(ID_LIAR, liarJs);

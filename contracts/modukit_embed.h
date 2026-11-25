@@ -6,7 +6,7 @@
  *
  * Hand-authored; D83 tail-add amendment policy: new verbs append to the
  * vtable tail and bump the minor bookkeeping, existing entries never move
- * or change type. The two frozen v1 plugin tables (BundleAbiV1/HostAbiV1,
+ * or change type. The two frozen v1 bundle tables (BundleAbiV1/HostAbiV1,
  * D87 STABLE) are NOT this surface and are untouched by it.
  *
  * C shade conventions follow the codegen cabi precedent: opaque handle
@@ -357,7 +357,7 @@ int32_t modukit_sup_service_call(const char *service_id, const char *method,
                                   const uint8_t *input, size_t input_len,
                                   uint8_t *response, size_t response_cap);
 
-/* Property-filter query (plugin-management-plan S1, D83 tail-add; v1 major
+/* Property-filter query (bundle-management-plan S1, D83 tail-add; v1 major
  * unchanged). Parses an RFC1960-subset filter (see modukit-core filter.rs:
  * &/|/!, =/>=/<=/~=, presence, substring wildcard) and serializes the
  * matching registrations best-first (ranking desc, then registration order)

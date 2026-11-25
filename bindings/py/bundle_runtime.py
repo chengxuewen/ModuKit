@@ -1,11 +1,11 @@
-# bindings/py/plugin_runtime.py - the hand-written plugin-wire v1 skin for
+# bindings/py/plugin_runtime.py - the hand-written bundle-wire v1 skin for
 # python script children of the modukit kernel (D106 batch 2, plan T2.1:
-# docs/wave-2-plugin-door-plan.md section 4). The kernel spawns a script
+# docs/wave-2-bundle-door-plan.md section 4). The kernel spawns a script
 # bundle as `<runner> <artifact> --fd=N` with the control socketpair injected
 # as fd 0 (executor_proc.rs CHILD_CONTROL_FD) and stdout/stderr nulled -
 # there is NO console: diagnostics ride the RESULT channel or die with the
 # exit code (plan section 0; no log() on purpose).
-# The four contracts a script plugin must honor are canonical in
+# The four contracts a script bundle must honor are canonical in
 # docs/tutorials/06-script-plugins.md: absolute runner path, no-print, the
 # MODUKIT_PY_SKIN resolution, and generated skins are DO-NOT-EDIT.
 #

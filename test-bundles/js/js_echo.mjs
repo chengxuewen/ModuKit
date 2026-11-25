@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// test-plugins/js/js_echo.mjs - the wave-2 plugin-door echo fixture (D106
-// batch 3, plan T3.2: docs/wave-2-plugin-door-plan.md section 5). The kernel
+// test-plugins/js/js_echo.mjs - the wave-2 bundle-door echo fixture (D106
+// batch 3, plan T3.2: docs/wave-2-bundle-door-plan.md section 5). The kernel
 // spawns it as `node <this-file> --fd=0` (manifest kind=exe,
 // runner=<absolute node path>); the control socket IS fd 0 and
 // stdout/stderr are nulled - this file must never print.

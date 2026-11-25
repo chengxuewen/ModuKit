@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # D50 local check gate: fast legs + THIRTEEN demo legs (newest leg thirteen:
-# wave2-plugin-js, D106 batch 3; leg twelve = wave2-plugin-py, D106 batch 2)
+# wave2-bundle-js, D106 batch 3; leg twelve = wave2-bundle-py, D106 batch 2)
 # + ctest per-name census +
 # lane-table + wire-parity + loud cargo-deny + commit-shape + doc-liveness (D104/D106 named);
 # each leg skips cleanly when its target is absent. CI at the revival trigger runs
@@ -262,7 +262,7 @@ if [ -f scripts/demo-wave2-js-sup.sh ]; then
   elif echo "$w2js" | grep -q "demo-wave2-js-sup: SKIP"; then note "skip demo-wave2-js-sup (no node/toolchain/fixture)";
   else note "FAIL demo-wave2-js-sup (gate did not print PASS)"; status=1; fi
 else note "skip demo-wave2-js-sup (no script)"; fi
-# Wave-2 plugin-door python leg (D106 batch 2, the twelfth demo leg): the
+# Wave-2 bundle-door python leg (D106 batch 2, the twelfth demo leg): the
 # hand-written skin walks all 11 wire kinds across the exe wall (conformance
 # + lifecycle + FIDELITY + BUS ROUNDTRIP + liar typed error + orphan census,
 # sabotage lever DEMO_BUNDLE_PY_SABOTAGE=1). Same PASS/SKIP grammar as the
@@ -277,7 +277,7 @@ if [ -f scripts/demo-wave2-bundle-py.sh ]; then
   else note "FAIL demo-wave2-bundle-py (gate did not print PASS)"; status=1; fi
 else note "skip demo-wave2-bundle-py (no script)"; fi
 
-# Wave-2 plugin-door node leg (D106 batch 3, the thirteenth demo leg): the
+# Wave-2 bundle-door node leg (D106 batch 3, the thirteenth demo leg): the
 # hand-written ESM skin walks all 11 wire kinds across the exe wall (same
 # conformance + lifecycle + FIDELITY + BUS ROUNDTRIP + liar + census grammar
 # as leg twelve, sabotage lever DEMO_BUNDLE_JS_SABOTAGE=1). PASS-without-RUNNER
@@ -430,7 +430,7 @@ else note "skip numbering (no script)"; fi
 # members are red. Always-on like embed-parity; the gate ships in-repo.
 bash scripts/check-lane-table.sh || { note "FAIL lane-table"; status=1; }
 
-# leg: wire parity (wave-2 plugin door batch 1, D106 plan T1.3): goldens regeneration
+# leg: wire parity (wave-2 bundle door batch 1, D106 plan T1.3): goldens regeneration
 # byte-diff + wire.h <-> proc_wire.rs constant cross-check; the --self-test ships
 # inside the script (both plants, C0). Skips cleanly when the batch-1 shelf or
 # pixi (cargo owner, D65) is absent; the script itself never touches repo files.

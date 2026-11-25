@@ -13,8 +13,8 @@ here restates what a chapter or a leg already says.
 | JS | embed-face hosts (`host_demo.js`, `host_sup_demo.js`, `pin_test.js`) | `pixi run demo wave2-js` / `wave2-js-sup` | tutorial 05 |
 | C | embed-face host (`c/host_demo.c`) + the fixture at `../test-plugins/c/` | rides `pixi run demo stage4-m1` | tutorials 02/05 |
 
-Script-plugin fixtures live in `../test-plugins/{py,js}` - see tutorial 06
-(`pixi run demo wave2-plugin-py` / `wave2-plugin-js`).
+Script-bundle fixtures live in `../test-plugins/{py,js}` - see tutorial 06
+(`pixi run demo wave2-bundle-py` / `wave2-bundle-js`).
 
 `Cargo.toml` here is the rust demo crate (the lane the gate builds); the
 other bands ride the cmake graph (`MODUKIT_BUILD_C` / `MODUKIT_BUILD_CPP`).

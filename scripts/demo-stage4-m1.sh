@@ -56,7 +56,7 @@ trap 'rm -f "$log"' EXIT
   # is asserted by the host demo's optional argv[2] scene.
   pixi run cmake --build "$bd" --target cpp-busv2-bundle &&
   # Tutorial series ride (progressive C++ examples): the t4 driver pulls
-  # the t1/t2/t3 plugins through its own dependency edges; the consumer
+  # the t1/t2/t3 bundles through its own dependency edges; the consumer
   # evolution t5/t6 rides the same t2 provider.
   pixi run cmake --build "$bd" --target t4-driver &&
   pixi run cmake --build "$bd" --target t5-consumer &&

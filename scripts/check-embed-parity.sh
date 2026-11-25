@@ -78,7 +78,7 @@ else
   fail=1
 fi
 
-# ---- (b) plugin tables: ordered field diffs ----
+# ---- (b) bundle tables: ordered field diffs ----
 # Rust side: the `pub <name>: <type>,` field lines inside a struct block.
 rust_fields() { sed -n "/^pub struct $1 {/,/^}/p" "$ABI" \
   | grep -oE 'pub [a-z_][a-z0-9_]*:' | sed 's/^pub //; s/:$//'; }

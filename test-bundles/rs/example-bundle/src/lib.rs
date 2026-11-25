@@ -24,7 +24,7 @@ fn cstr_len(ptr: *const c_char) -> usize {
 }
 
 /// The one service's message-shaped call (04 §2: method name + owned
-/// bytes; returns bytes written, negative = plugin-side error code, D27
+/// bytes; returns bytes written, negative = bundle-side error code, D27
 /// author code space). `echo` answers; anything else is -1.
 extern "C" fn demo_call(
     method: *const c_char,

@@ -31,7 +31,7 @@
  * (proc_wire.rs:144-149). The write side has no built-in cap: writers MUST
  * pre-check their payload length against FRAME_MAX before write or alloc
  * (declared here; the check is hosted by the skin conformance stages,
- * docs/wave-2-plugin-door-plan.md section 6).
+ * docs/wave-2-bundle-door-plan.md section 6).
  *
  * Field grammar used by the per-kind lines below:
  *   pstr     = u8 length prefix + that many UTF-8 bytes, cap 255

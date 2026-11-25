@@ -1,11 +1,11 @@
-// bindings/js/plugin_runtime.mjs - the hand-written plugin-wire v1 skin for
+// bindings/js/plugin_runtime.mjs - the hand-written bundle-wire v1 skin for
 // node script children of the modukit kernel (D106 batch 3, plan T3.1:
-// docs/wave-2-plugin-door-plan.md section 5). The kernel spawns a script
+// docs/wave-2-bundle-door-plan.md section 5). The kernel spawns a script
 // bundle as `<runner> <artifact> --fd=N` with the control socketpair injected
 // as fd 0 (executor_proc.rs CHILD_CONTROL_FD) and stdout/stderr nulled -
 // there is NO console: diagnostics ride the RESULT channel or die with the
 // exit code (plan section 0; no console.log on purpose).
-// The contracts a script plugin must honor are canonical in
+// The contracts a script bundle must honor are canonical in
 // docs/tutorials/06-script-plugins.md: absolute runner path, no-print, the
 // repo-relative skin resolution, and generated skins are DO-NOT-EDIT.
 //

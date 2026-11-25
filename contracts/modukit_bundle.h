@@ -1,4 +1,4 @@
-/* modukit_bundle.h - the plugin-side self-report contract ORIGINAL
+/* modukit_bundle.h - the bundle-side self-report contract ORIGINAL
  * (gap ruling A, maintainer-adjudicated 2026-10-20: one contract original
  * per face; this header IS the contract). The plugin side of the C ABI -
  * the only cross-language exit: a `dl`-placed plugin exports the single
@@ -62,7 +62,7 @@ struct modukit_bundle_abi_v1;
 /* Service call shape (mirrors `abi::ServiceCallFn`): message-shaped -
  * method name + owned bytes in, bytes out (04 §2 / 01 §3 rule 3).
  * Returns the number of bytes written to `output`, or a negative
- * plugin-side error code (D27). `method`/`input` are borrowed for the
+ * bundle-side error code (D27). `method`/`input` are borrowed for the
  * call only; `output` is host-allocated and written only during the
  * call. Needing more than `output_cap` is a negative return, never a
  * truncation (v0 cap is max(input,64)+64; real sizing is the codegen

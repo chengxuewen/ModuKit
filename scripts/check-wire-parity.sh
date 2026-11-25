@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# leg: plugin-wire v1 goldens + ledger parity (wave-2 plugin door batch 1,
+# leg: bundle-wire v1 goldens + ledger parity (wave-2 bundle door batch 1,
 # D106 plan T1.3). Three arms, one exit code:
 #  (a) goldens: re-run the wire-golden bin into a temp dir; every checked-in
 #      byte under contracts/golden/wire-v1 must match the regeneration

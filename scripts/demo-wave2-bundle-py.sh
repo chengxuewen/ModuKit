@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Wave-2 plugin-door PYTHON leg (leg twelve; D106 batch 2, plan T2.3/2.4):
+# Wave-2 bundle-door PYTHON leg (leg twelve; D106 batch 2, plan T2.3/2.4):
 # the hand-written skin bindings/py/bundle_runtime.py walks the exe wall as a
 # kernel-spawned script child (runner = the absolute python3 path, artifact =
 # a staged py_echo.py copy). Stages: [0] RUNNER line; [1] conformance BEFORE
@@ -21,7 +21,7 @@
 # route through pixi per D65. Auto-SKIP only when an instrument is absent
 # (no python3, no build toolchain at all, no pinned-env protoc - the
 # cpp-band instrument contract) - a present toolchain that fails to build is
-# RED, never a silent skip (C0). The PLUGIN child needs no .so at all (pure
+# RED, never a silent skip (C0). The bundle child needs no .so at all (pure
 # stdlib skin); only the driver loads libmodukit_core.so, plain ctypes - no
 # LD_PRELOAD anywhere in this leg.
 set -uo pipefail
@@ -100,7 +100,7 @@ scratch=$(mktemp -d)
 rm -rf "$scratch"
 [ -f bindings/py/modukit_embed.py ] || { echo "demo-wave2-bundle-py: RED (bindings/py/modukit_embed.py not regenerated)"; exit 1; }
 
-# Stage the plugin artifacts (the manifest names staged paths, runner and
+# Stage the bundle artifacts (the manifest names staged paths, runner and
 # artifact both absolute and existing - the spawn doorway checks is_file).
 cp test-bundles/py/py_echo.py test-bundles/py/py_liar.py "$stage/"
 # Absolutize the runner path (the kernel is_file-checks the manifest runner
@@ -231,20 +231,20 @@ try:
 except rt.FrameTooLarge:
     pass
 
-print("wave2-plugin-py: CONFORMANCE OK (14 frames + 2 hostile)")
+print("wave2-bundle-py: CONFORMANCE OK (14 frames + 2 hostile)")
 PYEOF
 if ! "$PYBIN" "$stage/conformance.py" "$PWD/bindings/py" "$PWD/contracts/golden/wire-v1" 2>&1 | tee "$log"; then
   echo "demo-wave2-bundle-py: RED (conformance python exited non-zero)"
   exit 1
 fi
-if ! grep -q 'wave2-plugin-py: CONFORMANCE OK (14 frames + 2 hostile)' "$log"; then
+if ! grep -q 'wave2-bundle-py: CONFORMANCE OK (14 frames + 2 hostile)' "$log"; then
   echo "demo-wave2-bundle-py: RED (no CONFORMANCE OK line - the codec walk did not complete)"
   exit 1
 fi
 
 # --- [2]+[3] driver. Runs the sup-rung lifecycle as its OWN process: the
 # leg SIGKILLs it mid-life for the census, so the orphan walk exercises the
-# kernel child's EOF path (the .so dies WITH the driver; the plugin child is
+# kernel child's EOF path (the .so dies WITH the driver; the bundle child is
 # the kernel's own child, not one this shell ever managed).
 cat > "$stage/driver.py" <<'PYEOF'
 # Scratch embed driver for scripts/demo-wave2-bundle-py.sh stage [2]: drives
@@ -389,7 +389,7 @@ stop_uninstall(pid, "py_echo")
 print("STOP PASS (cooperative ack + uninstall)")
 
 # --- py_liar: every call answers the author code -1; the door maps it to
-# SERVICE_CALL_FAILED. Two calls both fail TYPED and the plugin stays
+# SERVICE_CALL_FAILED. Two calls both fail TYPED and the bundle stays
 # ACTIVE between them - the i32 channel is a contract, not decoration.
 liar_py = os.path.join(stage, "py_liar.py")
 pid = install(ID_LIAR, liar_py)
