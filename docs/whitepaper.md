@@ -75,7 +75,7 @@ modukit-cli           # command-line tooling
 ```mermaid
 flowchart TD
     subgraph L1 [Core layer - Rust]
-        A[Plugin lifecycle management]
+        A[Bundle lifecycle management]
         B[Service registry]
         C[IPC abstraction]
         D[Config & capability discovery]
@@ -110,7 +110,7 @@ flowchart TD
 
 ### 4.1 Core layer
 
-- Plugin lifecycle: install, start, stop, update, uninstall.
+- Bundle lifecycle: install, start, stop, update, uninstall.
 - Service registry: type-safe service discovery and dependency injection.
 - IPC abstraction: one interface over local sockets, shared memory, and remote transport.
 - Capability discovery: declare and check platform capabilities (SHM, windowing systems, input injection, GPU sharing).

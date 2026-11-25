@@ -56,7 +56,7 @@ test('facade exports all 17 rung-0 verbs', () => {
 
 test('enum mirrors match the header values', () => {
   // Values copied verbatim from contracts/modukit_embed.h (lines cited in
-  // the ledger-style blocks: kernel_code :36-70, plugin_state :74-83,
+  // the ledger-style blocks: kernel_code :36-70, bundle_state :74-83,
   // clock_domain :86-90, qos :93-98, event_kind :102-110).
   assert.deepStrictEqual({ ...skin.BundleState }, {
     STATE_UNINSTALLED: 0,

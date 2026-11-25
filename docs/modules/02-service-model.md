@@ -35,7 +35,7 @@ Registry::snapshot(Filter) -> Vec<RegisteredService>
   keeps refcounts internally (invariant 6) — per-bundle leases later require no consumer edits.
 
 **Canonical service identity (D9)**: the true key is a reverse-DNS string (`com.<vendor>.
-<area>.<Service>` — the CLAP id grammar, `docs/reference/clap-plugin-abi.md:58`), carried in
+<area>.<Service>` — the CLAP id grammar, `docs/reference/clap-plugin-abi.md:58`), carried in <!-- vocab:plugin:allow external term or file name -->
 the registration `properties` map under `service.id`; versions never embed in the name
 (invariant 3 carries them). Rust code never hand-writes the string: `#[modukit_service("...")]`
 (v0: a plain `const SERVICE_ID`) derives typed lookups from it; manifest short names resolve
@@ -107,7 +107,7 @@ trait RenderService { fn submit(&self, req: Frame) -> Result<JobToken>; }
 ordinary service consumer: at startup it registers its extension interfaces on the same
 handle table (transport backend factories, language runner factories, resource stores -
 the list lives in the ledger, same treatment as the D26 vocabulary; changes go through
-the D13 door). Plugins provide implementations as ordinary provides; the boot DAG orders
+the D13 door). Bundles provide implementations as ordinary provides; the boot DAG orders
 them by requires automatically. There is no second registration channel - the service
 table is the only extension mechanism (kernel-framework consensus: OSGi's own later
 guidance, Celix/CppMS/Cordis practice).

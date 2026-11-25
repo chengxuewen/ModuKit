@@ -21,7 +21,7 @@ today - `pixi.toml` declares linux-64/win-64 only.
 
 ## The band-choice table
 
-| Band | Plugin face | Host/embed face | Placement |
+| Band | Bundle face | Host/embed face | Placement |
 |---|---|---|---|
 | C | `test-bundles/c/c-example-bundle` (pure C, one file) | `examples/c/host_demo.c` | dl |
 | C++ | `test-bundles/cpp/cpp-example-bundle` (generated shelf) | `examples/cpp/host_demo.cc` | dl |

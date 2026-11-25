@@ -7,7 +7,7 @@ canon deep-dive), **use it** (the band face). Numbers and verb lists live in
 the [capability ledger](capability-ledger.md), never here. Learning paths:
 the [tutorials](tutorials/README.md).
 
-## Plugin lifecycle
+## Bundle lifecycle
 
 | Capability | Run it | Read it | Use it |
 |---|---|---|---|
@@ -43,7 +43,7 @@ the [tutorials](tutorials/README.md).
 |---|---|---|---|
 | proc-wire TL frames (11 wire kinds, D87-frozen) | every exe leg | [module 07](modules/07-transport-architecture.md) | the skin per band (tutorial 06) |
 | Transport seam: socketpair/memfd + SCM_RIGHTS + iceoryx2 + vendor-shm | gate transport legs | [module 07](modules/07-transport-architecture.md) §2-4 | `modukit-transport` crate |
-| Script bundle doors (D106/D107: py/js children speak the wire) | `demo wave2-bundle-py` / `-js` | [module 04](modules/04-contract-and-codegen.md); tutorial 06 | `bindings/{py,js}/plugin_runtime.*` skins |
+| Script bundle doors (D106/D107: py/js children speak the wire) | `demo wave2-bundle-py` / `-js` | [module 04](modules/04-contract-and-codegen.md); tutorial 06 | `bindings/{py,js}/plugin_runtime.*` skins | <!-- vocab:plugin:allow external term or file name -->
 
 ## Observability and ops
 

@@ -14,7 +14,7 @@
 #include "modukit_bundle.h"
 
 #define HELLO_SERVICE_ID "com.modukit.demo.hello"
-/* Plugin-author negative code space (D27): below -100 stays out of the
+/* Bundle-author negative code space (D27): below -100 stays out of the
  * kernel's own dictionary; the cpp twin uses -101/-102/-103 for the same
  * three refusals. */
 #define HELLO_BAD_REQUEST (-101)

@@ -288,7 +288,7 @@ if lib.modukit_embed_abi_version() != 1:
 
 
 def fail(msg):
-    sys.stderr.write("PLUGIN-PY FAIL: %s\n" % msg)
+    sys.stderr.write("BUNDLE-PY FAIL: %s\n" % msg)
     sys.exit(1)
 
 

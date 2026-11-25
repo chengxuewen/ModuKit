@@ -153,7 +153,7 @@ fn main() {
     // [5] HELLO self-report: the validated cross-checked strings the child
     // volunteered on connect (executor_proc read_hello) come back through the
     // loaded handle's self-report (04 §3 exe flavor).
-    let (sid, sver) = plugin_self_report();
+    let (sid, sver) = bundle_self_report();
     let Some(ref reported_id) = sid else { fail("HELLO self-report id missing") };
     let Some(ref reported_ver) = sver else { fail("HELLO self-report version missing") };
     println!("[5] HELLO self-report: id={reported_id} version={reported_ver}");
@@ -387,7 +387,7 @@ fn stage_exe_bundle(staging: &Path, name: &str, so_src: &Path, runner_src: &Path
 /// the handle's self-report. Kernel.rs does not re-expose it; read it from
 /// the record's manifest cross-check instead — the SAME strings the strict
 /// check validated (executor_proc checks) are the manifest's by construction.
-fn plugin_self_report() -> (Option<String>, Option<String>) {
+fn bundle_self_report() -> (Option<String>, Option<String>) {
     // shortcut: the v0 kernel keeps the HELLO strings only inside the boxed
     // handle (no public re-expose); the strict cross-check already proved
     // hello.id == manifest.id and hello.version == manifest.version, so the

@@ -9,7 +9,7 @@ binary lying is policed: §6.
 
 | Field | Meaning | Notes |
 |---|---|---|
-| `id` | stable plugin identity | reverse-DNS style per CLAP precedent (`clap-plugin-abi.md:58`); survives renames |
+| `id` | stable bundle identity | reverse-DNS style per CLAP precedent (`clap-plugin-abi.md:58`); survives renames | <!-- vocab:plugin:allow external term or file name -->
 | `version` | bundle semver | independent of ABI version (04 §3) |
 | `entry.kind` | `dl` / `exe` / `wasm` | the placement floor declared by the bundle |
 | `entry.artifact` | path to the `.so` (or runner payload) | `dl`/`exe` share the artifact (01 §2) |
@@ -417,7 +417,7 @@ unchanged. Five rulings close the ROS-specific gaps:
   manifest `[env]` extras; activate.d scripts are not run. ESCAPE HATCH
   `env_mode = "activate-script"` (opt-in, wrapper contents ring-audited): a
   generated wrapper sources the bundle's activate.sh and execs the bundle -
-  the script runs in the PLUGIN's process. PERMANENT: the host process never
+  the script runs in the BUNDLE's process. PERMANENT: the host process never
   executes bundle-borne shell. GB-size environments are the content-addressed
   dedup's main stage (D55), never a reason to skip packaging.
 - **Build (D58)**: `modukit build` executes author-declared recipe strings

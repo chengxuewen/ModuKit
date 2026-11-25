@@ -4,7 +4,7 @@
 # docs/tutorials chapters). t1 hello / t2 echo / t3 bus / t4 the driver.
 #
 # The series rides the cpp band's environment: it needs the generated
-# embed wrapper (t4) but the PLUGINS are deliberately shelf-free raw ABI
+# embed wrapper (t4) but the BUNDLES are deliberately shelf-free raw ABI
 # (t1-t3 include contracts/modukit_bundle.h only) - the tutorial shows the
 # handshake itself, not the codegen.
 if(NOT TARGET modukit_cpp OR NOT TARGET modukit-core-static)

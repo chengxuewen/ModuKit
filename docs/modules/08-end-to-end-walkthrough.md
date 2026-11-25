@@ -52,7 +52,7 @@ route."telemetry.site_b" = { via = "zenoh", compress = "lz4" }
 layout per the `PlaneLayout` map), or the tail buffer after a bridge exchange. The `.proto`
 is the waybill, never the crate (07 §3-4, D15).
 
-## 3. What codegen emits (one `protoc` run + our plugin; fdset is the only input)
+## 3. What codegen emits (one `protoc` run + our bundle; fdset is the only input)
 
 ```text
 cabin_video.proto ─┬─ fdset (ledger, checked in; CI regen-diff gate)
@@ -148,7 +148,7 @@ hardcoded (04 §2, 06 §2).
 
 ## 8. Reading path
 
-Plugin author: 05 → 02 → 04 → 08 (this file). Kernel resident: 01 → 03 → 06 → 07.
+Bundle author: 05 → 02 → 04 → 08 (this file). Kernel resident: 01 → 03 → 06 → 07.
 
 ## 9. Template status (D23)
 

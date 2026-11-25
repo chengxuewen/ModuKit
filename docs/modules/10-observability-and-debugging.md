@@ -38,7 +38,7 @@ The kernel ships these acceptance-test building blocks as a public `test-support
 with `advance()` (D20's dial) + the fold(events)->snapshot checker + the mcap-fixture feed
 point (D16). v1 surface discipline: **only** host construction, clock turning, and
 snapshot/event reads — no mock services, no patching APIs; production code path, swapped
-water sources. Plugin authors import it like any crate; the example template (§9, 08) ships
+water sources. Bundle authors import it like any crate; the example template (§9, 08) ships
 its stub. True-process e2e (death/restart/backpressure) stays with the Stage-2
 dual-placement suite — this is the determinism layer, not the honesty layer.
 
@@ -70,12 +70,12 @@ dual-placement suite — this is the determinism layer, not the honesty layer.
     the reserved `debug_adapter()` runner hook point; VS Code/Zed F5 for script authors.
   - *documented limits*: no cross-boundary stepping script<->native frames; DAP shows
     process state, never bus semantics (that is §1's job).
-- **Never**: a bespoke ModuKit debug protocol; an rqt-style UI-plugin-framework-inside-the-
+- **Never**: a bespoke ModuKit debug protocol; an rqt-style UI-bundle-framework-inside-the-
   bundle-framework (its maintenance ledger is the warning label).
 
 ## 5. The bundle mouth — logger (D19)
 
-Plugins `acquire::<Logger>()` — the same posture as acquiring any service (01 §3 forbids
+Bundles `acquire::<Logger>()` — the same posture as acquiring any service (01 §3 forbids
 ambient authority; the ban on stray `printf` implies a formal mouth). A log record =
 `{level, component = bundle id, msg, kv[], seq, ts}` and lands in the EventStream's
 `LogEvent` variant — the **same monotonic ring as frames and lifecycle events**, so:

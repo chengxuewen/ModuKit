@@ -18,7 +18,7 @@ run with our bundle yields:
 | per-language SDKs | Python/C#/JS/Lua... | authors read `.proto`+`fdset` day one; deeper SDKs wave-2 / post-Stage-4 |
 | `SERVICE_ID` consts (canonical reverse-DNS, D9) | typed lookup keys + cross-check | Stage 1 (emitted into generated Rust skeleton) |
 | topic schema types (D10) | recorder typing, bridges, late-join | Stage 1 in-proc; Stage 2 wire |
-| **contract registry (D12/D13)** | `.proto` = authored original (repo); `fdset` = protoc-native ledger (machine consumers, repo) | Stage 1 (no exporter; golden-file tested plugin) |
+| **contract registry (D12/D13)** | `.proto` = authored original (repo); `fdset` = protoc-native ledger (machine consumers, repo) | Stage 1 (no exporter; golden-file tested plugin) | <!-- vocab:plugin:allow external term or file name -->
 | **typed data-plane view (D14)** | generated `meta` always-cheap + lazy `plane()/data()`; borrows = locality made honest | Stage 1 (Rust/C faces); SDK mirrors wave-2 / post-Stage-4 |
 
 **Pipeline boundaries (D13 doctrine):** 1) only cross-bundle contract types enter `.proto` —

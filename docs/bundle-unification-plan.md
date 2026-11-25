@@ -1,8 +1,7 @@
 # Bundle-unification plan - the one-word terminology refactor (repo-wide)
 
-> STATUS: PLAN OF RECORD, 2026-11-25 (revision 4 - panel-reviewed: a second
-> expert panel audited rev3 and its findings + four micro-rulings are folded
-> in; execution-ready, S0 first). Origin:
+> STATUS: PLAN OF RECORD, 2026-11-25 (revision 5 - EXECUTED: S0-S5 all landed,
+> the guard is armed, zero retired-word hits outside the allowlist). Origin:
 > the maintainer ruled (2026-11-25, two expert panels, sunk costs explicitly
 > excluded): the managed unit is named **bundle** - ONE word, everywhere the
 > user looks. The prior vocabulary split (plugin = code unit, bundle = D28
@@ -143,6 +142,13 @@ two-tier context-narrowing feature (separately trigger-gated); donor clones
 
 ## 8. Change log
 
+- 2026-11-25 revision 5: EXECUTED. S0 offload; S1 the atomic ABI break (85b2862
+  family, rehearsal-verified with 5 live gaps caught and fixed); S2 rust
+  internals; S2.5 the agents layer; S3 four families (dir, crate, leg,
+  build-output); S4 the docs volume with the A5 tagline and the tutorial
+  filenames; S5 the guard armed (gate-i18n folded, phrase + line allowlists,
+  self-test green under both modes). Vocabulary scanner: 1910 -> 0 outside the
+  allowlist. Full check.sh green (ok=17) at every slice boundary.
 - 2026-11-25 revision 4: second expert panel (correctness / evidence / CI
   gates / blast radius) folded in: S1 redefined as the mechanically-enumerated
   consumer closure (probe.cc, gate-script anchors, pluginface.rs hand-edits,

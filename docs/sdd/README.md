@@ -13,7 +13,7 @@ matching `spec:` tag and that no orphan tag points at a missing clause.
 | TRANSPORT | `TRANSPORT-01` | `modukit-transport` | `crates/modukit-transport/tests/fdpass.rs` |
 
 Tag convention: `// spec: PREFIX-NN` in Rust/C/C++/JS, `# spec: PREFIX-NN` in
-Python/shell. Scan roots: `crates/*/src`, `crates/*/tests`, `test-plugins/`,
+Python/shell. Scan roots: `crates/*/src`, `crates/*/tests`, `test-bundles/`,
 `examples/`. A clause whose proof is a demo script is named here and stays out of
 the tag scan for round 1.
 

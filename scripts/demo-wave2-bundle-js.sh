@@ -331,7 +331,7 @@ if (skin.modukit_embed_abi_version() !== 1) {
 }
 
 function fail(msg) {
-  console.error(`PLUGIN-JS FAIL: ${msg}`);
+  console.error(`BUNDLE-JS FAIL: ${msg}`);
   process.exit(1);
 }
 

@@ -13,7 +13,7 @@ a parity failure; the gate compares the ordered lists, not a sorted set.
 
 Every embed verb body runs inside `codec::guard`. A kernel-side panic is caught
 at that boundary and answered with the D51 slot `NEG_KERNEL_BUG` (-10); an
-unwind NEVER crosses into C frames or plugin code. The guard is the single
+unwind NEVER crosses into C frames or bundle code. The guard is the single
 conversion point: a verb that returns normally passes its own code through
 unchanged, and a new verb declared without the guard is a contract violation
 the parity review must refuse.

@@ -6,7 +6,7 @@
 #     original; pins the Rust-side mirror (embed_abi.rs EMBED_VERBS) verb-
 #     for-verb against it. SORTED diff - the embed vtable order is not
 #     itself a contract.
-# (b) Plugin face: contracts/modukit_bundle.h mirrors the frozen #[repr(C)]
+# (b) Bundle face: contracts/modukit_bundle.h mirrors the frozen #[repr(C)]
 #     tables abi::BundleAbiV1 / abi::HostAbiV1 (crates/modukit-core/src/
 #     abi.rs - read-only layout truth, D87 STABLE). Here ORDER IS THE
 #     CONTRACT, so the field-name lists are diffed UNSORTED, three-way:

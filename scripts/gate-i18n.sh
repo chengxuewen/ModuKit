@@ -30,7 +30,10 @@ if [ "${1:-}" = "--self-test" ]; then
   trap 'rm -rf "$s"' EXIT
   printf 'plain line\nunmarked \u4e2d\u6587 line\n' > "$s/doc.md"
   printf 'marked \u4e2d\u6587 line <!-- c1:allow:trigger -->\n' > "$s/marked.md"
-  out=$(MODUKIT_GATE_INPUT_DIR="$s" bash "$SELF" 2>&1); rc=$?
+  set +e
+  out=$(MODUKIT_GATE_INPUT_DIR="$s" bash "$SELF" 2>&1)
+  rc=$?
+  set -e
   [ "$rc" -ne 0 ] || { echo "self-test FAIL (gate-i18n.sh): planted unmarked CJK NOT caught"; exit 1; }
   case "$out" in *"doc.md:2"*) ;; *) echo "self-test FAIL (gate-i18n.sh): unmarked line not reported at doc.md:2"; exit 1;; esac
   case "$out" in *"marked.md"*) echo "self-test FAIL (gate-i18n.sh): c1:allow marker not honoured"; exit 1;; esac
@@ -39,6 +42,16 @@ if [ "${1:-}" = "--self-test" ]; then
     || { echo "self-test FAIL (gate-i18n.sh): marked-only root should be green"; exit 1; }
   echo "self-test OK (gate-i18n.sh): planted CJK caught, marker honoured, clean root green"
   exit 0
+fi
+
+# Vocabulary guard (bundle-unification plan, ruling A6): the retired word
+# must not return outside its recorded allowlist. Folded here - one gate owns
+# text hygiene. MODUKIT_VOCAB_ENFORCED=1 arms the refusal; the self-test
+# scratch root (MODUKIT_GATE_INPUT_DIR) skips it.
+if [ -x scripts/check-bundle-vocab.sh ] && [ -z "${MODUKIT_GATE_INPUT_DIR:-}" ]; then
+  if [ "${MODUKIT_VOCAB_ENFORCED:-0}" = "1" ]; then
+    bash scripts/check-bundle-vocab.sh || exit 1
+  fi
 fi
 
 python3 - <<'PY'
