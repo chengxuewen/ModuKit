@@ -210,6 +210,12 @@ missing artifact, busts its tree's stale stamps, and re-materializes it
 (`scripts/warm-lanes.sh`). Single-target IDE builds are covered by the same
 heal: one `pixi run warm` after any artifact wipe unblocks them.
 
+(Considered and deliberately not pursued, 2026-11-25: declaring the lane
+artifacts as ninja BYPRODUCTS would move the parse-time death to build-time
+- better error locality, but NO self-heal; the stale-stamp case needs the
+heal regardless, so the warm self-heal is the load-bearing fix and the
+`add_dependencies` ordering stays as the structural companion.)
+
 ## Output territory
 
 | Path | Owner |
