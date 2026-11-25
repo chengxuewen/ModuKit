@@ -96,6 +96,25 @@ bash scripts/check-memory.sh <base>..HEAD
 # Red/green observed 2026-10-30: `39d9fd2^..39d9fd2` (B7, no memory) -> RED;
 # `c61a20e^..c61a20e` (B2, status/history changed) -> GREEN.
 
+## C6: "Examples and fixtures teach only what a standing leg executes"
+
+A compiled-but-never-run example rots silently: t3-bus-plugin carried a live
+subscribe-contract bug through >24h of clean compilation; its FIRST execution
+(the m1 ride) caught it. The admission rule (onboarding-plan B2): an example
+joins a series iff a standing leg EXECUTES it and greps its PASS line. Donor
+baseline: CppMS compiles its doc code, celix only compiles - we compile AND
+execute, and that is the covenant that keeps the series honest as it grows
+(ceiling ~10-12 executed projects per series, one runner per topic namespace).
+
+```bash
+# Check: the executors grep the PASS lines of every admitted example.
+bash scripts/demo-rs-examples.sh          # tracker/dm/config/ops topic legs
+bash scripts/demo-stage4-m1.sh            # t1-t8 rides + cpp + C walks
+bash scripts/check.sh --list | wc -l      # the leg census (never-hardcount)
+```
+# Observed 2026-11-24: t3's bus_subscribe bug (PIT-38 family) survived
+# compilation-only admission; the m1 execution ride reddened it same-day.
+
 ## Adding conventions
 
 Add `C6`, `C7`, … here as project decisions harden (C0-C5 are live above). Each entry needs: one quoted constraint line + a runnable check block, and must be recorded the moment the decision is made (see `.agents/rules/common/lesson-memory.md`).

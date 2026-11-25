@@ -224,6 +224,7 @@ file. Read the source file before acting on a rule you are unsure about.
 - C3: "Commit shape: subject under 60 chars, details as wrapped bullets in the body"
 - C4: "No circled-number glyphs; enumerate as 1) 2) 3); option labels A/B/C - never the Classical numerals - in replies and artifacts"
 - C5: "Every batch-close range carries a memory disposition"
+- C6: "Examples and fixtures teach only what a standing leg executes"
 - Adding conventions
 
 ### decisions
@@ -261,13 +262,7 @@ file. Read the source file before acting on a rule you are unsure about.
 
 ### pitfalls
 - full text: `.agents/memorys/pitfalls.md`
-- ... 22 older entries omitted (read the full file)
-- PIT-23: an instrumented coverage rerun can silently execute fewer suites than the tree has - a false-HIGH percent (2026-10-21)
-- PIT-24: an outbound artifact can be falsified by your own same-day work (2026-10-21)
-- PIT-25: a malformed replace op "succeeds" and inserts while the consumed region survives (2026-10-21)
-- PIT-26: ledger-voice answers (walkthrough AND status reports) draw "say it plainly" corrections - three occurrences
-- PIT-27: a resumed critic session stalls silently twice a day; a fresh session completes the same grill in minutes (2026-10-21)
-- PIT-28: an adjudicated hearing text shipped a capacity constant the tree never had (2026-10-21)
+- ... 28 older entries omitted (read the full file)
 - PIT-29: a worker session reports "complete" while its transcript reader errors - the tree is the deliverable (2026-10-23)
 - PIT-30: warm clippy fingerprint serves false green to re-verification (2026-10-23)
 - PIT-31: worktree edits can vanish between green verification and commit under parallel agents (2026-10-23)
@@ -277,6 +272,12 @@ file. Read the source file before acting on a rule you are unsure about.
 - PIT-35: .refinfo is a moving donor clone, not a frozen snapshot (2026-10-30)
 - PIT-36: registry meta keys must strip label suffixes, or sync/check never agree (2026-10-30)
 - PIT-37: pre-commit runs the agents-layer gates only; doc legs live outside it (2026-11-05)
+- PIT-38: C-verb return semantics are PER-VERB - read the header contract before the first assertion (2026-11-24, x3 same day)
+- PIT-39: a class-wide failure mode needs the fix at EVERY entry point (2026-11-25)
+- PIT-40 (trivial): sed replacement `&` expands to the whole match - a replacement containing `2>&1` corrupted the target line; use python for replacements carrying `&` (2026-11-24).
+- PIT-41: after a cancelled/skipped command, verify file state BEFORE conclusions (2026-11-25)
+- PIT-42 (trivial): subdirectory-level `enable_language(C)` leaves `CMAKE_C_COMPILE_OBJECT` unset (configure-time death); a guarded ROOT-scope enable is the working shape (2026-11-24, comment in test-plugins/c/CMakeLists.txt).
+- PIT-43: answer the SLICE asked - an aggregate that offsets a per-slice gap is spin (2026-11-24/25, corrected x3)
 
 ### status
 - full text: `.agents/memorys/status.md`
